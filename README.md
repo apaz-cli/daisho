@@ -45,6 +45,7 @@ int main() {
     // Am I the only one who sees anything wrong with this?
     class myclass {
         private:
+        int i;
         // ...
         public:
         // ...
