@@ -48,7 +48,7 @@ int main() {
         // ...
         public:
         // ...
-        friend ostream& operator<<(ostream& os, const Date& dt);
+        friend ostream& operator<<(ostream& os, const myclass& dt);
     }
     std::ostream &operator<<(std::ostream &os, myclass const &m) {
         return os << m.i;
@@ -64,3 +64,5 @@ int main() {
     * Java programs are about 3x slower than equivalent C/C++ programs (Citation needed), for basically no reason other than portability.
     * Java cannot be properly optimized, because new classes can be loaded at runtime. You cannot optimize a program if nobody will tell you what the program is.
     * Runtime reflection conflates the class injection issue. Even if a function is private, unused, and should not be accessable, unused code cannot be deleted because a class could be injected at runtime that refers to the unused code reflectively.
+
+The combination of these reasons led me to want to create my own programming language.
