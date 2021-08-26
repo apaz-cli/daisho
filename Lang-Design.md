@@ -11,21 +11,18 @@ http://cui.unige.ch/isi/bnf/JAVA/BNFindex.html
 * FEATURES *
 ************
 
-Data types:
-  bool  (as defined in stdbool.h)
-  char  (int8_t)  uchar (uint8_t)
-  short (int16_t) ushort (uint16_t)
-  int   (int32_t) uint (uint32_t)
-  long  (int64_t) ulong (uint64_t)
-  float
-  double
-  void
+* Standard fixed sized types (Not machine dependent, Int directly translates to uint32_t, etc).
+
+* Manual memory management with new, .destroy() syntax
+
+* Collections
+
+* Minimal overhead exceptions with enforced management
 
 
 Other Reserved Words:
   Access Modifiers: namespace, public, private, protected (default private)
   Control Flow: if, elif, else, for, while, break, continue, return
-  Case/Switch: case, switch, default
   Exceptions: try, catch, finally, throw, throws
   Abstraction: struct, class, interface, enum, inherits, implements
 
@@ -83,7 +80,8 @@ Stilts should not be the following:
 * [Chapter 3: The Parser](#ch3)
 * [Chapter 4: The Optimizer](#ch4)
 * [Chapter 5: The Code Generator](#ch5)
-* [Chapter 6: Syntax and Language Features](#ch6)
+* [Chapter 6: The Language Server](#ch6)
+* [Chapter 7: Syntax and Language Features](#ch7)
 
 
 # Chapter 1: <a name="ch1"></a>
@@ -163,6 +161,11 @@ for(int i = 0; i < program.length-1;) {
 ## The Code Generator.
 
 # Chapter 6: <a name="ch6"></a>
+## The Language Server.
+
+https://medium.com/ballerina-techblog/implementing-a-language-server-how-hard-can-it-be-part-1-introduction-c915d2437076
+
+# Chapter 7: <a name="ch7"></a>
 ## Syntax and Language Features.
 
 For complete syntax, see `Grammar.bnf`.

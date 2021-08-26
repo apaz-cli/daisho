@@ -9,7 +9,9 @@ Type, Variable, Function Names and IDs, Line Numbers
 Stack Machine:
 
 ```yaml
-// TOKEN TYPES
+/////////////////
+// TOKEN TYPES //
+/////////////////
 
 PreProcessorToken:
     ImportStatement
@@ -20,7 +22,7 @@ Identifier:
 Keyword:
     ControlKeyword:
         IfKeyword
-        ElseIfKeyword
+        ElifKeyword
         ElseKeyword
         ForKeyword
         WhileKeyword
@@ -31,8 +33,10 @@ Keyword:
         ContinueKeyword
         BreakKeyword
     QualifierKeyword:
+        NativeKeyword
         CompileKeyword
     TypedefKeyword:
+        StructKeyword
         ClassKeyword
         TemplateKeyword
         EnumKeyword
