@@ -40,7 +40,7 @@ int main() {
 
 ## But why? What's wrong with Java/C++?
 * C++
-    * C++ is great, but its syntax is awful, very unintuitive, and leads to gnarly bugs. Sure, `std::cout << var << std::endl;` looks bad. But that's not the only thing wrong with it. If you want your type to be printable via `std::ostream`, you must implement the following: 
+    * C++ is great, but its syntax is awful, very unintuitive, and leads to gnarly bugs. Sure, `std::cout << var << std::endl;` looks bad. People have been complaining about this since the 90s. But that's not the only thing wrong with it. If you want your type to be printable via `std::ostream`, you must implement the following: 
     ```c++
     // Am I the only one who sees anything wrong with this?
     class myclass {
@@ -57,7 +57,7 @@ int main() {
     ```
     
     * The C++ standard is a shantytown of deprecated solutions to non-issues. See iterators.
-    * Undefined behavior lurks around every corner. See the unintuitive undefined behavior around [Iterators](https://en.wikipedia.org/wiki/Criticism_of_C++#Iterators).
+    * Undefined behavior lurks around every corner. See the unintuitive undefined behavior around, once again, [Iterators](https://en.wikipedia.org/wiki/Criticism_of_C++#Iterators).
     * Despite how far it's come, I very much dislike writing modern C++. I think it smells.
 * Java
     * The JVM's garbage collection doesn't take the strain off the programmer. Instead of thinking about lifetimes, now it's about pruning object graphs.
@@ -66,4 +66,7 @@ int main() {
     * Java cannot be properly optimized, because new classes can be loaded at runtime. You cannot optimize a program if nobody will tell you what the program is.
     * Runtime reflection conflates the class injection issue. Even if a function is private, unused, and should not be accessable, unused code cannot be deleted because a class could be injected at runtime that refers to the unused code reflectively.
 
-The combination of these reasons led me to want to create my own programming language.
+The combination of these reasons led me to want to create my own programming language. There are also some other features I felt were left out of modern languages.
+
+1. Data mashing
+2. 
