@@ -1,0 +1,19 @@
+
+// These will be backed by a large arena allocator.
+// The arena keeps a sorted list of the pointers it's given out,
+// keeping track of the
+native Void* malloc(ULong num_bytes);
+native Void* realloc(Void* ptr, ULong new_size);
+native Void  free(Void* ptr);
+native Void* calloc(ULong num_items, ULong item_size);
+
+// Overloaded
+Void* malloc (UInt   num_bytes)                  { return malloc((ULong) num_bytes); }
+Void* malloc (UShort num_bytes)                  { return malloc((ULong) num_bytes); }
+Void* malloc (UChar  num_bytes)                  { return malloc((ULong) num_bytes); }
+Void* realloc(Void* ptr, UInt   new_size)        { return realloc(ptr, (ULong) new_size); }
+Void* realloc(Void* ptr, UShort new_size)        { return realloc(ptr, (ULong) new_size); }
+Void* realloc(Void* ptr, UChar  new_size)        { return realloc(ptr, (ULong) new_size); }
+Void* calloc (UInt   num_items, ULong item_size) { return calloc((ULong) num_items, (ULong) item_size); }
+Void* calloc (UShort num_items, ULong item_size) { return calloc((ULong) num_items, (ULong) item_size); }
+Void* calloc (UChar  num_items, ULong item_size) { return calloc((ULong) num_items, (ULong) item_size); }

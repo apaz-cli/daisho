@@ -13,7 +13,7 @@ http://cui.unige.ch/isi/bnf/JAVA/BNFindex.html
 
 * Standard fixed sized types (Not machine dependent, Int directly translates to uint32_t, etc).
 
-* Manual memory management with new, .destroy() syntax
+* Manual memory management with operator new, destroy syntax
 
 * Collections
 

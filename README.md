@@ -31,7 +31,7 @@ int main() {
 Which gets macro-expanded and optimized by any modern C compiler to essentially:
 ```c
 #include <stdio.h>
-int main() {
+int main(int argc. char *argv[]) {
     printf("%s\n", "Hello World!");
     return 0;
 }
@@ -68,5 +68,5 @@ int main() {
 
 The combination of these reasons led me to want to create my own programming language. There are also some other features I felt were left out of modern languages.
 
-1. Data mashing
-2. 
+1. Advanced data mashing API
+2. Capabilities to handle machine learning on CPU

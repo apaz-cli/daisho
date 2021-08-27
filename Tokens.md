@@ -29,12 +29,14 @@ Keyword:
         TryKeyword
         CatchKeyword
         FinallyKeyword
+        SynchronizedKeyword
     JumpKeyword:
         ContinueKeyword
         BreakKeyword
     QualifierKeyword:
         NativeKeyword
         CompileKeyword
+        StaticKeyword
     TypedefKeyword:
         StructKeyword
         ClassKeyword
@@ -54,14 +56,24 @@ Keyword:
         DoubleKeyword
         VoidKeyword
     PolyKeyword:
-        ExtendsKeyword
-        ImplementsKeyword
+        InheritsKeyword
+        ImplementsKeyword 
+        AbstractKeyword
+        DefaultKeyword
+    OperatorKeyword:
+        OperatorKeyword
+        NewKeyword
+        DestroyKeyword
 String:
     CharConstant
     StringConstant
 Operator:
     OperatorEquals
     OperatorNot
+    OperatorPipe
+    OperatorAmpersand
+    OperatorDoublePipe
+    OperatorDoubleAmpersand
     OperatorNotEquals
     OperatorDoubleEquals
     OperatorPlus
@@ -69,6 +81,14 @@ Operator:
     OperatorStar
     OperatorSlash
     OperatorPercent
-    OperatorLeftArrow
-    OperatorRightArrow
+    OperatorLessThan
+    OperatorGreaterThan
+    OperatorLeftShift
+    OperatorRightShift
+    OperatorPreincrement
+    OperatorPostincrement
+    OperatorPlusEquals
+    OperatorMinusEquals
+    OperatorStarEquals
+    OperatorSlashEquals
 ```

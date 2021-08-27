@@ -1,0 +1,52 @@
+#include "Builtins"
+
+class Array<T> {
+    Int size;
+    public T* items;
+
+    native Array(compile Int size);
+
+    Array<T>* operator new(Int size) {
+        this.size = size;
+        this.items = (T*)malloc(sizeof(T) * size);
+    }
+
+    T operator[](ULong idx) { return items[idx]; }
+    Void operator[]=(ULong idx, T other) { items[idx] = other; }
+}
+
+class List<T> {
+    
+}
+
+class Map<T> {
+    
+}
+
+interface Mapper<T, K> {
+    abstract K apply(T input);
+}
+
+interface Stream<T> {
+    Array<T>* toArray();
+    List<T>* toList(); 
+    Stream<K>* map(Mapper<T, K> mapper);
+    Stream<K>* flatMap(Mapper<T, Stream<K>> mapper);
+}
+
+interface Collection<T> {
+    abstract Void contains(T elem);
+
+    abstract List<T>* toList();
+    abstract Array<T>* toArray();
+
+    default Stream<T>* stream() { this.toList().stream(); }
+    default Stream<T>* parallelStream( this.toList().parallelStream(); );
+
+    default Stream<K>* map(Mapper<T, K> mapper) {
+        return this.stream().map(mapper);
+    }
+    default Stream<K>* flatMap(Mapper<T, Stream<K>> mapper) {
+        return this.stream().flatMap(mapper);
+    }
+}

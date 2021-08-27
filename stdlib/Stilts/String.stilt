@@ -1,0 +1,62 @@
+#include "Builtins"
+
+interface Printable {
+    Char* toString();
+}
+
+private compile Int charStrLen(compile Char* data) {
+    Int i = 0;
+    while (data[i] != '\0') i++;
+    return i;
+}
+
+class String implements Printable {
+    public Int* len
+    public Char* data;
+
+    private Char* stack_data;
+    private Char heap_data[16];
+
+    compile String(compile Char* data) {
+
+    }
+
+    String(Int length) {
+
+    }
+
+    String operator new(Int length) throws ArgErr {
+        if ((1 << 31) & length) ; // Error
+    }
+
+    Void destroy() {
+        free(data);
+    }
+
+    private Bool long_short()
+
+    String* operator+(String* other) {
+        
+    }
+
+    String* operator+=(String* other) {
+
+    }
+}
+
+0  0000
+1  0001
+2  0010
+3  0011
+4  0100
+5  0101
+6  0110
+7  0111
+8  1000
+9  
+10 
+11 
+12 
+13 
+14 
+15 
