@@ -10,6 +10,7 @@ None. No steps.
 # Checker
 
 * Find types
+* Infer Generics
 * Validate types
     * Starting from the leaves of the tree, validate the out type of expressions
     * Apply widening conversions automatically
