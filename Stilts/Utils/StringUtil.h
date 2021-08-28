@@ -1,7 +1,7 @@
 #ifndef STRUTIL_INCLUDE
 #define STRUTIL_INCLUDE
-#include <stdlib.h>
 #include "MemConfig.h"
+#include <stdlib.h>
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
@@ -14,6 +14,24 @@ static inline String String_new(size_t len) {
   String data = ((String)ptr) + sizeof(size_t);
   data[len] = '\0';
   return data;
+}
+
+static inline String String_new_of(char *cstr, size_t len) {
+  String nstr = String_new(len);
+  for (int i = 0; i < len; i++)
+    nstr[i] = cstr[i];
+  return nstr;
+}
+
+static inline String String_new_of_strlen(char *cstr) {
+  size_t len = 0;
+  while (cstr[len] != '\0')
+    len++;
+
+  String nstr = String_new(len);
+  for (int i = 0; i < len; i++)
+    nstr[i] = cstr[i];
+  return nstr;
 }
 
 static inline String String_resize(String str, size_t new_size) {
