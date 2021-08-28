@@ -40,6 +40,12 @@
                                             size_t new_cap) {                  \
     *(((size_t *)list) - 1) = new_cap;                                         \
   }                                                                            \
+  static inline List_##type List_##type##_clone(List_##type to_clone) {        \
+    List_##type nl = List_##type##_new(List_##type##_cap(to_clone));           \
+    for (size_t i = 0; i < List_##type##_len(to_clone); i++)                   \
+      nl[i] = to_clone[i];                                                     \
+    return nl;                                                                 \
+  }                                                                            \
   static inline void List_##type##_add(List_##type list, type to_append) {     \
     size_t current_len = List_##type##_len(list);                              \
     size_t current_cap = List_##type##_cap(list);                              \
