@@ -1,8 +1,6 @@
 #ifndef COMPILER_INCLUDE
 #define COMPILER_INCLUDE
-#include "Common.h"
-
-
+#include "Utils/Common.h"
 
 int main() {
     return 0;

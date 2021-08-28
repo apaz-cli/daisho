@@ -1,6 +1,6 @@
 #ifndef TOKEN_INCLUDE
 #define TOKEN_INCLUDE
-#include "Common.h"
+#include "Utils/Common.h"
 
 enum TokenType {
   WhiteSpace,
