@@ -1,6 +1,7 @@
 #ifndef STRUTIL_INCLUDE
 #define STRUTIL_INCLUDE
 #include "MemConfig.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
@@ -44,6 +45,10 @@ static inline String String_resize(String str, size_t new_size) {
 }
 
 static inline void String_destroy(String str) { free(str - sizeof(size_t)); }
+
+#include "Variadic.h"
+#define STRING_DESTROY_(str) free(str - sizeof(size_t));
+#define STRING_DESTROY(...) EVAL(MAP(STRING_DESTROY_, __VA_ARGS__))
 
 static inline size_t String_len(String str) {
   return *((size_t *)(str - sizeof(size_t)));
@@ -91,6 +96,16 @@ static inline String String_substring_copy(String str, size_t start,
   String ns = String_new(end - start);
   String_copy(str, ns);
   return ns;
+}
+
+static inline void String_print(String str) {
+  printf("%s", str);
+  fflush(stdout);
+}
+
+static inline void String_println(String str) {
+  printf("%s\n", str);
+  fflush(stdout);
 }
 
 #endif // STRUTIL_INCLUDE

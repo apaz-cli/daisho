@@ -1,6 +1,8 @@
 #ifndef COMMON_INCLUDES
 #define COMMON_INCLUDES
 
+#include <inttypes.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +11,6 @@
 
 #include "ListUtil.h"
 #include "StringUtil.h"
-
 
 // Test string types and multiple applications.
 
@@ -25,9 +26,8 @@ LIST_DEFINE_MONAD(String, void_ptr);
 LIST_DEFINE(char);
 LIST_DEFINE(int);
 
-
 // Test Structs
-struct s { };
+struct s {};
 typedef struct s s;
 LIST_DEFINE(s);
 LIST_DEFINE(List_s);

@@ -1,10 +1,18 @@
 #ifndef INCLUDE_LISTUTIL
 #define INCLUDE_LISTUTIL
-#include <stdbool.h>
 #include "MemConfig.h" // Includes a memory debugger that wraps malloc()
+#include <stdbool.h>
+
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
 
 #define LIST_DEFINE(type)                                                      \
   typedef type *List_##type;                                                   \
+  /**                                                                          \
+   * Constructs a new list of the specified capacity. The returned list must   \
+   * be freed with List_##type##_destroy(), as it is allocated in a clever way \
+   * by malloc(). Do not call free() on any List_##type.                       \
+   */                                                                          \
   static inline List_##type List_##type##_new(size_t capacity) {               \
     void *vptr = malloc(sizeof(size_t) * 2 + sizeof(type) * capacity);         \
     size_t *stptr = (size_t *)vptr;                                            \
@@ -14,6 +22,10 @@
     stptr += 1;                                                                \
     return (List_##type)stptr;                                                 \
   }                                                                            \
+  /**                                                                          \
+   * Constructs a new list of the specified capacity, using num_items many     \
+   * members from the passed buffer.                                           \
+   */                                                                          \
   static inline List_##type List_##type##_new_of(                              \
       type *items, size_t num_items, size_t capacity) {                        \
     List_##type nl = List_##type##_new(capacity);                              \
@@ -21,11 +33,20 @@
       nl[i] = items[i];                                                        \
     return nl;                                                                 \
   }                                                                            \
+  /**                                                                          \
+   * This function realloc()s the list. The new list retains its length if the \
+   * new capacity is greater than or equal to the old length, but items are    \
+   * trimmed from the end if the new capacity is less than the old length.     \
+   *                                                                           \
+   * Since realloc() is called explicitly, the old list pointer is             \
+   * invalidated.                                                              \
+   */                                                                          \
   static inline List_##type List_##type##_resize(List_##type to_resize,        \
                                                  size_t new_capacity) {        \
     size_t *vptr = ((size_t *)to_resize) - 2;                                  \
     const size_t new_s = sizeof(size_t) * 2 + sizeof(type) * new_capacity;     \
     size_t *stptr = (size_t *)realloc(vptr, new_s);                            \
+    *stptr = MIN(new_capacity, *((size_t *)stptr));                            \
     stptr += 1;                                                                \
     *stptr = new_capacity;                                                     \
     stptr += 1;                                                                \
