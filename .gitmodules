@@ -1,3 +1,3 @@
-[submodule "Stilts/Utils/Stilts/Utils/memdebug.h"]
-	path = Stilts/Utils/Stilts/Utils/memdebug.h
-	url = https://github.com/apaz-cli/memdebug.h.git
+[submodule "Stilts/apaz-libc"]
+	path = Stilts/apaz-libc
+	url = https://www.github.com/apaz-cli/apaz-libc.git

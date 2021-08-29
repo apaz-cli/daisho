@@ -1,9 +1,12 @@
 #ifndef AST_INCLUDE
 #define AST_INCLUDE
-#include "Utils/Common.h"
+#include "apaz-libc/apaz-libc.h"
+
 
 struct ASTNode;
 typedef struct ASTNode ASTNode;
+
+
 
 enum ASTNodeType {
 
@@ -17,7 +20,13 @@ struct ASTNode {
     union ASTNodeVariety {
 
     };
+    ASTNode* nodeList; // Is a List_ASTNode
 };
 
+LIST_DEFINE(ASTNode);
+
+int a() {
+    List_ASTNode a;
+}
 
 #endif // AST_INCLUDE

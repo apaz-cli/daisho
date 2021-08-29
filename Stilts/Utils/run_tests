@@ -1,1 +1,0 @@
-gcc UtilTest.c && ./a.out && rm a.out
