@@ -1,0 +1,1 @@
+rm -r .antlr *.class *.interp *.tokens StiltsLexer.java StiltsParser.java StiltsParserBaseListener.java StiltsParserListener.java 2>/dev/null

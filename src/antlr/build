@@ -1,0 +1,14 @@
+./clean
+antlr StiltsParser.g4 StiltsLexer.g4
+
+f1="StiltsLexer.java"
+f2="StiltsParser.java"
+f3="StiltsParserBaseListener.java"
+f4="StiltsParserListener.java"
+echo -e 'package antlr;\n' | cat - $f1  > temp && mv temp $f1
+echo -e 'package antlr;\n' | cat - $f2  > temp && mv temp $f2
+echo -e 'package antlr;\n' | cat - $f3  > temp && mv temp $f3
+echo -e 'package antlr;\n' | cat - $f4  > temp && mv temp $f4
+
+export CLASSPATH=".:/usr/local/lib/antlr4-complete.jar:$CLASSPATH"
+javac *.java
