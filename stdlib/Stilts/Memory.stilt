@@ -1,0 +1,21 @@
+
+// These will be backed by a large arena allocator.
+// The arena keeps a sorted list of the pointers it's given out,
+// keeping track of the
+native Void* malloc(Size_t num_bytes);
+native Void* realloc(Void* ptr, Size_t new_size);
+native Void  free(Void* ptr);
+native Void* calloc(Size_t num_items, Size_t item_size);
+
+native Void* mmap(Void* addr, 
+                  Size_t length, 
+                  Int prot, 
+                  Int flags, 
+                  Int fd, 
+                  Long offset);
+
+native Int munmap(Void* addr, Size_t length);
+
+native Int open(Char* name, Int flags);
+Int open(String name, Int flags) { return open(name.to_cstring(), flags); }
+Int close(Int fd);

@@ -11,15 +11,14 @@ private compile Int charStrLen(compile Char* data) {
 }
 
 class String implements Printable {
-    public Int* len
     public Char* data;
+    private Char* heap_data;
+    private Char stack_data[16];
 
-    private Char* stack_data;
-    private Char heap_data[16];
+    public Size_t len
 
-    compile String(compile Char* data) {
-
-    }
+    String(Char* data);
+    String(Char* data, Size_t length)
 
     String(Int length) {
 
@@ -35,12 +34,16 @@ class String implements Printable {
 
     private Bool long_short()
 
-    String* operator+(String* other) {
+    String operator+(String other) {
         
     }
 
-    String* operator+=(String* other) {
+    String operator+=(String other) {
 
+    }
+
+    Char* to_cstring() {
+        return data;
     }
 }
 

@@ -1,5 +1,0 @@
-
-public class Thread {
-    Long id;
-    native Thread()
-}

@@ -1,0 +1,11 @@
+
+class Mutex {
+    Void* mtx_ptr;
+    native Void lock();
+    native Void unlock();
+}
+
+class Thread {
+    ULong id;
+    native Thread();
+}

@@ -1,52 +1,71 @@
 #include "Builtins"
 
-class Array<T> {
-    Int size;
+interface Mapper<T, K> { abstract K apply(T input); }
+interface Consumer<T> { abstract Void apply(T input); }
+interface Stream<T> {
+    Stream<K> map(Mapper<T, K> mapper);
+    Stream<K> flatMap(Mapper<T, Stream<K>> mapper);
+    Void forEach(Consumer<T> action);
+    Array<T> toArray();
+    List<T> toList();
+
+    default List<T> collect() { return this.toList(); }
+}
+
+
+interface Collection<T> {
+    abstract Void contains(T elem);
+
+    abstract List<T> toList();
+    abstract Array<T> toArray();
+
+    default Stream<T> stream() { this.toList().stream(); }
+    default Stream<T> parallelStream( this.toList().parallelStream(); );
+
+    default Stream<K> map(Mapper<T, K> mapper) {
+        return this.stream().map(mapper);
+    }
+    default Stream<K> flatMap(Mapper<T, Stream<K>> mapper) {
+        return this.stream().flatMap(mapper);
+    }
+    default Void forEach(Consumer<T> consumer) {
+        return this.stream().forEach(consumer);
+    }
+}
+
+class Array<T> implements Collection<T> {
     public T* items;
+    Int size;
 
-    native Array(compile Int size);
-
-    Array<T>* operator new(Int size) {
+    Array<T> operator new(Size_t size) {
         this.size = size;
         this.items = (T*)malloc(sizeof(T) * size);
     }
+    Void operator del() {
+        free(this.items);
+    }
 
-    T operator[](ULong idx) { return items[idx]; }
-    Void operator[]=(ULong idx, T other) { items[idx] = other; }
+    T operator[](Size_t idx) { return items[idx]; }
+    Void operator[]=(Size_t idx, T other) { items[idx] = other; }
 }
 
 class List<T> {
     
 }
 
-class Map<T> {
+class Tuple<K,V> {
+    K first;
+    V second;
+}
+
+class Map<K, V> {
     
 }
 
-interface Mapper<T, K> {
-    abstract K apply(T input);
+class Set<T> {
+    Map<T, T> m;    
 }
 
-interface Stream<T> {
-    Array<T>* toArray();
-    List<T>* toList(); 
-    Stream<K>* map(Mapper<T, K> mapper);
-    Stream<K>* flatMap(Mapper<T, Stream<K>> mapper);
-}
 
-interface Collection<T> {
-    abstract Void contains(T elem);
 
-    abstract List<T>* toList();
-    abstract Array<T>* toArray();
 
-    default Stream<T>* stream() { this.toList().stream(); }
-    default Stream<T>* parallelStream( this.toList().parallelStream(); );
-
-    default Stream<K>* map(Mapper<T, K> mapper) {
-        return this.stream().map(mapper);
-    }
-    default Stream<K>* flatMap(Mapper<T, Stream<K>> mapper) {
-        return this.stream().flatMap(mapper);
-    }
-}
