@@ -76,7 +76,8 @@ fragment UnderscoreDigits: Digits '_' UnderscoreDigits | Digits;
 fragment Digits: Digit+;
 fragment Digit: [0-9];
 
-fragment HexNumeral: '0x' HexDigits;
+fragment HexNumeral: '0x' UnderscoreHexDigits;
+fragment UnderscoreHexDigits: HexDigits '_' UnderscoreHexDigits | HexDigits;
 fragment HexDigits: HexDigit+;
 fragment HexDigit: [0-9A-F];
 
