@@ -1,6 +1,0 @@
-#ifndef CODEGENERATOR_INCLUDE
-#define CODEGENERATOR_INCLUDE
-#include "Utils/Common.h"
-
-
-#endif // CODEGENERATOR_INCLUDE
