@@ -18,13 +18,11 @@ http://cui.unige.ch/isi/bnf/JAVA/BNFindex.html
 * Compiles to C
 
 * Excellent interoperability with C/C++
-    * `native` and `ctype` allows the user to generate `.h` header files, implement them, and statically link them into the resulting binary.
+    * `native` and `ctype` keywords allow the user to generate `.h` header files, implement them, and statically link them into the resulting binary.
+  
+* First class support for Collections
 
 
-
-* Collections
-
-* Minimal overhead exceptions with enforced management
 
 
 Other Reserved Words:
