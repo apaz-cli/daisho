@@ -68,9 +68,11 @@ ASSERT: 'assert';
 
 IntegerLiteral: DecimalNumeral | HexNumeral;
 
-fragment DecimalNumeral: Sign? Digits DecimalTypeSuffix?;
+fragment DecimalNumeral:
+	Sign? UnderscoreDigits DecimalTypeSuffix?;
 fragment Sign: [+-];
 fragment DecimalTypeSuffix: [Ll];
+fragment UnderscoreDigits: Digits '_' UnderscoreDigits | Digits;
 fragment Digits: Digit+;
 fragment Digit: [0-9];
 
