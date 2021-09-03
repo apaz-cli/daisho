@@ -5,9 +5,9 @@ lexer grammar StiltsLexer;
 /************/
 
 // Pragma
-IMPORT: 'import';
-INCLUDE: 'include';
+IMPORT: 'import' | 'include';
 NATIVE: 'native';
+CTYPE: 'ctype';
 
 // Types
 BOOL: 'Bool';
@@ -44,7 +44,6 @@ CLASS: 'class';
 THIS: 'this';
 OPERATOR: 'operator';
 EXTENDS: 'extends';
-SUPER: 'super';
 
 // Interfaces
 INTERFACE: 'interface';
@@ -58,6 +57,7 @@ PROTECTED: 'protected';
 PUBLIC: 'public';
 
 // Builtin functions
+SUPER: 'super';
 INSTANCEOF: 'instanceof';
 SIZEOF: 'sizeof';
 ASSERT: 'assert';
@@ -66,8 +66,7 @@ ASSERT: 'assert';
 /* LITERALS */
 /************/
 
-IntegerLiteral: DecimalNumeral | HexNumeral;
-
+// Number fragments
 fragment DecimalNumeral:
 	Sign? UnderscoreDigits DecimalTypeSuffix?;
 fragment Sign: [+-];
@@ -75,17 +74,31 @@ fragment DecimalTypeSuffix: [Ll];
 fragment UnderscoreDigits: Digits '_' UnderscoreDigits | Digits;
 fragment Digits: Digit+;
 fragment Digit: [0-9];
+fragment Nondigit: [a-zA-Zα-ωΑ-Ω_];
 
+// Hex fragments
 fragment HexNumeral: '0x' UnderscoreHexDigits;
-fragment UnderscoreHexDigits: HexDigits '_' UnderscoreHexDigits | HexDigits;
+fragment UnderscoreHexDigits:
+	HexDigits '_' UnderscoreHexDigits
+	| HexDigits;
 fragment HexDigits: HexDigit+;
 fragment HexDigit: [0-9A-F];
 
-FloatLiteral: IntegerLiteral | Sign? Digits '.' Digits?;
+// String fragments
+// TODO: refine ~["\\\r\n]
+fragment SCharFrag: '"' SChar+ '"';
+fragment SCharSeq: SChar+;
+fragment SChar: ~["\\\r\n] | EscapeSequence | '\\\n' | '\\\r\n';
+fragment EscapeSequence: '\\' ['"?abfnrtv\\] | '\\x' HexDigit+;
 
+// Literal definitions
+IntegerLiteral: DecimalNumeral | HexNumeral;
+FloatLiteral:
+	IntegerLiteral
+	| Sign? DecimalNumeral '.' DecimalNumeral?;
 BooleanLiteral: 'true' | 'false';
-
 NullLiteral: 'NULL';
+StringLiteral: SCharFrag+;
 
 /**************/
 /* Separators */
@@ -100,6 +113,7 @@ RBRACK: ']';
 SEMI: ';';
 COMMA: ',';
 DOT: '.';
+STAR: '*';
 
 /*************/
 /* Operators */

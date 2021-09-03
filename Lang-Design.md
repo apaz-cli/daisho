@@ -11,9 +11,16 @@ http://cui.unige.ch/isi/bnf/JAVA/BNFindex.html
 * FEATURES *
 ************
 
-* Standard fixed sized types (Not machine dependent, Int directly translates to uint32_t, etc).
+* Classes, Generics, Inheritance, Interfaces, Polymorphism, and all the nice things about Java
 
-* Manual memory management with operator new, destroy syntax
+* Manual memory management with operator `new`, and `del` syntax
+
+* Compiles to C
+
+* Excellent interoperability with C/C++
+    * `native` and `ctype` allows the user to generate `.h` header files, implement them, and statically link them into the resulting binary.
+
+
 
 * Collections
 
