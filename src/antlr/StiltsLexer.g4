@@ -124,6 +124,40 @@ EQUALS: '=';
 /* Operators */
 /*************/
 
+BANG: '!';
+TILDE: '~';
+QUESTION: '?';
+COLON: ':';
+EQUAL: '==';
+LE: '<=';
+GE: '>=';
+NOTEQUAL: '!=';
+AND: '&&';
+OR: '||';
+INC: '++';
+DEC: '--';
+ADD: '+';
+SUB: '-';
+MUL: STAR;
+DIV: '/';
+AMP: '&';
+BITOR: '|';
+CARET: '^';
+MOD: '%';
+ARROW: '->';
+
+ADD_ASSIGN: '+=';
+SUB_ASSIGN: '-=';
+MUL_ASSIGN: '*=';
+DIV_ASSIGN: '/=';
+AND_ASSIGN: '&=';
+OR_ASSIGN: '|=';
+XOR_ASSIGN: '^=';
+MOD_ASSIGN: '%=';
+LSHIFT_ASSIGN: '<<=';
+RSHIFT_ASSIGN: '>>=';
+URSHIFT_ASSIGN: '>>>=';
+
 /***************/
 /* Identifiers */
 /***************/
