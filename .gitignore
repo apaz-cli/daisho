@@ -1,5 +1,7 @@
 /bin/
-The_Definitive_ANTLR4_Reference.pdf
+
+# Antlr reference materials
+**/The_Definitive_ANTLR4_Reference.pdf
 **/.antlr/**
 **/JavaParser.g4
 **/JavaLexer.g4
