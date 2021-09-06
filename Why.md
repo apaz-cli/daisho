@@ -53,7 +53,7 @@ Int main(String[] args) {
 ```
 
 First, the language creates a specification of the generic type List<T> with the narrowest possible type. In this case, List<String>. The language knows that println() is a function which accepts a Printable and returns Void. 
-This means it satisfies the interface Consumer<Printable>, because String implements Printable. This is what forEach() is looking for as an argument. The implementation of println() then knows how to print
+This means it satisfies the interface `Consumer<? extends Printable>`, because String implements Printable. This is what `forEach()` is looking for as an argument. The implementation of println() then knows how to print
 
 ## But why? What's wrong with Java/C++?
 * C++

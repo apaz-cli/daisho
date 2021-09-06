@@ -2,7 +2,14 @@
 
 The goal of this project is to create a language that's nice to work with, looks and feels like Java, but maps to low level C code with manual memory management.
 
+
+<a href="https://discord.gg/HfP64r7Nxe">![Anime girl on stilts](https://img3.gelbooru.com/images/65/ab/65ab5b65a503fcab7b6728305cd3a4c0.jpg)</a>
+
+
 The language is currently still in a planning state. I'm writing the grammar right now, and thinking through how I'm going to accomplish everything that I want to accomplish. Currently I'm going down the rabbit hole of generic type validation semantics and implicit conversions of generic types. Type checking and control flow analysis is going to be the hardest part of this project.
+
+
+<br>
 
 
 # Design Vision:
@@ -25,10 +32,27 @@ The language is currently still in a planning state. I'm writing the grammar rig
   * I already have one. I don't have the time to not make progress. I want more immediate results. That means careful planning and a focus on simplicity.
   
 
+<br>
+
+# Getting Started
+Assuming you are on a POSIX operating system (Linux, MacOS, BSD), run the following. Or, you would. It's not ready yet, because the compiler is not written.
+```bash
+./install-antlr.sh
+./build-grammar.sh
+./install-compiler.sh
+```
+
+The Stilts compiler's grammar is written in antlr4. The script downloads and installs antlr4 and its runtime libraries. The next script uses antlr4 to build the language's grammar. The last script compiles the Stilts compiler and links it to the antlr4 runtime. Then it installs it.
+
+You have the compiler, `stiltc`. You can check to make sure everything installed alright by trying to run it.
+
+
+<br>
+
 # How can I get involved?
 
 ["Hop on over" to the Discord](https://discord.gg/HfP64r7Nxe) if you want some input into the direction of the language, or suggestions, or if you want to help write the thing.
 
 I want to share the results of my work, because writing compilers is hard.
 
-<a href="https://discord.gg/HfP64r7Nxe">![Anime girl on stilts](https://img3.gelbooru.com/images/65/ab/65ab5b65a503fcab7b6728305cd3a4c0.jpg)</a>
+
