@@ -2,6 +2,7 @@ bin/**
 src/antlr-generated/**
 antlrcpp/**
 **/.a.out
+**/*.o
 
 # Antlr reference materials
 **/The_Definitive_ANTLR4_Reference.pdf
