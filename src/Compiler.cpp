@@ -127,14 +127,12 @@ int main(int argc, char **argv) {
   ins.open(cmdFlags.targets[0]);
   ANTLRInputStream input(ins);
 
-  /*
-      // Run the lexer
-      StiltsLexer lexer(&input);
-      CommonTokenStream tokens(&lexer);
+  // Run the lexer
+  StiltsLexer lexer(&input);
+  CommonTokenStream tokens(&lexer);
 
-      // Print the token stream
-      tokens.fill();
-      for (auto tok : tokens.getTokens())
-        cout << tok << '\n';
-    */
+  // Print the token stream
+  tokens.fill();
+  for (auto tok : tokens.getTokens())
+    cout << tok << '\n';
 }
