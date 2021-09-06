@@ -1,1 +1,4 @@
-rm -r .antlr *.class *.interp *.tokens StiltsLexer.java StiltsParser.java StiltsParserBaseListener.java StiltsParserListener.java 2>/dev/null
+#!/bin/sh
+rm -r .antlr *.class *.interp *.tokens StiltsLexer.java StiltsParser.java StiltsParserBaseListener.java StiltsParserListener.java StiltsLexer.cpp StiltsLexer.h StiltsParser.cpp StiltsParser.h StiltsParserBaseListener.cpp StiltsParserBaseListener.h StiltsParserListener.cpp StiltsParserListener.h 2>/dev/null
+cd ../antlr-generated
+rm -r .antlr *.class *.interp *.tokens StiltsLexer.java StiltsParser.java StiltsParserBaseListener.java StiltsParserListener.java StiltsLexer.cpp StiltsLexer.h StiltsParser.cpp StiltsParser.h StiltsParserBaseListener.cpp StiltsParserBaseListener.h StiltsParserListener.cpp StiltsParserListener.h 2>/dev/null

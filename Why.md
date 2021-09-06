@@ -10,19 +10,12 @@ The goal is to create a language that's nice to work with, looks and feels like 
 * Classes, Generics, Inheritance, Interfaces, Polymorphism, Interface-typed Lambda Expressions, and all the nice things about Java.
 
 * List comprehensions, tuple unpacking, and all the nice things about Python.
-```py
-```
 
 * Fast binaries, operator overloading, library support, and all the nice things about C/C++.
 
+* Implicit typing
+
 * First class support for Streams, with little to no overhead.
-```java
-// Creates a specification of the generic type List<T>
-// with the narrowest possible type. In this case,
-// List<String> which print() takes as an argument because
-// String implements Printable. 
-["Hello ", "World!"].forEach(print);
-```
 
 * Manual memory management with operator `new` and `del` syntax.
     * Call `malloc()`, `realloc()`, and `free()` explicitly
@@ -36,6 +29,31 @@ The goal is to create a language that's nice to work with, looks and feels like 
     * Checking an error checks this.
     * Catch blocks peek onto the exception stack with an if statement.
     * Uncaught exceptions return a zero value.
+
+## Example
+
+Let's kick things off with a classic, and demonstrate some things about the language. The following are equivalent.
+
+```java
+import String;
+
+Int main(String[] args) {
+    ["Hello ", "World!"].map(toUppercase).forEach(println);
+}
+```
+
+```java
+import String;
+
+Int main(String[] args) {
+    List<? extends String> ls = ["Hello ", "World!"];
+    List<Printable> lp = (List<Printable>) ls.map(toUppercase);
+    l.forEach(println);
+}
+```
+
+First, the language creates a specification of the generic type List<T> with the narrowest possible type. In this case, List<String>. The language knows that println() is a function which accepts a Printable and returns Void. 
+This means it satisfies the interface Consumer<Printable>, because String implements Printable. This is what forEach() is looking for as an argument. The implementation of println() then knows how to print
 
 ## But why? What's wrong with Java/C++?
 * C++
