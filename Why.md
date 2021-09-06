@@ -74,7 +74,7 @@ This means it satisfies the interface `Consumer<? extends Printable>`, because S
     ```
     Stilts only requires the following:
     ```java
-    class MyClass implements Printable {
+    class MyClass implements Stringable {
         private Int i;
         String toString() {
             return "" + i;
