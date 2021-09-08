@@ -14,7 +14,9 @@ OBJECTS=""
 OBJECTS="${OBJECTS}antlr-generated/StiltsLexer.o "
 OBJECTS="${OBJECTS}antlr-generated/StiltsParser.o "
 OBJECTS="${OBJECTS}antlr-generated/StiltsParserBaseListener.o "
-OBJECTS="${OBJECTS}antlr-generated/StiltsParserListener.o"
+OBJECTS="${OBJECTS}antlr-generated/StiltsParserListener.o "
+OBJECTS="${OBJECTS}antlr-generated/StiltsParserBaseVisitor.o "
+OBJECTS="${OBJECTS}antlr-generated/StiltsParserVisitor.o"
 
 ARCHIVES="/usr/local/lib/libantlr4-runtime.a"
 

@@ -27,7 +27,7 @@ ctypeDeclaration: CTYPE IDENT SEMI;
 
 globalVariableDeclaration: // Disallow tuple unpacking
 	typeIdent varIdent SEMI
-	| typeIdent varIdent EQUALS expr SEMI;
+	| typeIdent varIdent EQUALS expr SEMI; // must be a compile expr
 
 genericTypeDecl: LARROW genTypeDecList RARROW;
 genTypeDecList: genDeclType genTypeDecList |;
@@ -41,6 +41,7 @@ genDeclType:
 // Normal letters, underscores, etc.
 varIdent: IDENT;
 fnIdent: IDENT;
+enumIdent: IDENT;
 
 // With generic types and pointers
 typeIdent: IDENT genericTypeDecl? | typeIdent STAR;
@@ -62,7 +63,24 @@ lambdaArgList: varIdent lambdaArgList |;
 /**************/
 /* Statements */
 /**************/
-statement: typeIdent? varIdent EQUALS expr | blockStatement;
+statement:
+	SEMI
+	| blockStatement
+	| ifStatement
+	| forStatement
+	| whileStatement
+	| varDeclStatement;
+
+varDeclStatement:
+	typeIdent? varIdent EQUALS expr SEMI
+	| typeIdent varIdent SEMI;
+
+ifStatement:
+	IF LPAREN expr RPAREN statement
+	| IF expr statement;
+forStatement: FOR LPAREN varDeclStatement;
+whileStatement: WHILE;
+
 blockStatement: LBRACE statement* RBRACE;
 
 /*************/

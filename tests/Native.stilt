@@ -1,0 +1,5 @@
+
+// These will be backed by a large arena allocator.
+// The arena keeps a sorted list of the pointers it's given out,
+// keeping track of the
+native Void* malloc(Size_t num_bytes);

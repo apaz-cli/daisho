@@ -5,8 +5,7 @@ cd src/antlr
 export CLASSPATH=".:/usr/local/lib/antlr4-complete.jar:$CLASSPATH"
 
 # Compile the grammar
-java -Xmx500M -cp "/usr/local/lib/antlr4-complete.jar:$CLASSPATH" org.antlr.v4.Tool StiltsParser.g4 StiltsLexer.g4 -Dlanguage=Cpp
-rm *.tokens *.interp
+java -Xmx500M -cp "/usr/local/lib/antlr4-complete.jar:$CLASSPATH" org.antlr.v4.Tool StiltsParser.g4 StiltsLexer.g4 -Dlanguage=Cpp -visitor
 
 
 #f1="StiltsLexer.java"
@@ -22,6 +21,8 @@ rm *.tokens *.interp
 # Move the files into a new build directory
 mkdir ../antlr-generated/ 2>/dev/null
 mv StiltsLexer.cpp StiltsLexer.h StiltsParser.cpp StiltsParser.h StiltsParserBaseListener.cpp StiltsParserBaseListener.h StiltsParserListener.cpp StiltsParserListener.h ../antlr-generated 2>/dev/null
+mv StiltsParserBaseVisitor.cpp StiltsParserBaseVisitor.h StiltsParserVisitor.cpp StiltsParserVisitor.h ../antlr-generated 2>/dev/null
+
 cd ../antlr-generated/
 
 # Build the lexer and parser
