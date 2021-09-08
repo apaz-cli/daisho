@@ -6,9 +6,12 @@
 #include <string>
 
 enum TokType {
+  // Pragma
   IMPORT,
   NATIVE,
   CTYPE,
+
+  // Types
   BOOL,
   CHAR,
   UCHAR,
@@ -21,13 +24,19 @@ enum TokType {
   FLOAT,
   DOUBLE,
   VOID,
+
+  // Control
   IF,
   ELIF,
   ELSE,
+
+  // Loops
   FOR,
   WHILE,
   CONTINUE,
   BREAK,
+
+  // Classes
   CLASS,
   THIS,
   OPERATOR,
@@ -36,14 +45,44 @@ enum TokType {
   IMPLEMENTS,
   ABSTRACT,
   DEFAULT,
+
+  // Other containers
   ENUM,
+
+  // Access modifiers
   PRIVATE,
   PROTECTED,
   PUBLIC,
+
+  // Builtin functions
   SUPER,
   INSTANCEOF,
   SIZEOF,
-  ASSERT
+  ASSERT,
+
+  // Literals
+  INTEGERLITERAL,
+  FLOATLITERAL,
+  BOOLEANLITERAL,
+  NULLLITERAL,
+  STRINGLITERAL,
+
+  // Separators
+  LPAREN,
+  RPAREN,
+  LBRACE,
+  RBRACE,
+  LBRACK,
+  RBRACK,
+  LARROW,
+  RARROW,
+  SEMI,
+  COMMA,
+  DOT,
+  STAR,
+  EQUALS
+
+  // Operators
 };
 
 class Token {
