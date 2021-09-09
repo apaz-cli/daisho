@@ -49,6 +49,7 @@ INTERFACE: 'interface';
 IMPLEMENTS: 'implements';
 ABSTRACT: 'abstract';
 DEFAULT: 'default';
+DEFAULTSTO: 'defaultsto';
 
 // Other containers
 ENUM: 'enum';

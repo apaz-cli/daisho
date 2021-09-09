@@ -5,6 +5,22 @@
 typedef unsigned int uint32_t;
 typedef char *string;
 
+template <typename t>
+class vector {};
+
+template <typename t1, typename t2>
+class pair {};
+
+template <typename t1, typename t2>
+class map {};
+
+/*
+using std::string;
+using std::pair;
+using std::map;
+using std::tuple;
+*/
+
 enum TokType {
     // Pragma
     IMPORT,
@@ -141,12 +157,42 @@ class Token {
     string file;
 };
 
-class StiltsTokenizer {
-    string current;
+typedef unsigned char DFAState;
 
-    StiltsTokenizer(string inputFileName) {
-      
-    }  
+class TokenizerDFA {
+    
+    map<pair<DFAState, wchar_t>, DFAState> statemap;
+    vector<DFAState> accepting_states;
+    DFAState current_state;
+    bool active = false;
+};
+
+class StiltsTokenizer {
+
+    wstring input;
+    vector<TokenizerDFA> DFAs;
+
+    StiltsTokenizer(string inputFileName) : DFAs(){
+
+    };
+
+    Token nextToken() {
+        Token tok;
+        bool cont = true;
+        while (cont) {
+
+        }
+    };
+
+    void transition(wchar_t next_character) {
+        for (auto dfa : DFAs) {
+            if (!current_states[i].first())
+                continue;
+
+            DFAState current_state = current_states[i].second();
+            DFAState next_state = statemaps[i][pair<DFAState, wchar_t>(current_state, next_character)];
+        }
+    };
 };
 
 #endif // TOKENIZER_INCLUDE
