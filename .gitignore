@@ -1,6 +1,7 @@
 bin/**
 src/antlr-generated/**
 antlrcpp/**
+.vscode/**
 **/.a.out
 **/*.o
 
@@ -10,3 +11,6 @@ antlrcpp/**
 **/JavaParser.g4
 **/JavaLexer.g4
 **/C.g4
+
+# Tokenizer reference materials
+**/Maximal-munch tokenization in linear time.pdf

@@ -25,7 +25,6 @@ VOID: 'Void';
 
 // Control
 IF: 'if';
-ELIF: 'elif';
 ELSE: 'else';
 
 // Loops
@@ -154,9 +153,9 @@ AND_ASSIGN: '&=';
 OR_ASSIGN: '|=';
 XOR_ASSIGN: '^=';
 MOD_ASSIGN: '%=';
-LSHIFT_ASSIGN: '<<=';
-RSHIFT_ASSIGN: '>>=';
-URSHIFT_ASSIGN: '>>>=';
+// LSHIFT_ASSIGN: '<<=';
+// RSHIFT_ASSIGN: '>>=';
+// URSHIFT_ASSIGN: '>>>=';
 
 /***************/
 /* Identifiers */

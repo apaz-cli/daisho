@@ -75,13 +75,24 @@ varDeclStatement:
 	typeIdent? varIdent EQUALS expr SEMI
 	| typeIdent varIdent SEMI;
 
+// If / Else If / Else
 ifStatement:
-	IF LPAREN expr RPAREN statement
-	| IF expr statement;
-forStatement: FOR LPAREN varDeclStatement;
-whileStatement: WHILE;
+	IF LPAREN expr RPAREN statement elseStatement?
+	| IF expr statement elseStatement?;
+elseStatement: ELSE statement;
 
+forStatement:
+	FOR LPAREN forCondition RPAREN statement
+	| FOR forCondition statement;
+whileStatement: // typecheck expr as bool or int type
+	WHILE LPAREN expr RPAREN statement
+	| WHILE expr statement;
 blockStatement: LBRACE statement* RBRACE;
+exprStatement: expr SEMI;
+
+forCondition: forDeclarations SEMI forExpr? SEMI forExpr? |;
+forDeclarations:;
+forExpr:;
 
 /*************/
 /* Functions */
@@ -90,17 +101,13 @@ blockStatement: LBRACE statement* RBRACE;
 // declaration
 functionDeclaration:
 	typeIdent? fnIdent LPAREN fnDeclarationArgList RPAREN statement;
-fnDeclarationArgList:
-	fnDeclarationArg fnDeclarationArgList
-	| fnDeclarationArg;
+fnDeclarationArgList: fnDeclarationArg fnDeclarationArgList |;
 fnDeclarationArg: typeIdent varIdent defaultArg?;
 defaultArg: EQUALS literal;
 
 // call
 functionCall: fnIdent LPAREN callArgList RPAREN;
-callArgList: varIdent COMMA callArgList | varIdent;
-
-// lambdas
+callArgList: expr COMMA callArgList | expr |;
 
 /**************/
 /* Misc Rules */

@@ -2,97 +2,151 @@
 #ifndef TOKENIZER_INCLUDE
 #define TOKENIZER_INCLUDE
 
-#include "stilts-common.hpp"
-#include <string>
+typedef unsigned int uint32_t;
+typedef char *string;
 
 enum TokType {
-  // Pragma
-  IMPORT,
-  NATIVE,
-  CTYPE,
+    // Pragma
+    IMPORT,
+    NATIVE,
+    CTYPE,
 
-  // Types
-  BOOL,
-  CHAR,
-  UCHAR,
-  SHORT,
-  USHORT,
-  INT,
-  UINT,
-  LONG,
-  ULONG,
-  FLOAT,
-  DOUBLE,
-  VOID,
+    // Types
+    BOOL,
+    CHAR,
+    UCHAR,
+    SHORT,
+    USHORT,
+    INT,
+    UINT,
+    LONG,
+    ULONG,
+    FLOAT,
+    DOUBLE,
+    VOID,
 
-  // Control
-  IF,
-  ELIF,
-  ELSE,
+    // Control
+    IF,
+    ELIF,
+    ELSE,
 
-  // Loops
-  FOR,
-  WHILE,
-  CONTINUE,
-  BREAK,
+    // Loops
+    FOR,
+    WHILE,
+    CONTINUE,
+    BREAK,
 
-  // Classes
-  CLASS,
-  THIS,
-  OPERATOR,
-  EXTENDS,
-  INTERFACE,
-  IMPLEMENTS,
-  ABSTRACT,
-  DEFAULT,
+    // Classes
+    CLASS,
+    THIS,
+    OPERATOR,
+    EXTENDS,
 
-  // Other containers
-  ENUM,
+    // Interfaces
+    INTERFACE,
+    IMPLEMENTS,
+    ABSTRACT,
+    DEFAULT,
+    DEFAULTSTO,
 
-  // Access modifiers
-  PRIVATE,
-  PROTECTED,
-  PUBLIC,
+    // Other containers
+    ENUM,
 
-  // Builtin functions
-  SUPER,
-  INSTANCEOF,
-  SIZEOF,
-  ASSERT,
+    // Access modifiers
+    PRIVATE,
+    PROTECTED,
+    PUBLIC,
 
-  // Literals
-  INTEGERLITERAL,
-  FLOATLITERAL,
-  BOOLEANLITERAL,
-  NULLLITERAL,
-  STRINGLITERAL,
+    // Builtin functions
+    SUPER,
+    INSTANCEOF,
+    SIZEOF,
+    ASSERT,
 
-  // Separators
-  LPAREN,
-  RPAREN,
-  LBRACE,
-  RBRACE,
-  LBRACK,
-  RBRACK,
-  LARROW,
-  RARROW,
-  SEMI,
-  COMMA,
-  DOT,
-  STAR,
-  EQUALS
+    // Literals
+    INTEGERLITERAL,
+    FLOATLITERAL,
+    BOOLEANLITERAL,
+    NULLLITERAL,
+    STRINGLITERAL,
 
-  // Operators
+    // Separators
+    LPAREN,
+    RPAREN,
+    LBRACE,
+    RBRACE,
+    LBRACK,
+    RBRACK,
+    LARROW,
+    RARROW,
+    SEMI,
+    COMMA,
+    DOT,
+    STAR,
+    EQUALS,
+
+    // Operators
+    BANG,
+    TILDE,
+    QUESTION,
+    COLON,
+    EQUAL,
+    LE,
+    GE,
+    NOTEQUAL,
+    AND,
+    OR,
+    INC,
+    DEC,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    AMP,
+    BITOR,
+    CARET,
+    MOD,
+    ARROW,
+    // Handled by grammar
+    // LSHIFT,
+    // RSHIFT,
+    // URSHIFT
+
+    ADD_ASSIGN,
+    SUB_ASSIGN,
+    MUL_ASSIGN,
+    DIV_ASSIGN,
+    AND_ASSIGN,
+    OR_ASSIGN,
+    XOR_ASSIGN,
+    MOD_ASSIGN,
+    // Handled by grammar
+    //LSHIFT_ASSIGN,
+    //RSHIFT_ASSIGN,
+    //URSHIFT_ASSIGN,
+
+    // Identifiers
+    IDENT,
+
+    // Ignored sections
+    WS,
+    COMMENT,
+    LINE_COMMENT
 };
 
 class Token {
-  u16string text;
-  string file;
-  uint32_t line;
+    TokType type;
+    uint32_t pos;
+    uint32_t line;
+    string file;
 };
 
 class StiltsTokenizer {
-  u16string current;
+    string current;
+
+    StiltsTokenizer(string inputFileName) {
+      
+    }  
 };
 
 #endif // TOKENIZER_INCLUDE
