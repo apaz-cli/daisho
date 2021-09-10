@@ -159,20 +159,19 @@ class Token {
 
 typedef unsigned char DFAState;
 
-class TokenizerDFA {
-    
-    map<pair<DFAState, wchar_t>, DFAState> statemap;
+struct TokenizerDFA {
+    map<pair<wchar_t, DFAState>, DFAState> statemap;
     vector<DFAState> accepting_states;
     DFAState current_state;
-    bool active = false;
+    bool active = true;
 };
 
 class StiltsTokenizer {
 
-    wstring input;
+    string input;
     vector<TokenizerDFA> DFAs;
 
-    StiltsTokenizer(string inputFileName) : DFAs(){
+    StiltsTokenizer(string input) : input(input), DFAs(){
 
     };
 
@@ -180,17 +179,16 @@ class StiltsTokenizer {
         Token tok;
         bool cont = true;
         while (cont) {
-
         }
     };
 
     void transition(wchar_t next_character) {
-        for (auto dfa : DFAs) {
-            if (!current_states[i].first())
+        for (TokenizerDFA dfa : this->DFAs) {
+            if (!dfa.active)
                 continue;
-
-            DFAState current_state = current_states[i].second();
-            DFAState next_state = statemaps[i][pair<DFAState, wchar_t>(current_state, next_character)];
+            DFAState next_state = dfa.statemap[]
+            //DFAState current_state = current_states[i].second();
+            //DFAState next_state = statemaps[i][pair<DFAState, wchar_t>(current_state, next_character)];
         }
     };
 };
