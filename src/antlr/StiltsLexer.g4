@@ -138,7 +138,6 @@ INC: '++';
 DEC: '--';
 ADD: '+';
 SUB: '-';
-MUL: STAR;
 DIV: '/';
 AMP: '&';
 BITOR: '|';

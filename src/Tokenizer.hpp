@@ -1,196 +1,81 @@
-#pragma once
 #ifndef TOKENIZER_INCLUDE
 #define TOKENIZER_INCLUDE
 
-typedef unsigned int uint32_t;
-typedef char *string;
-
-template <typename t>
-class vector {};
-
-template <typename t1, typename t2>
-class pair {};
-
-template <typename t1, typename t2>
-class map {};
-
-/*
-using std::string;
-using std::pair;
-using std::map;
-using std::tuple;
-*/
-
-enum TokType {
-    // Pragma
-    IMPORT,
-    NATIVE,
-    CTYPE,
-
-    // Types
-    BOOL,
-    CHAR,
-    UCHAR,
-    SHORT,
-    USHORT,
-    INT,
-    UINT,
-    LONG,
-    ULONG,
-    FLOAT,
-    DOUBLE,
-    VOID,
-
-    // Control
-    IF,
-    ELIF,
-    ELSE,
-
-    // Loops
-    FOR,
-    WHILE,
-    CONTINUE,
-    BREAK,
-
-    // Classes
-    CLASS,
-    THIS,
-    OPERATOR,
-    EXTENDS,
-
-    // Interfaces
-    INTERFACE,
-    IMPLEMENTS,
-    ABSTRACT,
-    DEFAULT,
-    DEFAULTSTO,
-
-    // Other containers
-    ENUM,
-
-    // Access modifiers
-    PRIVATE,
-    PROTECTED,
-    PUBLIC,
-
-    // Builtin functions
-    SUPER,
-    INSTANCEOF,
-    SIZEOF,
-    ASSERT,
-
-    // Literals
-    INTEGERLITERAL,
-    FLOATLITERAL,
-    BOOLEANLITERAL,
-    NULLLITERAL,
-    STRINGLITERAL,
-
-    // Separators
-    LPAREN,
-    RPAREN,
-    LBRACE,
-    RBRACE,
-    LBRACK,
-    RBRACK,
-    LARROW,
-    RARROW,
-    SEMI,
-    COMMA,
-    DOT,
-    STAR,
-    EQUALS,
-
-    // Operators
-    BANG,
-    TILDE,
-    QUESTION,
-    COLON,
-    EQUAL,
-    LE,
-    GE,
-    NOTEQUAL,
-    AND,
-    OR,
-    INC,
-    DEC,
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    AMP,
-    BITOR,
-    CARET,
-    MOD,
-    ARROW,
-    // Handled by grammar
-    // LSHIFT,
-    // RSHIFT,
-    // URSHIFT
-
-    ADD_ASSIGN,
-    SUB_ASSIGN,
-    MUL_ASSIGN,
-    DIV_ASSIGN,
-    AND_ASSIGN,
-    OR_ASSIGN,
-    XOR_ASSIGN,
-    MOD_ASSIGN,
-    // Handled by grammar
-    //LSHIFT_ASSIGN,
-    //RSHIFT_ASSIGN,
-    //URSHIFT_ASSIGN,
-
-    // Identifiers
-    IDENT,
-
-    // Ignored sections
-    WS,
-    COMMENT,
-    LINE_COMMENT
-};
+#include "stilts-common.hpp"
+#include "Tokens.h"
 
 class Token {
-    TokType type;
-    uint32_t pos;
-    uint32_t line;
-    string file;
+  TokType type;
+  size_t pos;
+  size_t line;
+  string file;
 };
 
 typedef unsigned char DFAState;
 
+struct DFATransition {
+  DFAState start_state;
+  DFAState end_state;
+  char range_start;
+  char range_end;
+  constexpr DFATransition(DFAState start_state, DFAState end_state,
+                          char range_start, char range_end)
+      : start_state(start_state), end_state(end_state),
+        range_start(range_start), range_end(range_end){};
+};
+
+class RangeMap {
+  vector<DFATransition> transitions;
+  RangeMap(vector<DFATransition> transitions) : transitions(transitions) {
+    sort(transitions.begin(), transitions.end(),
+         [](DFATransition a, DFATransition b) {
+           return a.range_start < b.range_start;
+         });
+  };
+};
+
 struct TokenizerDFA {
-    map<pair<wchar_t, DFAState>, DFAState> statemap;
-    vector<DFAState> accepting_states;
-    DFAState current_state;
-    bool active = true;
+  RangeMap statemap;
+  vector<DFAState> accepting_states;
+  DFAState current_state;
+  bool active = true;
 };
 
 class StiltsTokenizer {
 
-    string input;
-    vector<TokenizerDFA> DFAs;
+  size_t current_input_position;
+  size_t next_input_position;
 
-    StiltsTokenizer(string input) : input(input), DFAs(){
+  string input;
+  vector<TokenizerDFA> DFAs;
 
-    };
+  StiltsTokenizer(string input, vector<TokenizerDFA> DFAs)
+      : input(input), DFAs(DFAs){};
 
-    Token nextToken() {
-        Token tok;
-        bool cont = true;
-        while (cont) {
-        }
-    };
+  Token nextToken() {
 
-    void transition(wchar_t next_character) {
-        for (TokenizerDFA dfa : this->DFAs) {
-            if (!dfa.active)
-                continue;
-            DFAState next_state = dfa.statemap[]
-            //DFAState current_state = current_states[i].second();
-            //DFAState next_state = statemaps[i][pair<DFAState, wchar_t>(current_state, next_character)];
-        }
-    };
+    // Consume a maximal munch of the input string by running the DFAs, and 
+    Token tok;
+    while (true) {
+      transition(input[next_input_position]);
+      // If only one of the tokens are valid, break.
+      // If no tokens are valid, return.
+    }
+
+    this->current_input_position = this->next_input_position;
+    return tok;
+  };
+
+  void transition(char next_character) {
+    for (TokenizerDFA dfa : this->DFAs) {
+      if (!dfa.active)
+        continue;
+      // DFAState next_state = dfa.statemap;
+      // DFAState current_state = current_states[i].second();
+      // DFAState next_state = statemaps[i][pair<DFAState,
+      // char>(current_state, next_character)];
+    }
+  };
 };
 
 #endif // TOKENIZER_INCLUDE
