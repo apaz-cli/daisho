@@ -256,30 +256,29 @@ custom_functions = """
 /**********/
 
 
-static inline TokType
-validImport(char* str) {
-	return String_equals(str, "include") || String_equals(str, "import")
-			? IMPORT
-			: INVALID;
+static inline TokType validImport(char *str) {
+  return String_equals(str, "include") || String_equals(str, "import")
+             ? IMPORT
+             : INVALID;
 }
 
 static inline bool potentialImport(char *str) {
-  return apaz_str_startsWith("import",  str) ||
+  return apaz_str_startsWith("import", str) ||
          apaz_str_startsWith("include", str);
 }
 
-static inline TokType
-validIdent(char* str) {
-	for (size_t i = 0; i < String_len(str); i++) {
-		if ((str[i] != ' ') & (str[i] != '\\t') & (str[i] != '\\r') & (str[i] != '\\n'))
-			return INVALID;
-	}
-	return IDENT;
+static inline TokType validIdent(char *str) {
+  for (size_t i = 0; i < String_len(str); i++) {
+    if ((str[i] != ' ') & 
+        (str[i] != '\\t') & 
+        (str[i] != '\\r') &
+        (str[i] != '\\n'))
+      return INVALID;
+  }
+  return IDENT;
 }
 
-static inline bool potentialIdent(char* str) {
-  
-}
+static inline bool potentialIdent(char *str) { }
 
 static inline TokType validComment(char *str) {
   if (apaz_strlen(str) < 3)
@@ -303,15 +302,13 @@ static inline TokType validComment(char *str) {
 }
 
 static inline bool potentialComment(char *str) {
-  bool sl = apaz_str_startsWith(str, "//"), 
-       ml = apaz_str_startsWith(str, "/*");
-
+  bool sl = apaz_str_startsWith(str, "//"), ml = apaz_str_startsWith(str, "/*");
   if (!(sl | ml))
     return false;
 
   if (sl) {
     for (size_t i = 2; i < apaz_strlen(str) - 1; i++)
-      if (str[i] == '\n')
+      if (str[i] == '\\n')
         return false;
     return true;
   } else {
@@ -335,6 +332,7 @@ with open(write_to, 'w') as f:
 	f.write('#define INCLUDE_TOKENS\n\n')
 	f.write('#include <apaz-libc.h>\n')
 	f.write(tok_enum)
+	f.write('typedef enum TokType TokType;\n')
 	f.write('\n\n')
 
 	for e in entries:

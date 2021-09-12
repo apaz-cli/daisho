@@ -1,0 +1,7 @@
+apaz-libc:
+	Pull _len() calls out of for loops
+
+Tokenizer:
+	
+
+
