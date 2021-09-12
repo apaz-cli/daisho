@@ -302,17 +302,19 @@ static inline TokType validComment(char *str) {
 }
 
 static inline bool potentialComment(char *str) {
-  bool sl = apaz_str_startsWith(str, "//"), ml = apaz_str_startsWith(str, "/*");
+  bool sl = apaz_str_startsWith(str, "//");
+  bool ml = apaz_str_startsWith(str, "/*");
   if (!(sl | ml))
     return false;
 
+  size_t len = apaz_strlen(str);
   if (sl) {
-    for (size_t i = 2; i < apaz_strlen(str) - 1; i++)
+    for (size_t i = 2; i < len - 1; i++)
       if (str[i] == '\\n')
         return false;
     return true;
   } else {
-    for (size_t i = 2; i < apaz_strlen(str) - 2; i++)
+    for (size_t i = 2; i < len - 2; i++)
       if (str[i] == '*' & str[i + 1] == '/')
         return false;
     return true;

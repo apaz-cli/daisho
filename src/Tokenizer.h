@@ -38,7 +38,10 @@ struct StiltsTokenizer {
   String input;
   List_TokenizerDFA DFAs;
 };
-static inline void Tokenizer_construct(StiltsTokenizer *tokenizer) {}
+static inline void Tokenizer_init(StiltsTokenizer *tokenizer) {
+
+
+}
 static inline void Tokenizer_transition(StiltsTokenizer *tokenizer,
                                         char next_character) {
   size_t num_tokenizers = List_TokenizerDFA_len(tokenizer->DFAs);

@@ -1,5 +1,7 @@
 
-// These will be backed by a large arena allocator.
-// The arena keeps a sorted list of the pointers it's given out,
-// keeping track of the
+// This is a comment.
 native Void* malloc(Size_t num_bytes);
+
+// This is also a comment
+
+native Void* realloc(Void* ptr, Size_t num_bytes);

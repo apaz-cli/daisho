@@ -15,7 +15,7 @@ struct CMDLINEFLAGS {
   String temp_folder;
 
   List_String targets;
-} cmdFlags;
+} cmdFlags; // Never freed
 typedef struct CMDLINEFLAGS CMDLINEFLAGS;
 
 const char *usage =
@@ -99,10 +99,12 @@ static inline void parseFlags(int argc, char **argv) {
 
       // Targets
       else {
-        cmdFlags.targets = List_String_addeq(cmdFlags.targets, argv[i]);
+        cmdFlags.targets = List_String_addeq(cmdFlags.targets, String_new_of_strlen(argv[i]));
       }
     }
   }
+  List_String_trim(cmdFlags.targets);
+  List_String_trim(cmdFlags.cflags);
 }
 
 int main(int argc, char **argv) {
