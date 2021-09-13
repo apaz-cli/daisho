@@ -10,7 +10,7 @@ struct CMDLINEFLAGS {
   bool codegen;
   bool compileC;
 
-  String CC;
+  char *CC;
   List_String cflags;
   String temp_folder;
 
@@ -35,21 +35,32 @@ const char *usage =
     "  --CC       : Specify which C compiler to use (System CC by default).\n"
     "  --cflags   : Specify which flags to give to the C compiler.\n\n";
 
-void ERR(const char *msg) {
-  fprintf(stderr, "%s\n", msg);
-  exit(1);
-}
-
+// Lambdas
+void Str_destroy(String str, void *none) { String_destroy(str); }
 static inline bool filterEmpty(String str, void *extra) {
   (void)extra;
-  bool empty = apaz_str_equals(str, "");
+  bool empty = str[0] == '\0';
   if (empty)
     String_destroy(str);
   return !empty;
 }
 
+// Helpers
+void ERR(const char *msg) {
+  fprintf(stderr, "%s\n", msg);
+  exit(1);
+}
+void HELP() {
+  // Consumes.
+  List_String_foreach(cmdFlags.cflags, Str_destroy, NULL);
+  List_String_foreach(cmdFlags.targets, Str_destroy, NULL);
+  print_heap();
+  exit(puts(usage));
+}
+
 static inline void parseFlags(int argc, char **argv) {
-  cmdFlags.temp_folder = String_new_of_strlen("/tmp/stilts/");
+  cmdFlags.temp_folder = "/tmp/stilts/";
+  cmdFlags.CC = "cc";
   cmdFlags.cflags = List_String_new_cap(0);
   cmdFlags.targets = List_String_new_cap(1);
   cmdFlags.parse = true;
@@ -59,7 +70,7 @@ static inline void parseFlags(int argc, char **argv) {
 
   bool snext = false;
   if (argc <= 1) {
-    exit(puts(usage));
+    HELP();
   } else {
     for (int i = 1; i < argc; i++) {
       // Skip the argument if it has already been captured, and do what the
@@ -78,7 +89,7 @@ static inline void parseFlags(int argc, char **argv) {
       // Help flag
       else if (apaz_str_equals(argv[i], "-h") |
                apaz_str_equals(argv[i], "--help")) {
-        exit(puts(usage));
+        HELP();
       }
 
       // Pipeline Flags
@@ -99,7 +110,8 @@ static inline void parseFlags(int argc, char **argv) {
 
       // Targets
       else {
-        cmdFlags.targets = List_String_addeq(cmdFlags.targets, String_new_of_strlen(argv[i]));
+        cmdFlags.targets =
+            List_String_addeq(cmdFlags.targets, String_new_of_strlen(argv[i]));
       }
     }
   }

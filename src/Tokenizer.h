@@ -32,20 +32,31 @@ struct TokenizerDFA {
 };
 LIST_DEFINE(TokenizerDFA);
 
+void DFA_transition();
+
 struct StiltsTokenizer {
   size_t current_input_position;
   size_t next_input_position;
   String input;
   List_TokenizerDFA DFAs;
 };
-static inline void Tokenizer_init(StiltsTokenizer *tokenizer) {
 
-
+static inline void Tokenizer_init(StiltsTokenizer *tokenizer, String input) {
+  tokenizer->DFAs = List_TokenizerDFA_new_cap(30);
+  tokenizer->input = input;
+  tokenizer->current_input_position = 0;
+  tokenizer->next_input_position = 0;
 }
+
+// Doesn't destroy the input String, only destroys the DFAs.
+// The generated tokens store references inside the input String, so that would
+// be inappropriate.
+static inline void Tokenizer_destroy(StiltsTokenizer *tokenizer) {}
+
 static inline void Tokenizer_transition(StiltsTokenizer *tokenizer,
                                         char next_character) {
-  size_t num_tokenizers = List_TokenizerDFA_len(tokenizer->DFAs);
-  for (size_t i = 0; i < num_tokenizers; i++) {
+  size_t num_DFAs = List_TokenizerDFA_len(tokenizer->DFAs);
+  for (size_t i = 0; i < num_DFAs; i++) {
     TokenizerDFA dfa = tokenizer->DFAs[i];
     if (!dfa.active)
       continue;
@@ -55,6 +66,7 @@ static inline void Tokenizer_transition(StiltsTokenizer *tokenizer,
     // char>(current_state, next_character)];
   }
 };
+
 static inline Token Tokenizer_nextToken(StiltsTokenizer *tokenizer) {
 
   // Consume a maximal munch of the input string by running the DFAs, and
