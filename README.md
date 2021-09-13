@@ -1,6 +1,6 @@
 # What is Stilts?
 
-![Boy on stilts](https://apaz-cli.github.io/Stilts.png)
+![Boy on stilts](https://apaz-cli.github.io/Stilts_Blue.png)
 
 The goal of this project is to create a language that's nice to work with, looks and feels like Java, but maps to low level C code with manual memory management.
 
