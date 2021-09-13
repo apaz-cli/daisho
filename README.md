@@ -1,12 +1,45 @@
 # What is Stilts?
 
+![Boy on stilts](https://apaz-cli.github.io/Stilts.png)
+
 The goal of this project is to create a language that's nice to work with, looks and feels like Java, but maps to low level C code with manual memory management.
 
+The language is currently still in a planning stage. I'm writing the grammar and language specification right now at the same time as the parser, and thinking through how I'm going to accomplish everything I want to accomplish. Currently I'm going down the rabbit hole of generic type validation semantics and implicit conversions of generic types. Type checking and control flow analysis are going to be the hardest part of this project. Code generation is the easy part.
 
-<a href="https://discord.gg/HfP64r7Nxe">![Anime girl on stilts](https://img3.gelbooru.com/images/65/ab/65ab5b65a503fcab7b6728305cd3a4c0.jpg)</a>
+<br>
 
+# How can I get involved?
 
-The language is currently still in a planning state. I'm writing the grammar right now, and thinking through how I'm going to accomplish everything that I want to accomplish. Currently I'm going down the rabbit hole of generic type validation semantics and implicit conversions of generic types. Type checking and control flow analysis is going to be the hardest part of this project.
+<a href="https://discord.gg/HfP64r7Nxe">
+<center><img src="https://apaz-cli.github.io/Join%20Our%20Discord.png"></center>
+</a>
+
+If you want some input into the direction of the language, or have suggestions, or if you want to help write, come on over to our Discord.
+
+Regardless of if the language gains popularity or not, I want to share the results of my work because writing compilers is hard.  
+
+<br>
+
+# Getting Started
+Assuming you are on a POSIX operating system (Linux, MacOS, BSD), follow these steps. Note that as the compiler is not written yet, you cannot compile any Stilts code.
+
+First, install a C compiler with your package manager. Make sure it's aliased with `cc`.
+
+Next, navigate into the repository folder with cd.
+
+Finally, run the following:
+
+```bash
+./install.sh release
+```
+
+Now you have the compiler, `stiltc`. You can check to make sure everything installed correctly by trying to run it. It should spit out a help message.
+
+```bash
+stiltc
+```
+
+If you're not on a POSIX operating system (Windows, etc), I recommend switching to one. It's possible that Stilts gets ported to Windows, but I don't want to be the one who does it.
 
 
 <br>
@@ -18,7 +51,7 @@ The language is currently still in a planning state. I'm writing the grammar rig
 * The language that Java should have been
 * Fast to write, and fast to execute
 * Easy to understand
-* Easy to write language bindings for
+* Flawlessly interoperable with C
 * Focused on tooling and user experience
 * A passion project
 
@@ -27,32 +60,14 @@ The language is currently still in a planning state. I'm writing the grammar rig
 * Fast to compile
   * This is an eventual goal, but not a priority.
 * Supported on platforms other than POSIX
-  * I only want to write the standard library and the bootstrapping scripts once. However, it should be pretty easy enough to port. If you're on Windows and you want in on the action, let me know.
+  * I only want to write the standard library and the bootstrapping scripts once. However, it should be easy enough to port. If you're on Windows and you want in on the action, let me know. I will never make the task harder than it needs to be.
 * A full time job
-  * I already have one. I don't have the time to not make progress. I want more immediate results. That means careful planning and a focus on simplicity.
-  
-
-<br>
-
-# Getting Started
-Assuming you are on a POSIX operating system (Linux, MacOS, BSD), run the following. Or, you would. It's not ready yet, because the compiler is not written.
-```bash
-./install-antlr.sh
-./build-grammar.sh
-./install-compiler.sh
-```
-
-The Stilts compiler's grammar is written in antlr4. The script downloads and installs antlr4 and its runtime libraries. The next script uses antlr4 to build the language's grammar. The last script compiles the Stilts compiler and links it to the antlr4 runtime. Then it installs it.
-
-You have the compiler, `stiltc`. You can check to make sure everything installed alright by trying to run it.
+  * I already have one. I don't have the time to not make progress. I want immediate results. That means careful planning and a focus on simplicity.
 
 
-<br>
-
-# How can I get involved?
-
-["Hop on over" to the Discord](https://discord.gg/HfP64r7Nxe) if you want some input into the direction of the language, or suggestions, or if you want to help write the thing.
-
-I want to share the results of my work, because writing compilers is hard.
-
-
+# Sub-Projects:
+* Stilts Compiler (stiltc)
+* Standard Library
+* Language Server
+* VSCode Extension
+* Code Formatter
