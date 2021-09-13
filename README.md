@@ -1,6 +1,8 @@
 # What is Stilts?
 
-![Boy on stilts](https://apaz-cli.github.io/Stilts_Blue.png)
+<p align="center">
+<img src="https://apaz-cli.github.io/Stilts_Blue.png", alt="Boy on Stilts">
+</p>
 
 The goal of this project is to create a language that's nice to work with, looks and feels like Java, but maps to low level C code with manual memory management.
 
@@ -11,7 +13,9 @@ The language is currently still in a planning stage. I'm writing the grammar and
 # How can I get involved?
 
 <a href="https://discord.gg/HfP64r7Nxe">
-<center><img src="https://apaz-cli.github.io/Join%20Our%20Discord.png"></center>
+<p align="center">
+<img src="https://apaz-cli.github.io/Join%20Our%20Discord.png">
+</p>
 </a>
 
 If you want some input into the direction of the language, or have suggestions, or if you want to help write, come on over to our Discord.
