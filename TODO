@@ -1,1 +1,2 @@
-Wrap String_new in __LINE__ macro for memdebug.h.
+String regex match?
+String to/from integral types

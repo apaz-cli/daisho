@@ -1,12 +1,3 @@
-**************
-* References *
-**************
-# Grammar for C
-https://gist.github.com/arslancharyev31/c48d18d8f917ffe217a0e23eb3535957
-# Grammar for Java
-http://cui.unige.ch/isi/bnf/JAVA/BNFindex.html
-
-
 ************
 * FEATURES *
 ************

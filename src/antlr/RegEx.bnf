@@ -1,0 +1,3 @@
+<regex> ::= (<base> '*'*)* '|' <regex> | (<base> '*'*)*
+<base>  ::= <char> |  '\\' <char> |  '(' <regex> ')'
+<char>  ::= [...]
