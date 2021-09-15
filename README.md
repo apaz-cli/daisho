@@ -12,13 +12,13 @@ The language is currently still in a planning stage. I'm writing the grammar and
 
 # How can I get involved?
 
-<a href="https://discord.gg/HfP64r7Nxe">
+<a href="https://discord.gg/yM8ZBDHGdR">
 <p align="center">
 <img src="https://apaz-cli.github.io/Join%20Our%20Discord.png">
 </p>
 </a>
 
-If you want some input into the direction of the language, or have suggestions, or if you want to help write, come on over to our Discord.
+If you want some input into the direction of the language, or have suggestions, or if you want to submit a PR, <a href="https://discord.gg/yM8ZBDHGdR">come on over to our Discord</a>.
 
 Regardless of if the language gains popularity or not, I want to share the results of my work because writing compilers is hard.  
 
