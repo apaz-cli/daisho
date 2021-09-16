@@ -4,7 +4,7 @@ options {
 	tokenVocab = StiltsLexer;
 }
 
-compilationUnit: topLevelDeclaration+;
+compilationUnit: topLevelDeclaration+ EOF;
 
 topLevelDeclaration:
 	globalVariableDeclaration

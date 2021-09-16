@@ -120,8 +120,10 @@ entries = [
 
 tok_enum = """
 enum TokType {
-  // Invalid
+  // Special tokens
   INVALID = 0,
+  EOF,
+  
   // Pragma
   IMPORT,
   NATIVE,

@@ -5,8 +5,10 @@
 #include <apaz-libc.h>
 
 enum TokType {
-  // Invalid
+  // Special Token Types
   INVALID = 0,
+  END_OF_FILE,
+  
   // Pragma
   IMPORT,
   NATIVE,

@@ -3,83 +3,54 @@
 
 #include "Tokens.h"
 #include "stilts-common.h"
-
 #include <apaz-libc.h>
 
+/*********************/
+/* Type Declarations */
+/*********************/
+
 struct Token {
-  TokType type;
-  size_t pos;
-  size_t line;
-  String file;
+    TokType type;
+    size_t pos;
+    size_t line;
+    String file;
 };
-
-typedef unsigned char DFAState;
-LIST_DEFINE(DFAState);
-
-struct DFATransition {
-  DFAState start_state;
-  DFAState end_state;
-  char range_start;
-  char range_end;
-};
-LIST_DEFINE(DFATransition);
-
-struct TokenizerDFA {
-  List_DFATransition range_map;
-  List_DFAState accepting_states;
-  DFAState current_state;
-  bool active;
-};
-LIST_DEFINE(TokenizerDFA);
-
-void DFA_transition();
+typedef struct Token Token;
+LIST_DEFINE(Token);
+typedef List_Token TokenStream;
 
 struct StiltsTokenizer {
-  size_t current_input_position;
-  size_t next_input_position;
-  String input;
-  List_TokenizerDFA DFAs;
+    size_t current_position;
+    List_Token outstream;
+    List_Token ignorestream;
 };
+typedef struct StiltsTokenizer StiltsTokenizer;
 
-static inline void Tokenizer_init(StiltsTokenizer *tokenizer, String input) {
-  tokenizer->DFAs = List_TokenizerDFA_new_cap(30);
-  tokenizer->input = input;
-  tokenizer->current_input_position = 0;
-  tokenizer->next_input_position = 0;
+/***********/
+/* Methods */
+/***********/
+
+StiltsTokenizer *Tokenizer_init(StiltsTokenizer *tokenizer) {
+    tokenizer->outstream = List_Token_new_cap(1000);
+    tokenizer->ignorestream = List_Token_new_cap(1000);
+    tokenizer->current_position = 0;
 }
 
-// Doesn't destroy the input String, only destroys the DFAs.
-// The generated tokens store references inside the input String, so that would
-// be inappropriate.
-static inline void Tokenizer_destroy(StiltsTokenizer *tokenizer) {}
+Token Tokenizer_nextToken(StiltsTokenizer *tokenizer) {
+}
 
-static inline void Tokenizer_transition(StiltsTokenizer *tokenizer,
-                                        char next_character) {
-  size_t num_DFAs = List_TokenizerDFA_len(tokenizer->DFAs);
-  for (size_t i = 0; i < num_DFAs; i++) {
-    TokenizerDFA dfa = tokenizer->DFAs[i];
-    if (!dfa.active)
-      continue;
-    // DFAState next_state = dfa.statemap;
-    // DFAState current_state = current_states[i].second();
-    // DFAState next_state = statemaps[i][pair<DFAState,
-    // char>(current_state, next_character)];
-  }
-};
+StiltsTokenizer *Tokenizer_parse(StiltsTokenizer *tokenizer, String input, String source_file) {
+    size_t input_len = 0;
+    List_Token outstream = tokenizer->outstream;
+    List_Token ignorestream = tokenizer->ignorestream;
+    for (size_t i = 0; i < input_len; i++) {
+      
+    }
+}
 
-static inline Token Tokenizer_nextToken(StiltsTokenizer *tokenizer) {
-
-  // Consume a maximal munch of the input string by running the DFAs, and
-  Token tok;
-  while (true) {
-    Tokenizer_transition(tokenizer,
-                         tokenizer->input[tokenizer->next_input_position]);
-    // If only one of the tokens are valid, break.
-    // If no tokens are valid, return.
-  }
-
-  tokenizer->current_input_position = tokenizer->next_input_position;
-  return tok;
-};
+StiltsTokenizer *Tokenizer_destroy(StiltsTokenizer *tokenizer) {
+    List_Token_destroy(tokenizer->outstream);
+    List_Token_destroy(tokenizer->ignorestream);
+}
 
 #endif // TOKENIZER_INCLUDE
