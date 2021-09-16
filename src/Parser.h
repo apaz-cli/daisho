@@ -1,9 +1,10 @@
+#include "stilts-common.h"
+#include "Tokenizer.h"
+
 #ifndef PARSER_INCLUDE
 #define PARSER_INCLUDE
 
 #include <apaz-libc.h>
-#include "stilts-common.h"
-#include "Tokenizer.h"
 
 /*********************/
 /* Type Declarations */
@@ -15,7 +16,7 @@ struct ParserStackFrame {
 };
 typedef struct ParserStackFrame ParserStackFrame;
 struct ParserCallStack {
-    ParserStackFrame frames[];
+    ParserStackFrame frames[50];
     size_t height;
 };
 typedef struct ParserCallStack ParserCallStack;
@@ -30,6 +31,12 @@ typedef struct StiltsParser StiltsParser;
 /* Function Declarations */
 /*************************/
 
+void StiltsParser_init(StiltsParser *parser);
+void nextsym(StiltsParser *parser);
+void error(StiltsParser *parser, const char *message);
+void accept(StiltsParser *parser, TokType s);
+void expect(StiltsParser *parser, TokType s);
+
 
 /****************************/
 /* Function Implementations */
@@ -40,22 +47,22 @@ void StiltsParser_init(StiltsParser* parser) {
 }
 
 void nextsym(StiltsParser* parser) {
-    parser->TokenStream
+    parser->TokenStream;
 }
-void error(StiltsParser* const char* message);
+void error(StiltsParser* parser,  const char* message);
 
 bool accept(StiltsParser* parser, TokType s) {
-    if (sym == s) {
-        nextsym();
+    if (parser->sym.type == s) {
+        nextsym(parser);
         return 1;
     }
     return 0;
 }
 
-bool expect(TokType s) {
-    if (accept(s))
+bool expect(StiltsParser* parser, TokType s) {
+    if (accept(parser, s))
         return 1;
-    error("expect: unexpected symbol");
+    error(parser, "expect: unexpected symbol");
     return 0;
 }
 
