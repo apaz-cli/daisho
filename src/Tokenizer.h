@@ -12,8 +12,9 @@ static inline StiltsTokenizer *Tokenizer_init(StiltsTokenizer *tokenizer) {
 
 static inline Token Tokenizer_nextToken(StiltsTokenizer *tokenizer) {}
 
-static inline StiltsTokenizer *
-Tokenizer_tokenize(StiltsTokenizer *tokenizer, String input, String source_file) {
+static inline StiltsTokenizer *Tokenizer_tokenize(StiltsTokenizer *tokenizer,
+                                                  String input,
+                                                  char *source_file) {
   size_t input_len = 0;
   List_Token outstream = tokenizer->outstream;
   List_Token ignorestream = tokenizer->ignorestream;
