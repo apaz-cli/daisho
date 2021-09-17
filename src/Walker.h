@@ -1,0 +1,4 @@
+#ifndef WALKER_INCLUDE
+#define WALKER_INCLUDE
+
+#endif // WALKER_INCLUDE

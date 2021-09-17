@@ -1,7 +1,4 @@
-#include "stilts-common.h"
-#include <apaz-libc.h>
-#include <apaz-string.h/apaz-string.h>
-#include <stdio.h>
+#include "Declarations/Declarations.h"
 
 struct CMDLINEFLAGS {
 
@@ -15,11 +12,11 @@ struct CMDLINEFLAGS {
   String temp_folder;
 
   List_String targets;
-} cmdFlags; // Never freed
+} cmdFlags;
 typedef struct CMDLINEFLAGS CMDLINEFLAGS;
 
 const char *usage =
-    "Stilts v0.1\n\n"
+    "Stilts v0.1\n"
     "Usage:\n"
     "  -h --help : Display this message and exit.\n"
     "\n"
