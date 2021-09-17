@@ -69,15 +69,22 @@ Stilts should not be the following:
 
 # Table of Contents<a name="contents"></a>
 
-* [Introduction](#introduction)
-* [Table of Contents](#contents)
-* [Chapter 1: The Pre-Processor](#ch1)
-* [Chapter 2: The Tokenizer](#ch2)
-* [Chapter 3: The Parser](#ch3)
-* [Chapter 4: The Optimizer](#ch4)
-* [Chapter 5: The Code Generator](#ch5)
-* [Chapter 6: The Language Server](#ch6)
-* [Chapter 7: Syntax and Language Features](#ch7)
+- [Introduction<a name="introduction"></a>](#introduction)
+- [Table of Contents<a name="contents"></a>](#table-of-contents)
+- [Chapter 1: <a name="ch1"></a>](#chapter-1-)
+  - [The Pre-Processor.](#the-pre-processor)
+- [Chapter 2: <a name="ch2"></a>](#chapter-2-)
+  - [The Tokenizer.](#the-tokenizer)
+- [Chapter 3: <a name="ch3"></a>](#chapter-3-)
+  - [The Parser.](#the-parser)
+- [Chapter 4: <a name="ch4"></a>](#chapter-4-)
+  - [The Optimizer.](#the-optimizer)
+- [Chapter 5: <a name="ch5"></a>](#chapter-5-)
+  - [The Code Generator.](#the-code-generator)
+- [Chapter 6: <a name="ch6"></a>](#chapter-6-)
+  - [The Language Server.](#the-language-server)
+- [Chapter 7: <a name="ch7"></a>](#chapter-7-)
+  - [Syntax and Language Features.](#syntax-and-language-features)
 
 
 # Chapter 1: <a name="ch1"></a>
