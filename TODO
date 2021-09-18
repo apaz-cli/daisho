@@ -1,2 +1,35 @@
-String regex match?
-String to/from integral types
+Thinking:
+    Generic trait system:
+        Recursive validation
+        Runtime vs compile time polymorphism
+        Generated code (Use tracking)
+    Compilation:
+        Tokenize
+        Substitute
+        Parse modules
+        Rewrite AST
+        Validate modules
+        Construct tables
+        Cross-validate tables
+        Convert types/methods
+        Generate C code
+        Compile C code
+    Module Parser implementation:
+        AST Node types?
+        Maps?
+    Memory allocation strategy:
+        Arena allocators?:
+            mmap() vs malloc() chasing
+        Error messages:
+            What information needs to be retained?
+    Checker Implementation:
+        What parts should be checked when?
+
+Coding:
+    Split up sections
+    Split up code and table parsers
+    String regex match?
+    String to/from integral types:
+        X-macros?
+    Enum reverse map:
+        X-macros?

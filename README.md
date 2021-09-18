@@ -6,7 +6,7 @@
 
 The goal of this project is to create a language that's nice to work with, looks and feels like Java, but maps to low level C code with manual memory management.
 
-The language is currently still in a planning stage. I'm writing the grammar and language specification right now at the same time as the parser, and thinking through how I'm going to accomplish everything I want to accomplish. Currently I'm going down the rabbit hole of generic type validation semantics and implicit conversions of generic types. Type checking and control flow analysis are going to be the hardest part of this project. Code generation is the easy part.
+The language is currently still in a planning stage. I'm writing multiple parts of the language at the same time to get a feel for how things are supposed to work, and thinking through how I'm going to accomplish everything I want to accomplish. I'm currently going down the rabbit hole of generic type validation semantics and implicit conversions of generic types, with how that's going to map to C. Type checking and control flow analysis are going to be the hardest part of this project. Parsing and code generation are the easy parts.
 
 <br>
 
@@ -25,13 +25,9 @@ Regardless of if the language gains popularity or not, I want to share the resul
 <br>
 
 # Getting Started
-Assuming you are on a POSIX operating system (Linux, MacOS, BSD), follow these steps. Note that as the compiler is not written yet, you cannot compile any Stilts code.
+Assuming you are on a POSIX operating system (Linux, MacOS, BSD), follow these steps. Note that as the compiler is not written yet, you cannot compile any Stilts code. Nor is the language specification written yet, so good luck figuring out what that even is.
 
-First, install a C compiler with your package manager. Make sure it's aliased with `cc`.
-
-Next, navigate into the repository folder with cd.
-
-Finally, run the following:
+First, install a C compiler with your package manager. Make sure it's aliased with `cc`. Next, navigate into the repository folder. Finally, run the following:
 
 ```bash
 ./install.sh release
@@ -52,25 +48,30 @@ If you're not on a POSIX operating system (Windows, etc), I recommend switching 
 # Design Vision:
 
 ## Stilts is:
-* The language that Java should have been
+* The best parts of most popular languages
 * Fast to write, and fast to execute
-* Easy to understand
-* Flawlessly interoperable with C
+* Easy to learn
+* Literal zero overhead interoperability with C
 * Focused on tooling and user experience
 * A passion project
+* A community
 
 
 ## Stilts is not:
-* Fast to compile
+* Memory safe
+  * Just like the C that it compiles to.
+  * In practice, you should be fine if you stick to standard containers.
+* Fast at compiling programs
   * This is an eventual goal, but not a priority.
+  * For now, having a compiler at all is a higher priority.
 * Supported on platforms other than POSIX
-  * I only want to write the standard library and the bootstrapping scripts once. However, it should be easy enough to port. If you're on Windows and you want in on the action, let me know. I will never make the task harder than it needs to be.
+  * I only want to write the standard library and compiler once. However, I will never make the task harder than it needs to be. Every platform dependency will be wrapped and documented. If you're on Windows and want in on the action, <a href="https://discord.gg/yM8ZBDHGdR">let me know</a>. 
 * A full time job
   * I already have one. I don't have the time to not make progress. I want immediate results. That means careful planning and a focus on simplicity.
 
 
 # Sub-Projects:
-* Stilts Compiler (stiltc)
+* Stilts Compiler (`stiltc`)
 * Standard Library
 * Language Server
 * VSCode Extension

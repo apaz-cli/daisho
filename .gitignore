@@ -1,10 +1,6 @@
 bin/**
 __pycache__/**
-src/antlr-generated/**
-antlrcpp/**
 .vscode/**
-**/.a.out
-**/*.o
 
 # Antlr reference materials
 **/The_Definitive_ANTLR4_Reference.pdf
@@ -12,6 +8,7 @@ antlrcpp/**
 **/JavaParser.g4
 **/JavaLexer.g4
 **/C.g4
+**/*.bnf
 
 # Tokenizer reference materials
 **/Maximal-munch tokenization in linear time.pdf
