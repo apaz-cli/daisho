@@ -20,6 +20,8 @@ static inline void Tokenizer_destroy(StiltsTokenizer *tokenizer);
 /*******/
 /* AST */
 /*******/
+// Created by GenNodeTypes.py
+#include "ASTNodeMethods.h"
 
 /**********/
 /* Parser */

@@ -1,7 +1,6 @@
 #ifndef STRUCT_DECLARATIONS
 #define STRUCT_DECLARATIONS
 
-#include "ASTNodeType.h"
 #include "TokType.h"
 #include <apaz-libc.h>
 #include <list.h/list.h>
@@ -35,6 +34,7 @@ typedef struct StiltsTokenizer StiltsTokenizer;
 /*******/
 
 struct ASTNode;
+#include "ASTNodeType.h"
 typedef struct ASTNode ASTNode;
 struct ASTNode {
   // Information format specified by node type.
