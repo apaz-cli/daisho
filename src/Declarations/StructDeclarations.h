@@ -1,9 +1,10 @@
 #ifndef STRUCT_DECLARATIONS
 #define STRUCT_DECLARATIONS
 
+#include "ASTNodeType.h"
+#include "TokType.h"
 #include <apaz-libc.h>
-#include "Tokens.h"
-
+#include <list.h/list.h>
 
 /***************************/
 /*    TYPE DECLARATIONS    */
@@ -13,21 +14,46 @@
 /* Tokenizer */
 /*************/
 struct Token {
-    TokType type;
-    size_t pos;
-    size_t line;
-    String file;
+  TokType type;
+  size_t pos;
+  size_t line;
+  String file;
 };
 typedef struct Token Token;
 LIST_DEFINE(Token);
 typedef List_Token TokenStream;
 
 struct StiltsTokenizer {
-    size_t current_position;
-    List_Token outstream;
-    List_Token ignorestream;
+  size_t current_position;
+  List_Token outstream;
+  List_Token ignorestream;
 };
 typedef struct StiltsTokenizer StiltsTokenizer;
+
+/*******/
+/* AST */
+/*******/
+
+struct ASTNode;
+typedef struct ASTNode ASTNode;
+struct ASTNode {
+  // Information format specified by node type.
+  ASTNodeType type;
+  void *typed_info;
+
+  Token* corresponding_tokens;
+  size_t num_corresponding;
+
+  ASTNode *children;
+  size_t num_children;
+
+//#ifdef DEBUG
+  void (*printNode)();
+//#endif
+};
+
+LIST_DEFINE(ASTNode);
+typedef ASTNode AST;
 
 /**********/
 /* Parser */
@@ -51,6 +77,5 @@ struct StiltsParser {
   ParserCallStack call_stack;
 };
 typedef struct StiltsParser StiltsParser;
-
 
 #endif // STRUCT_DECLARATIONS
