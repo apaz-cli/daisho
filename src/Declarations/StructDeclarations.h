@@ -60,7 +60,7 @@ typedef ASTNode AST;
 #define STILTS_PARSER_MAX_STACK_FRAMES 150
 struct ParserStackFrame {
   TokType currently_parsing;
-  Token *startingFrom;
+  size_t token_num;
 };
 typedef struct ParserStackFrame ParserStackFrame;
 struct ParserCallStack {

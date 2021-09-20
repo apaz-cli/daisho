@@ -4,6 +4,11 @@
 #include <apaz-libc.h>
 
 enum TokType {
+  INVALID,
+  END_OF_FILE,
+  IMPORT,
+  COMMENT,
+  IDENT,
   NATIVE,
   CTYPE,
   BOOL,
@@ -79,11 +84,6 @@ enum TokType {
   OR_ASSIGN,
   XOR_ASSIGN,
   MOD_ASSIGN,
-  INVALID,
-  END_OF_FILE,
-  IMPORT,
-  COMMENT,
-  IDENT,
 };
 typedef enum TokType TokType;
 

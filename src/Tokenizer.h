@@ -2,6 +2,7 @@
 #define TOKENIZER_INCLUDE
 
 #include "Declarations/Declarations.h"
+#include "Declarations/StructDeclarations.h"
 
 static inline StiltsTokenizer *Tokenizer_init(StiltsTokenizer *tokenizer) {
   const size_t initial_capacity = 1000;
@@ -12,16 +13,15 @@ static inline StiltsTokenizer *Tokenizer_init(StiltsTokenizer *tokenizer) {
 
 static inline Token Tokenizer_nextToken(StiltsTokenizer *tokenizer) {}
 
-static inline StiltsTokenizer *Tokenizer_tokenize(StiltsTokenizer *tokenizer,
+static inline List_Token Tokenizer_tokenize(StiltsTokenizer *tokenizer,
                                                   String input,
                                                   char *source_file) {
   size_t input_len = 0;
   List_Token outstream = tokenizer->outstream;
-  List_Token ignorestream = tokenizer->ignorestream;
   for (size_t i = 0; i < input_len; i++) {
   }
 
-  return tokenizer;
+  return outstream;
 }
 
 static inline void Tokenizer_destroy(StiltsTokenizer *tokenizer) {
