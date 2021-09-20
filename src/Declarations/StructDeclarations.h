@@ -29,6 +29,7 @@ struct StiltsTokenizer {
 };
 typedef struct StiltsTokenizer StiltsTokenizer;
 
+
 /*******/
 /* AST */
 /*******/
@@ -46,14 +47,11 @@ struct ASTNode {
 
   ASTNode *children;
   size_t num_children;
-
-//#ifdef DEBUG
-  void (*printNode)();
-//#endif
 };
 
 LIST_DEFINE(ASTNode);
 typedef ASTNode AST;
+
 
 /**********/
 /* Parser */
@@ -77,5 +75,10 @@ struct StiltsParser {
   ParserCallStack call_stack;
 };
 typedef struct StiltsParser StiltsParser;
+
+
+/*************/
+/* ASTWalker */
+/*************/
 
 #endif // STRUCT_DECLARATIONS

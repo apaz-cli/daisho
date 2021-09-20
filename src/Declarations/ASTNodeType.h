@@ -2,8 +2,16 @@
 #ifndef INCLUDE_ASTNODETYPE
 #define INCLUDE_ASTNODETYPE
 #include <apaz-libc.h>
+
 enum ASTNodeType {
-  TopLevelDeclaration,
+  CompilationUnit,
+  TopLevelDecl,
+  EnumDecl,
+  TraitDecl,
+  ClassDecl,
+  FunctionDecl,
+  CTypeDecl,
+  GlobalVarDecl,
 };
 typedef enum ASTNodeType ASTNodeType;
 #endif // INCLUDE_ASTNODETYPE
