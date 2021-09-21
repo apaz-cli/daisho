@@ -27,9 +27,12 @@ Thinking:
 
 Coding:
     Split up sections
-    Split up code and table parsers
-    String regex match?
-    String to/from integral types:
-        X-macros?
-    Enum reverse map:
-        X-macros?
+    apaz-libc:
+        Arena alignment
+        Look into temp Arenas
+        List new/delete on Arena
+        List reduce()
+        String read file
+        String read lines from file
+        String regex match?
+        String to/from integral types?

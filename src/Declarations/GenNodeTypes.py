@@ -45,7 +45,7 @@ def makeNew(f):
         signature = ''.join([f', {tup[0]} {tup[1]}' for tup in t[1]])
         sizesum = '+'.join([f'sizeof({tup[0]})' for tup in t[1]])
         f.write(
-            f"static inline ASTNode* ASTNode_{t[0]}_new(Arena* arena{signature}) {{ ASTNode* node = (ASTNode*)Arena_malloc(arena, sizeof(ASTNode) + sizeof({t[0]}_Info)); {t[0]}_Info* info = ({t[0]}_Info*)(((char*)node) + sizeof(ASTNode)); node->typed_info = (void*)info; return node;}}\n")
+            f"static inline ASTNode* ASTNode_{t[0]}_new(Arena* arena{signature}) {{ ASTNode* node = (ASTNode*)Arena_malloc_ofs(arena, ASTNode, {t[0]}_Info); {t[0]}_Info* info = ({t[0]}_Info*)(((char*)node) + sizeof(ASTNode)); node->typed_info = (void*)info; return node;}}\n")
     f.write('\n\n')
 
 
