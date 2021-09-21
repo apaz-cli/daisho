@@ -27,6 +27,8 @@ Thinking:
 
 Coding:
     Split up sections
+    TokType reverse map
+    ASTNodeType reverse map
     apaz-libc:
         Arena alignment
         Look into temp Arenas
