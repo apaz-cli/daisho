@@ -17,16 +17,15 @@ Thinking:
     Module Parser implementation:
         AST Node types?
         Maps?
-    Memory allocation strategy:
-        Arena allocators?:
-            mmap() vs malloc() chasing
-        Error messages:
-            What information needs to be retained?
+    What is tracked for:
+        Compilation Unit
+        TopLevelDecl
     Checker Implementation:
         What parts should be checked when?
 
 Coding:
     Split up sections
+    Look at null terminators in TokType valid/potential
     TokType reverse map
     ASTNodeType reverse map
     apaz-libc:

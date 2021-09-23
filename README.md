@@ -39,7 +39,7 @@ Now you have the compiler, `stiltc`. You can check to make sure everything insta
 stiltc
 ```
 
-If you're not on a POSIX operating system (Windows, etc), I recommend switching to one. It's possible that Stilts gets ported to Windows, but I don't want to be the one who does it.
+If you're not on a POSIX operating system (If you're on Windows), I recommend switching to one. It's possible that Stilts gets ported to Windows, but I don't want to be the one who does it.
 
 
 <br>

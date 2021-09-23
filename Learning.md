@@ -2,14 +2,32 @@
 ## Introduction
 Stilts is a statically typed, general purpose compiled programming language.
 
-It's similar to Java and C, which it compiles to.
+It's similar to Java, and C, which it compiles to.
 
 The hope is that Stilts allows the programmer to reach the high level of abstraction that they desire (generics, polymorphism) while retaining low-level performance. A bit as if standing on stilts, no longer required to remain low to the ground.
 
 ## Install:
-Stilts is only available for POSIX systems (Linux/MacOS/BSD). If you're on Windows, I would recommend switching to a real operating system as quickly as possible.
+Assuming you are on a POSIX operating system (Linux, MacOS, BSD), follow these steps. Note that as the compiler is not written yet, you cannot compile any Stilts code. Nor is the language specification written yet, so good luck figuring out what that even is.
 
-TODO
+First, install a C compiler with your package manager. Make sure it's aliased with `cc`. Next, navigate into the repository folder. Finally, run the following:
+
+```bash
+./install.sh release
+```
+
+Now you have the compiler, `stiltc`. You can check to make sure everything installed correctly by trying to run it. It should spit out a help message.
+
+```bash
+stiltc
+```
+
+If you're not on a POSIX operating system (If you're on Windows), I recommend switching to one as quickly as possible. It's possible that Stilts gets ported to Windows, but I don't want to be the one who does it.
+
+
+Now that you have the compiler, let's write a simple program... Is what I would say if the compiler were actually ready.
+
+
+<br>
 
 
 ## Hello World
@@ -17,12 +35,4 @@ TODO
 Int main() {
     println("Hello World!");
 }
-```
-Save this as `hello.stilt`. Now do `stiltc hello.stilt`. After a fair bit of delay, you'll notice this produces a file `a.out`. That's the binary. Now do `./a.out` to run the binary you've created.
-
-You should see something like:
-```bash
-username@device:~ stiltc hello.stilt
-username@device:~ ./a.out
-Hello World!
 ```
