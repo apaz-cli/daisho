@@ -81,4 +81,10 @@ typedef struct StiltsParser StiltsParser;
 /* ASTWalker */
 /*************/
 
+struct ASTWalker {
+  AST root;
+  List_ASTNode stack;
+};
+
+
 #endif // STRUCT_DECLARATIONS

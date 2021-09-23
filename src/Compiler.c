@@ -33,7 +33,7 @@ const char *usage =
     "  --cflags   : Specify which flags to give to the C compiler.\n\n";
 
 // Lambdas
-void Str_destroy(String str, void *none) { String_destroy(str); }
+static inline void Str_destroy(String str, void *none) { String_destroy(str); }
 static inline bool filterEmpty(String str, void *extra) {
   (void)extra;
   bool empty = str[0] == '\0';
@@ -43,11 +43,11 @@ static inline bool filterEmpty(String str, void *extra) {
 }
 
 // Helpers
-void ERR(const char *msg) {
+static inline void ERR(const char *msg) {
   fprintf(stderr, "%s\n", msg);
   exit(1);
 }
-void HELP() {
+static inline void HELP() {
   // Consumes.
   List_String_foreach(cmdFlags.cflags, Str_destroy, NULL);
   List_String_foreach(cmdFlags.targets, Str_destroy, NULL);

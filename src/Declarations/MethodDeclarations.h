@@ -12,6 +12,10 @@
 /************/
 
 /* The compiler is self-contained right now. */
+int main();
+static inline void parseFlags(int argc, char **argv)
+static inline void ERR(const char *msg);
+static inline void HELP();
 
 
 /*************/
@@ -44,6 +48,11 @@ static inline void parse_error(StiltsParser *parser, char *message);
 static inline bool accept(StiltsParser *parser, TokType s);
 static inline bool expect(StiltsParser *parser, TokType s);
 
+/*************/
+/* ASTWalker */
+/*************/
+static inline void ASTWalker_init(ASTWalker* walker, AST ast);
+static inline void ASTWalker_walk(ASTWalker* walker, )
 
 
 #endif // METHOD_DECLARATIONS
