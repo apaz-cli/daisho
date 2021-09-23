@@ -21,7 +21,10 @@ static inline void nextsym(StiltsParser *parser) {
 
 static inline void parser_stack_trace(StiltsParser *parser) {}
 
-static inline void parse_error(StiltsParser *parser, const char *message) {}
+static inline void parse_error(StiltsParser *parser, const char *message) {
+  
+  parser_stack_trace(parser);
+}
 
 static inline bool accept(StiltsParser *parser, TokType s) {
   if (parser->sym.type == s) {
@@ -34,10 +37,9 @@ static inline bool accept(StiltsParser *parser, TokType s) {
 static inline bool expect(StiltsParser *parser, TokType s) {
   if (accept(parser, s))
     return 1;
+  
+  fprintf(stderr, "Parsing error:\nExpected %s, but got: %s.\n", TokNameMap[s], TokNameMap[parser->sym.type]);
 
-  char *err_msg;
-  sprintf(err_msg, "Parsing error:\nExpected %s, but got: %s.");
-  parse_error(parser, err_msg);
   return 0;
 }
 

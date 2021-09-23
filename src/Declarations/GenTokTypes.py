@@ -189,14 +189,16 @@ static inline bool potentialComment(char *str) {
 """
 
 
+
+
 def writeValid(name, literal):
     f.write(
-        f"static inline TokType valid_{name}(char* str) {{ return apaz_str_equals(str, \"{literal}\") ? {name} : INVALID; }}\n")
+        f"static inline TokType valid_{name}(char* str) {{ static const char* tok = \"{literal}\"; const char *s = tok; while (*s) ++s; size_t toklen = (size_t)(s - str); for (size_t i = 0; i < toklen; i++) if (str[i] != tok[i]) return INVALID; return {name}; }}\n")
 
 
 def writePotential(name, literal):
     f.write(
-        f"static inline bool potential_{name}(char* str) {{ return apaz_str_startsWith(\"{literal}\", str); }}\n")
+        f"static inline bool potential_{name}(char* str) {{ static const char* tok = \"{literal}\"; while (*str) if (*str++ != *tok++) return false; return true; }}\n")
 
 def writeNameMap(name, literal):
     f.write()
@@ -211,6 +213,7 @@ with open(write_to, 'w') as f:
 
     # Declare token types
     f.write(f'#define NUM_TOKTYPES {len(names)}\n')
+    f.write(f'#define MAX_TOKTYPE_NAME_LEN {max([len(n) for n in names])}\n')
     f.write('enum TokType {\n')
     [f.write(f"  {c},\n") for c in custom]
     [f.write(f"  {e[0]},\n") for e in keywords]
