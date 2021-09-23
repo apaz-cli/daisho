@@ -51,8 +51,14 @@ static inline bool expect(StiltsParser *parser, TokType s);
 /*************/
 /* ASTWalker */
 /*************/
-static inline void ASTWalker_init(ASTWalker* walker, AST ast);
-static inline void ASTWalker_walk(ASTWalker* walker, )
+static inline void ASTWalker_init(ASTWalker* walker, AST ast, TraversalOrder order);
+static inline void ASTWalker_walk(ASTWalker* walker, walk_fn onwalk);
+static inline void ASTWalker_destroy(ASTWalker* walker);
+
+
+/**********/
+/* Tables */
+/**********/
 
 
 #endif // METHOD_DECLARATIONS

@@ -73,7 +73,7 @@ def makePrint(f):
             f"static inline void ASTNode_{t[0]}_print(ASTNode* node) {{ }}\n")
 
     cases = "".join([f"    case {t[0]}: return ASTNode_{t[0]}_print;\n" for t in node_types])
-    cases += '    default: return (ASTNodePrintFn)NULL;\n'
+    cases += '    default: return (ASTNodePrintFn)NULL; // Have fun dereferencing null, lmao\n'
     contents = f'  switch(type) {{\n{cases}  }}\n'
     f.write('\n')
 

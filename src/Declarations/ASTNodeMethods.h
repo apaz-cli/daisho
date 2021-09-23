@@ -131,7 +131,7 @@ static inline ASTNodePrintFn AST_dispatch_print(ASTNodeType type) {
     case FunctionDecl: return ASTNode_FunctionDecl_print;
     case CTypeDecl: return ASTNode_CTypeDecl_print;
     case GlobalVarDecl: return ASTNode_GlobalVarDecl_print;
-    default: return (ASTNodePrintFn)NULL;
+    default: return (ASTNodePrintFn)NULL; // Have fun dereferencing null, lmao
   }
 }
 
