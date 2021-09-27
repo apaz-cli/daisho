@@ -111,14 +111,14 @@ static inline void ASTNode_GlobalVarDecl_set_type(ASTNode* node, char* type) { A
 /**************/
 /* Print Node */
 /**************/
-static inline void ASTNode_CompilationUnit_print(ASTNode* node) { }
-static inline void ASTNode_TopLevelDecl_print(ASTNode* node) { }
-static inline void ASTNode_EnumDecl_print(ASTNode* node) { }
-static inline void ASTNode_TraitDecl_print(ASTNode* node) { }
-static inline void ASTNode_ClassDecl_print(ASTNode* node) { }
-static inline void ASTNode_FunctionDecl_print(ASTNode* node) { }
-static inline void ASTNode_CTypeDecl_print(ASTNode* node) { }
-static inline void ASTNode_GlobalVarDecl_print(ASTNode* node) { }
+static inline void ASTNode_CompilationUnit_print(ASTNode* node) { const char* name = ASTNodeTypeNameMap[node->type]; }
+static inline void ASTNode_TopLevelDecl_print(ASTNode* node) { const char* name = ASTNodeTypeNameMap[node->type]; }
+static inline void ASTNode_EnumDecl_print(ASTNode* node) { const char* name = ASTNodeTypeNameMap[node->type]; }
+static inline void ASTNode_TraitDecl_print(ASTNode* node) { const char* name = ASTNodeTypeNameMap[node->type]; }
+static inline void ASTNode_ClassDecl_print(ASTNode* node) { const char* name = ASTNodeTypeNameMap[node->type]; }
+static inline void ASTNode_FunctionDecl_print(ASTNode* node) { const char* name = ASTNodeTypeNameMap[node->type]; }
+static inline void ASTNode_CTypeDecl_print(ASTNode* node) { const char* name = ASTNodeTypeNameMap[node->type]; }
+static inline void ASTNode_GlobalVarDecl_print(ASTNode* node) { const char* name = ASTNodeTypeNameMap[node->type]; }
 
 typedef void (*ASTNodePrintFn)(ASTNode*);
 static inline ASTNodePrintFn AST_dispatch_print(ASTNodeType type) {
@@ -135,10 +135,7 @@ static inline ASTNodePrintFn AST_dispatch_print(ASTNodeType type) {
   }
 }
 
-enum PrintOrder { PREORDER, POSTORDER, PREORDER_BACKWARD, POSTORDER_BACKWARD };
-typedef enum PrintOrder PrintOrder;
-
-static inline void AST_print(AST* ast, PrintOrder order) {
+static inline void AST_print(AST* ast, TraversalOrder order) {
   if (order == POSTORDER)
     for (size_t i = 0; i < ast->num_children; i++)
       AST_print(ast->children + i, order);

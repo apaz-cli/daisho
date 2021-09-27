@@ -70,7 +70,7 @@ def makePrint(f):
     for t in node_types:
         printcontents = " ".join(f'printf("");')
         f.write(
-            f"static inline void ASTNode_{t[0]}_print(ASTNode* node) {{ }}\n")
+            f'static inline void ASTNode_{t[0]}_print(ASTNode* node) {{ const char* name = ASTNodeTypeNameMap[node->type]; printf("Type: %s\n", );}}\n')
 
     cases = "".join([f"    case {t[0]}: return ASTNode_{t[0]}_print;\n" for t in node_types])
     cases += '    default: return (ASTNodePrintFn)NULL; // Have fun dereferencing null, lmao\n'
@@ -80,10 +80,7 @@ def makePrint(f):
     f.write('typedef void (*ASTNodePrintFn)(ASTNode*);\n')
     f.write(f'static inline ASTNodePrintFn AST_dispatch_print(ASTNodeType type) {{\n{contents}}}\n\n')
 
-    f.write(f'enum PrintOrder {{ PREORDER, POSTORDER, PREORDER_BACKWARD, POSTORDER_BACKWARD }};\n')
-    f.write(f'typedef enum PrintOrder PrintOrder;\n\n')
-
-    f.write(f'static inline void AST_print(AST* ast, PrintOrder order) {{\n')
+    f.write(f'static inline void AST_print(AST* ast, TraversalOrder order) {{\n')
     f.write(f'  if (order == POSTORDER)\n')
     f.write(f'    for (size_t i = 0; i < ast->num_children; i++)\n')
     f.write(f'      AST_print(ast->children + i, order);\n')
@@ -98,12 +95,20 @@ def makePrint(f):
     f.write(f'    for (int i = ast->num_children; i --> 0;)\n')
     f.write(f'      AST_print(ast->children + i, order);\n')
     f.write(f'}}\n\n')
+
+def makePrintType(f):
+    f.write(f'static inline void printType(ASTNode* node) {{ printf("%s\n", ASTNodeTypeNameMap[node->type]); fflush(stdout); }}')
       
 
 def makeEnum(f):
     f.write('enum ASTNodeType {\n')
     [f.write(f'  {t[0]},\n') for t in node_types]
-    f.write('};\ntypedef enum ASTNodeType ASTNodeType;\n')
+    f.write('};\ntypedef enum ASTNodeType ASTNodeType;\n\n')
+
+
+def makeReverseEnum(f):
+    dq = '"';nl = '\n'
+    f.write(f'static const char* ASTNodeTypeNameMap[] = {{{nl}{f", {nl}".join([f"  {dq}{t[0]}{dq}" for t in node_types])}\n}};{nl}{nl}\n')
     
 
 with open('ASTNodeType.h', 'w') as f:
@@ -113,6 +118,7 @@ with open('ASTNodeType.h', 'w') as f:
     f.write('#include <apaz-libc.h>\n\n')
 
     makeEnum(f)
+    makeReverseEnum(f)
 
     f.write('#endif // INCLUDE_ASTNODETYPE')
 

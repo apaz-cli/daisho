@@ -12,11 +12,18 @@
 /*************/
 /* Tokenizer */
 /*************/
+
+// Defined in the "Compiler" section.
+struct Target;
+typedef struct Target Target;
+
 struct Token {
   TokType type;
-  size_t pos;
+  String content;
+
+  Target* source;
   size_t line;
-  String file;
+  size_t pos;
 };
 typedef struct Token Token;
 LIST_DEFINE(Token);
@@ -29,7 +36,6 @@ struct StiltsTokenizer {
 };
 typedef struct StiltsTokenizer StiltsTokenizer;
 
-
 /*******/
 /* AST */
 /*******/
@@ -37,27 +43,26 @@ typedef struct StiltsTokenizer StiltsTokenizer;
 struct ASTNode;
 #include "ASTNodeType.h"
 typedef struct ASTNode ASTNode;
+typedef ASTNode AST;
 struct ASTNode {
   // Information format specified by node type.
   ASTNodeType type;
-  void *typed_info;
+  void* typed_info;
 
   Token* corresponding_tokens;
   size_t num_corresponding;
 
-  ASTNode *children;
+  ASTNode* children;
   size_t num_children;
 };
-
 LIST_DEFINE(ASTNode);
-typedef ASTNode AST;
-
+LIST_DEFINE(AST);
 
 /**********/
 /* Parser */
 /**********/
 
-#define STILTS_PARSER_MAX_STACK_FRAMES 150
+#define STILTS_PARSER_MAX_STACK_FRAMES 500
 struct ParserStackFrame {
   TokType currently_parsing;
   size_t token_num;
@@ -69,24 +74,21 @@ struct ParserCallStack {
 };
 typedef struct ParserCallStack ParserCallStack;
 struct StiltsParser {
-  Token sym;
+  Token* sym;
   size_t current_token;
   List_Token token_stream;
   ParserCallStack call_stack;
 };
 typedef struct StiltsParser StiltsParser;
 
-
 /*************/
 /* ASTWalker */
 /*************/
-enum TraversalOrder {
 
-};
+enum TraversalOrder { PREORDER, POSTORDER, PREORDER_BACKWARD, POSTORDER_BACKWARD };
 typedef enum TraversalOrder TraversalOrder;
 
-
-typedef void (walk_fn*)(ASTNode*, void*);
+typedef void (*walk_fn)(ASTNode* , void*);
 struct ASTWalker {
   TraversalOrder order;
   AST root;
@@ -95,13 +97,14 @@ struct ASTWalker {
 };
 typedef struct ASTWalker ASTWalker;
 
-/**********/
-/* Tables */
-/**********/
+/*********************/
+/* Semantic Analysis */
+/*********************/
 
 struct MethodArg;
 typedef struct MethodArg MethodArg;
 typedef MethodArg* MethodArgPtr;
+
 struct Method;
 typedef struct Method Method;
 typedef Method* MethodPtr;
@@ -120,16 +123,16 @@ typedef Expr* ExprPtr;
 
 // As in a type signature, not an expr.
 struct MethodArg {
-  Type type;
+  Type* type;
   Token* tok;
 };
 LIST_DEFINE(MethodArg);
-LIST_DEFINE(MethodPtr);
+LIST_DEFINE(MethodArgPtr);
 
 // Information about type signature.
 struct Method {
   Token* tok;
-  Type return_type;
+  Type* return_type;
   List_MethodArg args;
   ASTNode* implementation;
 };
@@ -143,13 +146,13 @@ struct Trait {
   List_Method default_methods;
   // Actually a List_Trait
   TraitPtr subtraits;
-}
+};
 LIST_DEFINE(Trait);
 LIST_DEFINE(TraitPtr);
 
 struct Type {
   Token* source_name; // Null if not inferred
-  char* runtime_name; // Null if not inferred
+  String runtime_name; // Null if not inferred
   List_TraitPtr implements;
   List_Method methods;
 };
@@ -164,12 +167,40 @@ struct Expr {
 LIST_DEFINE(Expr);
 LIST_DEFINE(ExprPtr);
 
-
 /* Validate, in order: */
-typedef TraitTable List_TraitPtr;
-typedef TypeTable  List_TypePtr;
-typedef ExprTable  List_ExprPtr;
+typedef List_Trait TraitTable;
+typedef List_Type  TypeTable;
+typedef List_Expr  ExprTable;
 
+
+/************/
+/* Compiler */
+/************/
+
+struct Target {
+    char* file_name;
+    String content;
+    TokenStream tokens;
+    AST ast;
+};
+LIST_DEFINE(Target);
+
+struct CMDLineFlags {
+  /* Compilation steps */
+  bool parse;
+  bool check;
+  bool codegen;
+  bool compileC;
+
+  /* C codegen options */
+  char* CC;
+  List_String cflags;
+  char* temp_folder;
+
+  /* Target files to compile */
+  List_Target targets;
+};
+typedef struct CMDLineFlags CMDLineFlags;
 
 
 #endif // STRUCT_DECLARATIONS

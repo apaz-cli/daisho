@@ -9,7 +9,7 @@ else
 fi
 
 # Install stiltc executable
-cc src/Compiler.c $FLAGS 
+cc src/Compiler.c $FLAGS
 sudo mv a.out /usr/bin/stiltc
 
 # Move common headers into place

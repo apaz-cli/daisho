@@ -200,9 +200,6 @@ def writePotential(name, literal):
     f.write(
         f"static inline bool potential_{name}(char* str) {{ static const char* tok = \"{literal}\"; while (*str) if (*str++ != *tok++) return false; return true; }}\n")
 
-def writeNameMap(name, literal):
-    f.write()
-
 
 with open(write_to, 'w') as f:
     # Header

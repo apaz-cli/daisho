@@ -9,6 +9,7 @@ static inline StiltsTokenizer *Tokenizer_init(StiltsTokenizer *tokenizer) {
   tokenizer->outstream = List_Token_new_cap(initial_capacity);
   tokenizer->ignorestream = List_Token_new_cap(initial_capacity);
   tokenizer->current_position = 0;
+  return tokenizer;
 }
 
 static inline Token Tokenizer_nextToken(StiltsTokenizer *tokenizer) {}
