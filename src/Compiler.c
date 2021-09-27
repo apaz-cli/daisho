@@ -54,20 +54,21 @@ static inline void parseFlags(int argc, char **argv) {
   cmdFlags.codegen = true;
   cmdFlags.compileC = true;
 
-  bool snext = false;
+  bool grabNext = false;
   if (argc <= 1) {
     usage();
   } else {
-    for (int i = 1; i < argc; i++) {
+    for (size_t i = 1; i < argc; i++) {
       // Skip the argument if it has already been captured, and do what the
       // previous arg says.
-      if (snext) {
-        snext = false;
+      if (grabNext) {
+        grabNext = false;
 
         if (apaz_str_equals(argv[i - 1], "--CC")) {
           cmdFlags.CC = String_new_of_strlen(argv[i]);
           continue;
         } else if (apaz_str_equals(argv[i - 1], "--cflags")) {
+          printf("%zu\n", i);
           cmdFlags.cflags =
               List_String_filter(String_split(argv[i], " "), filterEmpty, NULL);
           continue;
@@ -91,11 +92,14 @@ static inline void parseFlags(int argc, char **argv) {
         cmdFlags.compileC = false;
 
       // Compiler Flags
-      else if (apaz_str_equals(argv[i], "--CC") ||
-               apaz_str_equals(argv[i - 1], "--cflags")) {
+      else if (apaz_str_equals(argv[i], "--CC")) {
         if (i == argc)
           arg_err("--CC requires an argument (The C compiler to use).");
-        snext = true;
+        grabNext = true;
+      } else if (apaz_str_equals(argv[i], "--cflags")) {
+        if (i == argc)
+          arg_err("--cflags requires an argument (The flags to pass to the C compiler, all in one arg).");
+        grabNext = true;
       }
 
       // Targets
@@ -106,16 +110,17 @@ static inline void parseFlags(int argc, char **argv) {
     }
   }
 
-  List_Target_trim(cmdFlags.targets);
-  List_String_trim(cmdFlags.cflags);
+  cmdFlags.cflags = List_String_trim(cmdFlags.cflags);
+  cmdFlags.targets = List_Target_trim(cmdFlags.targets);
 }
 
 static inline const char *strb(bool b) { return b ? "yes" : "no"; }
 static inline void printFlags() {
-  printf("Command Line Flags:\n\n    /* Pipeline Options */\n    parse:   %s\n   "
-         " check:   %s\n    codegen: %s\n    compile: %s\n\n",
-         strb(cmdFlags.parse), strb(cmdFlags.check), strb(cmdFlags.codegen),
-         strb(cmdFlags.compileC));
+  printf(
+      "Command Line Flags:\n\n    /* Pipeline Options */\n    parse:   %s\n   "
+      " check:   %s\n    codegen: %s\n    compile: %s\n\n",
+      strb(cmdFlags.parse), strb(cmdFlags.check), strb(cmdFlags.codegen),
+      strb(cmdFlags.compileC));
 
   puts("    /* Codegen Options */");
   printf("    CC:      %s\n", cmdFlags.CC);

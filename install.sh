@@ -4,8 +4,10 @@
 FLAGS=""
 if [ $1 ] && [ $1 = "release" ]; then
   FLAGS="${FLAGS} -O3 -flto -march=native"
+elif [ $1 ] && [ $1 = "memdebug" ]; then
+  FLAGS="${FLAGS} -Og -g -fsanitize=address -DMEMDEBUG=1"
 else
-  FLAGS="${FLAGS} -O0 -g -fsanitize=address -DMEMDEBUG=1"
+  FLAGS="${FLAGS} -O2 -g"
 fi
 
 # Install stiltc executable
