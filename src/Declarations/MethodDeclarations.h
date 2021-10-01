@@ -80,6 +80,7 @@ int main();
 
 // Flags are global.
 static inline void parseFlags(int argc, char **argv);
+static inline void destroyFlags();
 static inline void printFlags(); // For debugging
 static inline void usage(); // --help and exit
 static inline void arg_err(const char *msg); // Error parsing args

@@ -101,25 +101,11 @@ typedef struct ASTWalker ASTWalker;
 /* Semantic Analysis */
 /*********************/
 
-struct MethodArg;
-typedef struct MethodArg MethodArg;
-typedef MethodArg* MethodArgPtr;
-
-struct Method;
-typedef struct Method Method;
-typedef Method* MethodPtr;
-
-struct Trait;
-typedef struct Trait Trait;
-typedef Trait* TraitPtr;
-
-struct Type;
-typedef struct Type Type;
-typedef Type* TypePtr;
-
-struct Expr;
-typedef struct Expr Expr;
-typedef Expr* ExprPtr;
+TYPE_DECLARE(MethodArg);
+TYPE_DECLARE(Method);
+TYPE_DECLARE(Trait)
+TYPE_DECLARE(Type);
+TYPE_DECLARE(Expr);
 
 // As in a type signature, not an expr.
 struct MethodArg {
@@ -139,13 +125,14 @@ struct Method {
 LIST_DEFINE(Method);
 LIST_DEFINE(MethodPtr);
 
+LIST_DECLARE(Trait);
 struct Trait {
   // Implementation is null
   List_Method abstract_methods;
   // Implementation not null
   List_Method default_methods;
-  // Actually a List_Trait
-  TraitPtr subtraits;
+  
+  List_Trait subtraits;
 };
 LIST_DEFINE(Trait);
 LIST_DEFINE(TraitPtr);

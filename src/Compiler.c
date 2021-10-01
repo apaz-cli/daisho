@@ -1,4 +1,7 @@
 #include "Declarations/Declarations.h"
+#include "Declarations/GlobalState.h"
+#include "Declarations/MethodDeclarations.h"
+#include "Declarations/StructDeclarations.h"
 #include <apaz-libc.h>
 
 const char *usageMesasge =
@@ -20,9 +23,6 @@ const char *usageMesasge =
 
 // Lambdas
 static inline void str_destroy(String s, void *none) { String_destroy(s); }
-static inline void name_destroy(Target t, void *none) {
-  String_destroy(t.file_name);
-}
 static inline bool filterEmpty(String str, void *extra) {
   (void)extra;
   bool empty = str[0] == '\0';
@@ -38,16 +38,16 @@ static inline void arg_err(const char *msg) {
 }
 static inline void usage() {
   // Consumes.
-  List_String_foreach(cmdFlags.cflags, str_destroy, NULL);
-  List_Target_foreach(cmdFlags.targets, name_destroy, NULL);
+  int ex = puts(usageMesasge);
+  destroyFlags();
   print_heap();
-  exit(puts(usageMesasge));
+  exit(ex);
 }
 
 static inline void parseFlags(int argc, char **argv) {
   cmdFlags.temp_folder = "/tmp/stilts/";
   cmdFlags.CC = "cc";
-  cmdFlags.cflags = List_charptr_new_cap(0);
+  cmdFlags.cflags = List_String_new_cap(0);
   cmdFlags.targets = List_Target_new_cap(1);
   cmdFlags.parse = true;
   cmdFlags.check = true;
@@ -68,9 +68,10 @@ static inline void parseFlags(int argc, char **argv) {
           cmdFlags.CC = String_new_of_strlen(argv[i]);
           continue;
         } else if (apaz_str_equals(argv[i - 1], "--cflags")) {
-          printf("%zu\n", i);
-          cmdFlags.cflags =
-              List_String_filter(String_split(argv[i], " "), filterEmpty, NULL);
+          String sarg = String_new_of_strlen(argv[i]);
+          List_String_destroy(cmdFlags.cflags);
+          cmdFlags.cflags = List_String_filter(String_split(sarg, " "), filterEmpty, NULL);
+          String_destroy(sarg);
           continue;
         }
       }
@@ -114,6 +115,11 @@ static inline void parseFlags(int argc, char **argv) {
   cmdFlags.targets = List_Target_trim(cmdFlags.targets);
 }
 
+static inline void destroyFlags() {
+  List_String_foreach(cmdFlags.cflags, str_destroy, NULL);
+  List_Target_destroy(cmdFlags.targets);
+}
+
 static inline const char *strb(bool b) { return b ? "yes" : "no"; }
 static inline void printFlags() {
   printf(
@@ -126,7 +132,7 @@ static inline void printFlags() {
   printf("    CC:      %s\n", cmdFlags.CC);
   printf("    cflags:  [");
   if (List_String_len(cmdFlags.cflags))
-    puts(cmdFlags.cflags[0]);
+    printf("%s", cmdFlags.cflags[0]);
   for (size_t i = 1; i < List_String_len(cmdFlags.cflags); i++)
     printf(", %s", cmdFlags.cflags[i]);
   printf("]\n");
@@ -143,4 +149,6 @@ static inline void printFlags() {
 int main(int argc, char **argv) {
   parseFlags(argc, argv);
   printFlags();
+  destroyFlags();
+  print_heap();
 }
