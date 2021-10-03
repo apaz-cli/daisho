@@ -1,7 +1,7 @@
 #ifndef STRUCT_DECLARATIONS
 #define STRUCT_DECLARATIONS
 
-#include "TokType.h"
+#include "Generated/TokType.h"
 #include <apaz-libc.h>
 #include <list.h/list.h>
 
@@ -13,10 +13,9 @@
 /* Tokenizer */
 /*************/
 
-// Defined in the "Compiler" section.
-struct Target;
-typedef struct Target Target;
 
+TYPE_DECLARE(Target);
+TYPE_DECLARE(Token);
 struct Token {
   TokType type;
   String content;
@@ -25,23 +24,26 @@ struct Token {
   size_t line;
   size_t pos;
 };
-typedef struct Token Token;
 LIST_DEFINE(Token);
 typedef List_Token TokenStream;
 
+#include "Generated/Automata.h"
+
+TYPE_DECLARE(StiltsTokenizer);
 struct StiltsTokenizer {
-  size_t current_position;
-  List_Token outstream;
-  List_Token ignorestream;
+  // NUM_DFAS is a generated macro.
+  DFA* DFAs;
+  Target* target;
+  size_t current_pos;
+  size_t next_pos;
 };
-typedef struct StiltsTokenizer StiltsTokenizer;
 
 /*******/
 /* AST */
 /*******/
 
-struct ASTNode;
-#include "ASTNodeType.h"
+TYPE_DECLARE(ASTNode);
+#include "Generated/ASTNodeType.h"
 typedef struct ASTNode ASTNode;
 typedef ASTNode AST;
 struct ASTNode {
@@ -69,15 +71,17 @@ struct ParserStackFrame {
 };
 typedef struct ParserStackFrame ParserStackFrame;
 struct ParserCallStack {
-  ParserStackFrame frames[STILTS_PARSER_MAX_STACK_FRAMES];
+  ASTNodeType frames[STILTS_PARSER_MAX_STACK_FRAMES];
   size_t height;
 };
 typedef struct ParserCallStack ParserCallStack;
 struct StiltsParser {
-  Token* sym;
-  size_t current_token;
-  List_Token token_stream;
+  Arena* arena;
   ParserCallStack call_stack;
+
+  size_t current_token_pos;
+  Token current_token;
+  TokenStream token_stream;
 };
 typedef struct StiltsParser StiltsParser;
 
@@ -151,7 +155,6 @@ struct Expr {
   bool compile;
   void* other;
 };
-LIST_DEFINE(Expr);
 LIST_DEFINE(ExprPtr);
 
 /* Validate, in order: */
@@ -167,7 +170,7 @@ typedef List_Expr  ExprTable;
 struct Target {
     char* file_name;
     String content;
-    TokenStream tokens;
+    TokenStream token_stream;
     AST ast;
 };
 LIST_DEFINE(Target);

@@ -10,17 +10,17 @@ topLevelDeclaration:
 	globalVariableDeclaration
 	| functionDeclaration
 	| classDeclaration
-	| interfaceDeclaration
+	| traitDeclaration
 	| enumDeclaration
 	| ctypeDeclaration;
 
 classDeclaration: CLASS;
-interfaceDeclaration: INTERFACE IDENT;
+traitDeclaration: TRAIT IDENT;
 
 // Enum
 enumDeclaration: ENUM LBRACE enumMember* RBRACE;
 enumMember: varIdent EQUALS enumValue SEMI;
-enumValue: NullLiteral | IntegerLiteral | BooleanLiteral;
+enumValue: IntegerLiteral | TRUE | FALSE | NullLiteral;
 
 // ctype
 ctypeDeclaration: CTYPE IDENT SEMI;
@@ -56,9 +56,8 @@ expr:
 	| functionCall
 	| LPAREN expr RPAREN;
 
-lambdaExpr: LPAREN lambdaArgList RPAREN ARROW statement;
-lambdaArgList: varIdent lambdaArgList |;
-// or empty
+lambdaExpr: LPAREN lambdaArgList? RPAREN LAMBDA_ARROW statement;
+lambdaArgList: varIdent COMMA lambdaArgList | varIdent;
 
 /**************/
 /* Statements */
@@ -82,17 +81,18 @@ ifStatement:
 elseStatement: ELSE statement;
 
 forStatement:
-	FOR LPAREN forCondition RPAREN statement
-	| FOR forCondition statement;
+	FOR LPAREN forBody RPAREN statement
+	| FOR forBody statement;
 whileStatement: // typecheck expr as bool or int type
 	WHILE LPAREN expr RPAREN statement
 	| WHILE expr statement;
 blockStatement: LBRACE statement* RBRACE;
 exprStatement: expr SEMI;
 
-forCondition: forDeclarations SEMI forExpr? SEMI forExpr? |;
-forDeclarations:;
-forExpr:;
+forBody: forDeclarations? SEMI forCondition? SEMI forExprs? |;
+forDeclarations: varDeclStatement;
+forCondition: expr;
+forExprs: expr;
 
 /*************/
 /* Functions */
@@ -117,4 +117,5 @@ literal:
 	| IntegerLiteral
 	| FloatLiteral
 	| StringLiteral
-	| BooleanLiteral;
+	| TRUE
+	| FALSE;

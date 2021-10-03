@@ -12,6 +12,7 @@ enum ASTNodeType {
   FunctionDecl,
   CTypeDecl,
   GlobalVarDecl,
+  Expression,
 };
 typedef enum ASTNodeType ASTNodeType;
 
@@ -23,7 +24,8 @@ static const char* ASTNodeTypeNameMap[] = {
   "ClassDecl", 
   "FunctionDecl", 
   "CTypeDecl", 
-  "GlobalVarDecl"
+  "GlobalVarDecl", 
+  "Expression"
 };
 
 

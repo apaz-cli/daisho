@@ -24,6 +24,7 @@ Thinking:
         What parts should be checked when?
 
 Coding:
+    Switch to UTF-8
     Split up sections
     Look at null terminators in TokType valid/potential
     TokType reverse map

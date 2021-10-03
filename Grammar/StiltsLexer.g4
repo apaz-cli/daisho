@@ -45,11 +45,8 @@ OPERATOR: 'operator';
 EXTENDS: 'extends';
 
 // Interfaces
-INTERFACE: 'interface';
-IMPLEMENTS: 'implements';
-ABSTRACT: 'abstract';
-DEFAULT: 'default';
-DEFAULTSTO: 'defaultsto';
+TRAIT: 'trait';
+IMPL: 'impl';
 
 // Other containers
 ENUM: 'enum';
@@ -60,10 +57,13 @@ PROTECTED: 'protected';
 PUBLIC: 'public';
 
 // Builtin functions
-SUPER: 'super';
 INSTANCEOF: 'instanceof';
 SIZEOF: 'sizeof';
 ASSERT: 'assert';
+
+// Boolean literals
+TRUE: 'true';
+FALSE: 'false';
 
 /************/
 /* LITERALS */
@@ -74,31 +74,27 @@ fragment DecimalNumeral:
 	Sign? UnderscoreDigits DecimalTypeSuffix?;
 fragment Sign: [+-];
 fragment DecimalTypeSuffix: [Ll];
-fragment UnderscoreDigits: Digits '_' UnderscoreDigits | Digits;
-fragment Digits: Digit+;
-fragment Digit: [0-9];
+fragment UnderscoreDigits: [0-9]+ '_' UnderscoreDigits | [0-9]+;
+
 fragment Nondigit: [a-zA-Zα-ωΑ-Ω_];
 
 // Hex fragments
 fragment HexNumeral: '0x' UnderscoreHexDigits;
 fragment UnderscoreHexDigits:
-	HexDigits '_' UnderscoreHexDigits
-	| HexDigits;
-fragment HexDigits: HexDigit+;
-fragment HexDigit: [0-9A-F];
+	([0-9A-F]+ '_' UnderscoreHexDigits
+	| [0-9A-F]+);
 
 // String fragments TODO: refine ~["\\\r\n]
 fragment SCharFrag: '"' SChar+ '"';
-fragment SCharSeq: SChar+;
 fragment SChar: ~["\\\r\n] | EscapeSequence | '\\\n' | '\\\r\n';
-fragment EscapeSequence: '\\' ['"?abfnrtv\\] | '\\x' HexDigit+;
+fragment EscapeSequence: '\\' ['"?abfnrtv\\] | '\\x' [0-9A-F]+;
 
 // Literal definitions
 IntegerLiteral: DecimalNumeral | HexNumeral;
 FloatLiteral:
 	IntegerLiteral
 	| Sign? DecimalNumeral '.' DecimalNumeral?;
-BooleanLiteral: 'true' | 'false';
+// Boolean literals are keywords
 NullLiteral: 'NULL';
 StringLiteral: SCharFrag+;
 
@@ -119,6 +115,7 @@ COMMA: ',';
 DOT: '.';
 STAR: '*';
 EQUALS: '=';
+LAMBDA_ARROW: '=>';
 
 /*************/
 /* Operators */
@@ -126,7 +123,9 @@ EQUALS: '=';
 
 BANG: '!';
 TILDE: '~';
+/* Bitwise NOT */
 QUESTION: '?';
+/* Ternary Expression */
 COLON: ':';
 EQUAL: '==';
 LE: '<=';
@@ -143,7 +142,7 @@ AMP: '&';
 BITOR: '|';
 CARET: '^';
 MOD: '%';
-ARROW: '->';
+DEREF_ARROW: '->';
 
 ADD_ASSIGN: '+=';
 SUB_ASSIGN: '-=';
@@ -153,9 +152,7 @@ AND_ASSIGN: '&=';
 OR_ASSIGN: '|=';
 XOR_ASSIGN: '^=';
 MOD_ASSIGN: '%=';
-// LSHIFT_ASSIGN: '<<=';
-// RSHIFT_ASSIGN: '>>=';
-// URSHIFT_ASSIGN: '>>>=';
+// LSHIFT_ASSIGN: '<<='; RSHIFT_ASSIGN: '>>='; URSHIFT_ASSIGN: '>>>=';
 
 /***************/
 /* Identifiers */
@@ -167,8 +164,8 @@ IDENT: IdentStart IdentPart*;
 /********************/
 
 WS: [ \t\r\n\u000C]+ -> skip;
-COMMENT: '/*' .*? '*/' -> skip;
-LINE_COMMENT: '//' ~[\n]* -> skip;
+ML_COMMENT: '/*' .*? '*/' -> skip;
+SL_COMMENT: '//' ~[\n]* -> skip;
 
 /*************************/
 /* Identifier Characters */

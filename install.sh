@@ -4,6 +4,8 @@
 FLAGS=""
 if [ $1 ] && [ $1 = "release" ]; then
   FLAGS="${FLAGS} -O3 -flto -march=native"
+elif [ $1 ] && [ $1 = "aggressive-optimizations" ]; then
+  FLAGS="${FLAGS} -O3 -flto -march=native -DAPAZ_HANDLE_UNLIKELY_ERRORS=0"
 elif [ $1 ] && [ $1 = "memdebug" ]; then
   FLAGS="${FLAGS} -Og -g -fsanitize=address -DMEMDEBUG=1"
 else
