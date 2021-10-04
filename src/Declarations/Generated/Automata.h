@@ -17,6 +17,16 @@
  * There may be multiple transition rules that match. Ties are broken by taking the first 
  * applicable transition. If no transition rule applies, the DFA transitions into the 0 
  * state, which is non-accepting, and no further input will be processed.
+ *
+ * Tokenization continues until one of the following:
+ *   One or less of the DFAs are accepting
+ *   The end of the file is reached.
+ * At this point, we rewind to the last position where a DFA was accepting, and break any 
+ * ties. We take that token, add it to the token stream, advance our position in the file, 
+ * and continue for the next token. If there's no token to add because we're at the end of 
+ * the file, or some type of syntax error occurred where there is no valid token to add, 
+ * we stop processing and either end the token stream with the END_OF_FILE token, or throw 
+ * an error.
  */
 
 
