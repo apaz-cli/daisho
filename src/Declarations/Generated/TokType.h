@@ -3,16 +3,16 @@
 #define INCLUDE_TOKENS
 #include <apaz-libc.h>
 
-#define NUM_TOKTYPES 85
+#define NUM_TOKTYPES 83
 #define MAX_TOKTYPE_NAME_LEN 12
 enum TokType {
-  INVALID,
-  END_OF_FILE,
   WS,
   IMPORT,
   SL_COMMENT,
   ML_COMMENT,
   IDENT,
+  END_OF_FILE,
+  INVALID,
   NATIVE,
   CTYPE,
   BOOL,
@@ -36,14 +36,12 @@ enum TokType {
   CLASS,
   THIS,
   OPERATOR,
-  EXTENDS,
   TRAIT,
   IMPL,
   ENUM,
   PRIVATE,
   PROTECTED,
   PUBLIC,
-  SUPER,
   INSTANCEOF,
   SIZEOF,
   ASSERT,
@@ -94,13 +92,6 @@ enum TokType {
 };
 typedef enum TokType TokType;
 static const char* TokNameMap[] = {
-  "INVALID", 
-  "END_OF_FILE", 
-  "WS", 
-  "IMPORT", 
-  "SL_COMMENT", 
-  "ML_COMMENT", 
-  "IDENT", 
   "NATIVE", 
   "CTYPE", 
   "BOOL", 
@@ -124,14 +115,12 @@ static const char* TokNameMap[] = {
   "CLASS", 
   "THIS", 
   "OPERATOR", 
-  "EXTENDS", 
   "TRAIT", 
   "IMPL", 
   "ENUM", 
   "PRIVATE", 
   "PROTECTED", 
   "PUBLIC", 
-  "SUPER", 
   "INSTANCEOF", 
   "SIZEOF", 
   "ASSERT", 
@@ -178,7 +167,14 @@ static const char* TokNameMap[] = {
   "AND_ASSIGN", 
   "OR_ASSIGN", 
   "XOR_ASSIGN", 
-  "MOD_ASSIGN"
+  "MOD_ASSIGN", 
+  "WS", 
+  "IMPORT", 
+  "SL_COMMENT", 
+  "ML_COMMENT", 
+  "IDENT", 
+  "END_OF_FILE", 
+  "INVALID"
 };
 
 
