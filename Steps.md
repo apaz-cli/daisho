@@ -1,6 +1,9 @@
 
 # Tokenize
+	DFAs for each type of token are combined into one NFA.
 # Parse
+	Keep a 
+
 # Checker/Optimizer
 * Combine String literals.
 * Validate that float and integer literals can fit.
@@ -12,7 +15,7 @@
 * Traverse the AST, starting from the bottom.
     * Validate types and combine values known at compile time.
     * Apply widening conversions automatically. Disallow narrowing conversions without a cast.
-        * Integer types can cast to float types, except ULong to Float.
+        * Integer types can cast to float types, except ULong to Float, because it is narrowing.
     * Infer the return values of functions by their signature (mindful that overloads exist).
 * Validate Interfaces are implemented and types match
 
