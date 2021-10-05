@@ -3,7 +3,6 @@
 
 #include "Generated/TokType.h"
 #include <apaz-libc.h>
-#include <list.h/list.h>
 
 /***************************/
 /*    TYPE DECLARATIONS    */
@@ -13,6 +12,11 @@
 /* Tokenizer */
 /*************/
 
+TYPE_DECLARE(Optional);
+struct Optional {
+  void* item; // const char* with error if error, otherwise value.
+  bool error;
+};
 
 TYPE_DECLARE(Target);
 TYPE_DECLARE(Token);
@@ -135,7 +139,7 @@ struct Trait {
   List_Method abstract_methods;
   // Implementation not null
   List_Method default_methods;
-  
+
   List_Trait subtraits;
 };
 LIST_DEFINE(Trait);
