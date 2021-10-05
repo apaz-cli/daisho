@@ -1,0 +1,65 @@
+In file included from src/Compiler.c:1:
+In file included from src/Declarations/Declarations.h:1:
+In file included from src/Declarations/StructDeclarations.h:34:
+src/Declarations/Generated/Automata.h:60:34: error: initializer element is not a compile-time constant
+const DFARule NATIVE_rules[] = { NATIVE_rule_1, NATIVE_rule_2, NATIVE_rule_3, NATIVE_rule_4, NATIVE_rule_5, NATIVE_rule_6 };
+                                 ^~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:61:62: warning: implicit declaration of function 'ARR_SIZE' is invalid in C99 [-Wimplicit-function-declaration]
+const DFA NATIVE_DFA = { .rules = NATIVE_rules, .num_rules = ARR_SIZE(NATIVE_rules), .accepting_state = 7 };
+                                                             ^
+src/Declarations/Generated/Automata.h:61:62: error: initializer element is not a compile-time constant
+const DFA NATIVE_DFA = { .rules = NATIVE_rules, .num_rules = ARR_SIZE(NATIVE_rules), .accepting_state = 7 };
+                                                             ^~~~~~~~~~~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:68:33: error: initializer element is not a compile-time constant
+const DFARule CTYPE_rules[] = { CTYPE_rule_1, CTYPE_rule_2, CTYPE_rule_3, CTYPE_rule_4, CTYPE_rule_5 };
+                                ^~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:69:60: error: initializer element is not a compile-time constant
+const DFA CTYPE_DFA = { .rules = CTYPE_rules, .num_rules = ARR_SIZE(CTYPE_rules), .accepting_state = 6 };
+                                                           ^~~~~~~~~~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:75:32: error: initializer element is not a compile-time constant
+const DFARule BOOL_rules[] = { BOOL_rule_1, BOOL_rule_2, BOOL_rule_3, BOOL_rule_4 };
+                               ^~~~~~~~~~~
+src/Declarations/Generated/Automata.h:76:58: error: initializer element is not a compile-time constant
+const DFA BOOL_DFA = { .rules = BOOL_rules, .num_rules = ARR_SIZE(BOOL_rules), .accepting_state = 5 };
+                                                         ^~~~~~~~~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:82:32: error: initializer element is not a compile-time constant
+const DFARule CHAR_rules[] = { CHAR_rule_1, CHAR_rule_2, CHAR_rule_3, CHAR_rule_4 };
+                               ^~~~~~~~~~~
+src/Declarations/Generated/Automata.h:83:58: error: initializer element is not a compile-time constant
+const DFA CHAR_DFA = { .rules = CHAR_rules, .num_rules = ARR_SIZE(CHAR_rules), .accepting_state = 5 };
+                                                         ^~~~~~~~~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:90:33: error: initializer element is not a compile-time constant
+const DFARule UCHAR_rules[] = { UCHAR_rule_1, UCHAR_rule_2, UCHAR_rule_3, UCHAR_rule_4, UCHAR_rule_5 };
+                                ^~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:91:60: error: initializer element is not a compile-time constant
+const DFA UCHAR_DFA = { .rules = UCHAR_rules, .num_rules = ARR_SIZE(UCHAR_rules), .accepting_state = 6 };
+                                                           ^~~~~~~~~~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:98:33: error: initializer element is not a compile-time constant
+const DFARule SHORT_rules[] = { SHORT_rule_1, SHORT_rule_2, SHORT_rule_3, SHORT_rule_4, SHORT_rule_5 };
+                                ^~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:99:60: error: initializer element is not a compile-time constant
+const DFA SHORT_DFA = { .rules = SHORT_rules, .num_rules = ARR_SIZE(SHORT_rules), .accepting_state = 6 };
+                                                           ^~~~~~~~~~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:107:34: error: initializer element is not a compile-time constant
+const DFARule USHORT_rules[] = { USHORT_rule_1, USHORT_rule_2, USHORT_rule_3, USHORT_rule_4, USHORT_rule_5, USHORT_rule_6 };
+                                 ^~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:108:62: error: initializer element is not a compile-time constant
+const DFA USHORT_DFA = { .rules = USHORT_rules, .num_rules = ARR_SIZE(USHORT_rules), .accepting_state = 7 };
+                                                             ^~~~~~~~~~~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:113:31: error: initializer element is not a compile-time constant
+const DFARule INT_rules[] = { INT_rule_1, INT_rule_2, INT_rule_3 };
+                              ^~~~~~~~~~
+src/Declarations/Generated/Automata.h:114:56: error: initializer element is not a compile-time constant
+const DFA INT_DFA = { .rules = INT_rules, .num_rules = ARR_SIZE(INT_rules), .accepting_state = 4 };
+                                                       ^~~~~~~~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:120:32: error: initializer element is not a compile-time constant
+const DFARule UINT_rules[] = { UINT_rule_1, UINT_rule_2, UINT_rule_3, UINT_rule_4 };
+                               ^~~~~~~~~~~
+src/Declarations/Generated/Automata.h:121:58: error: initializer element is not a compile-time constant
+const DFA UINT_DFA = { .rules = UINT_rules, .num_rules = ARR_SIZE(UINT_rules), .accepting_state = 5 };
+                                                         ^~~~~~~~~~~~~~~~~~~~
+src/Declarations/Generated/Automata.h:127:32: error: initializer element is not a compile-time constant
+const DFARule LONG_rules[] = { LONG_rule_1, LONG_rule_2, LONG_rule_3, LONG_rule_4 };
+                               ^~~~~~~~~~~
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+1 warning and 20 errors generated.
