@@ -42,7 +42,6 @@ For each compilation unit in parallel:
 # Static Analysis
 * Validate that duplicate typedefs don't define the type differently, then replace with the real type.
 * Build a hierarchy of types.
-    * No multiple (or circular) inheritance.
     * Circular and multiple template implements are okay, but make sure they're handled.
 * Infer Generics, keeping a note. Native methods cannot accept or return generics, but can be in a generic class.
 * Traverse the AST, starting from the bottom.
@@ -56,3 +55,12 @@ For each compilation unit in parallel:
 Information that must be known:
 Function Signatures
 Which generic overloads are used
+
+
+* Write all type declarations
+* Write all function declarations
+
+* Write all struct definitions
+* Write all function definitions
+
+
