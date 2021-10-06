@@ -5,7 +5,8 @@ There are five kinds of types.
 	1. CTypes
 	2. Classes
 	3. Generics
-	4. Lambda Expressions
+	4. Traits
+	5. Lambda Expressions
 
 All of them are created equal. Methods can be attached to any type.
 
@@ -37,6 +38,65 @@ another struct, just like you would write it yourself. More on structs
 containing other types later.
 
 
+## Generics
+
+Generic types are just a stand-in for another type. You can add generics to 
+methods, classes, and structs.
+
+```rust
+// Some classes and traits
+trait Animal { String speak(); }
+class Dog impl Animal {
+	String speak() return "WOOF";
+}
+class Sheep impl Animal {
+	String speak() return "BAAAA";
+}
+
+// Generic on a Trait without specialization
+trait SubBox<T> where T impl Animal {
+
+}
+
+// Generic on a class without specialization
+class AnimalBox where T impl Animal {
+	T item;
+
+	AnimalBox();
+	AnimalBox(T item) this.item = item;
+	
+	T getItem() return this.item;
+	Void setItem(T item) this.item = item;
+}
+
+// Generic on a class with specialization
+class Box<T> where T impl Animal {
+	T item;
+
+	Box();
+	Box(T item) this.item = item;
+	
+	T getItem() return this.item;
+	Void setItem(T item) this.item = item;
+}
+
+// Generic on a Function
+T unboxer(Box<T> box) where T impl Animal {
+	return box.getItem();
+}
+
+
+// Generic on a Trait
+trait CuteAnimal
+
+Int main() {
+	// Box<Dog> inferred by its arguments
+	Box<Dog> dogbox = Box<>(Dog());
+	Box<Sheep> sheepbox = Box<>(Sheep());
+}
+```
+
+
 ## Traits
 
 Any type can implement a Trait. All a trait does is enforce that the type it's 
@@ -53,7 +113,7 @@ There are two ways to use traits.
 
 
 1. Enforce that a generic type has certain methods
-```
+```rust
 trait Animal { String speak(); }
 class Dog impl Animal {
 	String speak() {
@@ -94,7 +154,7 @@ type of `Animal`. You get polymorphism, with no performance cost.
 Note that the following are equivalent. Whenever you use a Trait as a type, it 
 uses a generic type in disguise. There's a little bit of nuance to this.
 
-```
+```rust
 Void makeSpeak(Animal animal)
 Void <A impl Animal> makeSpeak(A animal)
 ```
@@ -108,7 +168,7 @@ But it uses a different generic type for each. This can come up
 
 The other use for Traits is for lambda expressions. Consider this drastic 
 simplification of the previous example.
-```
+```rust
 trait Animal { String speak(); }
 Void <A impl Animal> makeSpeak(A animal)
 
@@ -150,19 +210,6 @@ Hopefully this clears up some confusion about how lambda expressions are
 handled.
 
 
-The usual use is to use it to define functions.
-
-```
-trait <T impl Number> {
-
-}
-```
-
-A lambda expression is simply an instance of an 
-anonymous class implementing a functional trait.
-
-
-
 # Calling Conventions
 
 Whenever is a method is called on a type, it is implicitly passed a pointer of 
@@ -170,7 +217,7 @@ that type as the argument's first method. That's how the `this` pointer is
 handled.
 
 Take, for example, the following.
-```
+```rust
 class Dog {
 	String sound;
 	Dog() { this.sound = "Bark"; }
@@ -182,7 +229,7 @@ Int main() { Dog().bark(); }
 
 Then the above is equivalent to and generates the same code as below:
 
-```
+```rust
 class Dog {
 	String sound;
 	Dog() { this.sound = "Bark"; }
