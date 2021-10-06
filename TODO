@@ -24,6 +24,7 @@ Thinking:
         What parts should be checked when?
 
 Coding:
+    Testing framework and tests
     Switch to UTF-8
     Split up sections
     ASTNode_##node_type##_destroy(Arena *arena)
@@ -33,7 +34,5 @@ Coding:
     apaz-libc:
 	Split mutexes from memdebug.h/arena.h off into a new mutex.h
         List reduce()
-        String read file
-        String read lines from file
         String regex match?
         String to/from integral types?
