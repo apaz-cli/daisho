@@ -22,7 +22,7 @@ def build():
     for file in glob('scripts/*.c'):
         fname = file[len('scripts/'):len(file)-2]
         out_loc = f"bin/{fname}"
-        run(f'cc {file} -o {out_loc}')
+        run(f'cc -g -Og -fsanitize=address -DMEMDEBUG=1 {file} -o {out_loc}')
 
 
 def runTests():
