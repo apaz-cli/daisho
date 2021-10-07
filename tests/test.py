@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python3
 #from subprocess import run
 
 import os
@@ -10,23 +10,34 @@ def run(s): print(s); os.system(s)
 def mkdir(s): pass
 
 
+cc = "clang"
+
+
 def build():
     # Build stiltc
     cd('..')
     run('./rungenerators.sh')
-    print("Building the compiler.")
     run('./install.sh')
 
-    # Build the test scripts
+    # Build the c test scripts
     cd('tests/')
-    for file in glob('scripts/*.c'):
-        fname = file[len('scripts/'):len(file)-2]
-        out_loc = f"bin/{fname}"
-        run(f'cc -g -Og -fsanitize=address -DMEMDEBUG=1 {file} -o {out_loc}')
+    for script in glob('scripts/*.c'):
+        exename = script[len('scripts/'):len(script)-2]
+        run(f'{cc} -g -Og -fsanitize=address -DMEMDEBUG=1 {script} -o bin/{exename}')
+
+    # Move the python test scripts
+    for script in glob('scripts/*.py'):
+        exename = script[len('scripts/'):len(script)-3]
+        run(f'chmod +x {script}')
+        run(f'cp {script} bin/{exename}')
 
 
 def runTests():
-    pass
+    # Run the test scripts.
+    print()
+    for exe in glob('bin/*'):
+        run(exe)
+        print()
 
 
 def cleanTests():

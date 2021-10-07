@@ -1,6 +1,7 @@
 bin/**
 __pycache__/**
 .vscode/**
+tests/bin/*
 
 # Antlr reference materials
 **/The_Definitive_ANTLR4_Reference.pdf
