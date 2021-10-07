@@ -2,11 +2,13 @@
 #from subprocess import run
 
 import os
+import subprocess
+from shlex import split
 from os import chdir as cd
 from glob import glob
 
 def pwd(): return print(os.getcwd)
-def run(s): print(s); os.system(s)
+def run(s): print(s); subprocess.run(split(s), check=True)
 def mkdir(s):
     try:
         os.mkdir(s)
