@@ -1,12 +1,15 @@
 
 # Types
 
-There are five kinds of types.
+These are all the different kinds of types.
 	1. CTypes
-	2. Classes
-	3. Generics
-	4. Traits
-	5. Lambda Expressions
+	2. Typedefs
+	3. Classes
+	4. Generics
+	5. Traits
+	6. Lambda Expressions
+	7. Pointers
+	8. Arrays
 
 All of them are created equal. Methods can be attached to any type.
 
@@ -15,14 +18,14 @@ All of them are created equal. Methods can be attached to any type.
 
 Stilts's concept of a primitive/integral type is replaced with ctype. Since 
 Stilts transpiles to C, C types are the base of the type system. An important 
-feature of the language is that you can define your own integral types.
+feature is that you can define your own. And also strap methods to them.
 
-In fact, this is how the entire standard library is designed. For example, 
-`Int` from the standard library is declared with `ctype int32_t Int;`. The 
-reason why `5 + 4` is valid in the language is becuause `operator+(Int rhs)` 
-is implemented on `Int` as a native method. There is no such thing as 
-primitive addition. Or primitive anything else. Everything somehow traces back 
-to native implementations in the standard library.
+In fact, this is how the entire standard library is designed. `Int` from the 
+standard library is declared with `ctype int32_t Int;`. The reason why 
+`5 + 4` is valid in the language is becuause `operator+(Int rhs)` is 
+implemented on `Int` as a native method. There is no such thing as 
+primitive addition. Or primitive anything else. Everything traces back to 
+native implementations in the standard library.
 
 Builtin functions such as `sizeof()` work on ctypes (and every other type) 
 because the compiler literally generates `sizeof(type)`. This means that any 
@@ -30,18 +33,35 @@ ctype you declare must be fully-qualified type. Otherwise the whole thing will
 almost certainly explode.
 
 
+## Typedefs
+
+A typedef is a literal stand-in for another type name. The compiler literally 
+does a replacement. You just reference the type by a different name, another 
+type is not actually created.
+
+
 ## Classes
 
-Classes are literally structs. So when you have a struct of ctypes, you have 
-a real C struct. A class containing another class is a struct containing 
-another struct, just like you would write it yourself. More on structs 
-containing other types later.
+An object is literally a C struct. So when you have an object containing 
+members, you literally have a C struct containing those members. Likewise, a 
+class containing another class is a struct containing another struct.
+
+The constraint on this is that a class cannot contain an instance of itself as 
+a member, or a trait it implements as a member, or any other trait where an 
+implementation of that trait contains the class as a member. 
+
+Let n be the size of an instance of the class. Let k be the total size of the 
+other members. Then if an instance of the class contains itself, its size is 
+`n = n + k`. You could say "okay, k is zero. The class only contains itself." 
+But what use is that? Therefore, we disallow a class containing an instance 
+of itself.
 
 
 ## Generics
 
-Generic types are just a stand-in for another type. You can add generics to 
-methods, classes, and structs.
+Generic types are a stand-in for another type. But unlike typedefs, you can 
+do a lot more with these. You can use them for polymorphism. You can add 
+generics to methods, classes, and structs.
 
 ```rust
 // Some classes and traits
@@ -53,41 +73,25 @@ class Sheep impl Animal {
 	String speak() return "BAAAA";
 }
 
-// Generic on a Trait without specialization
-trait SubBox<T> where T impl Animal {
+// Generic on a trait
+trait AnimalBox<T> where T impl Animal
 
-}
-
-// Generic on a class without specialization
-class AnimalBox where T impl Animal {
+// A class using a generic trait, passing the generic through.
+class Crate<T> impl AnimalBox<T> {
 	T item;
 
-	AnimalBox();
-	AnimalBox(T item) this.item = item;
-	
-	T getItem() return this.item;
-	Void setItem(T item) this.item = item;
-}
+	Crate();
+	Crate(T item) this.item = item;
 
-// Generic on a class with specialization
-class Box<T> where T impl Animal {
-	T item;
-
-	Box();
-	Box(T item) this.item = item;
-	
 	T getItem() return this.item;
 	Void setItem(T item) this.item = item;
 }
 
 // Generic on a Function
-T unboxer(Box<T> box) where T impl Animal {
+T unboxer(AnimalBox<T> box) {
 	return box.getItem();
 }
 
-
-// Generic on a Trait
-trait CuteAnimal
 
 Int main() {
 	// Box<Dog> inferred by its arguments
@@ -99,33 +103,53 @@ Int main() {
 
 ## Traits
 
-Any type can implement a Trait. All a trait does is enforce that the type it's 
-on implements all the trait's methods. It's a contract made between the 
+Any type can implement a Trait. A trait is a tool to enforce that the type it's 
+on implements all the required methods. It's a contract made between the 
 programmer and the compiler. If you break that contract, you'll be notified 
-with an error. Much like interfaces in Java.
+with an error.
 
-Unlike interfaces in Java, Traits don't exist at runtime. A trait is not a 
-type. You cannot declare a variable that has the type of a trait. You cannot 
-instantiate a trait. A trait does not have a size. There are two things that 
-traits are useful for. 
+There are two ways to use a trait.
+1. Static  (Compile-time)
+2. Dynamic (Runtime)
+
+
+First let's talk about option two, dynamic traits. Unlike in Rust, Stilts 
+traits are real types. They do exist at runtime. An instance of a trait has 
+a size, and a storage duration. You cannot instantiate a trait, but you can 
+instantiate a class that implements a trait, and store it into a trait 
+variable. It will behave like an instance of that trait, because it is one.
+
+How are runtime traits implemented? A trait instance is struct containing a 
+vtable and a union of all the types which implement it. The current type is 
+is kept track of by the trait instance's vtable. Checking whether a trait is 
+an instance of a type is the same as comparing the vtable pointers, as they 
+are static. Calling a runtime trait's method is as simple as reaching into 
+the vtable and pulling out the method.
+
+Since a runtime trait is a union, its size is the largest size out of every 
+type that implements it, plus the size of a pointer on your machine. The total 
+overhead is the size of an extra pointer, plus the cost of accessing the vtable 
+pointer, plus the cost of a virtual function call. The chances are pretty good 
+that stiltc emits code for this which your C compiler will optimize. The 
+clang/gcc static optimizers will probably do away with some, or perhaps even 
+all of this already negligible overhead where possible. However, for those 
+inclined, there exists another, zero-overhead option.
+
+Now, it's time to talk about compile time traits. Traits are also useful at 
+compile time to place constraints on generics.
 
 There are two ways to use traits.
-
 
 1. Enforce that a generic type has certain methods
 ```rust
 trait Animal { String speak(); }
 class Dog impl Animal {
-	String speak() {
-		return "WOOF";
-	}
+	String speak() return "WOOF";
 }
 
 class Sheep impl Animal {}
 impl Animal for Sheep {
-	String speak() {
-		return "BAAAA";
-	}
+	String speak() return "BAAAA";
 }
 
 
@@ -180,34 +204,48 @@ Int main() {
 ```
 
 
-A lambda expression is simply the singleton instance of an anonymous type 
-implementing a functional trait. That's a lot to take in, so allow me to 
-break it down.
+A lambda expression is simply a singleton instance of an anonymous class, 
+containing its captures as members, and implements a functional trait, which 
+is stored in a runtime instance of that trait. That trait instance is what we 
+call a lambda expression. That's a lot to take in at once, so allow me to 
+break it down over multiple paragraphs.
+
+What kind of type your lambda has cannot be named. It has a trait type, but 
+you cannot know what implementation. You can't read it off your screen, nor can 
+you type it on your keyboard. That's why we call it "anonymous." You cannot 
+know its identity. And yet you have one. But since you don't know the 
+implementing type's name, you can't make another one. This is why we call it a 
+"singleon." However, have all we need to know. We know that it fufills its 
+trait. That's why we can call the lambda expression's methods, including 
+operators like the call operator, even without knowing what it actually is.
 
 Since Animal is a Trait with only one unimplemented method, we call it a 
-"functional" trait. That is to say, you can use the trait to create a lambda 
-expression. Lambdas are generally associated with and used as functions, not 
-with generic objects. However, this example is meant to illustrate that the 
-two concepts are one and the same.
+"functional" trait. This is the constraint that we need to declare a lambda on 
+a trait. The reason is as follows. When you declare a lambda, the compiler is 
+able to automatically infer what trait you're trying to implement on by 
+contextual information, but the compiler does need to know what method the 
+lambda's body is an implementation of. Lambdas are generally associated with 
+being used as higher-order functions, hence the "functional" part, but can 
+also be used as generic objects, as shown above. After all, the enlightened 
+know that objects are simply a poor man's closures, and vice-versa.
 
-A lambda's type cannot be named. You can't read it off your screen, nor can 
-you type it on your keyboard. That's why we call it "anonymous." You cannot 
-know its identity. However, we do know that it fufills its trait. So, we can 
-call the lambda expression's methods, including operators like the call 
-operator.
+If you don't know what I'm talking about, read this before continuing.
+http://people.csail.mit.edu/gregs/ll1-discuss-archive-html/msg03277.html
 
-The lambda object type's members are what the lambda captures. The captures 
-are just a fancy way to define a constructor. But, seeing as the captures 
-cannot be directly accessed (they can only shadow, and are the only way to 
-shadow a variable in the language), you don't have to know that.
-
-Once this lambda object type has been created, an object of that type is 
-immediately created. Since you cannot know its identity, you cannot make 
-multiple. That's where the "singleton" part comes in. There only exists one 
-lambda object for each lambda expression. 
+When you declare a lambda expression, you expect it to capture variables from 
+the context it was declared in. This is called a closure. This closure is 
+expressed in Stilts as an object, since as master Qc Na has taught us, the two 
+are equivalent. Captures are just a fancy way to provide arguments to a 
+constructor. That's how we get an instance of our lambda. This closure object 
+is the anonymous type that implements our functional trait.
 
 Hopefully this clears up some confusion about how lambda expressions are 
 handled.
+
+# Pointers
+
+Much like in C, Stilts allows you to take the memory address of variables. The 
+standard library also provides malloc().
 
 
 # Calling Conventions
