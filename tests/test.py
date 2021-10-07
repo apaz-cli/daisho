@@ -7,7 +7,11 @@ from glob import glob
 
 def pwd(): return print(os.getcwd)
 def run(s): print(s); os.system(s)
-def mkdir(s): pass
+def mkdir(s):
+    try:
+        os.mkdir(s)
+    except OSError:
+        pass
 
 
 cc = "clang"
@@ -18,9 +22,10 @@ def build():
     cd('..')
     run('./rungenerators.sh')
     run('./install.sh')
+    cd('tests/')
 
     # Build the c test scripts
-    cd('tests/')
+    mkdir('bin/')
     for script in glob('scripts/*.c'):
         exename = script[len('scripts/'):len(script)-2]
         run(f'{cc} -g -Og -fsanitize=address -DMEMDEBUG=1 {script} -o bin/{exename}')
