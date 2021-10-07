@@ -28,8 +28,6 @@ Coding:
     Switch to UTF-8
     Split up sections
     ASTNode_##node_type##_destroy(Arena *arena)
-    Look at null terminators in TokType valid/potential
-    TokType reverse map
     ASTNodeType reverse map
     apaz-libc:
 	Split mutexes from memdebug.h/arena.h off into a new mutex.h
