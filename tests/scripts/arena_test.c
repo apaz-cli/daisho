@@ -1,23 +1,31 @@
+
+#include <arena.h/arena.h>
 #define MEMDEBUG 1
 #include <apaz-libc.h>
+
+#define NITS 10000
 
 int popt() {
   Arena a = Arena_new("popt");
   for (size_t i = 0; i < 50; i++)
     Arena_malloc(&a, i);
-  for (size_t i = 50; i --> 0; ) {
-    Arena_pop(&a, i)
+  for (size_t i = 50; i-- > 0;) {
+    Arena_pop(&a, i);
   }
-  size_t ret = arena->buf_size;
+  size_t ret = a.buf_size;
   Arena_destroy(&a, false, true);
 
   return (int)ret | (int)get_num_allocs();
 }
 
 int sar() {
-  Arena* a = (Arena*)malloc(sizeof(Arena));
+  size_t asize = ARENA_SIZE;
+  Arena *a = (Arena *)malloc(sizeof(Arena));
+  char buffer[asize];
+  Arena_init(a, "sar", buffer, asize);
 
-  for (size_t i = 0; i < 100000; i++) Arena_malloc(a, i);
+  for (size_t i = 0; i < NITS; i++)
+    Arena_malloc(a, i);
   Arena_destroy(a, true, false);
   return (int)get_num_allocs();
 }
@@ -25,7 +33,8 @@ int sar() {
 int har() {
   Arena a = Arena_new("har");
 
-  for (size_t i = 0; i < 100000; i++) Arena_malloc(&a, i);
+  for (size_t i = 0; i < NITS; i++)
+    Arena_malloc(&a, i);
   Arena_destroy(&a, false, true);
   return (int)get_num_allocs();
 }
@@ -36,27 +45,35 @@ int nar() {
   char buffer[asize];
   Arena_init(&a, "nar", buffer, asize);
 
-  for (size_t i = 0; i < 100000; i++) Arena_malloc(&a, i);
+  for (size_t i = 0; i < NITS; i++)
+    Arena_malloc(&a, i);
   Arena_destroy(&a, false, false);
   return (int)get_num_allocs();
 }
 
 int bar() {
-  size_t asize = 1000;
-  Arena* a = (Arena*)malloc(sizeof(Arena));
-  void* buf = malloc(asize);
-  Arena_init(a, "bar", asize);
+  size_t asize = ARENA_SIZE;
+  Arena *a = (Arena *)malloc(sizeof(Arena));
+  void *buf = malloc(asize);
+  Arena_init(a, "bar", buf, asize);
 
-  for (size_t i = 0; i < 100000; i++) Arena_malloc(a, i);
+  for (size_t i = 0; i < NITS; i++)
+    Arena_malloc(a, i);
   Arena_destroy(a, true, true);
   return (int)get_num_allocs();
 }
 
 int main() {
-  if (sar()) return 1;
-  if (har()) return 2;
-  if (bar()) return 3;
-  if (nar()) return 4;
-  if (popt()) return 5;
+  if (sar())
+    return 1;
+  if (har())
+    return 2;
+  if (bar())
+    return 3;
+  if (nar())
+    return 4;
+  if (popt())
+    return 5;
+  puts("SUCCESS");
   return 0;
 }

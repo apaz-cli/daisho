@@ -1,0 +1,99 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import shutil
+import subprocess
+from shlex import split
+from os import chdir as cd
+from glob import glob
+from typing_extensions import runtime
+
+
+def pwd():
+    return print(os.getcwd)
+
+
+def run(s, nl=True):
+    print("\x1b[35m" + s + "\x1b[0m", end=os.linesep if nl else '')
+    subprocess.run(split(s), check=True)
+
+
+def mkdir(s):
+    try:
+        os.mkdir(s)
+    except OSError:
+        pass
+
+
+def rm(s):
+    try:  # File
+        os.remove(s)
+    except:  # Directory
+        shutil.rmtree(s)
+
+
+os.system("")  # Enables escape sequences on windows lmao
+
+
+def heading(s):
+    print("\x1b[31m" + s + "\x1b[0m")
+
+
+cc = "cc"
+flags = "-g -Og -fsanitize=address -DMEMDEBUG=1"
+
+
+def buildTests():
+    heading("Building stiltc.")
+    cd('..')
+    run('./rungenerators.sh')
+    run('./install.sh')
+    cd('tests/')
+    print()
+
+    heading("Building C test scripts.")
+    mkdir('bin/')
+    for script in glob('scripts/*.c'):
+        exename = script[len('scripts/'):len(script)-2]
+        run(f'{cc} {flags} {script} -o bin/{exename}')
+    print()
+
+    heading("Copying Python test scripts.")
+    for script in glob('scripts/*.py'):
+        exename = script[len('scripts/'):len(script)-3]
+        run(f'cp {script} bin/{exename}', nl=False)
+        print(' && ', end="")
+        run(f'chmod +x bin/{exename}')
+    print()
+
+
+def runTests():
+    # Run the test scripts.
+    heading("Running test scripts")
+    try:
+        for exe in glob('bin/*'):
+            run(exe)
+            print()
+    except:
+        print("FAIL")
+        exit(1)
+
+
+def cleanTests():
+    rm('bin/')
+    pass
+
+
+if (len(sys.argv) > 1):
+    if 'build' in sys.argv:
+        buildTests()
+        exit(0)
+    if 'run' in sys.argv:
+        runTests()
+        exit(0)
+    if 'clean' in sys.argv:
+        cleanTests()
+        exit(0)
+buildTests()
+runTests()
