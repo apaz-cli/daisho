@@ -1,4 +1,5 @@
 #include "Declarations/Declarations.h"
+#include "Declarations/Generated/Automata.h"
 #include "Declarations/GlobalState.h"
 #include "Declarations/MethodDeclarations.h"
 #include "Declarations/StructDeclarations.h"
@@ -151,4 +152,5 @@ int main(int argc, char **argv) {
   printFlags();
   destroyFlags();
   print_heap();
+  initTokenizerDFAs();
 }

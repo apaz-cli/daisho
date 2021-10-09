@@ -4,13 +4,14 @@
 #include <apaz-libc.h>
 
 #define NUM_TOKTYPES 83
-#define MAX_TOKTYPE_NAME_LEN 12
+
 enum TokType {
   WS,
   IMPORT,
   SL_COMMENT,
   ML_COMMENT,
   IDENT,
+  TRAIT,
   END_OF_FILE,
   INVALID,
   NATIVE,
@@ -36,7 +37,6 @@ enum TokType {
   CLASS,
   THIS,
   OPERATOR,
-  TRAIT,
   IMPL,
   ENUM,
   PRIVATE,
@@ -115,7 +115,6 @@ static const char* TokNameMap[] = {
   "CLASS", 
   "THIS", 
   "OPERATOR", 
-  "TRAIT", 
   "IMPL", 
   "ENUM", 
   "PRIVATE", 
@@ -173,6 +172,7 @@ static const char* TokNameMap[] = {
   "SL_COMMENT", 
   "ML_COMMENT", 
   "IDENT", 
+  "TRAIT", 
   "END_OF_FILE", 
   "INVALID"
 };
