@@ -53,98 +53,116 @@ struct DFA {
 /*****************************/
 /* Exact Tokenizer DFA Rules */
 /*****************************/
+#define NATIVE_ACCEPTING 7
 static DFARule NATIVE_rule_1 = { .start_range = 'n', .end_range = 'n', .start_state = 1, .end_state = 2 };
 static DFARule NATIVE_rule_2 = { .start_range = 'a', .end_range = 'a', .start_state = 2, .end_state = 3 };
 static DFARule NATIVE_rule_3 = { .start_range = 't', .end_range = 't', .start_state = 3, .end_state = 4 };
 static DFARule NATIVE_rule_4 = { .start_range = 'i', .end_range = 'i', .start_state = 4, .end_state = 5 };
 static DFARule NATIVE_rule_5 = { .start_range = 'v', .end_range = 'v', .start_state = 5, .end_state = 6 };
 static DFARule NATIVE_rule_6 = { .start_range = 'e', .end_range = 'e', .start_state = 6, .end_state = 7 };
-#define NATIVE_ACCEPTING 7
+
+#define CTYPE_ACCEPTING 6
 static DFARule CTYPE_rule_1 = { .start_range = 'c', .end_range = 'c', .start_state = 1, .end_state = 2 };
 static DFARule CTYPE_rule_2 = { .start_range = 't', .end_range = 't', .start_state = 2, .end_state = 3 };
 static DFARule CTYPE_rule_3 = { .start_range = 'y', .end_range = 'y', .start_state = 3, .end_state = 4 };
 static DFARule CTYPE_rule_4 = { .start_range = 'p', .end_range = 'p', .start_state = 4, .end_state = 5 };
 static DFARule CTYPE_rule_5 = { .start_range = 'e', .end_range = 'e', .start_state = 5, .end_state = 6 };
-#define CTYPE_ACCEPTING 6
+
+#define BOOL_ACCEPTING 5
 static DFARule BOOL_rule_1 = { .start_range = 'B', .end_range = 'B', .start_state = 1, .end_state = 2 };
 static DFARule BOOL_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
 static DFARule BOOL_rule_3 = { .start_range = 'o', .end_range = 'o', .start_state = 3, .end_state = 4 };
 static DFARule BOOL_rule_4 = { .start_range = 'l', .end_range = 'l', .start_state = 4, .end_state = 5 };
-#define BOOL_ACCEPTING 5
+
+#define CHAR_ACCEPTING 5
 static DFARule CHAR_rule_1 = { .start_range = 'C', .end_range = 'C', .start_state = 1, .end_state = 2 };
 static DFARule CHAR_rule_2 = { .start_range = 'h', .end_range = 'h', .start_state = 2, .end_state = 3 };
 static DFARule CHAR_rule_3 = { .start_range = 'a', .end_range = 'a', .start_state = 3, .end_state = 4 };
 static DFARule CHAR_rule_4 = { .start_range = 'r', .end_range = 'r', .start_state = 4, .end_state = 5 };
-#define CHAR_ACCEPTING 5
+
+#define UCHAR_ACCEPTING 6
 static DFARule UCHAR_rule_1 = { .start_range = 'U', .end_range = 'U', .start_state = 1, .end_state = 2 };
 static DFARule UCHAR_rule_2 = { .start_range = 'C', .end_range = 'C', .start_state = 2, .end_state = 3 };
 static DFARule UCHAR_rule_3 = { .start_range = 'h', .end_range = 'h', .start_state = 3, .end_state = 4 };
 static DFARule UCHAR_rule_4 = { .start_range = 'a', .end_range = 'a', .start_state = 4, .end_state = 5 };
 static DFARule UCHAR_rule_5 = { .start_range = 'r', .end_range = 'r', .start_state = 5, .end_state = 6 };
-#define UCHAR_ACCEPTING 6
+
+#define SHORT_ACCEPTING 6
 static DFARule SHORT_rule_1 = { .start_range = 'S', .end_range = 'S', .start_state = 1, .end_state = 2 };
 static DFARule SHORT_rule_2 = { .start_range = 'h', .end_range = 'h', .start_state = 2, .end_state = 3 };
 static DFARule SHORT_rule_3 = { .start_range = 'o', .end_range = 'o', .start_state = 3, .end_state = 4 };
 static DFARule SHORT_rule_4 = { .start_range = 'r', .end_range = 'r', .start_state = 4, .end_state = 5 };
 static DFARule SHORT_rule_5 = { .start_range = 't', .end_range = 't', .start_state = 5, .end_state = 6 };
-#define SHORT_ACCEPTING 6
+
+#define USHORT_ACCEPTING 7
 static DFARule USHORT_rule_1 = { .start_range = 'U', .end_range = 'U', .start_state = 1, .end_state = 2 };
 static DFARule USHORT_rule_2 = { .start_range = 'S', .end_range = 'S', .start_state = 2, .end_state = 3 };
 static DFARule USHORT_rule_3 = { .start_range = 'h', .end_range = 'h', .start_state = 3, .end_state = 4 };
 static DFARule USHORT_rule_4 = { .start_range = 'o', .end_range = 'o', .start_state = 4, .end_state = 5 };
 static DFARule USHORT_rule_5 = { .start_range = 'r', .end_range = 'r', .start_state = 5, .end_state = 6 };
 static DFARule USHORT_rule_6 = { .start_range = 't', .end_range = 't', .start_state = 6, .end_state = 7 };
-#define USHORT_ACCEPTING 7
+
+#define INT_ACCEPTING 4
 static DFARule INT_rule_1 = { .start_range = 'I', .end_range = 'I', .start_state = 1, .end_state = 2 };
 static DFARule INT_rule_2 = { .start_range = 'n', .end_range = 'n', .start_state = 2, .end_state = 3 };
 static DFARule INT_rule_3 = { .start_range = 't', .end_range = 't', .start_state = 3, .end_state = 4 };
-#define INT_ACCEPTING 4
+
+#define UINT_ACCEPTING 5
 static DFARule UINT_rule_1 = { .start_range = 'U', .end_range = 'U', .start_state = 1, .end_state = 2 };
 static DFARule UINT_rule_2 = { .start_range = 'I', .end_range = 'I', .start_state = 2, .end_state = 3 };
 static DFARule UINT_rule_3 = { .start_range = 'n', .end_range = 'n', .start_state = 3, .end_state = 4 };
 static DFARule UINT_rule_4 = { .start_range = 't', .end_range = 't', .start_state = 4, .end_state = 5 };
-#define UINT_ACCEPTING 5
+
+#define LONG_ACCEPTING 5
 static DFARule LONG_rule_1 = { .start_range = 'L', .end_range = 'L', .start_state = 1, .end_state = 2 };
 static DFARule LONG_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
 static DFARule LONG_rule_3 = { .start_range = 'n', .end_range = 'n', .start_state = 3, .end_state = 4 };
 static DFARule LONG_rule_4 = { .start_range = 'g', .end_range = 'g', .start_state = 4, .end_state = 5 };
-#define LONG_ACCEPTING 5
+
+#define FLOAT_ACCEPTING 6
 static DFARule FLOAT_rule_1 = { .start_range = 'F', .end_range = 'F', .start_state = 1, .end_state = 2 };
 static DFARule FLOAT_rule_2 = { .start_range = 'l', .end_range = 'l', .start_state = 2, .end_state = 3 };
 static DFARule FLOAT_rule_3 = { .start_range = 'o', .end_range = 'o', .start_state = 3, .end_state = 4 };
 static DFARule FLOAT_rule_4 = { .start_range = 'a', .end_range = 'a', .start_state = 4, .end_state = 5 };
 static DFARule FLOAT_rule_5 = { .start_range = 't', .end_range = 't', .start_state = 5, .end_state = 6 };
-#define FLOAT_ACCEPTING 6
+
+#define DOUBLE_ACCEPTING 7
 static DFARule DOUBLE_rule_1 = { .start_range = 'D', .end_range = 'D', .start_state = 1, .end_state = 2 };
 static DFARule DOUBLE_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
 static DFARule DOUBLE_rule_3 = { .start_range = 'u', .end_range = 'u', .start_state = 3, .end_state = 4 };
 static DFARule DOUBLE_rule_4 = { .start_range = 'b', .end_range = 'b', .start_state = 4, .end_state = 5 };
 static DFARule DOUBLE_rule_5 = { .start_range = 'l', .end_range = 'l', .start_state = 5, .end_state = 6 };
 static DFARule DOUBLE_rule_6 = { .start_range = 'e', .end_range = 'e', .start_state = 6, .end_state = 7 };
-#define DOUBLE_ACCEPTING 7
+
+#define VOID_ACCEPTING 5
 static DFARule VOID_rule_1 = { .start_range = 'V', .end_range = 'V', .start_state = 1, .end_state = 2 };
 static DFARule VOID_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
 static DFARule VOID_rule_3 = { .start_range = 'i', .end_range = 'i', .start_state = 3, .end_state = 4 };
 static DFARule VOID_rule_4 = { .start_range = 'd', .end_range = 'd', .start_state = 4, .end_state = 5 };
-#define VOID_ACCEPTING 5
+
+#define IF_ACCEPTING 3
 static DFARule IF_rule_1 = { .start_range = 'i', .end_range = 'i', .start_state = 1, .end_state = 2 };
 static DFARule IF_rule_2 = { .start_range = 'f', .end_range = 'f', .start_state = 2, .end_state = 3 };
-#define IF_ACCEPTING 3
+
+#define ELSE_ACCEPTING 5
 static DFARule ELSE_rule_1 = { .start_range = 'e', .end_range = 'e', .start_state = 1, .end_state = 2 };
 static DFARule ELSE_rule_2 = { .start_range = 'l', .end_range = 'l', .start_state = 2, .end_state = 3 };
 static DFARule ELSE_rule_3 = { .start_range = 's', .end_range = 's', .start_state = 3, .end_state = 4 };
 static DFARule ELSE_rule_4 = { .start_range = 'e', .end_range = 'e', .start_state = 4, .end_state = 5 };
-#define ELSE_ACCEPTING 5
+
+#define FOR_ACCEPTING 4
 static DFARule FOR_rule_1 = { .start_range = 'f', .end_range = 'f', .start_state = 1, .end_state = 2 };
 static DFARule FOR_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
 static DFARule FOR_rule_3 = { .start_range = 'r', .end_range = 'r', .start_state = 3, .end_state = 4 };
-#define FOR_ACCEPTING 4
+
+#define WHILE_ACCEPTING 6
 static DFARule WHILE_rule_1 = { .start_range = 'w', .end_range = 'w', .start_state = 1, .end_state = 2 };
 static DFARule WHILE_rule_2 = { .start_range = 'h', .end_range = 'h', .start_state = 2, .end_state = 3 };
 static DFARule WHILE_rule_3 = { .start_range = 'i', .end_range = 'i', .start_state = 3, .end_state = 4 };
 static DFARule WHILE_rule_4 = { .start_range = 'l', .end_range = 'l', .start_state = 4, .end_state = 5 };
 static DFARule WHILE_rule_5 = { .start_range = 'e', .end_range = 'e', .start_state = 5, .end_state = 6 };
-#define WHILE_ACCEPTING 6
+
+#define CONTINUE_ACCEPTING 9
 static DFARule CONTINUE_rule_1 = { .start_range = 'c', .end_range = 'c', .start_state = 1, .end_state = 2 };
 static DFARule CONTINUE_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
 static DFARule CONTINUE_rule_3 = { .start_range = 'n', .end_range = 'n', .start_state = 3, .end_state = 4 };
@@ -153,27 +171,32 @@ static DFARule CONTINUE_rule_5 = { .start_range = 'i', .end_range = 'i', .start_
 static DFARule CONTINUE_rule_6 = { .start_range = 'n', .end_range = 'n', .start_state = 6, .end_state = 7 };
 static DFARule CONTINUE_rule_7 = { .start_range = 'u', .end_range = 'u', .start_state = 7, .end_state = 8 };
 static DFARule CONTINUE_rule_8 = { .start_range = 'e', .end_range = 'e', .start_state = 8, .end_state = 9 };
-#define CONTINUE_ACCEPTING 9
+
+#define BREAK_ACCEPTING 6
 static DFARule BREAK_rule_1 = { .start_range = 'b', .end_range = 'b', .start_state = 1, .end_state = 2 };
 static DFARule BREAK_rule_2 = { .start_range = 'r', .end_range = 'r', .start_state = 2, .end_state = 3 };
 static DFARule BREAK_rule_3 = { .start_range = 'e', .end_range = 'e', .start_state = 3, .end_state = 4 };
 static DFARule BREAK_rule_4 = { .start_range = 'a', .end_range = 'a', .start_state = 4, .end_state = 5 };
 static DFARule BREAK_rule_5 = { .start_range = 'k', .end_range = 'k', .start_state = 5, .end_state = 6 };
-#define BREAK_ACCEPTING 6
+
+#define IN_ACCEPTING 3
 static DFARule IN_rule_1 = { .start_range = 'i', .end_range = 'i', .start_state = 1, .end_state = 2 };
 static DFARule IN_rule_2 = { .start_range = 'n', .end_range = 'n', .start_state = 2, .end_state = 3 };
-#define IN_ACCEPTING 3
+
+#define CLASS_ACCEPTING 6
 static DFARule CLASS_rule_1 = { .start_range = 'c', .end_range = 'c', .start_state = 1, .end_state = 2 };
 static DFARule CLASS_rule_2 = { .start_range = 'l', .end_range = 'l', .start_state = 2, .end_state = 3 };
 static DFARule CLASS_rule_3 = { .start_range = 'a', .end_range = 'a', .start_state = 3, .end_state = 4 };
 static DFARule CLASS_rule_4 = { .start_range = 's', .end_range = 's', .start_state = 4, .end_state = 5 };
 static DFARule CLASS_rule_5 = { .start_range = 's', .end_range = 's', .start_state = 5, .end_state = 6 };
-#define CLASS_ACCEPTING 6
+
+#define THIS_ACCEPTING 5
 static DFARule THIS_rule_1 = { .start_range = 't', .end_range = 't', .start_state = 1, .end_state = 2 };
 static DFARule THIS_rule_2 = { .start_range = 'h', .end_range = 'h', .start_state = 2, .end_state = 3 };
 static DFARule THIS_rule_3 = { .start_range = 'i', .end_range = 'i', .start_state = 3, .end_state = 4 };
 static DFARule THIS_rule_4 = { .start_range = 's', .end_range = 's', .start_state = 4, .end_state = 5 };
-#define THIS_ACCEPTING 5
+
+#define OPERATOR_ACCEPTING 9
 static DFARule OPERATOR_rule_1 = { .start_range = 'o', .end_range = 'o', .start_state = 1, .end_state = 2 };
 static DFARule OPERATOR_rule_2 = { .start_range = 'p', .end_range = 'p', .start_state = 2, .end_state = 3 };
 static DFARule OPERATOR_rule_3 = { .start_range = 'e', .end_range = 'e', .start_state = 3, .end_state = 4 };
@@ -182,17 +205,20 @@ static DFARule OPERATOR_rule_5 = { .start_range = 'a', .end_range = 'a', .start_
 static DFARule OPERATOR_rule_6 = { .start_range = 't', .end_range = 't', .start_state = 6, .end_state = 7 };
 static DFARule OPERATOR_rule_7 = { .start_range = 'o', .end_range = 'o', .start_state = 7, .end_state = 8 };
 static DFARule OPERATOR_rule_8 = { .start_range = 'r', .end_range = 'r', .start_state = 8, .end_state = 9 };
-#define OPERATOR_ACCEPTING 9
+
+#define IMPL_ACCEPTING 5
 static DFARule IMPL_rule_1 = { .start_range = 'i', .end_range = 'i', .start_state = 1, .end_state = 2 };
 static DFARule IMPL_rule_2 = { .start_range = 'm', .end_range = 'm', .start_state = 2, .end_state = 3 };
 static DFARule IMPL_rule_3 = { .start_range = 'p', .end_range = 'p', .start_state = 3, .end_state = 4 };
 static DFARule IMPL_rule_4 = { .start_range = 'l', .end_range = 'l', .start_state = 4, .end_state = 5 };
-#define IMPL_ACCEPTING 5
+
+#define ENUM_ACCEPTING 5
 static DFARule ENUM_rule_1 = { .start_range = 'e', .end_range = 'e', .start_state = 1, .end_state = 2 };
 static DFARule ENUM_rule_2 = { .start_range = 'n', .end_range = 'n', .start_state = 2, .end_state = 3 };
 static DFARule ENUM_rule_3 = { .start_range = 'u', .end_range = 'u', .start_state = 3, .end_state = 4 };
 static DFARule ENUM_rule_4 = { .start_range = 'm', .end_range = 'm', .start_state = 4, .end_state = 5 };
-#define ENUM_ACCEPTING 5
+
+#define PRIVATE_ACCEPTING 8
 static DFARule PRIVATE_rule_1 = { .start_range = 'p', .end_range = 'p', .start_state = 1, .end_state = 2 };
 static DFARule PRIVATE_rule_2 = { .start_range = 'r', .end_range = 'r', .start_state = 2, .end_state = 3 };
 static DFARule PRIVATE_rule_3 = { .start_range = 'i', .end_range = 'i', .start_state = 3, .end_state = 4 };
@@ -200,7 +226,8 @@ static DFARule PRIVATE_rule_4 = { .start_range = 'v', .end_range = 'v', .start_s
 static DFARule PRIVATE_rule_5 = { .start_range = 'a', .end_range = 'a', .start_state = 5, .end_state = 6 };
 static DFARule PRIVATE_rule_6 = { .start_range = 't', .end_range = 't', .start_state = 6, .end_state = 7 };
 static DFARule PRIVATE_rule_7 = { .start_range = 'e', .end_range = 'e', .start_state = 7, .end_state = 8 };
-#define PRIVATE_ACCEPTING 8
+
+#define PROTECTED_ACCEPTING 10
 static DFARule PROTECTED_rule_1 = { .start_range = 'p', .end_range = 'p', .start_state = 1, .end_state = 2 };
 static DFARule PROTECTED_rule_2 = { .start_range = 'r', .end_range = 'r', .start_state = 2, .end_state = 3 };
 static DFARule PROTECTED_rule_3 = { .start_range = 'o', .end_range = 'o', .start_state = 3, .end_state = 4 };
@@ -210,14 +237,16 @@ static DFARule PROTECTED_rule_6 = { .start_range = 'c', .end_range = 'c', .start
 static DFARule PROTECTED_rule_7 = { .start_range = 't', .end_range = 't', .start_state = 7, .end_state = 8 };
 static DFARule PROTECTED_rule_8 = { .start_range = 'e', .end_range = 'e', .start_state = 8, .end_state = 9 };
 static DFARule PROTECTED_rule_9 = { .start_range = 'd', .end_range = 'd', .start_state = 9, .end_state = 10 };
-#define PROTECTED_ACCEPTING 10
+
+#define PUBLIC_ACCEPTING 7
 static DFARule PUBLIC_rule_1 = { .start_range = 'p', .end_range = 'p', .start_state = 1, .end_state = 2 };
 static DFARule PUBLIC_rule_2 = { .start_range = 'u', .end_range = 'u', .start_state = 2, .end_state = 3 };
 static DFARule PUBLIC_rule_3 = { .start_range = 'b', .end_range = 'b', .start_state = 3, .end_state = 4 };
 static DFARule PUBLIC_rule_4 = { .start_range = 'l', .end_range = 'l', .start_state = 4, .end_state = 5 };
 static DFARule PUBLIC_rule_5 = { .start_range = 'i', .end_range = 'i', .start_state = 5, .end_state = 6 };
 static DFARule PUBLIC_rule_6 = { .start_range = 'c', .end_range = 'c', .start_state = 6, .end_state = 7 };
-#define PUBLIC_ACCEPTING 7
+
+#define INSTANCEOF_ACCEPTING 11
 static DFARule INSTANCEOF_rule_1 = { .start_range = 'i', .end_range = 'i', .start_state = 1, .end_state = 2 };
 static DFARule INSTANCEOF_rule_2 = { .start_range = 'n', .end_range = 'n', .start_state = 2, .end_state = 3 };
 static DFARule INSTANCEOF_rule_3 = { .start_range = 's', .end_range = 's', .start_state = 3, .end_state = 4 };
@@ -228,134 +257,180 @@ static DFARule INSTANCEOF_rule_7 = { .start_range = 'c', .end_range = 'c', .star
 static DFARule INSTANCEOF_rule_8 = { .start_range = 'e', .end_range = 'e', .start_state = 8, .end_state = 9 };
 static DFARule INSTANCEOF_rule_9 = { .start_range = 'o', .end_range = 'o', .start_state = 9, .end_state = 10 };
 static DFARule INSTANCEOF_rule_10 = { .start_range = 'f', .end_range = 'f', .start_state = 10, .end_state = 11 };
-#define INSTANCEOF_ACCEPTING 11
+
+#define SIZEOF_ACCEPTING 7
 static DFARule SIZEOF_rule_1 = { .start_range = 's', .end_range = 's', .start_state = 1, .end_state = 2 };
 static DFARule SIZEOF_rule_2 = { .start_range = 'i', .end_range = 'i', .start_state = 2, .end_state = 3 };
 static DFARule SIZEOF_rule_3 = { .start_range = 'z', .end_range = 'z', .start_state = 3, .end_state = 4 };
 static DFARule SIZEOF_rule_4 = { .start_range = 'e', .end_range = 'e', .start_state = 4, .end_state = 5 };
 static DFARule SIZEOF_rule_5 = { .start_range = 'o', .end_range = 'o', .start_state = 5, .end_state = 6 };
 static DFARule SIZEOF_rule_6 = { .start_range = 'f', .end_range = 'f', .start_state = 6, .end_state = 7 };
-#define SIZEOF_ACCEPTING 7
+
+#define ASSERT_ACCEPTING 7
 static DFARule ASSERT_rule_1 = { .start_range = 'a', .end_range = 'a', .start_state = 1, .end_state = 2 };
 static DFARule ASSERT_rule_2 = { .start_range = 's', .end_range = 's', .start_state = 2, .end_state = 3 };
 static DFARule ASSERT_rule_3 = { .start_range = 's', .end_range = 's', .start_state = 3, .end_state = 4 };
 static DFARule ASSERT_rule_4 = { .start_range = 'e', .end_range = 'e', .start_state = 4, .end_state = 5 };
 static DFARule ASSERT_rule_5 = { .start_range = 'r', .end_range = 'r', .start_state = 5, .end_state = 6 };
 static DFARule ASSERT_rule_6 = { .start_range = 't', .end_range = 't', .start_state = 6, .end_state = 7 };
-#define ASSERT_ACCEPTING 7
+
+#define TRUE_ACCEPTING 5
 static DFARule TRUE_rule_1 = { .start_range = 't', .end_range = 't', .start_state = 1, .end_state = 2 };
 static DFARule TRUE_rule_2 = { .start_range = 'r', .end_range = 'r', .start_state = 2, .end_state = 3 };
 static DFARule TRUE_rule_3 = { .start_range = 'u', .end_range = 'u', .start_state = 3, .end_state = 4 };
 static DFARule TRUE_rule_4 = { .start_range = 'e', .end_range = 'e', .start_state = 4, .end_state = 5 };
-#define TRUE_ACCEPTING 5
+
+#define FALSE_ACCEPTING 6
 static DFARule FALSE_rule_1 = { .start_range = 'f', .end_range = 'f', .start_state = 1, .end_state = 2 };
 static DFARule FALSE_rule_2 = { .start_range = 'a', .end_range = 'a', .start_state = 2, .end_state = 3 };
 static DFARule FALSE_rule_3 = { .start_range = 'l', .end_range = 'l', .start_state = 3, .end_state = 4 };
 static DFARule FALSE_rule_4 = { .start_range = 's', .end_range = 's', .start_state = 4, .end_state = 5 };
 static DFARule FALSE_rule_5 = { .start_range = 'e', .end_range = 'e', .start_state = 5, .end_state = 6 };
-#define FALSE_ACCEPTING 6
-static DFARule LPAREN_rule_1 = { .start_range = '(', .end_range = '(', .start_state = 1, .end_state = 2 };
+
 #define LPAREN_ACCEPTING 2
-static DFARule RPAREN_rule_1 = { .start_range = ')', .end_range = ')', .start_state = 1, .end_state = 2 };
+static DFARule LPAREN_rule_1 = { .start_range = '(', .end_range = '(', .start_state = 1, .end_state = 2 };
+
 #define RPAREN_ACCEPTING 2
-static DFARule LBRACE_rule_1 = { .start_range = '{', .end_range = '{', .start_state = 1, .end_state = 2 };
+static DFARule RPAREN_rule_1 = { .start_range = ')', .end_range = ')', .start_state = 1, .end_state = 2 };
+
 #define LBRACE_ACCEPTING 2
-static DFARule RBRACE_rule_1 = { .start_range = '}', .end_range = '}', .start_state = 1, .end_state = 2 };
+static DFARule LBRACE_rule_1 = { .start_range = '{', .end_range = '{', .start_state = 1, .end_state = 2 };
+
 #define RBRACE_ACCEPTING 2
-static DFARule LBRACK_rule_1 = { .start_range = '[', .end_range = '[', .start_state = 1, .end_state = 2 };
+static DFARule RBRACE_rule_1 = { .start_range = '}', .end_range = '}', .start_state = 1, .end_state = 2 };
+
 #define LBRACK_ACCEPTING 2
-static DFARule RBRACK_rule_1 = { .start_range = ']', .end_range = ']', .start_state = 1, .end_state = 2 };
+static DFARule LBRACK_rule_1 = { .start_range = '[', .end_range = '[', .start_state = 1, .end_state = 2 };
+
 #define RBRACK_ACCEPTING 2
-static DFARule LARROW_rule_1 = { .start_range = '<', .end_range = '<', .start_state = 1, .end_state = 2 };
+static DFARule RBRACK_rule_1 = { .start_range = ']', .end_range = ']', .start_state = 1, .end_state = 2 };
+
 #define LARROW_ACCEPTING 2
-static DFARule RARROW_rule_1 = { .start_range = '>', .end_range = '>', .start_state = 1, .end_state = 2 };
+static DFARule LARROW_rule_1 = { .start_range = '<', .end_range = '<', .start_state = 1, .end_state = 2 };
+
 #define RARROW_ACCEPTING 2
-static DFARule SEMI_rule_1 = { .start_range = ';', .end_range = ';', .start_state = 1, .end_state = 2 };
+static DFARule RARROW_rule_1 = { .start_range = '>', .end_range = '>', .start_state = 1, .end_state = 2 };
+
 #define SEMI_ACCEPTING 2
-static DFARule COMMA_rule_1 = { .start_range = ',', .end_range = ',', .start_state = 1, .end_state = 2 };
+static DFARule SEMI_rule_1 = { .start_range = ';', .end_range = ';', .start_state = 1, .end_state = 2 };
+
 #define COMMA_ACCEPTING 2
-static DFARule DOT_rule_1 = { .start_range = '.', .end_range = '.', .start_state = 1, .end_state = 2 };
+static DFARule COMMA_rule_1 = { .start_range = ',', .end_range = ',', .start_state = 1, .end_state = 2 };
+
 #define DOT_ACCEPTING 2
-static DFARule STAR_rule_1 = { .start_range = '*', .end_range = '*', .start_state = 1, .end_state = 2 };
+static DFARule DOT_rule_1 = { .start_range = '.', .end_range = '.', .start_state = 1, .end_state = 2 };
+
 #define STAR_ACCEPTING 2
-static DFARule EQUALS_rule_1 = { .start_range = '=', .end_range = '=', .start_state = 1, .end_state = 2 };
+static DFARule STAR_rule_1 = { .start_range = '*', .end_range = '*', .start_state = 1, .end_state = 2 };
+
 #define EQUALS_ACCEPTING 2
+static DFARule EQUALS_rule_1 = { .start_range = '=', .end_range = '=', .start_state = 1, .end_state = 2 };
+
+#define LAMBDA_ARROW_ACCEPTING 3
 static DFARule LAMBDA_ARROW_rule_1 = { .start_range = '=', .end_range = '=', .start_state = 1, .end_state = 2 };
 static DFARule LAMBDA_ARROW_rule_2 = { .start_range = '>', .end_range = '>', .start_state = 2, .end_state = 3 };
-#define LAMBDA_ARROW_ACCEPTING 3
-static DFARule BANG_rule_1 = { .start_range = '!', .end_range = '!', .start_state = 1, .end_state = 2 };
+
 #define BANG_ACCEPTING 2
-static DFARule TILDE_rule_1 = { .start_range = '~', .end_range = '~', .start_state = 1, .end_state = 2 };
+static DFARule BANG_rule_1 = { .start_range = '!', .end_range = '!', .start_state = 1, .end_state = 2 };
+
 #define TILDE_ACCEPTING 2
-static DFARule QUESTION_rule_1 = { .start_range = '?', .end_range = '?', .start_state = 1, .end_state = 2 };
+static DFARule TILDE_rule_1 = { .start_range = '~', .end_range = '~', .start_state = 1, .end_state = 2 };
+
 #define QUESTION_ACCEPTING 2
-static DFARule COLON_rule_1 = { .start_range = ':', .end_range = ':', .start_state = 1, .end_state = 2 };
+static DFARule QUESTION_rule_1 = { .start_range = '?', .end_range = '?', .start_state = 1, .end_state = 2 };
+
 #define COLON_ACCEPTING 2
+static DFARule COLON_rule_1 = { .start_range = ':', .end_range = ':', .start_state = 1, .end_state = 2 };
+
+#define EQUAL_ACCEPTING 3
 static DFARule EQUAL_rule_1 = { .start_range = '=', .end_range = '=', .start_state = 1, .end_state = 2 };
 static DFARule EQUAL_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define EQUAL_ACCEPTING 3
+
+#define LE_ACCEPTING 3
 static DFARule LE_rule_1 = { .start_range = '<', .end_range = '<', .start_state = 1, .end_state = 2 };
 static DFARule LE_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define LE_ACCEPTING 3
+
+#define GE_ACCEPTING 3
 static DFARule GE_rule_1 = { .start_range = '>', .end_range = '>', .start_state = 1, .end_state = 2 };
 static DFARule GE_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define GE_ACCEPTING 3
+
+#define NOTEQUAL_ACCEPTING 3
 static DFARule NOTEQUAL_rule_1 = { .start_range = '!', .end_range = '!', .start_state = 1, .end_state = 2 };
 static DFARule NOTEQUAL_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define NOTEQUAL_ACCEPTING 3
+
+#define AND_ACCEPTING 3
 static DFARule AND_rule_1 = { .start_range = '&', .end_range = '&', .start_state = 1, .end_state = 2 };
 static DFARule AND_rule_2 = { .start_range = '&', .end_range = '&', .start_state = 2, .end_state = 3 };
-#define AND_ACCEPTING 3
+
+#define OR_ACCEPTING 3
 static DFARule OR_rule_1 = { .start_range = '|', .end_range = '|', .start_state = 1, .end_state = 2 };
 static DFARule OR_rule_2 = { .start_range = '|', .end_range = '|', .start_state = 2, .end_state = 3 };
-#define OR_ACCEPTING 3
+
+#define INC_ACCEPTING 3
 static DFARule INC_rule_1 = { .start_range = '+', .end_range = '+', .start_state = 1, .end_state = 2 };
 static DFARule INC_rule_2 = { .start_range = '+', .end_range = '+', .start_state = 2, .end_state = 3 };
-#define INC_ACCEPTING 3
+
+#define DEC_ACCEPTING 3
 static DFARule DEC_rule_1 = { .start_range = '-', .end_range = '-', .start_state = 1, .end_state = 2 };
 static DFARule DEC_rule_2 = { .start_range = '-', .end_range = '-', .start_state = 2, .end_state = 3 };
-#define DEC_ACCEPTING 3
-static DFARule ADD_rule_1 = { .start_range = '+', .end_range = '+', .start_state = 1, .end_state = 2 };
+
 #define ADD_ACCEPTING 2
-static DFARule SUB_rule_1 = { .start_range = '-', .end_range = '-', .start_state = 1, .end_state = 2 };
+static DFARule ADD_rule_1 = { .start_range = '+', .end_range = '+', .start_state = 1, .end_state = 2 };
+
 #define SUB_ACCEPTING 2
-static DFARule DIV_rule_1 = { .start_range = '/', .end_range = '/', .start_state = 1, .end_state = 2 };
+static DFARule SUB_rule_1 = { .start_range = '-', .end_range = '-', .start_state = 1, .end_state = 2 };
+
 #define DIV_ACCEPTING 2
-static DFARule AMP_rule_1 = { .start_range = '&', .end_range = '&', .start_state = 1, .end_state = 2 };
+static DFARule DIV_rule_1 = { .start_range = '/', .end_range = '/', .start_state = 1, .end_state = 2 };
+
 #define AMP_ACCEPTING 2
-static DFARule BITOR_rule_1 = { .start_range = '|', .end_range = '|', .start_state = 1, .end_state = 2 };
+static DFARule AMP_rule_1 = { .start_range = '&', .end_range = '&', .start_state = 1, .end_state = 2 };
+
 #define BITOR_ACCEPTING 2
-static DFARule CARET_rule_1 = { .start_range = '^', .end_range = '^', .start_state = 1, .end_state = 2 };
+static DFARule BITOR_rule_1 = { .start_range = '|', .end_range = '|', .start_state = 1, .end_state = 2 };
+
 #define CARET_ACCEPTING 2
-static DFARule MOD_rule_1 = { .start_range = '%', .end_range = '%', .start_state = 1, .end_state = 2 };
+static DFARule CARET_rule_1 = { .start_range = '^', .end_range = '^', .start_state = 1, .end_state = 2 };
+
 #define MOD_ACCEPTING 2
+static DFARule MOD_rule_1 = { .start_range = '%', .end_range = '%', .start_state = 1, .end_state = 2 };
+
+#define DEREF_ARROW_ACCEPTING 3
 static DFARule DEREF_ARROW_rule_1 = { .start_range = '-', .end_range = '-', .start_state = 1, .end_state = 2 };
 static DFARule DEREF_ARROW_rule_2 = { .start_range = '>', .end_range = '>', .start_state = 2, .end_state = 3 };
-#define DEREF_ARROW_ACCEPTING 3
+
+#define ADD_ASSIGN_ACCEPTING 3
 static DFARule ADD_ASSIGN_rule_1 = { .start_range = '+', .end_range = '+', .start_state = 1, .end_state = 2 };
 static DFARule ADD_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define ADD_ASSIGN_ACCEPTING 3
+
+#define SUB_ASSIGN_ACCEPTING 3
 static DFARule SUB_ASSIGN_rule_1 = { .start_range = '-', .end_range = '-', .start_state = 1, .end_state = 2 };
 static DFARule SUB_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define SUB_ASSIGN_ACCEPTING 3
+
+#define MUL_ASSIGN_ACCEPTING 3
 static DFARule MUL_ASSIGN_rule_1 = { .start_range = '*', .end_range = '*', .start_state = 1, .end_state = 2 };
 static DFARule MUL_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define MUL_ASSIGN_ACCEPTING 3
+
+#define DIV_ASSIGN_ACCEPTING 3
 static DFARule DIV_ASSIGN_rule_1 = { .start_range = '/', .end_range = '/', .start_state = 1, .end_state = 2 };
 static DFARule DIV_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define DIV_ASSIGN_ACCEPTING 3
+
+#define AND_ASSIGN_ACCEPTING 3
 static DFARule AND_ASSIGN_rule_1 = { .start_range = '&', .end_range = '&', .start_state = 1, .end_state = 2 };
 static DFARule AND_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define AND_ASSIGN_ACCEPTING 3
+
+#define OR_ASSIGN_ACCEPTING 3
 static DFARule OR_ASSIGN_rule_1 = { .start_range = '|', .end_range = '|', .start_state = 1, .end_state = 2 };
 static DFARule OR_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define OR_ASSIGN_ACCEPTING 3
+
+#define XOR_ASSIGN_ACCEPTING 3
 static DFARule XOR_ASSIGN_rule_1 = { .start_range = '^', .end_range = '^', .start_state = 1, .end_state = 2 };
 static DFARule XOR_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define XOR_ASSIGN_ACCEPTING 3
+
+#define MOD_ASSIGN_ACCEPTING 3
 static DFARule MOD_ASSIGN_rule_1 = { .start_range = '%', .end_range = '%', .start_state = 1, .end_state = 2 };
 static DFARule MOD_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .start_state = 2, .end_state = 3 };
-#define MOD_ASSIGN_ACCEPTING 3
+
 
 /******************************/
 /* Custom Tokenizer DFA Rules */

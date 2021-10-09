@@ -33,7 +33,9 @@ automata_description = """
  */
 """
 
+
 def pcase(s): return [s.upper(), s.lower()]
+
 
 def flowerbox(str, pad=0):
     pad = pad * ' '
@@ -41,6 +43,7 @@ def flowerbox(str, pad=0):
     f.write(tb)
     f.write(pad + "/* " + str + " */\n")
     f.write(tb)
+
 
 exact_tokens = [
     # Pragma
@@ -228,7 +231,8 @@ static const DFARule TRAIT_rule_14 = { .start_range = 'e', .end_range = 'e', .st
 
 """
 
-custom_tokens = ['WS', 'IMPORT', 'SL_COMMENT', 'ML_COMMENT', 'IDENT', 'TRAIT', 'END_OF_FILE', 'INVALID']
+custom_tokens = ['WS', 'IMPORT', 'SL_COMMENT', 'ML_COMMENT',
+                 'IDENT', 'TRAIT', 'END_OF_FILE', 'INVALID']
 
 # name, num_rules
 customInfo = [
@@ -240,11 +244,40 @@ customInfo = [
     ['TRAIT', 14]
 ]
 
+
+def writeExactRules(exact_tokens):
+    for name, literal in exact_tokens:
+        f.write(f'#define {name}_ACCEPTING {len(literal)+1}\n')
+        for n, c in enumerate(literal):  # For each character
+            f.write(
+                f'static DFARule {name}_rule_{n+1} = {{ .start_range = \'{c}\', .end_range = \'{c}\', .start_state = {n+1}, .end_state = {n+2} }};\n')
+        f.write('\n')
+
+
+def writeCustomRules(custom_rules):
+    f.write(custom_rules + "\n\n")
+
+
+def writeExactSpace(exact_tokens):
+    for name, literal in exact_tokens:
+        f.write(f'static DFARule {name}_rules[{len(literal)}];\n')
+        f.write(f'static DFA {name}_DFA;\n')
+
+
 def writeCustomSpace(tups):
     for name, num_rules in tups:
         f.write(f'static DFARule {name}_rules[{num_rules}];\n')
         f.write(f'static DFA {name}_DFA;\n')
-    pass
+
+
+def writeExactInit(exact_tokens):
+    for name, literal in exact_tokens:
+        for i in range(len(literal)):
+            f.write(f'  {name}_rules[{i}] = {name}_rule_{i+1};\n')
+
+        f.write(f'  {name}_DFA.rules = {name}_rules;\n')
+        f.write(f'  {name}_DFA.num_rules = ARR_SIZE({name}_rules);\n')
+        f.write(f'  {name}_DFA.accepting_state = {name}_ACCEPTING;\n')
 
 
 def writeCustomInit(tups):
@@ -256,94 +289,6 @@ def writeCustomInit(tups):
         f.write(f'  {name}_DFA.num_rules = ARR_SIZE({name}_rules);\n')
         f.write(f'  {name}_DFA.accepting_state = {name}_ACCEPTING;\n\n')
 
-# TODO convert to function
-custom_init = """
-  /* Identifier */
-  IDENT_rules[0] = IDENT_rule_1;
-  IDENT_rules[1] = IDENT_rule_2;
-  IDENT_rules[2] = IDENT_rule_3;
-  IDENT_rules[3] = IDENT_rule_4;
-  IDENT_rules[4] = IDENT_rule_5;
-  IDENT_rules[5] = IDENT_rule_6;
-  IDENT_rules[6] = IDENT_rule_7;
-  IDENT_rules[7] = IDENT_rule_8;
-  IDENT_rules[8] = IDENT_rule_9;
-  IDENT_rules[9] = IDENT_rule_10;
-  IDENT_rules[10] = IDENT_rule_11;
-  IDENT_DFA.rules = IDENT_rules;
-  IDENT_DFA.num_rules = ARR_SIZE(IDENT_rules);
-  IDENT_DFA.accepting_state = IDENT_ACCEPTING;
-
-  /* Whitespace */
-  WS_rules[0] = WS_rule_1;
-  WS_rules[1] = WS_rule_2;
-  WS_rules[2] = WS_rule_3;
-  WS_rules[3] = WS_rule_4;
-  WS_DFA.rules = WS_rules;
-  WS_DFA.num_rules = ARR_SIZE(WS_rules);
-  WS_DFA.accepting_state = 1;
-
-  /* Multi-Line Comment */
-  ML_COMMENT_rules[0] = ML_COMMENT_rule_1;
-  ML_COMMENT_rules[1] = ML_COMMENT_rule_2;
-  ML_COMMENT_rules[2] = ML_COMMENT_rule_3;
-  ML_COMMENT_rules[3] = ML_COMMENT_rule_4;
-  ML_COMMENT_rules[4] = ML_COMMENT_rule_5;
-  ML_COMMENT_DFA.rules = ML_COMMENT_rules;
-  ML_COMMENT_DFA.num_rules = ARR_SIZE(ML_COMMENT_rules);
-  ML_COMMENT_DFA.accepting_state = ML_COMMENT_ACCEPTING;
-
-  /* Single-Line Comment */
-  SL_COMMENT_rules[0] = SL_COMMENT_rule_1;
-  SL_COMMENT_rules[1] = SL_COMMENT_rule_2;
-  SL_COMMENT_rules[2] = SL_COMMENT_rule_3;
-  SL_COMMENT_rules[3] = SL_COMMENT_rule_4;
-  SL_COMMENT_DFA.rules = SL_COMMENT_rules;
-  SL_COMMENT_DFA.num_rules = ARR_SIZE(SL_COMMENT_rules);
-  SL_COMMENT_DFA.accepting_state = SL_COMMENT_ACCEPTING;
-
-  /* Import / Include */
-  IMPORT_rules[0] = IMPORT_rule_1;
-  IMPORT_rules[1] = IMPORT_rule_2;
-  IMPORT_rules[2] = IMPORT_rule_3;
-  IMPORT_rules[3] = IMPORT_rule_4;
-  IMPORT_rules[4] = IMPORT_rule_5;
-  IMPORT_rules[5] = IMPORT_rule_6;
-  IMPORT_rules[6] = IMPORT_rule_7;
-  IMPORT_rules[7] = IMPORT_rule_8;
-  IMPORT_rules[8] = IMPORT_rule_9;
-  IMPORT_rules[9] = IMPORT_rule_10;
-  IMPORT_rules[10] = IMPORT_rule_11;
-  IMPORT_DFA.rules = IMPORT_rules;
-  IMPORT_DFA.num_rules = ARR_SIZE(IMPORT_rules);
-  IMPORT_DFA.accepting_state = IMPORT_ACCEPTING;
-
-
-"""
-
-
-def writeExactRules(name, literal):
-    for n, c in enumerate(literal): # For each character
-        f.write(f'static DFARule {name}_rule_{n+1} = {{ .start_range = \'{c}\', .end_range = \'{c}\', .start_state = {n+1}, .end_state = {n+2} }};\n')
-    f.write(f'#define {name}_ACCEPTING {len(literal)+1}\n')
-
-def nop(name, literal):
-    f.write(f'  DFARule {name}_rules[] = {{ {", ".join([name + "_rule_" + str(n+1) for n in range(len(literal)) ])} }};\n')
-    f.write(f'  DFA {name}_DFA = {{ .rules = {name}_rules, .num_rules = ARR_SIZE({name}_rules), .accepting_state = {len(literal)+1} }};\n\n')
-
-def writeExactDFASpace(exact_tokens):
-    for name, literal in exact_tokens:
-        f.write(f'static DFARule {name}_rules[{len(literal)}];\n')
-        f.write(f'static DFA {name}_DFA;\n')
-
-def writeExactInit(exact_tokens):
-    for name, literal in exact_tokens:
-        for i in range(len(literal)):
-            f.write(f'  {name}_rules[{i}] = {name}_rule_{i+1};\n')
-
-        f.write(f'  {name}_DFA.rules = {name}_rules;\n')
-        f.write(f'  {name}_DFA.num_rules = ARR_SIZE({name}_rules);\n')
-        f.write(f'  {name}_DFA.accepting_state = {name}_ACCEPTING;\n')
 
 def writeAllInit(dfa_names):
     for n, name in enumerate(dfa_names):
@@ -368,13 +313,7 @@ with open("TokType.h", 'w') as f:
     dq = '"'
     nl = '\n'
     f.write(
-        f'static const char* TokNameMap[] = {{{nl}{f", {nl}".join([f"  {dq}{name}{dq}" for name in names])}\n}};{nl}{nl}')
-
-    # Write methods for tokenizaton that can be generated
-
-    # Write the ones that can't be automatically generated.
-    # f.write(custom_functions)
-    
+        f'static const char* TokNameMap[] = {{{nl}{f", {nl}".join([f"  {dq}{name}{dq}" for name in exact_tokens + custom_tokens])}\n}};{nl}{nl}')
 
     # Footer
     f.write("\n#endif // INCLUDE_TOKENS")
@@ -387,41 +326,37 @@ with open('Automata.h', 'w') as f:
     f.write('#include "../../UTF-8.h"\n\n')
 
     f.write(automata_description + "\n\n")
-    f.write("typedef uint8_t NFAState;\n#define NFASTATE_MAX UINT8_MAX\n\nTYPE_DECLARE(DFARule);\nstruct DFARule {\n  // Start and end are inclusive\n  utf8_t start_range; utf8_t end_range;\n  NFAState start_state;\n  NFAState end_state;\n};\n\nTYPE_DECLARE(DFA);\nstruct DFA {\n  DFARule* rules;\n  size_t num_rules;\n  NFAState accepting_state;\n};\n\n")
+    f.write(
+        "typedef uint8_t NFAState;\n#define NFASTATE_MAX UINT8_MAX\n\nTYPE_DECLARE(DFARule);\nstruct DFARule {\n  // Start and end are inclusive\n  utf8_t start_range; utf8_t end_range;\n  NFAState start_state;\n  NFAState end_state;\n};\n\nTYPE_DECLARE(DFA);\nstruct DFA {\n  DFARule* rules;\n  size_t num_rules;\n  NFAState accepting_state;\n};\n\n")
 
     # Write rules
     flowerbox("Exact Tokenizer DFA Rules")
-    for e in exact_tokens:
-        writeExactRules(e[0], e[1])
+    writeExactRules(exact_tokens)
     f.write('\n')
     flowerbox("Custom Tokenizer DFA Rules")
-    f.write(custom_rules + "\n\n")
+    writeCustomRules(custom_rules)
 
     # Write space for DFAs
     flowerbox("DFA Space")
-    writeExactDFASpace(exact_tokens)
-    #f.write(custom_space)
+    writeExactSpace(exact_tokens)
     writeCustomSpace(customInfo)
-    
 
     # Write space for array of all DFAs (What we actually want)
     flowerbox("All DFAs")
-    dfa_names = [f"{n}_DFA" for n in [e[0] for e in exact_tokens] + custom_tokens[:len(custom_tokens)-2]]
+    dfa_names = [f"{n}_DFA" for n in [e[0]
+                                      for e in exact_tokens] + custom_tokens[:len(custom_tokens)-2]]
     f.write(f'static DFA all_DFAs[{len(dfa_names)}];\n\n')
 
-    
     # Write init function for what we actually want.
     f.write('/* Initializes the global variable all_DFAs. */\n')
     f.write('static inline DFA* initTokenizerDFAs() {\n')
     f.write("  /* Exact keyowrd rules */\n")
     writeExactInit(exact_tokens)
-    #f.write(custom_init)
     writeCustomInit(customInfo)
-    flowerbox('Initialize DFA Array (The point of this entire painful episode)', pad=2)
+    flowerbox(
+        'Initialize DFA Array (The point of this entire painful episode)', pad=2)
     writeAllInit(dfa_names)
     f.write('  return all_DFAs;\n')
     f.write('}\n')
-
-
 
     f.write('#endif // INCLUDE_AUTOMATA\n')

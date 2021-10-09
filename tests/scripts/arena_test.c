@@ -1,6 +1,3 @@
-
-#include <arena.h/arena.h>
-#define MEMDEBUG 1
 #include <apaz-libc.h>
 
 #define NITS 10000

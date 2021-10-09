@@ -28,8 +28,8 @@ Coding:
     Switch to UTF-8
     Split up sections
     ASTNode_##node_type##_destroy(Arena *arena)
-    ASTNodeType reverse map
     apaz-libc:
+	Arena alignment with pointer arithmetic rather than _Alignof(max_align_t)
 	Split mutexes from memdebug.h/arena.h off into a new mutex.h
         List reduce()
         String regex match?
