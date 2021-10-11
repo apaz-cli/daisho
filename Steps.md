@@ -14,7 +14,7 @@
 	* Create an Arena to allocate nodes and associated information on.
 	* Call the initial parsing rule, parse_CompilationUnit().
 		* This calls other recursively decendng rules in sequence.
-		* Each parsing rule carefully manage the parser's state.
+		* Each parsing rule carefully manages the parser's state.
 			* Each parsing rule pushes itself onto the parser's "call stack" (a stack of rule names being parsed,
 			  which is the recursive state of the parser), and pops when finished. This is useful for debugging.
 			* Fragments are parsing rules which should not create an AST in the finished product, and therefore
@@ -30,9 +30,11 @@
 # Validate AST
 ### Pass one:
 For each compilation unit in parallel:
-	* Traverse the AST to combine String literals.
+	* Sort the compilation unit's children into their type (Functions, Classes, Traits, Global variables, etc).
+	* Combine String literals. Ex: "Hello " "World" "!"
 	* Validate that float and integer literals can fit.
-	* Pull out all the trait, function, class, and type names from the root of each. Keep track of how far nested you found them.
+	* Pull out all the trait, function, class, and type names from the root of each. Keep track of how far nested you 
+	  found them.
 
 
 # Semantic/Type Analysis

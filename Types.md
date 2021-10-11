@@ -244,8 +244,67 @@ handled.
 
 # Pointers
 
-Much like in C, Stilts allows you to take the memory address of variables. The 
-standard library also provides malloc().
+C lets you choose to pass by value or reference, and do pointer arithmetic. 
+Why should Stilts be less powerful than C? You can take the memory address of 
+variables, and dereference them as well. No problem. Similarly, if you want 
+to call `malloc()` to allocate a number of bytes, that's totally allowed. 
+The standard library provides it, along with `sizeof()`. If you want to, you 
+can do memory management in Stilts exactly the same way as in C. Just 
+`malloc()` and `free()` your way to victory.
+
+One difference is that Stilts is much kinder with implicit conversions. 
+Suppose you have an interesting type, with a lot going on.
+```rust
+trait Mammal impl Printable { String getName(); }
+trait Animal<T> {}
+trait Person impl Animal<T> where T impl Mammal {}
+trait Trickster impl Person {}
+class George impl Trickster { String getName() return "George"; }
+class Herold impl Trickster { String getName() return "Herold"; }
+
+Void printMammalPtr(Mammal* m) println(m.getName());
+Void printMammalStack(Mammal m) println(m.getName());
+
+Int main() {
+	Mammal george = George();
+	Trickster* herold = new Herold();
+
+	// Calling conventions are equivalent
+	printMammalStack(george);
+	printMammalStack(herold);
+	printMammalPtr(george);
+	printMammalPtr(herold);
+
+	del(herold);
+}
+```
+
+The following happens behind the scenes, in order:
+ * Space for the variables `george` and `herold` are set aside on the stack. 
+   Since `herold` has a pointer type, its size is the size of a native pointer 
+   on your machine. The size of `George` depends on what other types implement 
+   Mammal.
+ * The default constructor for `George` is called, creating an instance of 
+   `George` on the stack.
+ * This `George` instance is stored into the `george` variable, which is of 
+   type `Mammal`. An implicit conversion is performed. This has a small 
+   overhead, since a runtime trait type contains a vtable, a pointer to which 
+   must be stored with our `George` and also be initialized before `main()`.
+   be initialized before main().
+ * A `new` `Herold` is created on the heap. It is not guaranteed that this 
+   object instance is allocated by `malloc()`, so don't try to `free()` it. 
+   Clean it up with `del` instead. Immediately after space is carved out for 
+   the object by Stilts's builtin allocator, `Herold`'s default constructor is 
+   called on it, to initialize that memory with its contents. Constructor 
+   calling conventions are exactly the same whether you allocate on the stack 
+   or on the heap. The only difference is allocation overhead, required 
+   cleanup, and storage duration. 
+* Our `Herold` instance is converted to an 
+
+
+
+# Arrays
+
 
 
 # Calling Conventions

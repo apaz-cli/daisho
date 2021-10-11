@@ -29,8 +29,7 @@ Coding:
     Split up sections
     ASTNode_##node_type##_destroy(Arena *arena)
     apaz-libc:
-	Arena alignment with pointer arithmetic rather than _Alignof(max_align_t)
+	Arena alignment with uintptr_t arithmetic rather than mod _Alignof(max_align_t)
 	Split mutexes from memdebug.h/arena.h off into a new mutex.h
         List reduce()
-        String regex match?
-        String to/from integral types?
+        String to/from integral types (with error checking)
