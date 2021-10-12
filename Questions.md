@@ -8,3 +8,7 @@
 3. The meanings of `=`, `&`, `*`. Are they operators, or
    built in? How unfortunate the C pointer creation and
    multiplication are the same symbol.
+	* Use `$var` to get the value of a variable instead of `*var`.
+	* Neither `&` or `$` should be overloadable. This frees up `*`.
+	* Unsure about `=`.
+

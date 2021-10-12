@@ -300,7 +300,11 @@ The following happens behind the scenes, in order:
    calling conventions are exactly the same whether you allocate on the stack 
    or on the heap. The only difference is allocation overhead, required 
    cleanup, and storage duration. 
-* Our `Herold` instance is converted to an 
+* Our `Herold` instance is converted to a trait reference type, specifically 
+  `Trickster*`. The reference to our `Herold` is stored into a structure with 
+  the appropriate vtable pointer. This struct is actually stored on the stack 
+  and is always passed by reference. See calling conventions at the end of 
+  this document for more information.
 
 
 
@@ -401,6 +405,15 @@ pointer as the first argument, a `Fancy` by value as the
 second, and a `Fancy*` (by reference) as the third. As you 
 would expect.
 
+
+## Automatic Conversions
+
+Sometimes, for the sake of 
+more readable code that could be readily inferred, the 
+compiler will cast for you. 
+
+
+## The Exception to the Rule
 
 Now for the exception to the rule. The runtime representation 
 and calling convention for trait types is slightly different. 
