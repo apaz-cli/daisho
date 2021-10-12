@@ -11,7 +11,8 @@ These are all the different kinds of types.
 	7. Pointers
 	8. Arrays
 
-All of them are created equal. Methods can be attached to any type.
+For the most part, all of them are created equal. Methods can be attached to 
+any type.
 
 
 ## CTypes
@@ -95,7 +96,7 @@ T unboxer(AnimalBox<T> box) {
 
 Int main() {
 	// Box<Dog> inferred by its arguments
-	Box<Dog> dogbox = Box<>(Dog());
+	Box<Dog> dogbox = Box<Dog>(Dog());
 	Box<Sheep> sheepbox = Box<>(Sheep());
 }
 ```
@@ -309,6 +310,8 @@ The following happens behind the scenes, in order:
 
 # Calling Conventions
 
+## Calling methods
+
 Whenever is a method is called on a type, it is implicitly passed a pointer of 
 that type as the argument's first method. That's how the `this` pointer is 
 handled.
@@ -324,7 +327,7 @@ class Dog {
 Int main() { Dog().bark(); }
 ```
 
-Then the above is equivalent to and generates the same code as below:
+The above generates code equivalent to:
 
 ```rust
 class Dog {
@@ -332,11 +335,130 @@ class Dog {
 	Dog() { this.sound = "Bark"; }
 }
 
-void bark(Dog* d) { println(d.sound); }
+void bark(Dog* thisPtr, UInt times)
+	for (UInt i = 0; i < times; i++)
+		println(thisPtr.sound);
 
 Int main() {
 	Dog d = Dog();
 	bark(&d);
+}
+```
+
+## Passing arguments
+
+Other arguments are passed the same way you would expect 
+them to be passed in C. With one exception, which I'll get 
+to in a moment. In general though, if you pass a value type, 
+you can expect to recieve a value type.
+
+```rust
+ctype void* Fancy;
+class FancyBox {
+	Fancy f1; Fancy f2;
+	FancyBox* fillBox(Fancy f1, Fancy* f2) {
+		this.f1, this.f2 = f1, *f2;
+		return this;
+	}
+}
+```
+
+You can expect this to generate something like:
+```c
+/*
+ * The compiler suitably mangles the names.
+ * This looks awful, but is somewhat necessary
+ * to be compatible with other C code.
+ *
+ * If the names weren't mangled, then they could
+ * end up shadowing global variables, redefinining
+ * things, conflicting with your own code, creating
+ * ODR violations, etc.
+ *
+ * In C, identifiers beginning with "__" are reserved
+ * for use by the compiler. For Stilts code and C code
+ * expected to work with the language, we reserve
+ * "__Stilts", used anywhere within any identifiers.
+ * This is enough to let us mangle names correctly.
+ */
+
+typedef void* __Stilts_Fancy;
+struct __Stilts_FancyBox { __Stilts_Fancy __Stilts_f1; __Stilts_Fancy __Stilts_f2; };
+typedef struct __Stilts_FancyBox __Stilts_FancyBox;
+
+static inline __Stilts_FancyBox*
+__Stilts_FancyBox_FancyBox__StiltsPtr_this_Fancy_f1_Fancy__StiltsPtr_f2_fillBox(
+__Stilts_FancyBox* __Stilts_this, __Stilts_Fancy __Stilts_f1, __Stilts_Fancy* __Stilts_f2) {
+	__Stilts_this->__Stilts_f1 = __Stilts_f1;
+	__Stilts_this->__Stilts_f2 = __Stilts_f2;
+	return __Stilts_this;
+}
+```
+
+If you squint really hard, you can see that just like in the 
+Stilts code that generates it, we're taking the `this` 
+pointer as the first argument, a `Fancy` by value as the 
+second, and a `Fancy*` (by reference) as the third. As you 
+would expect.
+
+
+Now for the exception to the rule. The runtime representation 
+and calling convention for trait types is slightly different. 
+Suppose you have some trait with a couple classes that 
+implement it.
+
+```rust
+trait Food { Void eat(UInt amount); };
+trait Spicy impl Food {
+	UInt getStrength();
+	Void eat(UInt amount) {
+		if (amount * this.getStrength() > 20)
+			println("Oof oof ouch my mouth");
+		else
+			println("Yummy");
+	};
+};
+
+class Pepper impl Spicy { UInt getStrength() return 50; }
+class Yogurt impl Spicy { UInt getStrength() return 0; }
+
+Void munchFoodValue(Food food) food.eat(2);
+Void munchFoodReference(Food* food) food.eat(2);
+Void munchSpicyValue(Spicy spice) spice.eat(2);
+Void munchSpicyReference(Spicy* spice) spice.eat(2);
+
+Int main() {
+	// Create instances of a class on stack and heap.
+	Pepper pepper = Pepper();
+	Yogurt* yogurtPtr = new Yogurt();
+
+	// You can take the memory location of a value like so:
+	Pepper* pepperPtr = &pepper;
+
+	// You can dereference a pointer like so:
+	Yogurt yogurt = *yogurtPtr;
+
+	// Assign value to value trait type.
+	// There is potentially overhead here.
+	Food pepperFood = pepper;
+	Food yogurtFood = yogurt;
+
+	// Assign ref to trait ref type.
+	// There is still overhead here, but less
+	// than from value type to trait value type.
+	Food* pepperFoodPtr = pepperPtr;
+	Food* yogurtFoodPtr = yogurtPtr;
+
+	// Assign value to trait ref type.
+	pepperFoodPtr = pepper;
+	yogurtFoodPtr = 
+
+	// Note you cannot 
+
+	// Cast trait type to subtrait type
+
+	// Try the same with pointers
+
 }
 ```
 
