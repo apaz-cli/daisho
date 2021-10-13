@@ -3,6 +3,7 @@
 
 #include "Generated/TokType.h"
 #include <apaz-libc.h>
+#include <apaz-utf8.h/apaz-utf8.h>
 
 /***************************/
 /*    TYPE DECLARATIONS    */
@@ -173,7 +174,7 @@ typedef List_Expr  ExprTable;
 
 struct Target {
     char* file_name;
-    String content;
+    utf8_t* content;
     TokenStream token_stream;
     AST ast;
 };
@@ -188,6 +189,7 @@ struct CMDLineFlags {
 
   /* C codegen options */
   char* CC;
+  size_t num_threads;
   List_String cflags;
   char* temp_folder;
 

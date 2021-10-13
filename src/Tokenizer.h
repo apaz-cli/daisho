@@ -6,18 +6,17 @@
 static inline Target *Target_readFile(Target *target) {
 #define TOKENSTREAM_INITIAL_CAPACITY 1000
   target->token_stream = List_Token_new_cap(TOKENSTREAM_INITIAL_CAPACITY);
-
-  target->content = String_new_fromFile(target->file_name);
-  if (!target->content) {
-    // TODO error check
-    printf("Could not open file: %s\n", target->file_name);
-    exit(1);
-  }
+  
 
   return target;
 }
 
-static inline StiltsTokenizer *Tokenizer_init(StiltsTokenizer *tokenizer) {
+static inline StiltsTokenizer *Tokenizer_init(StiltsTokenizer *tokenizer,
+                                              Target *target) {
+  tokenizer->DFAs = all_DFAs;
+  tokenizer->target = target;
+  tokenizer->current_pos = 0;
+  tokenizer->next_pos = 0;
   return tokenizer;
 }
 

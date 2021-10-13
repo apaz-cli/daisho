@@ -19,8 +19,13 @@ const char *usageMesasge =
     "  --compile  : Execute the whole pipeline and produce a binary (defaut).\n"
     "\n"
     "C Compiler Flags:\n"
-    "  --CC       : Specify which C compiler to use (System CC by default).\n"
-    "  --cflags   : Specify which flags to give to the C compiler.\n\n";
+    "  --CC       : Specify which C compiler to use (System cc by default).\n"
+    "  --cflags   : Specify which flags to give to the C compiler.\n"
+    "\n"
+    "Stiltc Flags:\n"
+    "  --jobs -j  : Specify how many threads stiltc should process your code "
+    "with.\n"
+    "\n";
 
 // Lambdas
 static inline void str_destroy(String s, void *none) { String_destroy(s); }
@@ -71,9 +76,15 @@ static inline void parseFlags(int argc, char **argv) {
         } else if (apaz_str_equals(argv[i - 1], "--cflags")) {
           String sarg = String_new_of_strlen(argv[i]);
           List_String_destroy(cmdFlags.cflags);
-          cmdFlags.cflags = List_String_filter(String_split(sarg, " "), filterEmpty, NULL);
+          cmdFlags.cflags =
+              List_String_filter(String_split(sarg, " "), filterEmpty, NULL);
           String_destroy(sarg);
           continue;
+        } else if (apaz_str_equals(argv[i - 1], "-j")) {
+          int i = atoi(argv[i]);
+          if (!(i > 0))
+            arg_err("The number of jobs must be a number greater than zero.");
+          cmdFlags.num_threads = (size_t)i;
         }
       }
 
@@ -100,7 +111,14 @@ static inline void parseFlags(int argc, char **argv) {
         grabNext = true;
       } else if (apaz_str_equals(argv[i], "--cflags")) {
         if (i == argc)
-          arg_err("--cflags requires an argument (The flags to pass to the C compiler, all in one arg).");
+          arg_err("--cflags requires an argument (The flags to pass to the C "
+                  "compiler, all in one arg).");
+        grabNext = true;
+      } else if (apaz_str_equals(argv[i], "-j") ||
+                 apaz_str_equals(argv[i], "--jobs")) {
+        if (i == argc)
+          arg_err("--jobs/-j requires an argument (The number of threads to "
+                  "create).");
         grabNext = true;
       }
 
@@ -147,10 +165,46 @@ static inline void printFlags() {
   fflush(stdout);
 }
 
+static inline void readTargets() {
+  size_t n = List_Target_len(cmdFlags.targets);
+  for (size_t i = 0; i < n; i++) {
+    cmdFlags.targets[i].content = UTF8ReadFile(cmdFlags.targets[i].file_name);
+    if (!cmdFlags.targets[i].content) {
+      printf("Could not open file: %s\n", cmdFlags.targets[i].file_name);
+      // TODO make allocations less shit
+      exit(1);
+    }
+  }
+}
+
+struct TokenizeTaskArgs {};
+typedef struct TokenizeTaskArgs TokenizeTaskArgs;
+static inline void tokenize_task(void *targs) {
+  TokenizeTaskArgs *args = targs;
+}
+static inline void tokenizeTargets() {
+  initTokenizerDFAs();
+
+  Threadpool pool;
+  Threadpool_create(&pool, cmdFlags.num_threads);
+  // Threadpool_exectask(&pool, tokenize_task, );
+}
+
 int main(int argc, char **argv) {
+  // Parse command line flags
   parseFlags(argc, argv);
-  printFlags();
+  // printFlags();
+
+  // Read Files
+  readTargets();
+
+  // Tokenize
+  tokenizeTargets();
+
+  // Parse (Construct AST)
+
+  // Semantic analysis
+
   destroyFlags();
   print_heap();
-  initTokenizerDFAs();
 }

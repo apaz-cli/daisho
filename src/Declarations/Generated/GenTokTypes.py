@@ -313,7 +313,7 @@ with open("TokType.h", 'w') as f:
     dq = '"'
     nl = '\n'
     f.write(
-        f'static const char* TokNameMap[] = {{{nl}{f", {nl}".join([f"  {dq}{name}{dq}" for name in exact_tokens + custom_tokens])}\n}};{nl}{nl}')
+        f'static const char* TokNameMap[] = {{{nl}{f", {nl}".join([f"  {dq}{name}{dq}" for name in [e[0] for e in exact_tokens] + custom_tokens])}\n}};{nl}{nl}')
 
     # Footer
     f.write("\n#endif // INCLUDE_TOKENS")

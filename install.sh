@@ -1,15 +1,15 @@
 #!/bin/sh
 
 # COMPILE STILTS
-FLAGS=""
+FLAGS="-lpthread"
 if [ $1 ] && [ $1 = "release" ]; then
-  FLAGS="${FLAGS} -O3 -flto -march=native"
+  FLAGS="${FLAGS} -O3 -march=native"
 elif [ $1 ] && [ $1 = "aggressive-optimizations" ]; then
-  FLAGS="${FLAGS} -O3 -flto -march=native -DAPAZ_HANDLE_UNLIKELY_ERRORS=0"
+  FLAGS="${FLAGS} -O3 -march=native -DAPAZ_HANDLE_UNLIKELY_ERRORS=0"
 elif [ $1 ] && [ $1 = "memdebug" ]; then
   FLAGS="${FLAGS} -Og -g -fsanitize=address -DMEMDEBUG=1"
 else
-  FLAGS="${FLAGS} -O2 -g"
+  FLAGS="${FLAGS} -O0 -g"
 fi
 
 # Install stiltc executable

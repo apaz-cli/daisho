@@ -66,19 +66,17 @@ This means it satisfies the interface `Consumer<? extends Printable>`, because S
         // ...
         public:
         // ...
-        friend ostream& operator<<(ostream& os, const myclass& dt);
+        friend ostream& operator<<(std::ostream& os, const myclass& dt);
     }
     std::ostream& operator<<(std::ostream &os, myclass const &m) {
         return os << m.i;
     }
     ```
     Stilts only requires the following:
-    ```java
-    class MyClass implements Stringable {
-        private Int i;
-        String toString() {
-            return "" + i;
-        }
+    ```rust
+    class MyClass impl Stringable {
+        Int i;
+        String toString() return String.of(this.i);
     }
     ```
     
@@ -86,9 +84,9 @@ This means it satisfies the interface `Consumer<? extends Printable>`, because S
     * Undefined behavior lurks around every corner. See the unintuitive undefined behavior around, once again, [Iterators](https://en.wikipedia.org/wiki/Criticism_of_C++#Iterators).
     * Despite how far it's come, I very much dislike writing modern C++. I am stubborn, I think it smells, and I will never forgive it.
 * Java
-    * The JVM's garbage collection doesn't take the strain off the programmer. Instead of thinking about lifetimes, now it's about pruning object graphs.
+    * For nontrivial applications, the JVM's garbage collection doesn't take the strain off the programmer. Instead of thinking about lifetimes, now it's about pruning object graphs.
     * Type Erasure makes Java's generics unusable for many tasks. The runtime type of any generic variable is `java.lang.Object`, which has a large overhead both on memory and cpu cycles due to method ID lookups. There are no generics for integral types.
-    * Java programs are about 3x slower than equivalent C/C++ programs (Citation needed), for basically no reason other than portability.
+    * Java programs are about 3x slower than equivalent C/C++ programs (Citation needed), for basically no reason.
     * Java cannot be properly optimized, because new classes can be loaded at runtime. You cannot optimize a program if nobody will tell you what the program is.
     * Runtime reflection conflates the class injection issue. Even if a function is private, unused, and should not be accessable, unused code cannot be deleted because a class could be injected at runtime that refers to the unused code reflectively and calls it. This also sort of defeats the purpose of having `private` in the first place.
 
