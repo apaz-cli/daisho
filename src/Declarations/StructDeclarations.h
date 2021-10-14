@@ -174,7 +174,7 @@ typedef List_Expr  ExprTable;
 
 struct Target {
     char* file_name;
-    utf8_t* content;
+    UTF8FileContent fileInfo;
     TokenStream token_stream;
     AST ast;
 };

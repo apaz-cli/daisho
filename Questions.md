@@ -1,3 +1,4 @@
+# Questions:
 
 1. Arrays require an overload of the `[]` operator. How does
    that play with pointers to a type that also overloads `[]`?

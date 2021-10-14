@@ -323,7 +323,6 @@ with open('Automata.h', 'w') as f:
     f.write('#ifndef INCLUDE_AUTOMATA\n')
     f.write('#define INCLUDE_AUTOMATA\n')
     f.write('#include <apaz-libc.h>\n')
-    f.write('#include "../../UTF-8.h"\n\n')
 
     f.write(automata_description + "\n\n")
     f.write(

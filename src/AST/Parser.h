@@ -1,10 +1,8 @@
 #ifndef PARSER_INCLUDE
 #define PARSER_INCLUDE
 
-#include "Declarations/Declarations.h"
-#include "Declarations/Generated/ASTNodeMethods.h"
-#include "Declarations/StructDeclarations.h"
-#include <arena.h/arena.h>
+#include "../Declarations/Declarations.h"
+#include <apaz-libc.h>
 
 /***************************/
 /* Stack Management Macros */

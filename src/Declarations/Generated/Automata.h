@@ -29,6 +29,7 @@
  * either end the token stream with the END_OF_FILE token, or throw an error.
  */
 
+
 typedef uint8_t NFAState;
 #define NFASTATE_MAX UINT8_MAX
 

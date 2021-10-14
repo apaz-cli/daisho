@@ -4,6 +4,7 @@
 #include "Declarations/MethodDeclarations.h"
 #include "Declarations/StructDeclarations.h"
 #include <apaz-libc.h>
+#include <apaz-utf8.h/apaz-utf8.h>
 
 const char *usageMesasge =
     "Stilts v0.1\n"
@@ -168,10 +169,10 @@ static inline void printFlags() {
 static inline void readTargets() {
   size_t n = List_Target_len(cmdFlags.targets);
   for (size_t i = 0; i < n; i++) {
-    cmdFlags.targets[i].content = UTF8ReadFile(cmdFlags.targets[i].file_name);
-    if (!cmdFlags.targets[i].content) {
+    cmdFlags.targets[i].fileInfo = utf8_readFile(cmdFlags.targets[i].file_name);
+    if (!cmdFlags.targets[i].fileInfo.content) {
       printf("Could not open file: %s\n", cmdFlags.targets[i].file_name);
-      // TODO make allocations less shit
+      // TODO make catching memory leaks less shit
       exit(1);
     }
   }

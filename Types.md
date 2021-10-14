@@ -2,14 +2,17 @@
 # Types
 
 These are all the different kinds of types.
-	1. CTypes
-	2. Typedefs
-	3. Classes
-	4. Generics
-	5. Traits
-	6. Lambda Expressions
-	7. Pointers
-	8. Arrays
+
+```
+1. CTypes
+2. Typedefs
+3. Classes
+4. Generics
+5. Traits
+6. Lambda Expressions
+7. Pointers
+8. Arrays
+```
 
 For the most part, all of them are created equal. Methods can be attached to 
 any type.
