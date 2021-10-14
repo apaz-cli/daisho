@@ -3,7 +3,6 @@
 
 #include "Generated/TokType.h"
 #include <apaz-libc.h>
-#include <apaz-utf8.h/apaz-utf8.h>
 
 /***************************/
 /*    TYPE DECLARATIONS    */
@@ -174,7 +173,7 @@ typedef List_Expr  ExprTable;
 
 struct Target {
     char* file_name;
-    utf8_t* content;
+    UTF8FileContent content;
     TokenStream token_stream;
     AST ast;
 };
