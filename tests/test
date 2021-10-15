@@ -7,7 +7,6 @@ import subprocess
 from shlex import split
 from os import chdir as cd
 from glob import glob
-from typing_extensions import runtime
 
 
 def pwd():
@@ -94,7 +93,7 @@ if (len(sys.argv) > 1):
         runTests()
         exit(0)
     if 'clean' in sys.argv:
-        cleanTests()
+        cleanTests() 
         exit(0)
 buildTests()
 runTests()

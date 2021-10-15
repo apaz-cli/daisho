@@ -1,7 +1,8 @@
 #ifndef TOKENIZER_INCLUDE
 #define TOKENIZER_INCLUDE
 
-#include "Declarations/Declarations.h"
+#include "../Declarations/Declarations.h"
+#include <apaz-utf8.h/apaz-utf8.h>
 
 static inline Target *Target_readFile(Target *target) {
 #define TOKENSTREAM_INITIAL_CAPACITY 1000
@@ -23,9 +24,9 @@ static inline StiltsTokenizer *Tokenizer_init(StiltsTokenizer *tokenizer,
 static inline bool Tokenizer_nextToken(StiltsTokenizer *tokenizer,
                                        TokenStream stream) {
 
-  char *current = tokenizer->target->content + tokenizer->current_pos;
+  utf8_t *current = tokenizer->target->fileInfo.content + tokenizer->current_pos;
   for (size_t i = 0; i < NUM_TOKTYPES; i++) {
-    char c = *(current + i);
+    utf8_t c = *(current + i);
   }
   
   return false;
