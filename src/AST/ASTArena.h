@@ -1,3 +1,6 @@
+#ifndef ASTARENA_INCLUDE
+#define ASTARENA_INCLUDE
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -175,6 +178,8 @@ static inline void ASTArena_backtrace(ASTArena *arena) {
 #else
 static inline void ASTArena_backtrace(ASTArena *arena) { (void)arena; }
 #endif
+
+#endif // ASTARENA_INCLUDE
 
 /************************************/
 /*          Example Usage           */
