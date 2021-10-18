@@ -1,29 +1,66 @@
-%prefix "StiltsParser"
+%prefix "sp"
+%value "void*"
 %header {
 #include <apaz-libc.h>
 }
 
 CompilationUnit <- (TopLevelDeclaration)+ !.
 
-TopLevelDeclaration <- 
-    GlobalVariableDeclaration / 
-    ClassDeclaration / 
-    TraitDeclaration / 
-    TraitImplementation / 
-    CTypeDeclaration / 
-    CFlagDeclaration / 
-    SL_COMMENT / 
+TopLevelDeclaration <-
+    GlobalVariableDeclaration /
+    FunctionDeclaration /
+    ClassDeclaration /
+    TraitDeclaration /
+    TraitImplementation /
+    CTypeDeclaration /
+    CFlagDeclaration /
+    ImportStatement /
+    SL_COMMENT /
     ML_COMMENT
 
 GlobalVariableDeclaration <- "A"
 FunctionDeclaration <- "F"
 ClassDeclaration <-
-    "class" classtype:STypeIdent "impl" TraitType:STypeIdent "{" "}" ";" /
-    "class" classtype:STypeIdent "{" "}"
+    "class" cltype:STypeIdent "impl" TraitType:STypeIdent "{"
+        Statement+
+    "}" ";"? /
+    "class" cltype:STypeIdent "{"
+        Statement+
+    "}" ";"?
 TraitDeclaration <- "trait" SIdent ";"
-TraitImplementation <- "impl" STypeIdent "for" STypeIdent 
+TraitImplementation <- "impl" STypeIdent "for" STypeIdent
 CTypeDeclaration <- "ctype" CTypeIdent ";"
 CFlagDeclaration <- "cflag" StringLiteral ";"
+ImportStatement <- ("import" / "include") StringLiteral ";"
+
+
+
+##############
+# Statements #
+##############
+
+Statement <-
+    ";" /
+    Expr /
+    BlockStatement /
+    IfStatement /
+    ElseStatement /
+    ForStatement /
+    WhileStatement /
+    ReturnStatement
+
+BlockStatement <- "{" Statement* "}"
+IfStatement <- "if"
+ElseStatement <- "else"
+ForStatement <- "for"
+WhileStatement <- "while"
+ReturnStatement <- ("return" / "ret") Expr ";"
+
+###############
+# Expressions #
+###############
+
+Expr <- "expr"
 
 
 ###############
@@ -37,15 +74,40 @@ STypePostfix <- "*" / "[]" / "<" SType ">"
 
 CTypeIdent <- [_a-zA-Z][_a-zA-Z0-9]+ "*"*
 
-######################
-# Ignored Characters #
-######################
 
-# Form feed is a thing but meh
-SEP <- (WS / ML_COMMENT / SL_COMMENT)?
-WS <- [ \t\r\n]+
-ML_COMMENT <- "/*" (.*)? "*/"
-SL_COMMENT <- "//" [^\n]*
+############
+# Literals #
+############
+
+// Number fragments
+fragment DecimalNumeral:  
+        Sign? UnderscoreDigits DecimalTypeSuffix?;
+fragment Sign: [+-];
+fragment DecimalTypeSuffix: [Ll];
+fragment UnderscoreDigits: [0-9]+ '_' UnderscoreDigits | [0-9]+;
+
+fragment Nondigit: [a-zA-Zα-ωΑ-Ω_];
+
+// Hex fragments
+fragment HexNumeral: '0x' UnderscoreHexDigits;
+fragment UnderscoreHexDigits:
+        ([0-9A-F]+ '_' UnderscoreHexDigits
+        | [0-9A-F]+);
+
+// String fragments TODO: refine ~["\\\r\n]
+fragment SCharFrag: '"' SChar+ '"';
+fragment SChar: ~["\\\r\n] | EscapeSequence | '\\\n' | '\\\r\n';
+fragment EscapeSequence: '\\' ['"?abfnrtv\\] | '\\x' [0-9A-F]+;
+
+// Literal definitions    
+IntegerLiteral: DecimalNumeral | HexNumeral;
+FloatLiteral:
+        IntegerLiteral    
+        | Sign? DecimalNumeral '.' DecimalNumeral?;
+// Boolean literals are keywords
+NullLiteral: 'NULL';
+StringLiteral: SCharFrag+;
+
 
 ##################
 # Character Sets #
@@ -53,10 +115,22 @@ SL_COMMENT <- "//" [^\n]*
 
 GreekChar <- [αβγδεζηθικλμνξοπρσςτυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ]
 
+
+######################
+# Ignored Characters #
+######################
+
+# Form feed is a thing but meh
+#SEP <- (WS / ML_COMMENT / SL_COMMENT)?
+#WS <- [ \t\r\n]+
+ML_COMMENT <- "/*" (.*)? "*/"
+SL_COMMENT <- "//" [^\n]*
+
+
 %%
 int main() {
-    StiltsParser_context_t *ctx = StiltsParser_create(NULL);
-    while (StiltsParser_parse(ctx, NULL));
-    StiltsParser_destroy(ctx);
+    sp_context_t *ctx = sp_create(NULL);
+    while (sp_parse(ctx, NULL));
+    sp_destroy(ctx);
     return 0;
 }

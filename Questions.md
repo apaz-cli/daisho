@@ -13,3 +13,7 @@
 	* Neither `&` or `$` should be overloadable. This frees up `*`.
 	* Unsure about `=`.
 
+4. How can I strap a preprocessor macro system to the parser?
+	* Should I?
+	* Idea: Embed a language within the language. This language
+	  directly acts upon the AST.
