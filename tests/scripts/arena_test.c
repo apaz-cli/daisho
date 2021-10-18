@@ -1,6 +1,6 @@
 #include <apaz-libc.h>
 
-#define NITS 10000
+#define NITS 1000
 
 int popt() {
   Arena a = Arena_new("popt");

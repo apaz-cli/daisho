@@ -2,8 +2,6 @@
 
 # [TokType, literal]
 
-from typing import Literal
-
 
 automata_description = """
 /*

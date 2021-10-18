@@ -41,7 +41,7 @@ def heading(s):
 
 cc = "cc"
 flags = "-g -O0 -fsanitize=address -DMEMDEBUG=1"
-warnings = "-Wall -Wpedantic"
+warnings = "-Wall -Wextra -Wpedantic"
 
 
 def buildTests():
@@ -86,14 +86,17 @@ def cleanTests():
 
 
 if (len(sys.argv) > 1):
+    taken = False
     if 'build' in sys.argv:
         buildTests()
-        exit(0)
+        taken = True
     if 'run' in sys.argv:
         runTests()
-        exit(0)
+        taken = True
     if 'clean' in sys.argv:
         cleanTests() 
+        taken = True
+    if taken:
         exit(0)
 buildTests()
 runTests()

@@ -1,29 +1,65 @@
-%prefix "StiltsParser"
+%prefix "sp"
 %value "NTYPE"
 %header {
 #include <apaz-libc.h>
 typedef void* NTYPE;
 }
 
-CompilationUnit <- (TopLevelDeclaration)+ !.
+CompilationUnit <- _ (TopLevelDeclaration)+ _ !.
 
 TopLevelDeclaration <- _ /
-    GlobalVariableDeclaration / 
-    ClassDeclaration / 
-    TraitDeclaration / 
-    TraitImplementation / 
-    CTypeDeclaration / 
-    CFlagDeclaration 
+    GlobalVariableDeclaration /
+    FunctionDeclaration /
+    ClassDeclaration /
+    TraitDeclaration /
+    TraitImplementation /
+    CTypeDeclaration /
+    CFlagDeclaration /
+    ImportStatement
 
 GlobalVariableDeclaration <- "A"
 FunctionDeclaration <- "F"
 ClassDeclaration <-
-    "class" classtype:STypeIdent "impl" TraitType:STypeIdent "{" "}" ";" /
-    "class" classtype:STypeIdent "{" "}"
+    "class" classtype:STypeIdent "impl" TraitType:STypeIdent "{"
+        Statement+
+    "}" ";"? /
+    "class" cltype:STypeIdent "{"
+        Statement+
+    "}" ";"?
 TraitDeclaration <- "trait" SIdent ";"
-TraitImplementation <- "impl" STypeIdent "for" STypeIdent { printf("TIMPL"); $$ = malloc(0); void* a = $$; }
-CTypeDeclaration <- "ctype" CTypeIdent ";"{ printf("CTDEC"); }
-CFlagDeclaration <- "cflag" StringLiteral ";"{ printf("CFDEC"); }
+TraitImplementation <- "impl" STypeIdent "for" STypeIdent
+CTypeDeclaration <- "ctype" CTypeIdent ";"
+CFlagDeclaration <- "cflag" StringLiteral ";"
+ImportStatement <- ("import" / "include") StringLiteral ";"
+
+
+
+##############
+# Statements #
+##############
+
+Statement <-
+    ";" /
+    Expr /
+    BlockStatement /
+    IfStatement /
+    ElseStatement /
+    ForStatement /
+    WhileStatement /
+    ReturnStatement
+
+BlockStatement <- "{" Statement* "}"
+IfStatement <- "if"
+ElseStatement <- "else"
+ForStatement <- "for"
+WhileStatement <- "while"
+ReturnStatement <- ("return" / "ret") Expr ";"
+
+###############
+# Expressions #
+###############
+
+Expr <- "expr"
 
 StringLiteral <- FunctionDeclaration { printf("STRLIT"); } ~{ printf("STRLIT_ERR");}
 
@@ -38,6 +74,39 @@ STypePostfix <- "*" / "[]" / "<" SType ">"
 
 CTypeIdent <- [_a-zA-Z][_a-zA-Z0-9]+ "*"*
 
+
+############
+# Literals #
+############
+
+# Number fragments
+DecimalNumeral <- [+-]? [0-9]+ [Ll]?
+
+
+# Hex fragments
+HexNumeral <- "0x" [0-9A-F]+
+
+# String fragments TODO: refine ~["\\\r\n]
+SCharFrag <- '"' SChar+ '"';
+SChar <- ~["\\\r\n] / EscapeSequence / '\\\n' / '\\\r\n';
+EscapeSequence <- '\\' ['"?abfnrtv\\] / '\\x' [0-9A-F]+
+
+# Literal definitions
+IntegerLiteral <- DecimalNumeral / HexNumeral;
+FloatLiteral <- IntegerLiteral
+        / Sign? DecimalNumeral '.' DecimalNumeral?;
+NullLiteral <- "NULL" / "null";
+StringLiteral <- SCharFrag+;
+
+
+##################
+# Character Sets #
+##################
+
+Nondigit <- [_a-zA-Z] / GreekChar
+GreekChar <- [αβγδεζηθικλμνξοπρσςτυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ]
+
+
 ######################
 # Ignored Characters #
 ######################
@@ -49,16 +118,10 @@ ML_COMMENT <- "/*" (.*)? "*/"
 SL_COMMENT <- "//" [^\n]*
 
 
-##################
-# Character Sets #
-##################
-
-GreekChar <- [αβγδεζηθικλμνξοπρσςτυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ]
-
 %%
 int main() {
-    StiltsParser_context_t *ctx = StiltsParser_create(NULL);
-    while (StiltsParser_parse(ctx, NULL));
-    StiltsParser_destroy(ctx);
+    sp_context_t *ctx = sp_create(NULL);
+    while (sp_parse(ctx, NULL));
+    sp_destroy(ctx);
     return 0;
 }
