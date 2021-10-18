@@ -4,9 +4,9 @@
 #include <apaz-libc.h>
 }
 
-CompilationUnit <- (TopLevelDeclaration)+ !.
+CompilationUnit <- _ (TopLevelDeclaration)+ _ !.
 
-TopLevelDeclaration <-
+TopLevelDeclaration <- _ /
     GlobalVariableDeclaration /
     FunctionDeclaration /
     ClassDeclaration /
@@ -14,14 +14,12 @@ TopLevelDeclaration <-
     TraitImplementation /
     CTypeDeclaration /
     CFlagDeclaration /
-    ImportStatement /
-    SL_COMMENT /
-    ML_COMMENT
+    ImportStatement
 
 GlobalVariableDeclaration <- "A"
 FunctionDeclaration <- "F"
 ClassDeclaration <-
-    "class" cltype:STypeIdent "impl" TraitType:STypeIdent "{"
+    "class" classtype:STypeIdent "impl" TraitType:STypeIdent "{"
         Statement+
     "}" ";"? /
     "class" cltype:STypeIdent "{"
@@ -79,40 +77,31 @@ CTypeIdent <- [_a-zA-Z][_a-zA-Z0-9]+ "*"*
 # Literals #
 ############
 
-// Number fragments
-fragment DecimalNumeral:  
-        Sign? UnderscoreDigits DecimalTypeSuffix?;
-fragment Sign: [+-];
-fragment DecimalTypeSuffix: [Ll];
-fragment UnderscoreDigits: [0-9]+ '_' UnderscoreDigits | [0-9]+;
+# Number fragments
+DecimalNumeral <- [+-]? [0-9]+ [Ll]?
 
-fragment Nondigit: [a-zA-Zα-ωΑ-Ω_];
 
-// Hex fragments
-fragment HexNumeral: '0x' UnderscoreHexDigits;
-fragment UnderscoreHexDigits:
-        ([0-9A-F]+ '_' UnderscoreHexDigits
-        | [0-9A-F]+);
+# Hex fragments
+HexNumeral <- "0x" [0-9A-F]+
 
-// String fragments TODO: refine ~["\\\r\n]
-fragment SCharFrag: '"' SChar+ '"';
-fragment SChar: ~["\\\r\n] | EscapeSequence | '\\\n' | '\\\r\n';
-fragment EscapeSequence: '\\' ['"?abfnrtv\\] | '\\x' [0-9A-F]+;
+# String fragments TODO: refine ~["\\\r\n]
+SCharFrag <- '"' SChar+ '"';
+SChar <- ~["\\\r\n] / EscapeSequence / '\\\n' / '\\\r\n';
+EscapeSequence <- '\\' ['"?abfnrtv\\] / '\\x' [0-9A-F]+
 
-// Literal definitions    
-IntegerLiteral: DecimalNumeral | HexNumeral;
-FloatLiteral:
-        IntegerLiteral    
-        | Sign? DecimalNumeral '.' DecimalNumeral?;
-// Boolean literals are keywords
-NullLiteral: 'NULL';
-StringLiteral: SCharFrag+;
+# Literal definitions
+IntegerLiteral <- DecimalNumeral / HexNumeral;
+FloatLiteral <- IntegerLiteral
+        / Sign? DecimalNumeral '.' DecimalNumeral?;
+NullLiteral <- "NULL" / "null";
+StringLiteral <- SCharFrag+;
 
 
 ##################
 # Character Sets #
 ##################
 
+Nondigit <- [_a-zA-Z] / GreekChar
 GreekChar <- [αβγδεζηθικλμνξοπρσςτυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ]
 
 
@@ -121,8 +110,8 @@ GreekChar <- [αβγδεζηθικλμνξοπρσςτυφχψωΑΒΓΔΕΖΗΘ
 ######################
 
 # Form feed is a thing but meh
-#SEP <- (WS / ML_COMMENT / SL_COMMENT)?
-#WS <- [ \t\r\n]+
+_ <- (WS / ML_COMMENT / SL_COMMENT)?
+WS <- [ \t\r\n]+
 ML_COMMENT <- "/*" (.*)? "*/"
 SL_COMMENT <- "//" [^\n]*
 
