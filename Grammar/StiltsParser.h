@@ -4,6 +4,7 @@
 #define PCC_INCLUDED_STILTSPARSER_H
 
 #include <apaz-libc.h>
+typedef void* NTYPE;
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -11,7 +12,7 @@ extern "C" {
 typedef struct StiltsParser_context_tag StiltsParser_context_t;
 
 StiltsParser_context_t *StiltsParser_create(void *auxil);
-int StiltsParser_parse(StiltsParser_context_t *ctx, int *ret);
+int StiltsParser_parse(StiltsParser_context_t *ctx, NTYPE *ret);
 void StiltsParser_destroy(StiltsParser_context_t *ctx);
 
 #ifdef __cplusplus

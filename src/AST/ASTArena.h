@@ -151,6 +151,13 @@ static inline void ASTArena_destroy(ASTArena *arena) {
   _ASTARENA_ALLOC(_NodeType)                                                   \
   _ASTARENA_FREE(_NodeType)
 
+#define RULE_DEFINE(_NodeType) ASTARENA_REGISTER(_NodeType)
+#define RULE_BEGIN(_NodeType)                                                  \
+  _NodeType *node = ASTArena_alloc_##_NodeType(arena);                         \
+  size_t __rewind_to = arena->buf_size;
+
+#define NODE_FREE()
+
 static inline void _ASTArena_bt_helper(ASTArena *arena) {
   if (arena->next)
     _ASTArena_bt_helper(arena->next);
@@ -185,8 +192,6 @@ static inline void ASTArena_backtrace(ASTArena *arena) { (void)arena; }
 /*          Example Usage           */
 /************************************/
 
-/*
-
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -206,6 +211,8 @@ REGISTER_EXAMPLE(UGU, void *);
 REGISTER_EXAMPLE(O_O, ptrdiff_t);
 REGISTER_EXAMPLE(U_U, bool);
 
+void *rule(ASTArena *arena) { RULE_BEGIN(OWO); }
+
 int main() {
   ASTArena *arena = ASTArena_new();
 
@@ -224,4 +231,3 @@ int main() {
 
   ASTArena_destroy(arena);
 }
-*/

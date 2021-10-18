@@ -314,7 +314,6 @@ The following happens behind the scenes, in order:
 # Arrays
 
 
-
 # Calling Conventions
 
 ## Calling methods
