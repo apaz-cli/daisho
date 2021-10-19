@@ -4,9 +4,9 @@
    that play with pointers to a type that also overloads `[]`?
    * You can convert from arr to ptr via a method.
 
-2. Ambiguity between default void method and abstract void
-   method in trait.
-   * Fuck, I don't know
+2. Ambiguity of `func();` in trait. Is it a default method that
+   does nothing, or an abstract method returning `Void` which
+   needs to be defined?
 
 3. The meanings of `=`, `&`, `*`. Are they operators, or
    built in? How unfortunate the C pointer creation and
@@ -32,6 +32,6 @@
     * https://github.com/rust-lang/rust/blob/d2454643e137bde519786ee9e650c455d7ad6f34/compiler/rustc_typeck/src/check/mod.rs
     * https://www.cis.upenn.edu/~bcpierce/papers/lti-toplas.pdf
     * https://dl.acm.org/doi/pdf/10.1145/3290322
-    
+
 #parser
 #type_checking
