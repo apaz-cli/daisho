@@ -7,7 +7,8 @@ typedef void* NTYPE;
 
 CompilationUnit <- _ (TopLevelDeclaration)+ _ !.
 
-TopLevelDeclaration <- _ /
+TopLevelDeclaration <- 
+    _ /
     GlobalVariableDeclaration /
     FunctionDeclaration /
     ClassDeclaration /
@@ -80,23 +81,25 @@ CTypeIdent <- [_a-zA-Z][_a-zA-Z0-9]+ "*"*
 ############
 
 # Number fragments
-DecimalNumeral <- [+-]? [0-9]+ [Ll]?
+DecimalNumeral <- [+-]? [0-9]+
 
 
 # Hex fragments
 HexNumeral <- "0x" [0-9A-F]+
 
 # String fragments TODO: refine ~["\\\r\n]
-SCharFrag <- '"' SChar+ '"';
-SChar <- ~["\\\r\n] / EscapeSequence / '\\\n' / '\\\r\n';
-EscapeSequence <- '\\' ['"?abfnrtv\\] / '\\x' [0-9A-F]+
+SCharFrag <- '"' SChar+ '"'
+SChar <- ([^"\\\r\n] / EscapeSequence / "\\\n" / "\\\r\n")
+EscapeSequence <- "\\" ['"?abfnrtv\\] / "\\x" [0-9A-F]+
 
 # Literal definitions
-IntegerLiteral <- DecimalNumeral / HexNumeral;
-FloatLiteral <- IntegerLiteral
-        / Sign? DecimalNumeral '.' DecimalNumeral?;
-NullLiteral <- "NULL" / "null";
-StringLiteral <- SCharFrag+;
+IntegerLiteral <- DecimalNumeral [Ll]? / 
+                  HexNumeral
+FloatLiteral   <- DecimalNumeral /
+                  DecimalNumeral "." DecimalNumeral?
+NullLiteral    <- "NULL" /
+                  "null"
+StringLiteral <- SCharFrag+
 
 
 ##################
@@ -104,6 +107,7 @@ StringLiteral <- SCharFrag+;
 ##################
 
 Nondigit <- [_a-zA-Z] / GreekChar
+Digit <- [0-9]
 GreekChar <- [αβγδεζηθικλμνξοπρσςτυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ]
 
 

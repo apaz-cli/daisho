@@ -13,15 +13,10 @@ fi
 
 cd ../../../Grammar
 
-<<<<<<< HEAD
-cc packcc/src/packcc.c -o peg
-./peg -o StiltsParser Grammar.peg
-rm peg
-=======
+
 cc -O0 packcc.c -o peg
-peg -o StiltsParser Grammar.peg
+./peg -o StiltsParser Grammar.peg
 
 cat StiltsParser.h StiltsParser.c > StiltsParser
 awk '!/#include "StiltsParser.h"/' StiltsParser > StiltsParser.h
 rm StiltsParser.c StiltsParser
->>>>>>> 2b6d3c87996d176588673a185c8cd4f54a72527f
