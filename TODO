@@ -1,4 +1,6 @@
 Thinking:
+    Polymorhic Type Theory
+
     Generic trait system:
         Recursive validation
         Runtime vs compile time polymorphism
@@ -25,13 +27,9 @@ Thinking:
 
 
 Coding:
-    Testing framework and tests
-    Switch to UTF-8
+    AST workspace
     Split up sections
-    ASTNode_##node_type##_destroy(Arena *arena)
     apaz-libc:
         readFile macro wrap for memdebug
-	    Arena alignment with uintptr_t arithmetic rather than mod _Alignof(max_align_t)
-	    Split mutexes from memdebug.h/arena.h off into a new mutex.h
         List reduce()
         String to/from integral types (with error checking)
