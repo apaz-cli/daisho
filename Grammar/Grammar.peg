@@ -5,6 +5,10 @@
 typedef void* NTYPE;
 }
 
+##########################
+# TOP LEVEL DECLARATIONS #
+##########################
+
 CompilationUnit <- _ (TopLevelDeclaration)+ _ !.
 
 TopLevelDeclaration <- 
@@ -18,17 +22,25 @@ TopLevelDeclaration <-
     CFlagDeclaration /
     ImportStatement
 
+#####################
+# Class Declaration #
+#####################
+
+ClassMember <- _
+
+TraitConstraint <-  ("impl" _ traittype:STypeIdent _ constraint:WhereConstraint?)?
+TraitList <- STypeIdent
+WhereConstraint <-  ("where" _ specified:STypeIdent _ "impl" _ impltype:TraitList)?
+
+ClassDeclaration <-
+    "class" _ classtype:STypeIdent _ constraint:TraitConstraint? _ "{"
+        _ ClassMember* _
+    "}" _ ";"?
+
 GlobalVariableDeclaration <- "A"
 FunctionDeclaration <- "F"
-ClassDeclaration <-
-    "class" classtype:STypeIdent "impl" TraitType:STypeIdent "{"
-        Statement+
-    "}" ";"? /
-    "class" cltype:STypeIdent "{"
-        Statement+
-    "}" ";"?
 TraitDeclaration <- "trait" SIdent ";"
-TraitImplementation <- "impl" STypeIdent "for" STypeIdent
+TraitImplementation <- "impl" STypeIdent "for" STypeIdent "where"
 CTypeDeclaration <- "ctype" CTypeIdent ";"
 CFlagDeclaration <- "cflag" StringLiteral ";"
 ImportStatement <- ("import" / "include") StringLiteral ";"
@@ -49,12 +61,12 @@ Statement <-
     WhileStatement /
     ReturnStatement
 
-BlockStatement <- "{" Statement* "}"
+BlockStatement <- "{" _ Statement* _ "}"
 IfStatement <- "if"
 ElseStatement <- "else"
 ForStatement <- "for"
 WhileStatement <- "while"
-ReturnStatement <- ("return" / "ret") Expr ";"
+ReturnStatement <- _ ("return" / "ret") _ Expr _ ";" _ 
 
 ###############
 # Expressions #
@@ -62,15 +74,14 @@ ReturnStatement <- ("return" / "ret") Expr ";"
 
 Expr <- "expr"
 
-StringLiteral <- FunctionDeclaration { printf("STRLIT"); } ~{ printf("STRLIT_ERR");}
 
 ###############
 # Identifiers #
 ###############
 
-SIdent <- ([_a-zA-Z] / GreekChar)([_a-zA-Z0-9] / GreekChar)+
-STypeIdent <- [_A-Z][_a-zA-Z0-9]+
-SType <- STypeIdent STypePostfix
+SIdent <- <([_a-zA-Z] / GreekChar)([_a-zA-Z0-9] / GreekChar)+> {}
+STypeIdent <- <[_A-Z][_a-zA-Z0-9]+> 
+SType <- STypeIdent postfix:STypePostfix+
 STypePostfix <- "*" / "[]" / "<" SType ">"
 
 CTypeIdent <- [_a-zA-Z][_a-zA-Z0-9]+ "*"*
@@ -81,24 +92,22 @@ CTypeIdent <- [_a-zA-Z][_a-zA-Z0-9]+ "*"*
 ############
 
 # Number fragments
-DecimalNumeral <- [+-]? [0-9]+
-
+#DecimalNumeral <- [+-]? [0-9]+
 
 # Hex fragments
-HexNumeral <- "0x" [0-9A-F]+
+#HexNumeral <- "0x" [0-9A-F]+
 
 # String fragments TODO: refine ~["\\\r\n]
 SCharFrag <- '"' SChar+ '"'
-SChar <- ([^"\\\r\n] / EscapeSequence / "\\\n" / "\\\r\n")
+SChar <- ([^"\\\r\n] / EscapeSequence)
 EscapeSequence <- "\\" ['"?abfnrtv\\] / "\\x" [0-9A-F]+
 
 # Literal definitions
-IntegerLiteral <- DecimalNumeral [Ll]? / 
-                  HexNumeral
-FloatLiteral   <- DecimalNumeral /
-                  DecimalNumeral "." DecimalNumeral?
-NullLiteral    <- "NULL" /
-                  "null"
+#IntegerLiteral <- DecimalNumeral [Ll]? /  HexNumeral
+#FloatLiteral   <- DecimalNumeral / DecimalNumeral "." DecimalNumeral?
+#NullLiteral    <- "NULL" / "null"
+
+#CharacterLiteral <- "'" SChar "'" / "\"" SChar "\""
 StringLiteral <- SCharFrag+
 
 
@@ -106,8 +115,6 @@ StringLiteral <- SCharFrag+
 # Character Sets #
 ##################
 
-Nondigit <- [_a-zA-Z] / GreekChar
-Digit <- [0-9]
 GreekChar <- [αβγδεζηθικλμνξοπρσςτυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ]
 
 
@@ -123,9 +130,10 @@ SL_COMMENT <- "//" [^\n]*
 
 
 %%
+/*
 int main() {
     sp_context_t *ctx = sp_create(NULL);
     while (sp_parse(ctx, NULL));
     sp_destroy(ctx);
     return 0;
-}
+}*/
