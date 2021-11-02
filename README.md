@@ -61,6 +61,8 @@ If you're not on a POSIX operating system (If you're on Windows), I recommend sw
 * Memory safe
   * Just like the C that it compiles to.
   * In practice, you should be fine if you stick to standard containers.
+* Usable in production
+  * For now. Unless you're a masochist like me.
 * Fast at compiling programs
   * This is an eventual goal, but not a priority.
   * For now, having a compiler at all is a higher priority.

@@ -72,12 +72,24 @@ For each compilation unit in parallel:
     * Infer the return values of functions by their signature (mindful that overloads exist).
 * Validate Interfaces are implemented and types match
 
+!!! DANGER PEPEGA INCOMING
+	1. Make a pass over every translation unit and pull out the type definitions and their trait requirements. This can be yoinked directly from the abstract syntax tree. Also pull out associated generic types and their bounds within that context. Include the content of all `impl` blocks, with their own contexts.
+
+ 	2. Creatively reorder such that the next step works. We can because no cyclical trait dependencies are allowed.
+
+	3. Trace for each type that, if they're telling the truth about what they are/can do everything is consistent.
+
+	4. Check method signatures to make sure they report to fulfill their trait requirements by tracing each type's hierarchy. While we're at it do the same for class member variables.
+
+	5. Trace each type in the signature to make sure it is consistent. Do the same for class member variables.
+
+	6. For each statement in each method in order, mark the type of each expression. Perform widening and narrowing conversions as necessary. Check invocations of traits. Keep track of which are invoked.
+
+	7. Build a table for each type of each of its invocations for the code generator.
+
 
 # Code Generator
-Information that must be known:
-Function Signatures
-Which generic overloads are used
-
+Tables must be generated for the following:
 
 * Write all type declarations
 * Write all ctype declarations

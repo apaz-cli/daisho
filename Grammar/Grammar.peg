@@ -29,8 +29,8 @@ TopLevelDeclaration <-
 ClassMember <- _
 
 TraitConstraint <-  ("impl" _ traittype:STypeIdent _ constraint:WhereConstraint?)?
-TraitList <- STypeIdent
 WhereConstraint <-  ("where" _ specified:STypeIdent _ "impl" _ impltype:TraitList)?
+TraitList <- STypeIdent
 
 ClassDeclaration <-
     "class" _ classtype:STypeIdent _ constraint:TraitConstraint? _ "{"
@@ -40,13 +40,15 @@ ClassDeclaration <-
 GlobalVariableDeclaration <- "A"
 FunctionDeclaration <- "F"
 TraitDeclaration <- "trait" SIdent ";"
-TraitImplementation <- "impl" STypeIdent "for" STypeIdent "where"
-CTypeDeclaration <- "ctype" CTypeIdent ";"
-CFlagDeclaration <- "cflag" StringLiteral ";"
-ImportStatement <- ("import" / "include") StringLiteral ";"
+TraitImplementation <- "impl" _ traittype:STypeIdent _ "for" _ ontype:STypeIdent _ "where"
+CTypeDeclaration <- "ctype" _ CTypeIdent _ ";"
+CFlagDeclaration <- "cflag" _ StringLiteral _ ";"
+CTBindDeclaration <- "tbind" _ ";"
+CFBindDeclaration <- "fbind" _ ";"
+ImportStatement <- ("import" / "include") _ StringLiteral _ ";"
 
 
-
+ 
 ##############
 # Statements #
 ##############
@@ -65,7 +67,7 @@ BlockStatement <- "{" _ Statement* _ "}"
 IfStatement <- "if"
 ElseStatement <- "else"
 ForStatement <- "for"
-WhileStatement <- "while"
+WhileStatement <- "while" _ "(" _ Expr _ "}" _
 ReturnStatement <- _ ("return" / "ret") _ Expr _ ";" _ 
 
 ###############

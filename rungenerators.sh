@@ -24,5 +24,4 @@ rm peg
 cat StiltsParser.h StiltsParser.c > StiltsParser
 awk '!/#include "StiltsParser.h"/' StiltsParser > StiltsParser.h
 rm StiltsParser.c StiltsParser
-pwd
 mv StiltsParser.h ../src/AST/Generated/

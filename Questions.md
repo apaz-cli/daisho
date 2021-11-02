@@ -13,17 +13,22 @@
    multiplication are the same symbol.
 	* Use `$var` to get the value of a variable instead of `*var`.
 	* Let `&` and `$` be built in. This frees up `*` to overload multiplication.
-    	* They're
+    	* By "built in," I mean to the syntax and type system. `$` removes a `*` from the type, and `&` adds one.
 	* Unsure about `=`.
 
 4. How can I strap a preprocessor macro system to the parser?
 	* Should I?
 	* Idea: Embed a language within the language. This language
 	  directly acts upon the AST.
+   * Counter idea: Don't embed language in language. Instead, compile time evaluation.
+
+5. No type implies `auto`. How do I differentiate instantiation and assignment?
+   * Use `:=`?
+
 
 !!! danger MAJOR PEPEGA INCOMING
 
-5. Investigate the following type checking papers:
+1. Investigate the following type checking papers:
     * ![](https://cdn.discordapp.com/attachments/542264318465671170/899288340241739827/unknown.png)
     * https://www.cl.cam.ac.uk/~nk480/bidir.pdf
     * https://cstheory.stackexchange.com/questions/42554/extending-hindley-milner-to-type-mutable-references

@@ -202,7 +202,7 @@ Void <A impl Animal> makeSpeak(A animal)
 
 Int main() {
 	/* A lambda expression with no captures or arguments */
-	Animal cat = []() => { return "Meow?"};
+	Animal cat = []() => { return "Meow?"; };
 	makeSpeak(cat);
 }
 ```
