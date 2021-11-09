@@ -4,6 +4,8 @@ interface Printable {
     Char* toString();
 }
 
+interface CharSequence() impl Printable {};
+
 private compile Int charStrLen(compile Char* data) {
     Int i = 0;
     while (data[i] != '\0') i++;
@@ -46,20 +48,3 @@ class String implements Printable {
         return data;
     }
 }
-
-0  0000
-1  0001
-2  0010
-3  0011
-4  0100
-5  0101
-6  0110
-7  0111
-8  1000
-9  
-10 
-11 
-12 
-13 
-14 
-15 

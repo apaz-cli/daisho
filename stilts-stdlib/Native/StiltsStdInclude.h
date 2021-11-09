@@ -1,5 +1,6 @@
 #ifndef STILTS_STDLIB_INCLUDES
 #define STILTS_STDLIB_INCLUDES
+/* Grab all the C11 headers. */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
