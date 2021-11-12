@@ -15,4 +15,8 @@
 #include <complex.h>
 #include <assert.h>
 
+/* Grab archetecture specific assumptions like endianness. */
+#include "StiltsAssumptions.h"
+
+
 #endif /* STILTS_STDLIB_INCLUDES */
