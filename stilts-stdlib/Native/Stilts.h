@@ -11,7 +11,11 @@ extern "C" {
 
 #include "StiltsStdInclude.h"
 
+#include "StiltsAllocator/StiltsAllocator.h"
+
 #include "StiltsString/StiltsString.h"
+
+
 
 #ifdef __cplusplus
 }

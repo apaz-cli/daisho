@@ -2,21 +2,20 @@
 #define STILTS_STDLIB_INCLUDES
 
 /* Grab all the C11 headers. */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <assert.h>
+#include <complex.h>
+#include <inttypes.h>
 #include <limits.h>
 #include <stdbool.h>
-#include <inttypes.h>
-#include <stdint.h>
 #include <stddef.h>
-#include <time.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdnoreturn.h>
-#include <complex.h>
-#include <assert.h>
+#include <string.h>
+#include <time.h>
 
 /* Grab archetecture specific assumptions like endianness. */
-#include "StiltsAssumptions.h"
-
+#include "StiltsAssumptions/StiltsAssumptions.h"
 
 #endif /* STILTS_STDLIB_INCLUDES */
