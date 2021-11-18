@@ -9,9 +9,13 @@
 extern "C" {
 #endif
 
+#include "StiltsConfig.h"
+
 #include "StiltsStdInclude.h"
 
 #include "StiltsAllocator/StiltsAllocator.h"
+
+#include "StiltsAllocator/StiltsTempAllocator.h"
 
 #include "StiltsString/StiltsString.h"
 
