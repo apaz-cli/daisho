@@ -8,7 +8,7 @@
         printf("OUT OF MEMORY AT: %s:%zu inside %s().\n",         \
                            __FILE__, __LINE__, __func__);         \
         fflush(stdout);                                           \
-        exit(23);
+        exit(23);                                                 \
     } while (0)
 
 #define __STILTS_TEMP_ARENA_PAGES
