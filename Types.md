@@ -57,18 +57,17 @@ be fully-qualified. Otherwise, the C compiler will choke on your code.
 
 A `class` is literally a C struct with methods associated with it. Each of 
 these methods is literally a function which takes the object as an argument 
-called `this`. When you define a native method on a class, it includes `this` 
-as an extra first argument.
+called `sekf` as its first argument. We use the keyword  `self` instead of 
+`this` for compatability with C++ compilers, but the meaning is the same. 
 
 When you have an object containing members, you literally have a C struct 
 containing those members. The same way, a `class` containing another `class` 
-is a struct containing another struct. This gives the user perfect information 
-about how objects are laid out in memory.
-
+is a struct containing another struct. This gives the user perfect 
+information about how objects are laid out in memory.
 
 Just like in C, a `class` cannot contain an instance of itself as a member. 
-Additionally, it cannot contain an instance of a `trait` that it implements 
-as a member. To get around this, store a reference instead.
+Additionally, it cannot contain an instance of a generic that could possibly 
+be itself. To get around this restriction, store a reference instead.
 
 
 ## Generics

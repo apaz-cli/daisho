@@ -21,8 +21,6 @@ extern "C" {
 
 #include "StiltsStart/StiltsStart.h"
 
-#include "StiltsPython/StiltsPython.h"
-
 #ifdef __cplusplus
 }
 #endif

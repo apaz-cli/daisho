@@ -3,6 +3,7 @@
 import os
 import sys
 import shutil
+import sysconfig
 import subprocess
 from shlex import split
 from os import chdir as cd
@@ -48,7 +49,13 @@ def heading(s):
 
 
 cc = "cc"
-flags = "-g -O0 -I/usr/include/python3.9 -I/usr/include/x86_64-linux-gnu/python3.9 -lpthread -lm -fsanitize=address -DMEMDEBUG=1"
+flags = ""
+flags += subprocess.check_output(['python3-config', '--cflags']).decode('utf-8') + " "
+flags += subprocess.check_output(['python3-config', '--ldflags']).decode('utf-8') + " "
+flags += "-g -O0 -I/usr/include/python3.9 -lpthread -lm -fsanitize=undefined -DMEMDEBUG=1 "
+
+
+#flags += sysconfig.get_config_var('CFLAGS') + " " + sysconfig.get_config_var('LIBS')
 warnings = "-Wall -Wextra -Wpedantic"
 scripts = []
 

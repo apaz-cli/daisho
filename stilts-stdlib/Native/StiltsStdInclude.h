@@ -1,6 +1,18 @@
 #ifndef __STILTS_STDLIB_INCLUDES
 #define __STILTS_STDLIB_INCLUDES
 
+/* Grab user configuration files. */
+#include "StiltsConfig.h"
+
+/*
+ * Embed a python interpreter, because why not.
+ * This has to be done before including stdlib files.
+ * It can be disabled in the config files.
+ */
+#if __STILTS_EMBED_PYTHON
+#include "StiltsPython/StiltsPython.h"
+#endif
+
 /* Grab all the C11 headers. */
 
 /* Base C */
@@ -41,20 +53,13 @@
 #include <uchar.h>
 
 /* Additional Libraries */
-/* note: pthread.h is used over threads.h because it's better. */
-#include <pthread.h> 
+/* note: pthread.h is used over C11's threads.h because it's better. */
+#include <pthread.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-/* Grab user configuration files. */
-#include "StiltsConfig.h"
 
-/* Grab archetecture specific assumptions like endianness. */
-#include "StiltsAssumptions/StiltsAssumptions.h"
-
-/* Embed a python interpreter, because why not. */
-#if __STILTS_EMBED_PYTHON
-#include <Python.h>
-#endif
+/* Start and end routines */
+#include "StiltsStart/StiltsStart.h"
 
 #endif /* __STILTS_STDLIB_INCLUDES */

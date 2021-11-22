@@ -99,23 +99,12 @@ __Stilts_String_len(__Stilts_String* self) {
 
 static inline uint64_t
 __Stilts_String_get_cap(__Stilts_String* self) {
-    int endi = get_endianness();
-    if (endi == ENDIANNESS_LITTLE) {
-    } else if (endi == ENDIANNESS_BIG) {
-    } else {
-        /* The build script fails in this case. */
-    }
     return 0;
 }
 
 static inline void
 __Stilts_String_set_cap(__Stilts_String* self, uint64_t cap) {
-    int endi = get_endianness();
-    if (endi == ENDIANNESS_LITTLE) {
-    } else if (endi == ENDIANNESS_BIG) {
-    } else {
-        /* The build script fails in this case. */
-    }
+
 }
 
 static inline uint64_t
