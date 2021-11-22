@@ -3,8 +3,7 @@
 
 /* Grab all the C11 headers. */
 
-/* Base Stdlib */
-
+/* Base C */
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -23,8 +22,8 @@
 
 /* C95 */
 // #include <iso646.h>
-#include <wctype.h>
 #include <wchar.h>
+#include <wctype.h>
 
 /* C99 */
 #include <complex.h>
@@ -40,6 +39,12 @@
 #include <stdnoreturn.h>
 #include <threads.h>
 #include <uchar.h>
+
+/* Additional Libraries */
+/* note: pthread.h is used over threads.h because it's better. */
+#include <pthread.h> 
+#include <sys/types.h>
+#include <unistd.h>
 
 /* Grab user configuration files. */
 #include "StiltsConfig.h"

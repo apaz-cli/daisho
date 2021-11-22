@@ -22,6 +22,5 @@ main() {
         return 2;
     }
 
-    printf("Using small string optimization size of: %zu.\n",
-           STILTS_SMALL_STR_CHARBUF_SIZE);
+    printf("Using small string optimization size of: %zu.\n", sizeof(__Stilts_String) - sizeof(uint8_t));
 }
