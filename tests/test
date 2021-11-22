@@ -13,9 +13,17 @@ def pwd():
     return print(os.getcwd)
 
 
-def run(s, end=os.linesep):
+def printpurple(s, end=os.linesep):
     print("\x1b[35m" + s + "\x1b[0m", end=end)
+
+
+def run_np(s, end=os.linesep):
     subprocess.run(split(s), check=True)
+
+
+def run(s, end=os.linesep):
+    printpurple("\x1b[35m" + s + "\x1b[0m", end=end)
+    run_np(s, end)
 
 
 def mkdir(s):
@@ -40,8 +48,9 @@ def heading(s):
 
 
 cc = "cc"
-flags = "-g -O0 -fsanitize=address -DMEMDEBUG=1"
+flags = "-g -O0 -I/usr/include/python3.9 -I/usr/include/x86_64-linux-gnu/python3.9 -lpthread -lm -fsanitize=address -DMEMDEBUG=1"
 warnings = "-Wall -Wextra -Wpedantic"
+scripts = []
 
 
 def buildTests():
@@ -55,16 +64,20 @@ def buildTests():
     heading("Building C test scripts.")
     mkdir('bin/')
     for script in glob('scripts/*.c'):
-        exename = script[len('scripts/'):len(script)-2]
-        run(f'{cc} {flags} {warnings} {script} -o bin/{exename}')
+        exename = f"bin/{script[len('scripts/'):len(script)-2]}"
+        scripts.append((script, exename))
+
+        run(f'{cc} {flags} {warnings} {script} -o {exename}')
     print()
 
     heading("Copying Python test scripts.")
     for script in glob('scripts/*.py'):
-        exename = script[len('scripts/'):len(script)-3]
-        run(f'cp {script} bin/{exename}', end="")
+        exename = f"bin/{script[len('scripts/'):len(script)-3]}"
+        scripts.append((script, exename))
+
+        run(f'cp {script} {exename}', end="")
         print("\x1b[35m && \x1b[0m", end="")
-        run(f'chmod +x bin/{exename}')
+        run(f'chmod +x {exename}')
     print()
 
 
@@ -72,8 +85,9 @@ def runTests():
     # Run the test scripts.
     heading("Running test scripts")
     try:
-        for exe in glob('bin/*'):
-            run(exe)
+        for p in scripts:
+            printpurple(p[0])
+            run_np(p[1])
             print()
     except:
         print("FAIL")
@@ -87,14 +101,12 @@ def cleanTests():
 
 if (len(sys.argv) > 1):
     taken = False
-    if 'build' in sys.argv:
-        buildTests()
-        taken = True
     if 'run' in sys.argv:
+        buildTests()
         runTests()
         taken = True
     if 'clean' in sys.argv:
-        cleanTests() 
+        cleanTests()
         taken = True
     if taken:
         exit(0)
