@@ -1,5 +1,5 @@
-#ifndef STILTS_STDLIB_ALLOCATOR
-#define STILTS_STDLIB_ALLOCATOR
+#ifndef __STILTS_STDLIB_ALLOCATOR
+#define __STILTS_STDLIB_ALLOCATOR
 #include "../StiltsStdInclude.h"
 
 /******************/
@@ -43,4 +43,4 @@ __Stilts_free(void* ptr, __STILTS_SRC_INFO_ARGS) {
     free(ptr);
 }
 
-#endif /* STILTS_STDLIB_ALLOCATOR */
+#endif /* __STILTS_STDLIB_ALLOCATOR */

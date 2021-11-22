@@ -1,5 +1,5 @@
-#ifndef STILTS_STDLIB_ASSUMPTIONS
-#define STILTS_STDLIB_ASSUMPTIONS
+#ifndef __STILTS_STDLIB_ASSUMPTIONS
+#define __STILTS_STDLIB_ASSUMPTIONS
 
 #include <stdint.h>
 
@@ -22,4 +22,4 @@ static inline int get_endianness() {
   }
 }
 
-#endif
+#endif /* __STILTS_STDLIB_ASSUMPTIONS */

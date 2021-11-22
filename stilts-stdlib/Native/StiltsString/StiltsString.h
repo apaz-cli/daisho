@@ -1,5 +1,5 @@
-#ifndef STILTS_STDLIB_STRING
-#define STILTS_STDLIB_STRING
+#ifndef __STILTS_STDLIB_STRING
+#define __STILTS_STDLIB_STRING
 #include "../StiltsStdInclude.h"
 
 /*
@@ -174,4 +174,4 @@ __Stilts_String_cstr(__Stilts_String* self) {
     return NULL;
 }
 
-#endif /* STILTS_STDLIB_STRING */
+#endif /* __STILTS_STDLIB_STRING */

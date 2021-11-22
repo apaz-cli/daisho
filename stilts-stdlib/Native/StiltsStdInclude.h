@@ -1,5 +1,5 @@
-#ifndef STILTS_STDLIB_INCLUDES
-#define STILTS_STDLIB_INCLUDES
+#ifndef __STILTS_STDLIB_INCLUDES
+#define __STILTS_STDLIB_INCLUDES
 
 /* Grab all the C11 headers. */
 
@@ -52,4 +52,9 @@
 /* Grab archetecture specific assumptions like endianness. */
 #include "StiltsAssumptions/StiltsAssumptions.h"
 
-#endif /* STILTS_STDLIB_INCLUDES */
+/* Embed a python interpreter, because why not. */
+#if __STILTS_EMBED_PYTHON
+#include <Python.h>
+#endif
+
+#endif /* __STILTS_STDLIB_INCLUDES */

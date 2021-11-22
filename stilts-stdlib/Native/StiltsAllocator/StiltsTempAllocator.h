@@ -1,5 +1,5 @@
-#ifndef STILTS_STDLIB_TEMPALLOC
-#define STILTS_STDLIB_TEMPALLOC
+#ifndef __STILTS_STDLIB_TEMPALLOC
+#define __STILTS_STDLIB_TEMPALLOC
 #include "../StiltsStdInclude.h"
 #include "StiltsAllocator.h"
 
@@ -33,4 +33,4 @@ __Stilts_temp_realize(void* ptr, size_t n, size_t line, const char* func,
     return buf;
 }
 
-#endif /* STILTS_STDLIB_TEMPALLOC */
+#endif /* __STILTS_STDLIB_TEMPALLOC */
