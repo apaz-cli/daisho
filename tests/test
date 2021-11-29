@@ -5,26 +5,28 @@ import sys
 import shutil
 import sysconfig
 import subprocess
+from subprocess import PIPE
+from subprocess import run as subrun
 from shlex import split
 from os import chdir as cd
 from glob import glob
 
-
-def pwd():
-    return print(os.getcwd)
+#############
+# Scripting #
+#############
 
 
 def printpurple(s, end=os.linesep):
     print("\x1b[35m" + s + "\x1b[0m", end=end)
 
 
-def run_np(s, end=os.linesep):
+def run_np(s):
     subprocess.run(split(s), check=True)
 
 
 def run(s, end=os.linesep):
     printpurple("\x1b[35m" + s + "\x1b[0m", end=end)
-    run_np(s, end)
+    run_np(s)
 
 
 def mkdir(s):
@@ -41,54 +43,31 @@ def rm(s):
         shutil.rmtree(s)
 
 
-os.system("")  # Enables escape sequences on windows lmao
-
-
 def heading(s):
     print("\x1b[31m" + s + "\x1b[0m")
 
+os.system("")  # Enables escape sequences on windows lmao
+
+
+
+############
+# Makefile #
+############
 
 cc = "cc"
 
-"""
-flags = ""
-flags += subprocess.check_output(['python3-config', '--cflags', '--embed']).decode('utf-8')   + " "
-flags += subprocess.check_output(['python3-config', '--includes', '--embed']).decode('utf-8') + " "
-flags += subprocess.check_output(['python3-config', '--libs', '--embed']).decode('utf-8')     + " "
-flags += subprocess.check_output(['python3-config', '--ldflags', '--embed']).decode('utf-8')  + " "
-flags += "-g -O0 -I/usr/include/python3.9 -I/usr/include/x86_64-linux-gnu/python3.9 -lpthread -lm -fsanitize=address -DMEMDEBUG=1"
-"""
-
-
-# Gather up all the flags I think I need
-pyinc = ""     # Include flags for Python
-libs = ""      # Libraries for Python
-pyarch = ""    # Archive for static linking to Python
-opts = ""      # Misc options
-warnings = ""  # Always maximum warnings.
-
-pyinc += "".join(['-I%s ' % (dir,)
-                 for dir in sysconfig.get_config_var('INCLDIRSTOMAKE').split(" ")])
-
-libs += "".join(['-L%s ' % (dir,)
-                for dir in sysconfig.get_config_var('LIBDIR').split(" ")])
-libs += sysconfig.get_config_var('MODLIBS') + " "
-libs += sysconfig.get_config_var('LIBS') + " "
-libs += sysconfig.get_config_var('SYSLIBS')
-
-pyarch += sysconfig.get_config_var("LIBPL") + "/"
-pyarch += sysconfig.get_config_var("LIBRARY") + " "
-
-opts = sysconfig.get_config_var('OPT')
+pyconfig = subprocess.run(["python3-config", "--cflags", "--ldflags"],
+                          stdout=subprocess.PIPE).stdout.decode('utf-8')
+pyconfig = re.sub(" +", " ", pyconfig)
+pyconfig = re.sub("\n", "", pyconfig)
 
 warnings = "-Wall -Wextra -Wpedantic"
 
-flags = f"{libs} {pyinc} {opts} {warnings} -fPIE"
-flags = re.sub(" +", " ", flags)
+extras = "-O1"
 
 
 def compile(script, exename):
-    run(f'{cc} {flags} {script} {pyarch} -o {exename}')
+    run(f'{cc} {pyconfig} {warnings} {extras} {script} -o {exename}')
 
 
 scripts = []
@@ -150,6 +129,8 @@ if (len(sys.argv) > 1):
         taken = True
     if taken:
         exit(0)
+
+
 buildTests()
 runTests()
 cleanTests()
