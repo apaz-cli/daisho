@@ -99,12 +99,13 @@ __Stilts_String_len(__Stilts_String* self) {
 
 static inline uint64_t
 __Stilts_String_get_cap(__Stilts_String* self) {
+    (void)self;
     return 0;
 }
 
 static inline void
 __Stilts_String_set_cap(__Stilts_String* self, uint64_t cap) {
-
+(void)self; (void)cap;
 }
 
 static inline uint64_t
@@ -129,6 +130,7 @@ StiltsString_initempty(__Stilts_String* self) {
 
 static inline __Stilts_String*
 StiltsString_initwith(__Stilts_String* self, uint8_t* data, uint64_t len) {
+    (void)data;
     /* Small */
     if (len <= __STILTS_STR_SSOPT_BUF_LEN) {
         /* Use small string optimization */
@@ -145,6 +147,7 @@ StiltsString_initwith(__Stilts_String* self, uint8_t* data, uint64_t len) {
 static inline __Stilts_String*
 StiltsString_initWithMallocedData(__Stilts_String* self, char* data,
                                   uint64_t cap, uint64_t len) {
+                                      (void)data; (void)cap; (void)len;
     return self;
 }
 
@@ -160,6 +163,7 @@ StiltsString_destroy(__Stilts_String* self) {
 
 static inline char*
 __Stilts_String_cstr(__Stilts_String* self) {
+    (void)self;
     return NULL;
 }
 

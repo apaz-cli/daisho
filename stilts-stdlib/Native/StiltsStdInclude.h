@@ -49,7 +49,7 @@
 #include <stdalign.h>
 #include <stdatomic.h>
 #include <stdnoreturn.h>
-#include <threads.h>
+// #include <threads.h>
 #include <uchar.h>
 
 /* Additional Libraries */
@@ -58,6 +58,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+/* Error handling that needs to be gloabally available, but depends on config
+ * files and the stdlib. */
+#include "StiltsError/StiltsError.h"
 
 /* Start and end routines */
 #include "StiltsStart/StiltsStart.h"

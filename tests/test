@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+import re
 import os
 import sys
 import shutil
@@ -49,14 +49,48 @@ def heading(s):
 
 
 cc = "cc"
+
+"""
 flags = ""
-flags += subprocess.check_output(['python3-config', '--cflags']).decode('utf-8') + " "
-flags += subprocess.check_output(['python3-config', '--ldflags']).decode('utf-8') + " "
-flags += "-g -O0 -I/usr/include/python3.9 -lpthread -lm -fsanitize=undefined -DMEMDEBUG=1 "
+flags += subprocess.check_output(['python3-config', '--cflags', '--embed']).decode('utf-8')   + " "
+flags += subprocess.check_output(['python3-config', '--includes', '--embed']).decode('utf-8') + " "
+flags += subprocess.check_output(['python3-config', '--libs', '--embed']).decode('utf-8')     + " "
+flags += subprocess.check_output(['python3-config', '--ldflags', '--embed']).decode('utf-8')  + " "
+flags += "-g -O0 -I/usr/include/python3.9 -I/usr/include/x86_64-linux-gnu/python3.9 -lpthread -lm -fsanitize=address -DMEMDEBUG=1"
+"""
 
 
-#flags += sysconfig.get_config_var('CFLAGS') + " " + sysconfig.get_config_var('LIBS')
+# Gather up all the flags I think I need
+pyinc = ""     # Include flags for Python
+libs = ""      # Libraries for Python
+pyarch = ""    # Archive for static linking to Python
+opts = ""      # Misc options
+warnings = ""  # Always maximum warnings.
+
+pyinc += "".join(['-I%s ' % (dir,)
+                 for dir in sysconfig.get_config_var('INCLDIRSTOMAKE').split(" ")])
+
+libs += "".join(['-L%s ' % (dir,)
+                for dir in sysconfig.get_config_var('LIBDIR').split(" ")])
+libs += sysconfig.get_config_var('MODLIBS') + " "
+libs += sysconfig.get_config_var('LIBS') + " "
+libs += sysconfig.get_config_var('SYSLIBS')
+
+pyarch += sysconfig.get_config_var("LIBPL") + "/"
+pyarch += sysconfig.get_config_var("LIBRARY") + " "
+
+opts = sysconfig.get_config_var('OPT')
+
 warnings = "-Wall -Wextra -Wpedantic"
+
+flags = f"{libs} {pyinc} {opts} {warnings} -fPIE"
+flags = re.sub(" +", " ", flags)
+
+
+def compile(script, exename):
+    run(f'{cc} {flags} {script} {pyarch} -o {exename}')
+
+
 scripts = []
 
 
@@ -73,8 +107,7 @@ def buildTests():
     for script in glob('scripts/*.c'):
         exename = f"bin/{script[len('scripts/'):len(script)-2]}"
         scripts.append((script, exename))
-
-        run(f'{cc} {flags} {warnings} {script} -o {exename}')
+        compile(script, exename)
     print()
 
     heading("Copying Python test scripts.")
@@ -119,3 +152,4 @@ if (len(sys.argv) > 1):
         exit(0)
 buildTests()
 runTests()
+cleanTests()

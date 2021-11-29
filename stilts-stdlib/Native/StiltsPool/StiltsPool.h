@@ -42,7 +42,7 @@ typedef struct {
 #define __STILTS_SHARED_POOL_INITIALIZER                              \
     {                                                                 \
         .pool_mutex = __STILTS_MUTEX_INITIALIZER, .task_stack = NULL, \
-        .num_threads_running = 0, .threads = {}                       \
+        .num_threads_running = 0, .threads = {}, .is_shutdown = true  \
     }
 
 /*
@@ -55,6 +55,5 @@ static __Stilts_Threadpool __Stilts_shared_pool =
     __Stilts_mutex_lock(&(__Stilts_shared_pool.pool_mutex));
 #define __Stilts_THREADPOOL_CRITICAL_END \
     __Stilts_mutex_unlock(&(__Stilts_shared_pool.pool_mutex));
-
 
 #endif /* __STILTS_STDLIB_POOL */

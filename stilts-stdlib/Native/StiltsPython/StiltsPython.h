@@ -11,6 +11,8 @@ static wchar_t* __Stilts_py_progname = NULL;
 
 static inline void
 __Stilts_py_init(int argc, char** argv) {
+    (void)argc;
+
     /* Start the python interpreter */
     __Stilts_py_progname = Py_DecodeLocale(argv[0], NULL);
     if (__Stilts_py_progname == NULL) {
@@ -24,24 +26,21 @@ __Stilts_py_init(int argc, char** argv) {
 
 static inline void
 __Stilts_py_exit() {
-  /* Shut down the python interpreter */
-  /* This should be the last thing that's done. */
-  if (Py_FinalizeEx() < 0)
-        exit(120);
-  PyMem_RawFree(__Stilts_py_progname);
+    /* Shut down the python interpreter */
+    /* This should be the last thing that's done. */
+    if (Py_FinalizeEx() < 0) exit(120);
+    PyMem_RawFree(__Stilts_py_progname);
 }
 
 static inline void
-__Stilts_py_eval(const char* to_eval) {
-  PyRun_SimpleString(to_eval);
+__Stilts_py_eval(char* to_eval) {
+    PyRun_SimpleString(to_eval);
 }
 
 static inline void
 __Stilts_py_test() {
-  PyRun_SimpleString("print('SUCCESS')");
-
+    PyRun_SimpleString("print('SUCCESS')");
 }
-
 
 #endif /* __STILTS_EMBED_PYTHON */
 #endif /* __STILTS_STDLIB_PYTHON */

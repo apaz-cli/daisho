@@ -37,8 +37,10 @@ get_endianness() {
     switch (endi.b[0]) {
         case 0x01:
             endianness = ENDIANNESS_LITTLE;
+            break;
         default:
             endianness = ENDIANNESS_OTHER;
+            break;
     }
 
     if (endianness != ENDIANNESS_LITTLE) {
@@ -85,7 +87,8 @@ Test tests[] = {types_valid, get_endianness, uint8_char, size_size,
 
 int
 main() {
-    for (size_t i = 0; i < sizeof(tests); i++) tests[i]();
+    static size_t num_tests = (sizeof(tests) / sizeof(Test));
+    for (size_t i = 0; i < num_tests; i++) tests[i]();
 
     puts("SUCCESS");
 }

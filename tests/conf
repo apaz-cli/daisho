@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-
 from pprint import pprint
 import sysconfig
 
-pprint(sysconfig.get_config_vars())
+print(sysconfig.get_config_var("INCLDIRSTOMAKE"))
