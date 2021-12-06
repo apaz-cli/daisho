@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __STILTS_STDLIB_INCLUDES
 #define __STILTS_STDLIB_INCLUDES
 

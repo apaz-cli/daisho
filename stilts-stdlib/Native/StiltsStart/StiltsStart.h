@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __STILTS_STDLIB_START
 #define __STILTS_STDLIB_START
 #include "../StiltsStdInclude.h"

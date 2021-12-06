@@ -32,6 +32,6 @@
 
 #define __STILTS_IDEAL_NUM_THREADS 8
 
-#define __STILTS_EMBED_PYTHON 1
+#define __STILTS_EMBED_PYTHON 0
 
 #endif /* __STILTS_STDLIB_CONFIG */
