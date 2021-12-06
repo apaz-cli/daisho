@@ -2,6 +2,7 @@
 #ifndef __STILTS_STDLIB_STRING
 #define __STILTS_STDLIB_STRING
 #include "../StiltsStdInclude.h"
+#include "../StiltsAllocator/StiltsAllocator.h"
 
 /* Little endianness is asserted elsewhere. */
 _Static_assert(CHAR_BIT == 8,
@@ -46,7 +47,7 @@ __Stilts_String_set_flag(__Stilts_String* self, char flag) {
 
 static inline bool
 __Stilts_String_isLarge(__Stilts_String* self) {
-    return __Stilts_String_get_flag(self) == 0xFF;
+    return __Stilts_String_get_flag(self) == CHAR_MAX;
 }
 
 static inline uint64_t
@@ -61,7 +62,7 @@ __Stilts_String_set_cap(__Stilts_String* self, uint64_t cap) {
     uint64_t flag = (uint64_t)__Stilts_String_get_flag(self);
     uint64_t shifted_cap = cap << CHAR_BIT;
     uint64_t newcap = shifted_cap | flag;
-    self->cap = newcap;
+    self->_cap = newcap;
     return;
 }
 
@@ -83,7 +84,7 @@ __Stilts_String_len(__Stilts_String* self) {
 
 static inline char*
 __Stilts_String_cstr(__Stilts_String* self) {
-    return __Stilts_String_isLarge(self) ? self->buffer : (char*)self);
+    return __Stilts_String_isLarge(self) ? self->buffer : (char*)self;
 }
 
 static inline void
@@ -117,17 +118,17 @@ __Stilts_String_isEmpty(__Stilts_String* self) {
 
 static inline __Stilts_String*
 __Stilts_String_promote(__Stilts_String* self) {
-    if (__Stilts_String_isLarge) return self;
+    if (__Stilts_String_isLarge(self)) return self;
 
     __Stilts_String s = *self;
     __Stilts_String* sp = &s;
     char* spc = (char*)sp;
 
-    char* buffer = (char*)malloc(s.);
+    char* buffer = (char*)malloc(__Stilts_String_roundUp(s.size, __STILTS_STR_ALLOC_SIZE));
     // TODO oom check, stilts_malloc
     strcpy(buffer, spc);
 
-    
+    return self;
 }
 
 static inline __Stilts_String*
@@ -135,7 +136,7 @@ __Stilts_String_shrink(__Stilts_String* self) {
     bool large = __Stilts_String_isLarge(self);
     if (large) {
         // If small enough, use ssopt.
-        if (__Stilts_String_len() <= __STILTS_STR_SSOPT_BUF_LEN)) {
+        if (__Stilts_String_len(self) <= __STILTS_STR_SSOPT_BUF_LEN) {
 
             /* Copy large into small and free */
             char* s = (char*)self;
@@ -189,7 +190,7 @@ __Stilts_String_initWith(__Stilts_String* self, char* data, uint64_t len) {
     /* Large */
     else {
         /* Allocate and copy */
-        uint64_t cap = ;
+        uint64_t cap = __Stilts_String_get_cap(self);
         char* buffer = (char*)malloc(len);
     }
 
@@ -201,24 +202,24 @@ static inline __Stilts_String*
 __Stilts_String_initMalloced(__Stilts_String* self, char* data, uint64_t cap, uint64_t len) {
     self->buffer = data;
     self->size   = len;
-    __Stilts_String_set_flag_cap(self, 0xFF, cap);
+    __Stilts_String_set_flag_cap(self, CHAR_MAX, cap);
     return self;
 }
 
 /* Calls strlen. Try not to use this one, as it's better to know the length. */
 static inline __Stilts_String*
 __StiltsString_initLen(__Stilts_String* self, char* data) {
-    return __StiltsString_initWith(self, data, strlen(data));
+    return __Stilts_String_initWith(self, data, (uint64_t)strlen(data));
 }
 
 static inline __Stilts_String*
-__Stilts_String_copy(__Stilts_String* self, __StiltsString* other) {
+__Stilts_String_copy(__Stilts_String* self, __Stilts_String* other) {
     if (__Stilts_String_isLarge(self)) {
         char* buffer = (char*)malloc((size_t)__Stilts_String_get_cap(self));
         // TODO oom check, stilts_malloc
         other->buffer = strcpy(buffer, self->buffer);
         other->size   = self->size;
-        other->cap    = self->cap; /* Also copy flag bits */
+        other->_cap   = self->_cap; /* Also copy flag bits */
         return other;
     } else {
         memcpy(other, self, sizeof(__Stilts_String));
@@ -228,7 +229,7 @@ __Stilts_String_copy(__Stilts_String* self, __StiltsString* other) {
 
 static inline void
 __Stilts_String_destroy(__Stilts_String* self) {
-    if (__Stilts_String_isLarge(self)) free(__Stilts_String_get_buffer(self));
+    if (__Stilts_String_isLarge(self)) free(self->buffer);
 }
 
 #endif /* __STILTS_STDLIB_STRING */
