@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __STILTS_STDLIB_TEMPALLOC
 #define __STILTS_STDLIB_TEMPALLOC
 #include "../StiltsStdInclude.h"

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __STILTS_STD_RUNTIME_INCLUDE
 #define __STILTS_STD_RUNTIME_INCLUDE
 

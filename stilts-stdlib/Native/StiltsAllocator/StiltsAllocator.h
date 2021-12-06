@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __STILTS_STDLIB_ALLOCATOR
 #define __STILTS_STDLIB_ALLOCATOR
 #include "../StiltsStdInclude.h"

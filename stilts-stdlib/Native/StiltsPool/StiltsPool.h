@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __STILTS_STDLIB_POOL
 #define __STILTS_STDLIB_POOL
 #include "../StiltsAllocator/StiltsAllocator.h"

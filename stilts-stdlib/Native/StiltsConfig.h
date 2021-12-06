@@ -2,6 +2,7 @@
  * Do not include any stdlib files inside this header. Doing so has the *
  * potential to break the Python runtime.                               *
  ************************************************************************/
+#pragma once
 #ifndef __STILTS_STDLIB_CONFIG
 #define __STILTS_STDLIB_CONFIG
 
