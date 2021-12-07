@@ -28,7 +28,7 @@ _Static_assert(CHAR_BIT == 8,
                "Stilts's implementation of String assumes CHAR_BIT to be 8.");
 _Static_assert(sizeof(size_t) == sizeof(uint64_t),
                "Stilts's implementation of String assumes size_t and uint64_t are the same.");
-_Static_assert((__STILTS_STR_ALLOC_SIZE % 2) == 0, "The config __STILTS_PAGESIZE must be a multiple of 8.")
+_Static_assert((__STILTS_STR_ALLOC_SIZE % 2) == 0, "The config __STILTS_PAGESIZE must be a multiple of 8.");
 
 /***********************/
 /* "Private" functions */
