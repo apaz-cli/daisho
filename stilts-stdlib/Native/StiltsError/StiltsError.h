@@ -37,10 +37,10 @@ __Stilts_default_sanity_check_fail(__STILTS_SRC_INFO_ARGS) {
     }
 }
 
-#define __STILTS_HANDLE_OOM(line, func, file) \
+#define __STILTS_OOM(line, func, file) \
     __Stilts_default_OOM(__FILE__, __LINE__, __func__)
 
-#define __STILTS_HANDLE_FAILED_SANITY_CHECK() \
+#define __STILTS_SANITY_FAIL() \
     __Stilts_default_sanity_check_fail(__FILE__, __LINE__, __func__)
 
 #endif /* __STILTS_STDLIB_ERROR */

@@ -1,38 +1,47 @@
-/************************************************************************
- * Do not include any stdlib files inside this header. Doing so has the *
- * potential to break the Python runtime.                               *
+ /************************************************************************
+ * Feel free to change the constants in this file.                       *
+ *                                                                       *
+ * Do not include any stdlib files inside this header. Doing so has the  *
+ * potential to break the Python runtime. Please only change configs.    *
  ************************************************************************/
 #pragma once
 #ifndef __STILTS_STDLIB_CONFIG
 #define __STILTS_STDLIB_CONFIG
 
 /*
+ * Controls whether to include Python.h. Wrapped because it's usually
+ * declared on the command line by stiltc.
+ */
+#ifndef __STILTS_EMBED_PYTHON
+#define __STILTS_EMBED_PYTHON 0
+#endif
+
+/*
  * 0 - No sanity checks. Difficult to debug, but very fast.
  * 1 - Default behavior. Sanity checks are performed.
+ * 2 - Pedantic sanity checks. Slow, but good for debugging.
  */
 #define __STILTS_SANITY_CHECK 1
 
 /*
- * 0 - Default behavior.
- * 1 - Wrap __Stilts_malloc(), __Stilts_realloc(), and __Stilts_free() for
- * additional sanity checks.
+ * 0 - Default behavior, __Stilts_malloc() is malloc(), etc.
+ * 1 - Wrap __Stilts_malloc(), __Stilts_calloc(), __Stilts_realloc(),
+ * and __Stilts_free() for additional sanity checks.
  */
 #define __STILTS_MEMDEBUG 1
 
 /*
- * Wraps malloc(), realloc(), and free() in a macro which redirects to
- * __Stilts_malloc(), __Stilts_realloc(), and __Stilts_free().
- * Everything already calls __Stilts_malloc() and friends directly,
- * so this only affects user code.
+ * The size of pages of memory returned by the operating system. Good
+ * to know for optimization's sake.
  */
-#define __STILTS_WRAP_MEMALLOCS 1
-
 #define __STILTS_PAGESIZE 4096
 
-#define __STILTS_TEMP_ARENA_PAGES 8
 
+/*
+ * The number of threads that Stilts should use for your system.
+ */
 #define __STILTS_IDEAL_NUM_THREADS 8
 
-#define __STILTS_EMBED_PYTHON 0
+#define __STILTS_TEMP_ARENA_PAGES 8
 
 #endif /* __STILTS_STDLIB_CONFIG */

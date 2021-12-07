@@ -4,13 +4,9 @@
 #include "../StiltsStdInclude.h"
 #include "../StiltsAllocator/StiltsAllocator.h"
 
-/* Little endianness is asserted elsewhere. */
-_Static_assert(CHAR_BIT == 8,
-               "Stilts's implementation of String assumes CHAR_BIT to be 8.");
-_Static_assert(sizeof(size_t) == sizeof(uint64_t),
-               "Stilts's implementation of String assumes size_t and uint64_t are the same.");
 
-
+/* Classic triple with small
+ * string optimization. */
 typedef struct {
     char* buffer;
     uint64_t size;
@@ -25,49 +21,70 @@ typedef struct {
 #define __STILTS_STR_SSOPT_BUF_LEN (sizeof(__Stilts_String) - 1)
 #define __STILTS_STR_ALLOC_SIZE    (__STILTS_PAGESIZE / 4)
 
+#define __STILTS_STRING_SANITY(self) if (__STILTS_SANITY_CHECK == 2 && !self) __STILTS_SANITY_FAIL()
+
+/* Little endianness is asserted elsewhere. */
+_Static_assert(CHAR_BIT == 8,
+               "Stilts's implementation of String assumes CHAR_BIT to be 8.");
+_Static_assert(sizeof(size_t) == sizeof(uint64_t),
+               "Stilts's implementation of String assumes size_t and uint64_t are the same.");
+_Static_assert((__STILTS_STR_ALLOC_SIZE % 2) == 0, "The config __STILTS_PAGESIZE must be a multiple of 8.")
+
 /***********************/
 /* "Private" functions */
 /***********************/
 
-/* Only works for multiple of 2 */
+/* Only works for multiples of 2 */
 static inline uint64_t
 __Stilts_String_roundUp(uint64_t numToRound, uint64_t multiple) {
+    if (__STILTS_SANITY_CHECK && ((multiple % 2) != 0))
+        __STILTS_SANITY_FAIL();
     return (numToRound + multiple - 1) & -multiple;
 }
 
 static inline char
 __Stilts_String_get_flag(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
     return *((char*)self + __STILTS_STR_FLAG_OFFSET);
 }
 
 static inline void
 __Stilts_String_set_flag(__Stilts_String* self, char flag) {
+    __STILTS_STRING_SANITY(self);
     *((char*)self + __STILTS_STR_FLAG_OFFSET) = flag;
 }
 
 static inline bool
 __Stilts_String_isLarge(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
     return __Stilts_String_get_flag(self) == CHAR_MAX;
 }
 
 static inline uint64_t
 __Stilts_String_get_cap(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
+    if ((__STILTS_SANITY_CHECK == 2) && !__Stilts_String_isLarge(self))
+        __STILTS_SANITY_FAIL();
+
     uint64_t cap = self->_cap;
     return cap >> CHAR_BIT;
 }
 
 static inline void
 __Stilts_String_set_cap(__Stilts_String* self, uint64_t cap) {
-    // TODO pedantic check flag if not large
+    __STILTS_STRING_SANITY(self);
+    if ((__STILTS_SANITY_CHECK == 2) && !__Stilts_String_isLarge(self))
+        __STILTS_SANITY_FAIL();
+
     uint64_t flag = (uint64_t)__Stilts_String_get_flag(self);
     uint64_t shifted_cap = cap << CHAR_BIT;
     uint64_t newcap = shifted_cap | flag;
     self->_cap = newcap;
-    return;
 }
 
 static inline void
 __Stilts_String_set_flag_cap(__Stilts_String* self, char flag, uint64_t cap) {
+    __STILTS_STRING_SANITY(self);
     self->_cap = ((cap << CHAR_BIT) | flag);
 }
 
@@ -77,6 +94,7 @@ __Stilts_String_set_flag_cap(__Stilts_String* self, char flag, uint64_t cap) {
 
 static inline uint64_t
 __Stilts_String_len(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
     return __Stilts_String_isLarge(self)
                ? self->size
                : (uint64_t)__Stilts_String_get_flag(self);
@@ -84,17 +102,26 @@ __Stilts_String_len(__Stilts_String* self) {
 
 static inline char*
 __Stilts_String_cstr(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
     return __Stilts_String_isLarge(self) ? self->buffer : (char*)self;
 }
 
 static inline void
-__Stilts_String_print(__Stilts_String* self) { printf("%s", __Stilts_String_cstr(self)); }
+__Stilts_String_print(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
+    printf("%s", __Stilts_String_cstr(self));
+}
 
 static inline void
-__Stilts_String_println(__Stilts_String* self) { printf("%s\n", __Stilts_String_cstr(self)); }
+__Stilts_String_println(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
+    printf("%s\n", __Stilts_String_cstr(self));
+}
 
 static inline void
 __Stilts_String_set_char(__Stilts_String* self, uint64_t pos, char c) {
+    __STILTS_STRING_SANITY(self);
+    // TODO OOB check
     if (__Stilts_String_isLarge(self)) {
         self->buffer[pos] = c;
     } else {
@@ -104,6 +131,8 @@ __Stilts_String_set_char(__Stilts_String* self, uint64_t pos, char c) {
 
 static inline char
 __Stilts_String_get_char(__Stilts_String* self, uint64_t pos) {
+    __STILTS_STRING_SANITY(self);
+    // TODO OOB check
     return __Stilts_String_isLarge(self)
            ? self->buffer[pos]
            : ((char*)self)[pos];
@@ -111,6 +140,7 @@ __Stilts_String_get_char(__Stilts_String* self, uint64_t pos) {
 
 static inline bool
 __Stilts_String_isEmpty(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
     return __Stilts_String_isLarge(self)
            ? self->buffer[0] == '\0'
            : ((char*)self)[0] == '\0';
@@ -118,6 +148,7 @@ __Stilts_String_isEmpty(__Stilts_String* self) {
 
 static inline __Stilts_String*
 __Stilts_String_promote(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
     if (__Stilts_String_isLarge(self)) return self;
 
     __Stilts_String s = *self;
@@ -133,6 +164,7 @@ __Stilts_String_promote(__Stilts_String* self) {
 
 static inline __Stilts_String*
 __Stilts_String_shrink(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
     bool large = __Stilts_String_isLarge(self);
     if (large) {
         // If small enough, use ssopt.
@@ -169,6 +201,7 @@ __Stilts_String_shrink(__Stilts_String* self) {
 /* Create an empty string. */
 static inline __Stilts_String*
 __Stilts_String_initEmpty(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
     *(char*)self = '\0';
     __Stilts_String_set_flag(self, __STILTS_STR_SSOPT_BUF_LEN);
     return self;
@@ -177,6 +210,7 @@ __Stilts_String_initEmpty(__Stilts_String* self) {
 /* Create a string with content */
 static inline __Stilts_String*
 __Stilts_String_initWith(__Stilts_String* self, char* data, uint64_t len) {
+    __STILTS_STRING_SANITY(self);
     /* Small */
     if (len <= __STILTS_STR_SSOPT_BUF_LEN) {
         /* Use small string optimization */
@@ -200,6 +234,7 @@ __Stilts_String_initWith(__Stilts_String* self, char* data, uint64_t len) {
 /* Takes ownership of the memory. Assumes that it's allocated on the heap with malloc(). */
 static inline __Stilts_String*
 __Stilts_String_initMalloced(__Stilts_String* self, char* data, uint64_t cap, uint64_t len) {
+    __STILTS_STRING_SANITY(self);
     self->buffer = data;
     self->size   = len;
     __Stilts_String_set_flag_cap(self, CHAR_MAX, cap);
@@ -209,11 +244,14 @@ __Stilts_String_initMalloced(__Stilts_String* self, char* data, uint64_t cap, ui
 /* Calls strlen. Try not to use this one, as it's better to know the length. */
 static inline __Stilts_String*
 __StiltsString_initLen(__Stilts_String* self, char* data) {
+    __STILTS_STRING_SANITY(self);
     return __Stilts_String_initWith(self, data, (uint64_t)strlen(data));
 }
 
 static inline __Stilts_String*
 __Stilts_String_copy(__Stilts_String* self, __Stilts_String* other) {
+    __STILTS_STRING_SANITY(self);
+    __STILTS_STRING_SANITY(other);
     if (__Stilts_String_isLarge(self)) {
         char* buffer = (char*)malloc((size_t)__Stilts_String_get_cap(self));
         // TODO oom check, stilts_malloc
@@ -229,6 +267,7 @@ __Stilts_String_copy(__Stilts_String* self, __Stilts_String* other) {
 
 static inline void
 __Stilts_String_destroy(__Stilts_String* self) {
+    __STILTS_STRING_SANITY(self);
     if (__Stilts_String_isLarge(self)) free(self->buffer);
 }
 
