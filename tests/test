@@ -61,9 +61,9 @@ pyconfig = subprocess.run(["python3-config", "--cflags", "--ldflags"],
 pyconfig = re.sub(" +", " ", pyconfig)
 pyconfig = re.sub("\n", "", pyconfig)
 
-warnings = "-Wall -Wextra -Wpedantic"
+warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes"
 
-extras = "-O1"
+extras = "-O1 -D__STILTS_EMBED_PYTHON=1"
 
 
 def compile(script, exename):

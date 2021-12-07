@@ -1,6 +1,6 @@
 #include <apaz-libc.h>
 
-int main() {
+int main(void) {
 	String s = String_new_fromFile("samples/text.txt");
 	bool eq = apaz_str_equals(s, "This is some text.\n");
 	String_destroy(s);

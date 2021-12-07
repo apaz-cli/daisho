@@ -16,7 +16,7 @@
 #define ENDIANNESS_BIG 2
 
 static inline void
-types_valid() {
+types_valid(void) {
     if (sizeof(uint32_t) != 4 * sizeof(uint8_t)) {
         fprintf(stderr,
                 "The Stilts standard library is not supported on platforms "
@@ -26,7 +26,7 @@ types_valid() {
 }
 
 static inline void
-get_endianness() {
+get_endianness(void) {
     union {
         uint32_t a;
         uint8_t b[4];
@@ -52,7 +52,7 @@ get_endianness() {
 }
 
 static inline void
-uint8_char() {
+uint8_char(void) {
     if (sizeof(uint8_t) != 1) {
         fprintf(stderr,
                 "The Stilts standard library assumes that the size of uint8_t "
@@ -62,7 +62,7 @@ uint8_char() {
 }
 
 static inline void
-size_size() {
+size_size(void) {
     if (!(SIZE_MAX <= UINT64_MAX)) {
         fprintf(stderr,
                 "The Stilts standard library assumes that size_t's max value "
@@ -72,7 +72,7 @@ size_size() {
 }
 
 static inline void
-utf8_locale() {
+utf8_locale(void) {
     if (!setlocale(LC_ALL, "C.UTF-8")) {
         fprintf(stderr, "Could not set locale to utf8.\n");
         exit(1);
@@ -86,7 +86,7 @@ Test tests[] = {types_valid, get_endianness, uint8_char, size_size,
                 utf8_locale};
 
 int
-main() {
+main(void) {
     static size_t num_tests = (sizeof(tests) / sizeof(Test));
     for (size_t i = 0; i < num_tests; i++) tests[i]();
 

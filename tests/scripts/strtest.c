@@ -6,7 +6,7 @@
 int main(int argc, char** argv) {
   __Stilts_pre_main(argc, argv);
   __Stilts_String s;
-  StiltsString_initempty(&s);
+  __Stilts_String_initEmpty(&s);
 
   puts("SUCCESS");
   return 0;

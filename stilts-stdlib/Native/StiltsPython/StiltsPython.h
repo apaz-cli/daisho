@@ -8,6 +8,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
+
 static wchar_t* __Stilts_py_progname = NULL;
 
 static inline void
@@ -26,7 +27,7 @@ __Stilts_py_init(int argc, char** argv) {
 }
 
 static inline void
-__Stilts_py_exit() {
+__Stilts_py_exit(void) {
     /* Shut down the python interpreter */
     /* This should be the last thing that's done. */
     if (Py_FinalizeEx() < 0) exit(120);
@@ -36,11 +37,6 @@ __Stilts_py_exit() {
 static inline void
 __Stilts_py_eval(char* to_eval) {
     PyRun_SimpleString(to_eval);
-}
-
-static inline void
-__Stilts_py_test() {
-    PyRun_SimpleString("print('SUCCESS')");
 }
 
 #endif /* __STILTS_EMBED_PYTHON */

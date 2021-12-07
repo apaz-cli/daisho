@@ -17,7 +17,7 @@ int toFromTest(char *path) {
   return 0;
 }
 
-int main() {
+int main(void) {
   if (toFromTest("samples/greek.txt"))
     return 1;
   if (toFromTest("samples/utf8rand.txt"))

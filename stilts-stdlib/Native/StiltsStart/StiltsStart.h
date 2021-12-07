@@ -2,6 +2,7 @@
 #ifndef __STILTS_STDLIB_START
 #define __STILTS_STDLIB_START
 #include "../StiltsStdInclude.h"
+#include "../StiltsPython/StiltsPython.h"
 
 /* Routines that should happen before main(). */
 
@@ -10,7 +11,7 @@
 /*********/
 
 static inline void
-__Stilts_setlocale() {
+__Stilts_setlocale(void) {
     if (!setlocale(LC_ALL, "C.UTF-8")) {
         fprintf(stderr, "Could not set locale to utf8.\n");
         exit(70);

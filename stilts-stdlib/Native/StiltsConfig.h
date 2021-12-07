@@ -32,15 +32,22 @@
 
 /*
  * The size of pages of memory returned by the operating system. Good
- * to know for optimization's sake.
+ * to know for optimization's sake, but an incorrect value won't break
+ * anything.
  */
 #define __STILTS_PAGESIZE 4096
-
 
 /*
  * The number of threads that Stilts should use for your system.
  */
 #define __STILTS_IDEAL_NUM_THREADS 8
+
+
+/*
+ * 0 - All functions are static inline
+ * 1 - All functions are extern
+ */
+#define __STILTS_EXTERNAL_FUNCTIONS 0
 
 #define __STILTS_TEMP_ARENA_PAGES 8
 

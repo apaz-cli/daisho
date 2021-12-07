@@ -11,7 +11,8 @@
  * It can be disabled in the config files.
  */
 #if __STILTS_EMBED_PYTHON
-#include "StiltsPython/StiltsPython.h"
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
 #endif
 
 /* Grab all the C11 headers. */
@@ -58,6 +59,22 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+/* Macros for Stilts code. */
+#if __STDC_VERSION__ >= 199901L /* >= C99 */
+#define __STILTS_RESTRICT restrict
+#else /* pre-C99 or C++ */
+#define __STILTS_RESTRICT
+#endif
+
+#if __STILTS_EXTERNAL_FUNCTIONS
+#define __STILTS_FN extern
+#else /* Default */
+#define __STILTS_FN static inline
+#endif
+
+#define __STILTS_EXTERN extern
+
 
 /* Error handling that needs to be gloabally available, but depends on config
  * files and the stdlib. */

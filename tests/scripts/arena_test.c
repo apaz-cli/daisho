@@ -2,7 +2,7 @@
 
 #define NITS 1000
 
-int popt() {
+int popt(void) {
   Arena a = Arena_new("popt");
   for (size_t i = 0; i < 50; i++)
     Arena_malloc(&a, i);
@@ -15,7 +15,7 @@ int popt() {
   return (int)ret | (int)get_num_allocs();
 }
 
-int sar() {
+int sar(void) {
   size_t asize = ARENA_SIZE;
   Arena *a = (Arena *)malloc(sizeof(Arena));
   char buffer[asize];
@@ -27,7 +27,7 @@ int sar() {
   return (int)get_num_allocs();
 }
 
-int har() {
+int har(void) {
   Arena a = Arena_new("har");
 
   for (size_t i = 0; i < NITS; i++)
@@ -36,7 +36,7 @@ int har() {
   return (int)get_num_allocs();
 }
 
-int nar() {
+int nar(void) {
   size_t asize = 10000;
   Arena a;
   char buffer[asize];
@@ -48,7 +48,7 @@ int nar() {
   return (int)get_num_allocs();
 }
 
-int bar() {
+int bar(void) {
   size_t asize = ARENA_SIZE;
   Arena *a = (Arena *)malloc(sizeof(Arena));
   void *buf = malloc(asize);
@@ -60,7 +60,7 @@ int bar() {
   return (int)get_num_allocs();
 }
 
-int main() {
+int main(void) {
   if (sar())
     return 1;
   if (har())
