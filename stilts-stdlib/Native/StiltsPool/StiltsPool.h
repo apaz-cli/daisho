@@ -8,9 +8,14 @@
 #define __STILTS_THREADPOOL_NUM_THREADS (__STILTS_IDEAL_NUM_THREADS - 1)
 
 /*
- * Create a linked stack for tasks.
+ * Tasks submitted to the pool will be in the following form.
+ * This way, they get to decide their own way to handle IO.
  */
 typedef void (*__Stilts_Task_Fn)(void*);
+
+/*
+ * Create a circular queue for tasks.
+ */
 typedef struct {
     __Stilts_Task_Fn fn;
     void* args;

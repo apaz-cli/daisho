@@ -27,6 +27,20 @@ Thinking:
 
 
 Coding:
+    stilts-stdlib:
+        Native:
+            Circular buffer
+            Use circular buffer for threadpool
+            Strings
+            Consistent error behavior
+            Python integration can be disabled
+        Stilts:
+            Atomic<T>
+            RWAtomic<T>
+            String<T>
+            UTF8String<T>
+            PythonObject?
+
     AST workspace
     Split up sections
     apaz-libc:

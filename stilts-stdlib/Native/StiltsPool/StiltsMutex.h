@@ -13,32 +13,32 @@
 
 static inline void
 __Stilts_mutex_init(__Stilts_mutex_t* mutex) {
-    if (__STILTS_SANITY_CHECK) {
-        if (!pthread_mutex_init(mutex, NULL)) 
+    if (__STILTS_SANITY_CHECK == 2) {
+        if (!pthread_mutex_init(mutex, NULL)) __STILTS_SANITY_FAIL();
     } else {
         pthread_mutex_init(mutex, NULL);
     }
 }
 static inline void
 __Stilts_mutex_lock(__Stilts_mutex_t* mutex) {
-    if (__STILTS_SANITY_CHECK) {
-        pthread_mutex_lock(mutex);
+    if (__STILTS_SANITY_CHECK == 2) {   
+        if (!pthread_mutex_lock(mutex)) __STILTS_SANITY_FAIL();
     } else {
         pthread_mutex_lock(mutex);
     }
 }
 static inline void
 __Stilts_mutex_unlock(__Stilts_mutex_t* mutex) {
-    if (__STILTS_SANITY_CHECK) {
-        pthread_mutex_unlock(mutex);
+    if (__STILTS_SANITY_CHECK == 2) {
+        if (!pthread_mutex_unlock(mutex)) __STILTS_SANITY_FAIL();
     } else {
         pthread_mutex_unlock(mutex);
     }
 }
 static inline void
 __Stilts_mutex_destroy(__Stilts_mutex_t* mutex) {
-    if (__STILTS_SANITY_CHECK) {
-        pthread_mutex_destroy(mutex);
+    if (__STILTS_SANITY_CHECK == 2) {
+        if (!pthread_mutex_destroy(mutex)) __STILTS_SANITY_FAIL();
     } else {
         pthread_mutex_destroy(mutex);
     }
@@ -53,8 +53,8 @@ __Stilts_mutex_destroy(__Stilts_mutex_t* mutex) {
 
 static inline void
 __Stilts_mutex_init(__Stilts_rwlock_t* rwlock) {
-    if (__STILTS_SANITY_CHECK) {
-        pthread_rwlock_init(rwlock, NULL);
+    if (__STILTS_SANITY_CHECK == 2) {
+        if (!pthread_rwlock_init(rwlock, NULL)) __STILTS_SANITY_FAIL();
     } else {
         pthread_rwlock_init(rwlock, NULL);
     }
@@ -62,40 +62,40 @@ __Stilts_mutex_init(__Stilts_rwlock_t* rwlock) {
 
 static inline void
 __Stilts_rwlock_read_lock(__Stilts_rwlock_t* rwlock) {
-    if (__STILTS_SANITY_CHECK) {
-        pthread_rwlock_rdlock(rwlock);
+    if (__STILTS_SANITY_CHECK == 2) {
+        if (!pthread_rwlock_rdlock(rwlock)) __STILTS_SANITY_FAIL();
     } else {
         pthread_rwlock_rdlock(rwlock);
     }
 }
 static inline void
 __Stilts_rwlock_write_lock(__Stilts_rwlock_t* rwlock) {
-    if (__STILTS_SANITY_CHECK) {
-        pthread_rwlock_wrlock(rwlock);
+    if (__STILTS_SANITY_CHECK == 2) {
+        if (!pthread_rwlock_wrlock(rwlock)) __STILTS_SANITY_FAIL();
     } else {
         pthread_rwlock_wrlock(rwlock);
     }
 }
 static inline void
 __Stilts_rwlock_read_unlock(__Stilts_rwlock_t* rwlock) {
-    if (__STILTS_SANITY_CHECK) {
-        pthread_rwlock_unlock(rwlock);
+    if (__STILTS_SANITY_CHECK == 2) {
+        if (!pthread_rwlock_unlock(rwlock)) __STILTS_SANITY_FAIL();
     } else {
         pthread_rwlock_unlock(rwlock);
     }
 }
 static inline void
 __Stilts_rwlock_write_unlock(__Stilts_rwlock_t* rwlock) {
-    if (__STILTS_SANITY_CHECK) {
-        pthread_rwlock_unlock(rwlock);
+    if (__STILTS_SANITY_CHECK == 2) {
+        if (!pthread_rwlock_unlock(rwlock)) __STILTS_SANITY_FAIL();
     } else {
         pthread_rwlock_unlock(rwlock);
     }
 }
 static inline void
 __Stilts_rwlock_destroy(__Stilts_rwlock_t* rwlock) {
-    if (__STILTS_SANITY_CHECK) {
-        pthread_rwlock_destroy(rwlock);
+    if (__STILTS_SANITY_CHECK == 2) {
+        if (!pthread_rwlock_destroy(rwlock)) __STILTS_SANITY_FAIL();
     } else {
         pthread_rwlock_destroy(rwlock);
     }
