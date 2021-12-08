@@ -250,8 +250,8 @@ __StiltsString_initLen(__Stilts_String* self, char* data) {
 }
 
 __STILTS_FN __Stilts_String*
-__Stilts_String_copy(__STILTS_RESTRICT __Stilts_String* self,
-                     __STILTS_RESTRICT __Stilts_String* other) {
+__Stilts_String_copy(__Stilts_String* __STILTS_RESTRICT self,
+                     __Stilts_String* __STILTS_RESTRICT other) {
     __STILTS_STRING_NONNULL(self);
     __STILTS_STRING_NONNULL(other);
     if (__Stilts_String_isLarge(self)) {
