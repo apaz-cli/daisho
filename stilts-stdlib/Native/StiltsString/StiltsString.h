@@ -4,8 +4,8 @@
 #include "../StiltsAllocator/StiltsAllocator.h"
 #include "../StiltsStdInclude.h"
 
-/* Classic triple with small
- * string optimization. */
+/* Classic triple with small string
+   optimization. (abbreviated ssopt.) */
 typedef struct {
     char* buffer;
     uint64_t size;
@@ -17,10 +17,12 @@ typedef struct {
 #define __STILTS_STR_CAP_OFFSET (sizeof(char*) + sizeof(uint64_t))
 #define __STILTS_STR_FLAG_OFFSET (sizeof(__Stilts_String) - 1)
 #define __STILTS_STR_SSOPT_BUF_LEN (sizeof(__Stilts_String) - 1)
-#define __STILTS_STR_ALLOC_SIZE (__STILTS_PAGESIZE / 4)
 
-#define __STILTS_STRING_NONNULL(self) \
-    if (__STILTS_SANITY_CHECK == 2 && !self) __STILTS_SANITY_FAIL()
+#if __STILTS_SANITY_CHECK
+#define __STILTS_STRING_NONNULL(self) if (!self) __STILTS_SANITY_FAIL()
+#else
+#define __STILTS_STRING_NONNULL(self)
+#endif
 
 /* Little endianness is asserted elsewhere. */
 _Static_assert(CHAR_BIT == 8,
@@ -28,8 +30,6 @@ _Static_assert(CHAR_BIT == 8,
 _Static_assert(sizeof(size_t) == sizeof(uint64_t),
                "Stilts's implementation of String assumes size_t and uint64_t "
                "are the same.");
-_Static_assert((__STILTS_STR_ALLOC_SIZE % 2) == 0,
-               "The config __STILTS_PAGESIZE must be a multiple of 8.");
 
 /***********************/
 /* "Private" functions */
@@ -88,6 +88,21 @@ __Stilts_String_set_flag_cap(__Stilts_String* self, char flag, uint64_t cap) {
     self->_cap = ((cap << CHAR_BIT) | flag);
 }
 
+__STILTS_FN uint64_t
+__Stilts_String_small_len(__Stilts_String* self) {
+    __STILTS_STRING_NONNULL(self);
+    return (uint64_t)(__STILTS_STR_SSOPT_BUF_LEN -
+                      __Stilts_String_get_flag(self));
+}
+
+__STILTS_FN uint64_t
+__Stilts_String_large_len(__Stilts_String* self) {
+    __STILTS_STRING_NONNULL(self);
+    return self->size;
+}
+
+
+
 /**********************/
 /* "Public" Functions */
 /**********************/
@@ -96,8 +111,8 @@ __STILTS_FN uint64_t
 __Stilts_String_len(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
     return __Stilts_String_isLarge(self)
-               ? self->size
-               : (uint64_t)__Stilts_String_get_flag(self);
+               ? __Stilts_String_large_len(self)
+               : __Stilts_String_small_len(self);
 }
 
 __STILTS_FN char*
@@ -145,23 +160,25 @@ __Stilts_String_isEmpty(__Stilts_String* self) {
                                          : ((char*)self)[0] == '\0';
 }
 
+
+/* If the string's using ssopt, convert it to large format. */
 __STILTS_FN __Stilts_String*
 __Stilts_String_promote(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
-    if (__Stilts_String_isLarge(self)) return self;
+    if (__Stilts_String_isLarge(self))
+        return self;
 
-    __Stilts_String s = *self;
-    __Stilts_String* sp = &s;
-    char* spc = (char*)sp;
-
-    char* buffer =
-        (char*)malloc(__Stilts_String_roundUp(s.size, __STILTS_STR_ALLOC_SIZE));
-    // TODO oom check, stilts_malloc
-    strcpy(buffer, spc);
-
+    uint64_t newcap = __Stilts_String_roundUp(self->size, __STILTS_STR_ALLOC_ALIGNMENT);
+    char* buffer = (char*)__STILTS_MALLOC(newcap);
+    self->buffer = strcpy(buffer, (char*)self);
+    self->size   = __Stilts_String_small_len(self);
+    __Stilts_String_set_flag_cap(self, CHAR_MAX, newcap);
     return self;
 }
 
+/* If the string's in large format not using ssopt, and it could, make it.
+ * Otherwise, shrink the allocation to size.
+ */
 __STILTS_FN __Stilts_String*
 __Stilts_String_shrink(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
@@ -179,13 +196,11 @@ __Stilts_String_shrink(__Stilts_String* self) {
             s[i] = '\0';
             s[__STILTS_STR_SSOPT_BUF_LEN] = __STILTS_STR_SSOPT_BUF_LEN - len;
 
-            free(buf);
+            __STILTS_FREE(buf);
         }
         /* If not small enough for ssopt, shrink. */
         else {
-            char* buf = (char*)realloc(self->buffer, (size_t)self->size);
-            // TODO oom, stilts_realloc, errcheck
-            self->buffer = buf;
+            self->buffer = (char*)__STILTS_REALLOC(self->buffer, (size_t)(self->size));
             __Stilts_String_set_cap(self, self->size);
         }
     }
@@ -224,7 +239,7 @@ __Stilts_String_initWith(__Stilts_String* self, char* data, uint64_t len) {
     else {
         /* Allocate and copy */
         uint64_t cap = __Stilts_String_get_cap(self);
-        char* buffer = (char*)malloc(len);
+        char* buffer = (char*)__STILTS_MALLOC(len);
     }
 
     return self;
@@ -255,8 +270,7 @@ __Stilts_String_copy(__Stilts_String* __STILTS_RESTRICT self,
     __STILTS_STRING_NONNULL(self);
     __STILTS_STRING_NONNULL(other);
     if (__Stilts_String_isLarge(self)) {
-        char* buffer = (char*)malloc((size_t)__Stilts_String_get_cap(self));
-        // TODO oom check, stilts_malloc
+        char* buffer = (char*)__STILTS_MALLOC((size_t)__Stilts_String_get_cap(self));
         other->buffer = strcpy(buffer, self->buffer);
         other->size = self->size;
         other->_cap = self->_cap; /* Also copy flag bits */
@@ -270,7 +284,7 @@ __Stilts_String_copy(__Stilts_String* __STILTS_RESTRICT self,
 __STILTS_FN void
 __Stilts_String_destroy(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
-    if (__Stilts_String_isLarge(self)) free(self->buffer);
+    if (__Stilts_String_isLarge(self)) __STILTS_FREE(self->buffer);
 }
 
 #endif /* __STILTS_STDLIB_STRING */

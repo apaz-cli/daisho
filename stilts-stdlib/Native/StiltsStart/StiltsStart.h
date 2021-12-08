@@ -12,17 +12,22 @@
 
 __STILTS_FN void
 __Stilts_setlocale(void) {
-    if (!setlocale(LC_ALL, "C.UTF-8")) {
-        fprintf(stderr, "Could not set locale to utf8.\n");
+    /* I'm putting off messing with this until it inevitably becomes a problem. */
+    if (!setlocale(LC_ALL, "")) {
+        fprintf(stderr, "Could not set locale to system locale.\n");
         exit(70);
     }
 }
 
 __STILTS_FN void
 __Stilts_pre_main(int argc, char** argv) {
-    __Stilts_setlocale();
+    /* Start python (which sets the locale),
+       or set the locale ourselves. */
 #if __STILTS_EMBED_PYTHON
     __Stilts_py_init(argc, argv);
+#else
+    (void) argc; (void)argv;
+    __Stilts_setlocale();
 #endif
 }
 
@@ -31,7 +36,8 @@ __Stilts_pre_main(int argc, char** argv) {
 /* Exit */
 /********/
 
-__STILTS_FN void __Stilts_exit(int code) {
+__STILTS_FN __STILTS_NORETURN void
+__Stilts_exit(int code) {
 #if __STILTS_EMBED_PYTHON
     __Stilts_py_exit();
 #endif
