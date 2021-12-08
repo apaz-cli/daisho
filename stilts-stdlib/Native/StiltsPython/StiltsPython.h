@@ -11,7 +11,7 @@
 
 static wchar_t* __Stilts_py_progname = NULL;
 
-static inline void
+__STILTS_FN void
 __Stilts_py_init(int argc, char** argv) {
     (void)argc;
 
@@ -26,7 +26,7 @@ __Stilts_py_init(int argc, char** argv) {
     Py_Initialize();
 }
 
-static inline void
+__STILTS_FN void
 __Stilts_py_exit(void) {
     /* Shut down the python interpreter */
     /* This should be the last thing that's done. */
@@ -34,7 +34,7 @@ __Stilts_py_exit(void) {
     PyMem_RawFree(__Stilts_py_progname);
 }
 
-static inline void
+__STILTS_FN void
 __Stilts_py_eval(char* to_eval) {
     PyRun_SimpleString(to_eval);
 }

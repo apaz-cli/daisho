@@ -60,21 +60,20 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-/* Macros for Stilts code. */
-#if __STDC_VERSION__ >= 199901L /* >= C99 */
-#define __STILTS_RESTRICT restrict
-#else /* pre-C99 or C++ */
+/* Function specifier macros for Stilts C code. */
+#ifdef __cplusplus /* (restrict is not a C++ keyword) */
 #define __STILTS_RESTRICT
+#else
+#define __STILTS_RESTRICT restrict
 #endif
 
 #if __STILTS_EXTERNAL_FUNCTIONS
-#define __STILTS_FN extern
+#define __STILTS_FN inline
 #else /* Default */
 #define __STILTS_FN static inline
 #endif
 
-#define __STILTS_EXTERN extern
-
+#define __STILTS_NO_RETURN _Noreturn
 
 /* Error handling that needs to be gloabally available, but depends on config
  * files and the stdlib. */

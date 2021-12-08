@@ -48,7 +48,7 @@ typedef struct {
 #define __STILTS_SHARED_POOL_INITIALIZER                              \
     {                                                                 \
         .pool_mutex = __STILTS_MUTEX_INITIALIZER, .task_stack = NULL, \
-        .num_threads_running = 0, .threads = {}, .is_shutdown = true  \
+        .num_threads_running = 0, .threads = {0}, .is_shutdown = true  \
     }
 
 /*

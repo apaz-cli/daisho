@@ -12,8 +12,12 @@ extern "C" {
 
 #include "StiltsStdInclude.h"
 
-#include "StiltsAllocator/StiltsAllocator.h"
+#include "StiltsPython/StiltsPython.h"
 
+#include "StiltsPool/StiltsMutex.h"
+#include "StiltsPool/StiltsPool.h"
+
+#include "StiltsAllocator/StiltsAllocator.h"
 #include "StiltsAllocator/StiltsTempAllocator.h"
 
 #include "StiltsString/StiltsString.h"

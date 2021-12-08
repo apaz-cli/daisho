@@ -9,7 +9,7 @@
 static size_t __Stilts_temp_offset = 0;
 static char __Stilts_temp_arena[__STILTS_TEMP_ARENA_SIZE];
 
-static inline void*
+__STILTS_FN void*
 __Stilts_temp_malloc(size_t n) {
 #if __STILTS_SANITY_CHECK
     if (n > __STILTS_TEMP_ARENA_SIZE) return NULL;
@@ -26,7 +26,7 @@ __Stilts_temp_malloc(size_t n) {
 }
 
 /* Reallocates on the heap with stilts_malloc(). */
-static inline void*
+__STILTS_FN void*
 __Stilts_temp_realize(void* ptr, size_t n, size_t line, const char* func,
                       const char* file) {
     void* buf = __Stilts_malloc(n, line, func, file);

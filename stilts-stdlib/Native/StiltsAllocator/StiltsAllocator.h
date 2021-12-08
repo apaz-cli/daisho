@@ -10,7 +10,7 @@
 
 
 /* Decide what to do with these in the future. */
-static inline void*
+__STILTS_FN void*
 __Stilts_malloc(size_t size, __STILTS_SRC_INFO_ARGS) {
     if (__STILTS_SANITY_CHECK) {
         void* ret = malloc(size);
@@ -21,7 +21,7 @@ __Stilts_malloc(size_t size, __STILTS_SRC_INFO_ARGS) {
         return malloc(size);
     }
 }
-static inline void*
+__STILTS_FN void*
 __Stilts_realloc(void* ptr, size_t size, __STILTS_SRC_INFO_ARGS) {
     if (__STILTS_SANITY_CHECK) {
         void* ret = realloc(ptr, size);
@@ -32,7 +32,7 @@ __Stilts_realloc(void* ptr, size_t size, __STILTS_SRC_INFO_ARGS) {
         return realloc(ptr, size);
     }
 }
-static inline void
+__STILTS_FN void
 __Stilts_free(void* ptr, __STILTS_SRC_INFO_ARGS) {
     __STILTS_SRC_INFO_IGNORE();
     free(ptr);

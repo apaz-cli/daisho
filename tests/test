@@ -56,18 +56,25 @@ os.system("")  # Enables escape sequences on windows lmao
 
 cc = "cc"
 
-pyconfig = subprocess.run(["python3-config", "--cflags", "--ldflags"],
-                          stdout=subprocess.PIPE).stdout.decode('utf-8')
-pyconfig = re.sub(" +", " ", pyconfig)
-pyconfig = re.sub("\n", "", pyconfig)
+pycconfig = subprocess.run(["python3-config", "--cflags", "--embed"], stdout=subprocess.PIPE).stdout.decode('utf-8')
+pycconfig = re.sub("-ffile-prefix-map=/build/python3.9-RNBry6/python3.9-3.9.2=.", "", pycconfig)
+pycconfig = re.sub("-specs=/usr/share/dpkg/no-pie-compile.specs", "", pycconfig)
+pycconfig = re.sub("-fstack-protector", "", pycconfig)
+pycconfig = re.sub("-g", "", pycconfig)
+pycconfig = re.sub("\n", " ", pycconfig)
+pycconfig = re.sub(" +", " ", pycconfig)
+
+pyldconfig = subprocess.run(["python3-config", "--ldflags", "--embed"], stdout=subprocess.PIPE).stdout.decode('utf-8')
+pyldconfig = re.sub("\n", " ", pyldconfig)
+pyldconfig = re.sub(" +", " ", pyldconfig)
 
 warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes"
 
-extras = "-O1 -D__STILTS_EMBED_PYTHON=1"
+extras = "-O1 -D__STILTS_EMBED_PYTHON=1 -g"
 
 
 def compile(script, exename):
-    run(f'{cc} {pyconfig} {warnings} {extras} {script} -o {exename}')
+    run(f'{cc} {pycconfig} {warnings} {extras} {script} {pyldconfig} -o {exename}')
 
 
 scripts = []
