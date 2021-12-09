@@ -5,9 +5,9 @@ interface Consumer<T> { abstract Void apply(T input); }
 interface Stream<T> {
     Stream<K> map(Mapper<T, K> mapper);
     Stream<K> flatMap(Mapper<T, Stream<K>> mapper);
-    Void forEach(Consumer<T> action);
-    Array<T> toArray();
-    List<T> toList();
+    Void      forEach(Consumer<T> action);
+    Array<T>  toArray();
+    List<T>   toList();
 
     default List<T> collect() { return this.toList(); }
 }
@@ -63,9 +63,11 @@ class Map<K, V> {
 }
 
 class Set<T> {
-    Map<T, T> m;    
+    Map<T, T> m;
 }
 
-
+class Queue<T> {
+    List<T> l;
+}
 
 

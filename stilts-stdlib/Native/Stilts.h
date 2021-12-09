@@ -1,10 +1,16 @@
+/******************************************\
+* Be sure to include Stilts.h before any   *
+* standard header files.                   *
+\******************************************/
+
+/******************************************\
+
+\******************************************/
+
+
 #pragma once
 #ifndef __STILTS_STD_RUNTIME_INCLUDE
 #define __STILTS_STD_RUNTIME_INCLUDE
-
-/*
- * This file includes all the C code that the Stilts runtime depends on.
- */
 
 #ifdef __cplusplus
 extern "C" {
