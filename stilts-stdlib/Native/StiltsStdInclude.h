@@ -73,7 +73,7 @@
 #define __STILTS_FN static inline
 #endif
 
-#define __STILTS_NO_RETURN _Noreturn
+#define __STILTS_NORETURN _Noreturn
 
 /* Error handling that needs to be gloabally available, but depends on config
  * files and the stdlib. */

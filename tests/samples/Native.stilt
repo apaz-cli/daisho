@@ -2,6 +2,6 @@
 // This is a comment.
 native Void* malloc(Size_t num_bytes);
 
-// This is also a comment
+/* This is also a comment. */
 
 native Void* realloc(Void* ptr, Size_t num_bytes);

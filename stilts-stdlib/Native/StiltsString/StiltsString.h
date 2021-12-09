@@ -2,7 +2,6 @@
 #ifndef __STILTS_STDLIB_STRING
 #define __STILTS_STDLIB_STRING
 #include "../StiltsAllocator/StiltsAllocator.h"
-#include "../StiltsStdInclude.h"
 
 /* Classic triple with small string
    optimization. (abbreviated ssopt.) */
@@ -19,7 +18,8 @@ typedef struct {
 #define __STILTS_STR_SSOPT_BUF_LEN (sizeof(__Stilts_String) - 1)
 
 #if __STILTS_SANITY_CHECK
-#define __STILTS_STRING_NONNULL(self) if (!self) __STILTS_SANITY_FAIL()
+#define __STILTS_STRING_NONNULL(self) \
+    if (!self) __STILTS_SANITY_FAIL()
 #else
 #define __STILTS_STRING_NONNULL(self)
 #endif
@@ -101,8 +101,6 @@ __Stilts_String_large_len(__Stilts_String* self) {
     return self->size;
 }
 
-
-
 /**********************/
 /* "Public" Functions */
 /**********************/
@@ -110,9 +108,8 @@ __Stilts_String_large_len(__Stilts_String* self) {
 __STILTS_FN uint64_t
 __Stilts_String_len(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
-    return __Stilts_String_isLarge(self)
-               ? __Stilts_String_large_len(self)
-               : __Stilts_String_small_len(self);
+    return __Stilts_String_isLarge(self) ? __Stilts_String_large_len(self)
+                                         : __Stilts_String_small_len(self);
 }
 
 __STILTS_FN char*
@@ -136,7 +133,8 @@ __Stilts_String_println(__Stilts_String* self) {
 __STILTS_FN void
 __Stilts_String_set_char(__Stilts_String* self, uint64_t pos, char c) {
     __STILTS_STRING_NONNULL(self);
-    // TODO Extend if needed
+    if (__STILTS_SANITY_CHECK && pos >= __Stilts_String_len(self))
+        __STILTS_SANITY_FAIL();
     if (__Stilts_String_isLarge(self)) {
         self->buffer[pos] = c;
     } else {
@@ -160,18 +158,17 @@ __Stilts_String_isEmpty(__Stilts_String* self) {
                                          : ((char*)self)[0] == '\0';
 }
 
-
 /* If the string's using ssopt, convert it to large format. */
 __STILTS_FN __Stilts_String*
 __Stilts_String_promote(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
-    if (__Stilts_String_isLarge(self))
-        return self;
+    if (__Stilts_String_isLarge(self)) return self;
 
-    uint64_t newcap = __Stilts_String_roundUp(self->size, __STILTS_STR_ALLOC_ALIGNMENT);
+    uint64_t newcap =
+        __Stilts_String_roundUp(self->size, __STILTS_ALLOC_ALIGNMENT);
     char* buffer = (char*)__STILTS_MALLOC(newcap);
     self->buffer = strcpy(buffer, (char*)self);
-    self->size   = __Stilts_String_small_len(self);
+    self->size = __Stilts_String_small_len(self);
     __Stilts_String_set_flag_cap(self, CHAR_MAX, newcap);
     return self;
 }
@@ -200,7 +197,8 @@ __Stilts_String_shrink(__Stilts_String* self) {
         }
         /* If not small enough for ssopt, shrink. */
         else {
-            self->buffer = (char*)__STILTS_REALLOC(self->buffer, (size_t)(self->size));
+            self->buffer =
+                (char*)__STILTS_REALLOC(self->buffer, (size_t)(self->size));
             __Stilts_String_set_cap(self, self->size);
         }
     }
@@ -270,7 +268,8 @@ __Stilts_String_copy(__Stilts_String* __STILTS_RESTRICT self,
     __STILTS_STRING_NONNULL(self);
     __STILTS_STRING_NONNULL(other);
     if (__Stilts_String_isLarge(self)) {
-        char* buffer = (char*)__STILTS_MALLOC((size_t)__Stilts_String_get_cap(self));
+        char* buffer =
+            (char*)__STILTS_MALLOC((size_t)__Stilts_String_get_cap(self));
         other->buffer = strcpy(buffer, self->buffer);
         other->size = self->size;
         other->_cap = self->_cap; /* Also copy flag bits */
