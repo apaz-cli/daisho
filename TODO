@@ -29,17 +29,44 @@ Thinking:
 Coding:
     stilts-stdlib:
         Native:
-            Circular buffer
-            Use circular buffer for threadpool
-            Strings
+            Threadpool
+            String functions
+                find, findIdx, rfind, rfindIdx
+                contains
+                clear, resize
+                split, splitFirst, splitLast
+                replace, replaceFirst, replaceLast
+                trim
+                startsWith, endsWith
+                append
+                swap
+                substring
+                insert
+                format
+                toUpper, toLower
+                hash
+                equals
+                compareto
             Consistent error behavior
-            Python integration can be disabled
+            Configs
         Stilts:
+            Mutex
+            RWLock
             Atomic<T>
-            RWAtomic<T>
-            String<T>
-            UTF8String<T>
-            PythonObject?
+            String
+            UTF8String
+            PythonObject like Swift?
+            Collections:
+                Iterable<T> impl Collection<T>
+                Iterator<T> impl Iterable<T>
+                Stream<T> impl Iterator<T>
+                Array<T> impl Iterable<T>
+                List<T> impl Iterable<T>
+                Set<T impl Hashable>
+                Map<K impl Hashable, V>
+                
+                
+                
 
     AST workspace
     Split up sections
