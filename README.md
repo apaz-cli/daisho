@@ -47,7 +47,7 @@ Now you have the compiler, `stiltc`. You can check to make sure everything insta
 stiltc
 ```
 
-If you're not on a POSIX operating system (If you're on Windows), I recommend switching to one. It's possible that Stilts gets ported to Windows, but I don't want to be the one who does it.
+If you're not on a POSIX operating system (If you're on Windows), I recommend switching to one. PopOS is a good beginner distro, and is quickly getting better and better. It's possible that Stilts gets ported to Windows, but I don't want to be the one who does it. If you want to be the one that does it, please contact me on Discord.
 
 
 <br>
@@ -55,34 +55,44 @@ If you're not on a POSIX operating system (If you're on Windows), I recommend sw
 
 # Design Vision:
 
+## List of inspiring languages:
+| Lang   | Inspiration                |
+| :----: | -------------------------: |
+| C      | Simplicity, memory model   |
+| C++    | Templates                  |
+| Java   | Collections/Streams API    |
+| Python | List comprehensions        |
+| Rust   | static/dyn Traits          |
+| Vala   | Compilation model, interop |
+
+
 ## Stilts is:
-* The best parts of most popular languages
-* Fast to write, and fast to execute
-* Easy to learn
-* Literal zero overhead interoperability with C
+* C, with modern high level language features
+* Fast to execute (like C), but also fast to write (unlike C)
+* Easy to use, mixing C, Python, and Stilts in the same file.
 * Focused on tooling and user experience
 * A passion project
-* A community
 
 
 ## Stilts is not:
 * Memory safe
-  * Just like the C that it compiles to.
-  * In practice, you should be fine if you stick to standard containers.
+  * Just like the C that it's based on and compiles to.
+  * In practice, you should be fine. A memory debugger is included to help you find leaks and double frees.
 * Usable in production
   * For now. Unless you're a masochist like me.
 * Fast at compiling programs
   * This is an eventual goal, but not a priority.
   * For now, having a compiler at all is a higher priority.
 * Supported on platforms other than POSIX
-  * I only want to write the standard library and compiler once. However, I will never make the task harder than it needs to be. Every platform dependency will be wrapped and documented. If you're on Windows and want in on the action, <a href="https://discord.gg/yM8ZBDHGdR">let me know</a>. 
+  * I only want to write the standard library and compiler once. However, I will never make the task harder than it needs to be. Every platform dependency will be wrapped and documented.
+  * If you're on Windows and want in on the action, <a href="https://discord.gg/yM8ZBDHGdR">let me know</a>.
 * A full time job
-  * I already have one. I don't have the time to not make progress. I want immediate results. That means careful planning and a focus on simplicity.
+  * I don't have the time to not make progress. That means careful planning and a focus on simplicity.
 
 
 # Sub-Projects:
-* Stilts Compiler (`stiltc`)
-* Standard Library
-* Language Server
-* VSCode Extension
-* Code Formatter
+* Stilts Compiler  (`stiltc` folder)
+* Standard Library (`stdlib` folder)
+* Language Server  (coming eventually)
+* VSCode Extension (coming eventually)
+* Code Formatter   (coming eventually)
