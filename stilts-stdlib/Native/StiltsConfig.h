@@ -22,7 +22,7 @@
  * --python    specifies 1.
  */
 #ifndef __STILTS_EMBED_PYTHON
-#define __STILTS_EMBED_PYTHON 1
+#define __STILTS_EMBED_PYTHON 0
 #endif
 
 /*

@@ -25,9 +25,17 @@ Regardless of if the language gains popularity or not, I want to share the resul
 <br>
 
 # Getting Started
-Assuming you are on a POSIX operating system (Linux, MacOS, BSD), follow these steps. Note that as the compiler is not written yet, you cannot compile any Stilts code. Nor is the language specification written yet, so good luck figuring out what that even is.
 
-First, install a C compiler with your package manager. Make sure it's aliased with `cc`. Next, navigate into the repository folder. Finally, run the following:
+## System Requirements
+
+* A POSIX-compliant operating system (Like Linux, MacOS, BSD)
+* A working C toolchain that supports C11 (Including some "optional" headers).
+* Python 3 (optional, to support inline python library interop)
+* GTK+3.0 (optional, to support GUI applications)
+* Reasonable hardware. If it's made after the 90s, you're probably fine. If you're not, the install will fail and you'll get an error message as to why.
+
+
+## Install
 
 ```bash
 ./install.sh release

@@ -54,7 +54,7 @@ os.system("")  # Enables escape sequences on windows lmao
 # Makefile #
 ############
 
-cc = "cc"
+cc = "clang"
 
 pycconfig = subprocess.run(["python3-config", "--cflags", "--embed"], stdout=subprocess.PIPE).stdout.decode('utf-8')
 pycconfig = re.sub("-ffile-prefix-map=/build/python3.9-RNBry6/python3.9-3.9.2=.", "", pycconfig)
@@ -68,7 +68,7 @@ pyldconfig = subprocess.run(["python3-config", "--ldflags", "--embed"], stdout=s
 pyldconfig = re.sub("\n", " ", pyldconfig)
 pyldconfig = re.sub(" +", " ", pyldconfig)
 
-warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes"
+warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes -Wno-missing-braces"
 
 extras = "-O1 -D__STILTS_EMBED_PYTHON=1 -g"
 

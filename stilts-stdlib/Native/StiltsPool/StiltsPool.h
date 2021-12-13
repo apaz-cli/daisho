@@ -3,7 +3,6 @@
 #define __STILTS_STDLIB_POOL
 #include "../StiltsAllocator/StiltsAllocator.h"
 #include "StiltsMutex.h"
-#include "StiltsThread.h"
 
 #define __STILTS_THREADPOOL_NUM_THREADS (__STILTS_IDEAL_NUM_THREADS - 1)
 #define __STILTS_TASK_BUFFER_SIZE 512
@@ -43,7 +42,7 @@ typedef struct {
 
     /* Track the number of running threads so we know when we're finished. */
     size_t num_threads_running;
-    __Stilts_Thread threads[__STILTS_THREADPOOL_NUM_THREADS];
+    pthread_t threads[__STILTS_THREADPOOL_NUM_THREADS];
 
     bool is_shutdown;
 } __Stilts_Threadpool;
@@ -52,9 +51,29 @@ typedef struct {
 static __Stilts_Threadpool __Stilts_shared_pool =
     __STILTS_SHARED_POOL_INITIALIZER;
 
-__STILTS_FN void
+__STILTS_FN void __Stilts_shared_pool_submit(__Stilts_Task task);
+__STILTS_FN __Stilts_Task __Stilts_shared_pool_take(void);
+__STILTS_FN void* __Stilts_shared_pool_do_work(void* ignored);
+
+__STILTS_FN void*
 __Stilts_shared_pool_do_work(void* ignored) {
     (void)ignored;
+
+    // Worker threads should kill themselves when they're done
+    // This has no effect on the main thread, only ones started
+    // with this function as an entry point in pthread_create().
+    pthread_detach(pthread_self());
+
+    // While there are tasks in the queue, do them.
+    __Stilts_Task task;
+    do {
+        task = __Stilts_shared_pool_take();
+        if (!task.fn) break;
+        task.fn(task.args);
+    } while (true);
+
+    // Match the format required by pthread_create().
+    return NULL;
 }
 
 /* Put tasks into the queue */
@@ -75,8 +94,10 @@ __Stilts_shared_pool_submit(__Stilts_Task task) {
             __STILTS_THREADPOOL_NUM_THREADS) {
             pthread_t* thread = __Stilts_shared_pool.threads +
                                 __Stilts_shared_pool.num_threads_running;
-            if (pthread_create(thread, NULL, ) && __STILTS_SANITY_CHECK == 2) {
-            }
+            if (!pthread_create(thread, NULL, __Stilts_shared_pool_do_work,
+                                NULL) &&
+                __STILTS_SANITY_CHECK == 2)
+                __STILTS_SANITY_FAIL();
         }
 
         __Stilts_SHARED_POOL_CRITICAL_END();
@@ -89,7 +110,7 @@ __Stilts_shared_pool_submit(__Stilts_Task task) {
 }
 
 __STILTS_FN __Stilts_Task
-__Stilts_shared_pool_take() {
+__Stilts_shared_pool_take(void) {
     __Stilts_SHARED_POOL_CRITICAL_BEGIN();
     // Check if empty
     if (((__STILTS_TQUEUE.back + 1) % __STILTS_TASK_BUFFER_SIZE) !=

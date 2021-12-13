@@ -15,6 +15,18 @@
 
 #define __STILTS_ALLOC_ALIGNMENT _Alignof(max_align_t)
 
+/* Only works for multiples of 2 */
+__STILTS_FN size_t
+__Stilts_Alignment_roundUp(size_t n, size_t alignment) {
+    if (__STILTS_SANITY_CHECK && ((alignment % 2) != 0)) __STILTS_SANITY_FAIL();
+    return (n + alignment - 1) & -alignment;
+}
+
+__STILTS_FN size_t
+__Stilts_align(size_t n) {
+    return __Stilts_Alignment_roundUp(n, __STILTS_ALLOC_ALIGNMENT);
+}
+
 /* Decide what to do with these in the future. */
 __STILTS_FN void*
 __Stilts_malloc(size_t size, __STILTS_SRC_INFO_ARGS) {
