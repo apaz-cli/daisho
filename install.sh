@@ -13,8 +13,8 @@ else
 fi
 
 # Install stiltc executable
-cc src/Compiler.c $FLAGS
+cc stiltc/Compiler.c $FLAGS
 sudo mv a.out /usr/bin/stiltc
 
 # Move common headers into place
-sudo cp -r stilts-stdlib/ /usr/include/stilts-stdlib/
+sudo cp -r stdlib/ /usr/include/stilts/
