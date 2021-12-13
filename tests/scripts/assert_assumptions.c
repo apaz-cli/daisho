@@ -79,7 +79,7 @@ utf8_locale(void) {
     }
 }
 
-// Returns cleanly prints error message and exits on failure.
+/* Returns cleanly on success, prints error message and exits on failure. */
 typedef void (*Test)(void);
 
 Test tests[] = {types_valid, get_endianness, uint8_char, size_size,

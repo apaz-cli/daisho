@@ -21,12 +21,14 @@ Thinking:
         Maps?
     What is tracked for:
         Compilation Unit
-        TopLevelDecl
+	        TopLevelDecl
     Checker Implementation:
         What parts should be checked when?
 
 
 Coding:
+    stiltc:
+        
     stilts-stdlib:
         Native:
             Threadpool
@@ -50,26 +52,28 @@ Coding:
             Consistent error behavior
             Configs
         Stilts:
+            Basic types
             Mutex
             RWLock
             Atomic<T>
             String
             UTF8String
             PythonObject like Swift?
-            Collections:
-                Iterable<T> impl Collection<T>
-                Iterator<T> impl Iterable<T>
-                Stream<T> impl Iterator<T>
-                Array<T> impl Iterable<T>
-                List<T> impl Iterable<T>
-                Set<T impl Hashable>
-                Map<K impl Hashable, V>
+            Collections Framework:
+                Iterators:
+                    trait Iterable<T>                              (Base of framework, can produce an Iterator<T>)
+                    trait RandomIterable<T>       impl Iterable<T>
+                    trait Iterator<T>             impl Iterable<T> (Supports Stream ops)
+                    trait RandomIterator<T>       impl Iterator<T>
+                Collections:
+                    trait Collection<T>           impl Iterable<T>
+                    class Array<T, size>          impl Collection<T>, RandomIterable<T>
+                    class List<T>                 impl Collection<T>, RandomIterable<T>
+                Other:
+                    trait Hashable
+                    class Map<K impl Hashable, V> impl Collection<Pair<K, V>>
+                    class Set<T impl Hashable>    impl Collection<T> (Backed by a Map<T, T>)
                 
-                
-                
-
-    AST workspace
-    Split up sections
     apaz-libc:
         readFile macro wrap for memdebug
         List reduce()

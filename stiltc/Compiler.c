@@ -4,7 +4,6 @@
 #include "Declarations/MethodDeclarations.h"
 #include "Declarations/StructDeclarations.h"
 #include <apaz-libc.h>
-#include <apaz-utf8.h/apaz-utf8.h>
 
 const char *usageMesasge =
     "Stilts v0.1\n"
@@ -15,13 +14,30 @@ const char *usageMesasge =
     "  --tokenize : Only tokenize the target file.\n"
     "  --parse    : Only tokenize and create an AST of the target file.\n"
     "  --check    : Only validate the types/syntax of the target file.\n"
-    "  --codegen  : Only tokenize/parse/check the source file, and output a .c "
-    "file.\n"
+    "  --codegen  : Only tokenize/parse/check the source file, and output C.\n"
     "  --compile  : Execute the whole pipeline and produce a binary (defaut).\n"
     "\n"
     "C Compiler Flags:\n"
     "  --CC       : Specify which C compiler to use (System cc by default).\n"
     "  --cflags   : Specify which flags to give to the C compiler.\n"
+    "\n"
+    "Runtime Extension Flags:\n"
+    " --python    : Embed python support by linking against system Python3.\n"
+    " --no-python : Don't add python support.\n"
+    "\n"
+    "Debugging Flags:\n"
+    " --pedantic : Add pedantic sanity checks. Slow, but good for debugging.\n"
+    " --sane     : Basic sanity checks are performed. (Null checks, OOM, etc.)\n"
+    " --insane   : No sanity checks. Difficult to debug, but very fast.\n"
+    "\n"
+    "Memdebug Flags:\n"
+    " --no-memdebug    : Don't wrap malloc(), calloc(), realloc(), free().\n"
+    " --memdebug       : Wrap memory functions for tracking leaks and bugs.\n"
+    " --memdebug-print : Also print every allocation and free to stderr.\n"
+    "\n"
+    "Malloc Flags:\n"
+    " --normal-malloc  : Stilts gets memory from malloc().\n"
+    " --replace-malloc : Stilts gets memory from its own allocator.\n"
     "\n"
     "Stiltc Flags:\n"
     "  --jobs -j  : Specify how many threads stiltc should process your code "
@@ -33,8 +49,7 @@ static inline void str_destroy(String s, void *none) { String_destroy(s); }
 static inline bool filterEmpty(String str, void *extra) {
   (void)extra;
   bool empty = str[0] == '\0';
-  if (empty)
-    String_destroy(str);
+  if (empty) String_destroy(str);
   return !empty;
 }
 
