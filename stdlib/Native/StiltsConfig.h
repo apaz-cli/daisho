@@ -1,10 +1,10 @@
- /************************************************************************
+ /***********************************************************************\
  * Feel free to change the constants in this file. Incompatible values   *
  * will be caught at compile time.                                       *
  *                                                                       *
  * Do not include any files inside this header. Doing so has the         *
  * potential to break the Python runtime. Please only change configs.    *
- ************************************************************************/
+ \***********************************************************************/
 
 #pragma once
 #ifndef __STILTS_STDLIB_CONFIG
@@ -129,8 +129,11 @@
 #define __STILTS_IDEAL_NUM_THREADS 8
 
 /*
- * 0 - All Stilts-managed functions are static inline
- * 1 - All Stilts-managed functions are inline
+ * 0 - All Stilts-managed functions are static inline.
+ * 1 - All Stilts-managed functions have no modifiers.
+ *
+ * Be careful with ODR if you opt for no modifiers and
+ * want to include Stilts.h in multiple compliation units.
  */
 #define __STILTS_EXTERNAL_FUNCTIONS 0
 

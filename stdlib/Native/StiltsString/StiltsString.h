@@ -156,6 +156,37 @@ __Stilts_String_isEmpty(__Stilts_String* self) {
                                          : ((char*)self)[0] == '\0';
 }
 
+__STILTS_FN bool
+__Stilts_String_cstrs_startsWith(char* __STILTS_RESTRICT str, char* __STILTS_RESTRICT prefix) {
+  if (!str | !prefix) return false;
+  if (!*prefix | !*str) return false;
+  while (*prefix) if (*prefix++ != *str++) return false;
+  return true;
+}
+
+
+__STILTS_FN char*
+__Stilts_String_find_cstrs(char* __STILTS_RESTRICT str, char* __STILTS_RESTRICT subseq) {
+  while (*str) {
+    if (__Stilts_String_cstrs_startsWith(str, subseq)) return str;
+    else str++;
+  }
+  return NULL;
+}
+
+__STILTS_FN __Stilts_String
+__Stilts_String_find_cstr(__Stilts_String* self, char* substr) {
+  char* str = __Stilts_String_cstr(self);
+}
+
+__STILTS_FN __Stilts_String
+__Stilts_String_find(__Stilts_String* self,
+                     __Stilts_String* substr) {
+  return __Stilts_String_find_cstr(self, __Stilts_String_cstr(substr))
+}
+
+
+
 // TODO:
 // find, findIdx, rfind, rfindidx
 // clear, resize
@@ -172,6 +203,11 @@ __Stilts_String_isEmpty(__Stilts_String* self) {
 // hash
 // equals
 // compareto
+
+
+/******************/
+/* Memory Methods */
+/******************/
 
 /* If the string's using ssopt, convert it to large format. */
 __STILTS_FN __Stilts_String*

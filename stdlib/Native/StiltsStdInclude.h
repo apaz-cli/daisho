@@ -8,7 +8,8 @@
 /*
  * Embed a python interpreter, because why not.
  * This has to be done before including stdlib files.
- * It can be disabled in the config files.
+ * It can be disabled in the config files, or on the
+ * stiltc command line.
  */
 #if __STILTS_EMBED_PYTHON
 #define PY_SSIZE_T_CLEAN
@@ -51,17 +52,22 @@
 #include <stdalign.h>
 #include <stdatomic.h>
 #include <stdnoreturn.h>
-// #include <threads.h>
 #include <uchar.h>
+// #include <threads.h>
 
+/************************/
 /* Additional Libraries */
+/************************/
+
 /* note: pthread.h is used over C11's threads.h because it's better. */
-#include <pthread.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <pthread.h>    /* Threads, Muxtexes, RWLocks */
+#include <sys/types.h>  /* POSIX */
+#include <unistd.h>     /* POSIX */
+
+// TODO: Use GNU backtraces if possible.
 
 /* Function specifier macros for Stilts C code. */
-#ifdef __cplusplus /* (restrict is not a C++ keyword) */
+#ifdef __cplusplus /* (restrict is not a C++ keyword, but is a C keyword.) */
 #define __STILTS_RESTRICT
 #else
 #define __STILTS_RESTRICT restrict
