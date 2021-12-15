@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd src/Declarations/Generated
+cd stiltc/Declarations/Generated
 
 if ! command -v python3 >/dev/null
 then
@@ -24,4 +24,4 @@ rm peg
 cat StiltsParser.h StiltsParser.c > StiltsParser
 awk '!/#include "StiltsParser.h"/' StiltsParser > StiltsParser.h
 rm StiltsParser.c StiltsParser
-mv StiltsParser.h ../src/AST/Generated/
+mv StiltsParser.h ../stiltc/AST/Generated/
