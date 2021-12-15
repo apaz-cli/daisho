@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+
+# Run this script from the "tests/" directory.
+
 import re
 import os
 import sys
@@ -21,7 +24,7 @@ def printpurple(s, end=os.linesep):
 
 
 def run_np(s):
-    subprocess.run(split(s), check=True)
+    subrun(split(s), check=True)
 
 
 def run(s, end=os.linesep):

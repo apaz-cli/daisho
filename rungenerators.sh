@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# To be run from the root directory of the project.
+
 cd stiltc/Declarations/Generated
 
 if ! command -v python3 >/dev/null
