@@ -1,0 +1,38 @@
+#ifndef __STILTS_STDLIB_COLOR
+#define __STILTS_STDLIB_COLOR
+
+#ifndef __STILTS_ANSI_TERMINAL
+#ifdef _WIN32
+#define __STILTS_ANSI_TERMINAL 0
+#else
+#define __STILTS_ANSI_TERMINAL 1
+#endif /* _WIN32 */
+#endif /* __STILTS_ANSI_TERMINAL */
+
+#if __STILTS_ANSI_TERMINAL
+#define __STILTS_COLOR_RED     "\x1b[31m"
+#define __STILTS_COLOR_GREEN   "\x1b[32m"
+#define __STILTS_COLOR_YELLOW  "\x1b[33m"
+#define __STILTS_COLOR_BLUE    "\x1b[34m"
+#define __STILTS_COLOR_MAGENTA "\x1b[35m"
+#define __STILTS_COLOR_CYAN    "\x1b[36m"
+#define __STILTS_COLOR_RESET   "\x1b[0m"
+#else
+#define __STILTS_COLOR_RED     ""
+#define __STILTS_COLOR_GREEN   ""
+#define __STILTS_COLOR_YELLOW  ""
+#define __STILTS_COLOR_BLUE    ""
+#define __STILTS_COLOR_MAGENTA ""
+#define __STILTS_COLOR_CYAN    ""
+#define __STILTS_COLOR_RESET   ""
+#endif /* __STILTS_ANSI_TERMINAL */
+
+#define __STILTS_COLOR_HEAD __STILTS_COLOR_RED
+#define __STILTS_COLOR_PNIC __STILTS_COLOR_RED
+#define __STILTS_COLOR_PNTR __STILTS_COLOR_MAGENTA
+#define __STILTS_COLOR_BYTE __STILTS_COLOR_BLUE
+#define __STILTS_COLOR_FILE __STILTS_COLOR_GREEN
+#define __STILTS_COLOR_FUNC __STILTS_COLOR_YELLOW
+#define __STILTS_COLOR_LINE __STILTS_COLOR_CYAN
+
+#endif /* __STILTS_STDLIB_COLOR */

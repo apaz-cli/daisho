@@ -1,0 +1,72 @@
+
+
+boundCheck(Size_t access, Size_t min, Size_t max) if not (min <= access < max) ERR();
+
+
+trait Hashable { UInt64_t hash(); };
+
+class Pair<K,V> {
+  K key; V value; 
+  K first() return key;
+  V second() return value;
+
+};
+
+trait Stream<T> {
+  Void      forEach(Consumer<T> consumer);
+  Stream<K> map(Mapper<T, K> mapper);
+  Stream<K> flatMap(Mapper<T, Stream<K>> mapper);
+  Stream<T> filter(Predicate<T> predicate);
+  Stream<T> skip(Size_t num); 
+};
+
+trait Iterator<T> impl Stream<T> {
+  T next(bool* more);
+};
+
+trait RandomIterator<T> impl Iterator<T>, Stream<T> {
+  T operator=[](Size_t idx);
+};
+
+trait Iterable<T> impl Stream<T> {
+  Iterator<T> iter();
+  T operator=[](Size_t idx);
+
+
+  Void        forEach(Consumer<T> consumer)        return self.iter().forEach(consumer);
+  Iterator<K> map(Mapper<T, K> mapper)             return self.iter().map(mapper);
+  Iterator<K> flatMap(Mapper<T, Stream<K>> mapper) return self.iter().flatmap(mapper);
+  Iterator<T> filter(Predicate<T> predicate)       return self.iter().filter(predicate);
+  Iterator<T> skip(Size_t num)                     return self.iter().skip(num);
+};
+
+trait RandomIterable<T> impl Stream<T> {
+  RandomIterator<T> iter();
+};
+
+
+class List<T> impl RandomIterable<T> {
+  native List();
+};
+
+
+class ArrayIter<T, Size_t size> impl RandomIterator<T> {
+  Array<T, size>* arr;
+  bool cont;
+};
+class Array<T, Size_t size> impl RandomIterable {
+  // Backed by a pointer to the buffer
+  native Array();
+  native T =[](Size_t idx);
+  native ArrayIter<T> iter() { return ArrayIter(self); }
+};
+
+
+class Map<K, V> impl Iterable<Pair<K, V>> {
+
+};
+
+class Set<T> impl Iterable<Pair<T, T>> {
+  Map<T, T> map;
+  Set()
+};

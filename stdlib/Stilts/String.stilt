@@ -1,4 +1,4 @@
-#include "Builtins"
+#import "Builtins"
 
 interface Printable {
     Char* toString();

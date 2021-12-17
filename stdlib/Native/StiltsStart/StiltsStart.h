@@ -11,6 +11,12 @@
 /*********/
 
 __STILTS_FN void
+__Stilts_signal(void) {
+
+}
+
+
+__STILTS_FN void
 __Stilts_setlocale(void) {
     /* I'm putting off messing with this until it inevitably becomes a problem. */
     if (!setlocale(LC_ALL, "")) {

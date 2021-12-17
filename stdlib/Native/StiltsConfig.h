@@ -137,4 +137,9 @@
  */
 #define __STILTS_EXTERNAL_FUNCTIONS 0
 
+/*
+ * The maximum number of stack frames that Stilts can report in backtraces.
+ */
+#define __STILTS_BT_MAX_FRAMES 50
+
 #endif /* __STILTS_STDLIB_CONFIG */

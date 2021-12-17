@@ -5,7 +5,10 @@ class Mutex {
     native Void unlock();
 }
 
+ctype pthread_t Thread;
+
 class Thread {
-    ULong id;
     native Thread();
+    native detach();
+    native join();
 }

@@ -83,6 +83,8 @@
 
 /* Error handling that needs to be gloabally available, but depends on config
  * files and the stdlib. */
+#include "StiltsColor/StiltsColor.h"
+#include "StiltsBacktrace/StiltsBacktrace.h"
 #include "StiltsError/StiltsError.h"
 
 /* Start and end routines */

@@ -182,7 +182,7 @@ __Stilts_String_find_cstr(__Stilts_String* self, char* substr) {
 __STILTS_FN __Stilts_String
 __Stilts_String_find(__Stilts_String* self,
                      __Stilts_String* substr) {
-  return __Stilts_String_find_cstr(self, __Stilts_String_cstr(substr))
+  return __Stilts_String_find_cstr(self, __Stilts_String_cstr(substr));
 }
 
 
