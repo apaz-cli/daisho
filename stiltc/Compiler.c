@@ -78,6 +78,8 @@ usage() {
 
 static inline void
 parseFlags(int argc, char** argv) {
+
+    // Set defaults
     cmdFlags.temp_folder = "/tmp/stilts/";
     cmdFlags.CC = "cc";
     cmdFlags.cflags = List_String_new_cap(0);
@@ -86,14 +88,16 @@ parseFlags(int argc, char** argv) {
     cmdFlags.check = true;
     cmdFlags.codegen = true;
     cmdFlags.compileC = true;
+    cmdFlags.python = true;
+    cmdFlags.sanity = SANITY_SANE;
 
     bool grabNext = false;
     if (argc <= 1) {
         usage();
     } else {
         for (size_t i = 1; i < argc; i++) {
-            // Skip the argument if it has already been captured, and do what
-            // the previous arg says.
+            // If the previous flag had an argument, grab it instead of
+            // interpreting the argument as a flag.
             if (grabNext) {
                 grabNext = false;
 
@@ -111,8 +115,7 @@ parseFlags(int argc, char** argv) {
                     int i = atoi(argv[i]);
                     if (!(i > 0))
                         arg_err(
-                            "The number of jobs must be a number greater than "
-                            "zero.");
+                            "The number of jobs must be a number greater than zero.");
                     cmdFlags.num_threads = (size_t)i;
                 }
             }
@@ -133,7 +136,7 @@ parseFlags(int argc, char** argv) {
             else if (apaz_str_equals(argv[i], "--codegen"))
                 cmdFlags.compileC = false;
 
-            // Compiler Flags
+            // C Compiler Flags
             else if (apaz_str_equals(argv[i], "--CC")) {
                 if (i == argc)
                     arg_err(
@@ -143,18 +146,36 @@ parseFlags(int argc, char** argv) {
                 if (i == argc)
                     arg_err(
                         "--cflags requires an argument (The flags to pass to "
-                        "the C "
-                        "compiler, all in one arg).");
+                        "the C compiler, all in one argument).");
                 grabNext = true;
             } else if (apaz_str_equals(argv[i], "-j") ||
                        apaz_str_equals(argv[i], "--jobs")) {
                 if (i == argc)
                     arg_err(
                         "--jobs/-j requires an argument (The number of threads "
-                        "to "
-                        "create).");
+                        "to create).");
                 grabNext = true;
             }
+
+            // Runtime Extension Flags
+            else if (apaz_str_equals(argv[i], "--python"))
+                cmdFlags.python = true;
+            else if (apaz_str_equals(argv[i], "--no-python"))
+                cmdFlags.python = false;
+
+            // Debugging Flags
+            else if (apaz_str_equals(argv[i], "--pedantic"))
+                cmdFlags.sanity = SANITY_PEDANTIC;
+            else if (apaz_str_equals(argv[i], "--sane"))
+                cmdFlags.sanity = SANITY_SANE;
+            else if (apaz_str_equals(argv[i], "--insane"))
+                cmdFlags.sanity = SANITY_INSANE;
+
+            // Memdebug Flags
+
+            // Allocator Flags
+
+            // Malloc Flags
 
             // Targets
             else {

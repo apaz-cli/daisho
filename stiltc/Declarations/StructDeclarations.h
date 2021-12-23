@@ -179,12 +179,18 @@ struct Target {
 };
 LIST_DEFINE(Target);
 
+#define SANITY_INSANE   0
+#define SANITY_SANE     1
+#define SANITY_PEDANTIC 2
+
 struct CMDLineFlags {
   /* Compilation steps */
   bool parse;
   bool check;
   bool codegen;
   bool compileC;
+  bool python;
+  char sanity;
 
   /* C codegen options */
   char* CC;

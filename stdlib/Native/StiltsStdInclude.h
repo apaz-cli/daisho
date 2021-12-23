@@ -50,7 +50,7 @@
 
 /* C11 */
 #include <stdalign.h>
-#include <stdatomic.h>
+// #include <stdatomic.h>
 #include <stdnoreturn.h>
 #include <uchar.h>
 // #include <threads.h>
@@ -59,7 +59,8 @@
 /* Additional Libraries */
 /************************/
 
-/* note: pthread.h is used over C11's threads.h because it's better. */
+/* note: pthread.h is used over C11's threads.h because
+   it's better and actually more portable. */
 #include <pthread.h>    /* Threads, Muxtexes, RWLocks */
 #include <sys/types.h>  /* POSIX */
 #include <unistd.h>     /* POSIX */

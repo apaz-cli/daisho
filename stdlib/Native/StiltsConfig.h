@@ -10,9 +10,11 @@
 #ifndef __STILTS_STDLIB_CONFIG
 #define __STILTS_STDLIB_CONFIG
 
+#include "../../config/generated/StiltsGeneratedConfig.h"
+
 /*
- * 0 - Don't embed Python
- * 1 - Embed Python (default)
+ * 0 - Don't embed Python (default if python is not configured)
+ * 1 - Embed Python       (default if python is configured)
  *
  * Can be declared by stiltc as a flag to the C compiler.
  * Use stiltc flags to control this. Passing neither uses
