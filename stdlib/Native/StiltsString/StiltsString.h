@@ -36,9 +36,9 @@ typedef struct {
 #endif
 
 /* Little endianness is asserted elsewhere. */
-_Static_assert(CHAR_BIT == 8,
+__STILTS_STATIC_ASSERT(CHAR_BIT == 8,
                "Stilts's implementation of String assumes CHAR_BIT to be 8.");
-_Static_assert(sizeof(size_t) <= sizeof(uint64_t),
+__STILTS_STATIC_ASSERT(sizeof(size_t) <= sizeof(uint64_t),
                "Stilts's implementation of String assumes size_t to be "
                "uint64_t or smaller.");
 
@@ -173,18 +173,6 @@ __Stilts_String_find_cstrs(char* __STILTS_RESTRICT str, char* __STILTS_RESTRICT 
   }
   return NULL;
 }
-
-__STILTS_FN __Stilts_String
-__Stilts_String_find_cstr(__Stilts_String* self, char* substr) {
-  char* str = __Stilts_String_cstr(self);
-}
-
-__STILTS_FN __Stilts_String
-__Stilts_String_find(__Stilts_String* self,
-                     __Stilts_String* substr) {
-  return __Stilts_String_find_cstr(self, __Stilts_String_cstr(substr));
-}
-
 
 
 // TODO:

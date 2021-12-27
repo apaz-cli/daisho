@@ -13,7 +13,7 @@
 #define __STILTS_GIGABYTE (1024L * 1024L * 1024L)
 #define __STILTS_TERABYTE (1024L * 1024L * 1024L * 1024L)
 
-#define __STILTS_ALLOC_ALIGNMENT _Alignof(max_align_t)
+#define __STILTS_ALLOC_ALIGNMENT __STILTS_ALIGNOF(max_align_t)
 
 /* Only works for multiples of 2 */
 __STILTS_FN size_t

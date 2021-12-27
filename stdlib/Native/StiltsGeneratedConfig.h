@@ -1,0 +1,6 @@
+#define __SILTS_HAS_PYTHON 1
+#define __STILTS_PYTHON_EXECUTABLE "/usr/bin/python"
+#define __STILTS_PAGESIZE 4096
+#define __STILTS_IDEAL_NUM_THREADS 8
+#define __STILTS_BACKTRACES_ENABLED 1
+

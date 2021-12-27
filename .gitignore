@@ -1,15 +1,9 @@
 bin/**
 __pycache__/**
 .vscode/**
+.cache/**
 tests/bin/*
-
-# Antlr reference materials
-**/The_Definitive_ANTLR4_Reference.pdf
-**/.antlr/**
-**/JavaParser.g4
-**/JavaLexer.g4
-**/C.g4
-**/*.bnf
+compile_commands.json
 
 # Tokenizer reference materials
 **/Maximal-munch tokenization in linear time.pdf

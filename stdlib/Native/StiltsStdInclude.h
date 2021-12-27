@@ -61,32 +61,35 @@
 
 /* note: pthread.h is used over C11's threads.h because
    it's better and actually more portable. */
-#include <pthread.h>    /* Threads, Muxtexes, RWLocks */
-#include <sys/types.h>  /* POSIX */
-#include <unistd.h>     /* POSIX */
+#include <pthread.h>   /* Threads, Muxtexes, RWLocks */
+#include <sys/types.h> /* POSIX */
+#include <unistd.h>    /* POSIX */
 
 // TODO: Use GNU backtraces if possible.
 
-/* Function specifier macros for Stilts C code. */
-#ifdef __cplusplus /* (restrict is not a C++ keyword, but is a C keyword.) */
-#define __STILTS_RESTRICT
-#else
-#define __STILTS_RESTRICT restrict
-#endif
+/***********************/
+/* Compatible Keywords */
+/***********************/
 
-#if __STILTS_EXTERNAL_FUNCTIONS
-#define __STILTS_FN inline
-#else /* Default */
-#define __STILTS_FN static inline
-#endif
-
+#ifndef __cplusplus
+#define __STILTS_ALIGNOF(type) _Alignof(type)
 #define __STILTS_NORETURN _Noreturn
+#define __STILTS_RESTRICT restrict
+#define __STILTS_STATIC_ASSERT(x, msg) _Static_assert(x, msg)
+#else
+#define __STILTS_ALIGNOF(type) alignof(type)
+#define __STILTS_NORETURN
+#define __STILTS_RESTRICT
+#define __STILTS_STATIC_ASSERT(x, msg) static_assert(x, msg)
+#endif
 
 /* Error handling that needs to be gloabally available, but depends on config
  * files and the stdlib. */
-#include "StiltsColor/StiltsColor.h"
 #include "StiltsBacktrace/StiltsBacktrace.h"
+#include "StiltsColor/StiltsColor.h"
 #include "StiltsError/StiltsError.h"
+
+#include "StiltsPython/StiltsPython.h"
 
 /* Start and end routines */
 #include "StiltsStart/StiltsStart.h"
