@@ -15,6 +15,13 @@
  * we can't provide one.
  */
 
+
+
+#ifdef __has_include
+/* If we have execinfo.h, then it's supported. */
+#if __has_include(<execinfo.h>)
+#include <execinfo.h>
+
 __STILTS_FN void
 __Stilts_bt_header(void) {
     fprintf(stderr, __STILTS_COLOR_HEAD(
@@ -33,10 +40,6 @@ __STILTS_bt_footer(char* sigstr) {
             errmsg, sigstr ? sigstr : "N/A");
 }
 
-#ifdef __has_include
-/* If we have execinfo.h, then it's supported. */
-#if __has_include(<execinfo.h>)
-#include <execinfo.h>
 /*
  * Obtain a backtrace and print it to stdout.
  * Signal handlers are hell. Therefore, this is a "best effort" scenario.

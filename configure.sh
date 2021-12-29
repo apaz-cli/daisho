@@ -5,31 +5,18 @@
 # Generates a config file by appending to this variable.
 CONFIG=""
 WRITE_TO="stdlib/Native/StiltsGeneratedConfig.h"
-# COLS=$(stty size | cut -d' ' -f2)
-msg() {
-    printf "%-20s: %s\n" "$1" "$2"
-}
-append() {
-    CONFIG="$CONFIG$1$(printf %s '\n')"
-}
-writeconfig() {
-    echo; echo
-    echo "####################"
-    echo "# Generated Config #"
-    echo "####################"
-    echo $CONFIG
-    
-    echo $CONFIG > $WRITE_TO
-}
-
-
-chmod +x config/*.sh
+COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
+NL=$(printf %s '\n')
+msg() { printf "%-20s: %"$COLS"s\n" "$1" "$2"; }
+append() { CONFIG="$CONFIG$1$(printf %s '\n')"; }
+guard() { CONFIG="#pragma once$NL#ifndef __STILTS_STDLIB_GENERATEDCONFIG$NL#define __STILTS_STDLIB_GENERATEDCONFIG$NL$NL$CONFIG$NL#endif"; }
+writeconfig() { echo $CONFIG > $WRITE_TO; }
 
 
 ##############
 # ASSERTIONS #
 ##############
-if ./config/assertions.sh; then :; else
+if sh ./config/assertions.sh; then :; else
     echo
     echo "Stilts is not supported on this system for the reason specified in the error message above."
     exit 1
@@ -81,10 +68,11 @@ append "#define __STILTS_IDEAL_NUM_THREADS $THREADS"
 ##############
 if sh config/backtraces.sh; then
     msg "BACKTRACES" "YES"
-    append "#define __STILTS_BACKTRACES_ENABLED 1"
+    append "#define __STILTS_BACKTRACES_SUPPORTED 1"
 else
     msg "BACKTRACES" "NO"
-    append "#define __STILTS_BACKTRACES_ENABLED 0"
+    append "#define __STILTS_BACKTRACES_SUPPORTED 0"
 fi
 
+guard
 writeconfig
