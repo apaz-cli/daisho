@@ -36,7 +36,7 @@
 #include <time.h>
 
 /* C95 */
-// #include <iso646.h>
+#include <iso646.h>
 #include <wchar.h>
 #include <wctype.h>
 
@@ -71,24 +71,56 @@
 /* Compatible Keywords */
 /***********************/
 
-#ifndef __cplusplus
+#ifndef __cplusplus  // C
 #define __STILTS_ALIGNOF(type) _Alignof(type)
 #define __STILTS_NORETURN _Noreturn
 #define __STILTS_RESTRICT restrict
 #define __STILTS_STATIC_ASSERT(x, msg) _Static_assert(x, msg)
-#else
+#ifdef __GNUC__
+#define __STILTS_LIKELY(expr) __builtin_expect(!!(expr), 1)
+#define __STILTS_UNLIKELY(expr) __builtin_expect(!!(expr), 0)
+#else /* !__GNUC__ */
+#define __STILTS_LIKELY(expr) expr
+#define __STILTS_UNLIKELY(expr) expr
+#endif /* __GNUC__ */
+
+#else /* __cplusplus */
+
 #define __STILTS_ALIGNOF(type) alignof(type)
 #define __STILTS_NORETURN
 #define __STILTS_RESTRICT
 #define __STILTS_STATIC_ASSERT(x, msg) static_assert(x, msg)
+#if __cplusplus >= 202002L /* C++20 and up use attributes */
+#define __STILTS_LIKELY(expr)                       \
+    (([](bool __Stilts_expr) {                      \
+        switch (__Stilts_expr) {                    \
+            [[likely]] case true : return true;     \
+            [[unlikely]] case false : return false; \
+        }                                           \
+    })((bool)expr))
+#define __STILTS_UNLIKELY(expr)                   \
+    (([](bool __Stilts_expr) {                    \
+        switch (__Stilts_expr) {                  \
+            [[unlikely]] case true : return true; \
+            [[likely]] case false : return false; \
+        }                                         \
+    })((bool)expr))
+#else /*__cplusplus >= 202002L (No C++20) */
+#ifdef __GNUC__
+#define __STILTS_LIKELY(expr) __builtin_expect(!!(expr), 1)
+#define __STILTS_UNLIKELY(expr) __builtin_expect(!!(expr), 0)
+#else /* !__GNUC__ */
+#define __STILTS_LIKELY(expr) expr
+#define __STILTS_UNLIKELY(expr) expr
+#endif /* __GNUC__ */
 #endif
+#endif /* __cplusplus */
 
 /* Error handling that needs to be gloabally available, but depends on config
  * files and the stdlib. */
 #include "StiltsBacktrace/StiltsBacktrace.h"
 #include "StiltsColor/StiltsColor.h"
 #include "StiltsError/StiltsError.h"
-
 #include "StiltsPython/StiltsPython.h"
 
 /* Start and end routines */
