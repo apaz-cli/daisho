@@ -1,4 +1,4 @@
-#include "../../stilts-stdlib/Native/Stilts.h"
+#include "../../stdlib/Native/Stilts.h"
 
 #define ALT 0xAAAAAAAAAAAAAAAA
 #define CAP 2003

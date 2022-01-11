@@ -1,10 +1,10 @@
 #include <apaz-libc.h>
 
 int
-toFromTest(char* path) {
-    UTF8FileContent to = utf8_readFile(path);
+toFromTest(const char* path) {
+    UTF8FileContent to = utf8_readFile((char*)path);
     FileContent back = utf8_encode_content(to);
-    FileContent original = apaz_str_readFile(path);
+    FileContent original = apaz_str_readFile((char*)path);
 
     // These had better match up.
     // printf("[%zu, %zu]", back.len, original.len);

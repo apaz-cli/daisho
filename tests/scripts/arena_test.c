@@ -4,7 +4,7 @@
 
 int
 popt(void) {
-    Arena a = Arena_new("popt");
+    Arena a = Arena_new((char*)"popt");
     for (size_t i = 0; i < 50; i++) Arena_malloc(&a, i);
     for (size_t i = 50; i-- > 0;) {
         Arena_pop(&a, i);
@@ -17,10 +17,9 @@ popt(void) {
 
 int
 sar(void) {
-    size_t asize = ARENA_SIZE;
     Arena* a = (Arena*)malloc(sizeof(Arena));
-    char buffer[asize];
-    Arena_init(a, "sar", buffer, asize);
+    char buffer[ARENA_SIZE];
+    Arena_init(a, (char*)"sar", buffer, ARENA_SIZE);
 
     for (size_t i = 0; i < NITS; i++) Arena_malloc(a, i);
     Arena_destroy(a, true, false);
@@ -29,7 +28,7 @@ sar(void) {
 
 int
 har(void) {
-    Arena a = Arena_new("har");
+    Arena a = Arena_new((char*)"har");
 
     for (size_t i = 0; i < NITS; i++) Arena_malloc(&a, i);
     Arena_destroy(&a, false, true);
@@ -38,10 +37,9 @@ har(void) {
 
 int
 nar(void) {
-    size_t asize = 10000;
     Arena a;
-    char buffer[asize];
-    Arena_init(&a, "nar", buffer, asize);
+    char buffer[10000];
+    Arena_init(&a, (char*)"nar", buffer, 10000);
 
     for (size_t i = 0; i < NITS; i++) Arena_malloc(&a, i);
     Arena_destroy(&a, false, false);
@@ -53,7 +51,7 @@ bar(void) {
     size_t asize = ARENA_SIZE;
     Arena* a = (Arena*)malloc(sizeof(Arena));
     void* buf = malloc(asize);
-    Arena_init(a, "bar", buf, asize);
+    Arena_init(a, (char*)"bar", buf, asize);
 
     for (size_t i = 0; i < NITS; i++) Arena_malloc(a, i);
     Arena_destroy(a, true, true);

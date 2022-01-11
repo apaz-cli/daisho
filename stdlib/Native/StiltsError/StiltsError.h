@@ -15,7 +15,8 @@
     (void)func;                    \
     (void)file;
 
-__STILTS_FN
+
+__STILTS_FN 
 #if __STILTS_SANITY_CHECK
 __STILTS_NORETURN
 #endif

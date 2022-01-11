@@ -1,16 +1,17 @@
- /***********************************************************************\
- * Feel free to change the constants in this file. Incompatible values   *
- * will be caught at compile time.                                       *
- *                                                                       *
- * Do not include any files inside this header. Doing so has the         *
- * potential to break the Python runtime. Please only change configs.    *
- \***********************************************************************/
+/***********************************************************************\
+* Feel free to change the constants in this file. Incompatible values   *
+* will be caught at compile time.                                       *
+*                                                                       *
+* Do not include any files inside this header. Doing so has the         *
+* potential to break the Python runtime. Please only change configs.    *
+\***********************************************************************/
 
 #pragma once
 #ifndef __STILTS_STDLIB_CONFIG
 #define __STILTS_STDLIB_CONFIG
 
-#include "../../config/generated/StiltsGeneratedConfig.h"
+/* Generated from the configure script. */
+#include "StiltsGeneratedConfig.h"
 
 /*
  * 0 - Don't embed Python (default if python is not configured)
@@ -24,7 +25,7 @@
  * --python    specifies 1.
  */
 #ifndef __STILTS_EMBED_PYTHON
-#define __STILTS_EMBED_PYTHON 0
+#define __STILTS_EMBED_PYTHON __SILTS_HAS_PYTHON
 #endif
 
 /*
@@ -78,10 +79,10 @@
  * 1 - Replace malloc() (default)
  *
  * Replaces the memory allocator used by
- * __Stilts_malloc(), __Stilts_realloc(), __Stilts_calloc(), and __Stilts_free(),
- * and also wraps normal malloc(), realloc(), calloc(), and free() in a macro
- * redirecting to their __Stilts_ versions. This only works for the current
- * translation unit.
+ * __Stilts_malloc(), __Stilts_realloc(), __Stilts_calloc(), and
+ * __Stilts_free(), and also wraps normal malloc(), realloc(), calloc(), and
+ * free() in a macro redirecting to their __Stilts_ versions. This only works
+ * for the current translation unit.
  *
  * This has multiple benefits. The custom memory allocator is faster. Also, in
  * combination with __STILTS_MEMDEBUG, this can be used to track down errors in
@@ -103,45 +104,21 @@
 #endif
 
 /*
- * The size of pages of memory returned by the operating system. Good
- * to know for optimization's sake, but an incorrect value won't break
- * anything. 4096 is the default on Linux.
+ * Modifiers that are used on all (or almost all) functions
+ * in the Stilts stdlib.
  *
- * You can find out this number with:
- * $ getconf PAGESIZE
+ * Be careful with ODR if you change this setting and want
+ * to include Stilts.h in multiple compliation units.
  */
-#define __STILTS_PAGESIZE 4096
+#define __STILTS_FN static inline
 
 /*
- * The number of threads that Stilts should use for your system.
- * This is usually the number of logical CPUs, which is the number
- * of physical CPUs you have (Sockets), times the number of cores
- * on those physical CPUs, times the number of threads per core.
+ * The maximum number of stack frames that can be backtraced through.
+ * If backtraces are not enabled, this has no effect.
  *
- * You can find these numbers out with:
- * $ lscpu | grep -E '^Thread|^Core|^Socket|^CPU\('
- *
- * You should see something like:
- *
- * CPU(s):                8
- * Thread(s) per core:    2
- * Core(s) per socket:    4
- * Socket(s):             1
+ * If this number is smaller than the number of stack frames to report,
+ * then the newest ones are reported.
  */
-#define __STILTS_IDEAL_NUM_THREADS 8
-
-/*
- * 0 - All Stilts-managed functions are static inline.
- * 1 - All Stilts-managed functions have no modifiers.
- *
- * Be careful with ODR if you opt for no modifiers and
- * want to include Stilts.h in multiple compliation units.
- */
-#define __STILTS_EXTERNAL_FUNCTIONS 0
-
-/*
- * The maximum number of stack frames that Stilts can report in backtraces.
- */
-#define __STILTS_BT_MAX_FRAMES 50
+#define __STILTS_BT_MAX_FRAMES 8192
 
 #endif /* __STILTS_STDLIB_CONFIG */

@@ -11,6 +11,14 @@ typedef struct {
     size_t _cap;
 } __Stilts_String;
 
+/* Only a cstr and a length is required for many operations.
+   The representation doesn't matter, so there should be an
+   easy way to extract it. */
+typedef struct {
+    char* cstr;
+    size_t len;
+} __Stilts_String_Raw;
+
 #define __STILTS_STR_BUF_OFFSET 0
 #define __STILTS_STR_SIZE_OFFSET sizeof(char*)
 #define __STILTS_STR_CAP_OFFSET (sizeof(char*) + sizeof(size_t))
@@ -36,11 +44,12 @@ typedef struct {
 #endif
 
 /* Little endianness is asserted elsewhere. */
-_Static_assert(CHAR_BIT == 8,
-               "Stilts's implementation of String assumes CHAR_BIT to be 8.");
-_Static_assert(sizeof(size_t) <= sizeof(uint64_t),
-               "Stilts's implementation of String assumes size_t to be "
-               "uint64_t or smaller.");
+__STILTS_STATIC_ASSERT(
+    CHAR_BIT == 8,
+    "Stilts's implementation of String assumes CHAR_BIT to be 8.");
+__STILTS_STATIC_ASSERT(sizeof(size_t) <= sizeof(uint64_t),
+                       "Stilts's implementation of String assumes size_t to be "
+                       "uint64_t or smaller.");
 
 /***********************/
 /* "Private" functions */
@@ -99,6 +108,19 @@ __Stilts_String_large_len(__Stilts_String* self) {
     return self->size;
 }
 
+__STILTS_FN __Stilts_String_Raw
+__Stilts_String_getRaw(__Stilts_String* self) {
+    __Stilts_String_Raw raw;
+    if (__Stilts_String_isLarge(self)) {
+        raw.cstr = self->buffer;
+        raw.len = self->size;
+    } else {
+        raw.cstr = (char*)self;
+        raw.len = __Stilts_String_small_len(self);
+    }
+    return raw;
+}
+
 /**********************/
 /* "Public" Functions */
 /**********************/
@@ -155,55 +177,6 @@ __Stilts_String_isEmpty(__Stilts_String* self) {
     return __Stilts_String_isLarge(self) ? self->buffer[0] == '\0'
                                          : ((char*)self)[0] == '\0';
 }
-
-__STILTS_FN bool
-__Stilts_String_cstrs_startsWith(char* __STILTS_RESTRICT str, char* __STILTS_RESTRICT prefix) {
-  if (!str | !prefix) return false;
-  if (!*prefix | !*str) return false;
-  while (*prefix) if (*prefix++ != *str++) return false;
-  return true;
-}
-
-
-__STILTS_FN char*
-__Stilts_String_find_cstrs(char* __STILTS_RESTRICT str, char* __STILTS_RESTRICT subseq) {
-  while (*str) {
-    if (__Stilts_String_cstrs_startsWith(str, subseq)) return str;
-    else str++;
-  }
-  return NULL;
-}
-
-__STILTS_FN __Stilts_String
-__Stilts_String_find_cstr(__Stilts_String* self, char* substr) {
-  char* str = __Stilts_String_cstr(self);
-}
-
-__STILTS_FN __Stilts_String
-__Stilts_String_find(__Stilts_String* self,
-                     __Stilts_String* substr) {
-  return __Stilts_String_find_cstr(self, __Stilts_String_cstr(substr));
-}
-
-
-
-// TODO:
-// find, findIdx, rfind, rfindidx
-// clear, resize
-// split, splitFirst, splitLast
-// replace, replaceFirst, replaceLast
-// trim
-// startsWith, endsWith
-// append
-// swap
-// substring
-// insert
-// format
-// toUpper, toLower
-// hash
-// equals
-// compareto
-
 
 /******************/
 /* Memory Methods */
@@ -340,6 +313,84 @@ __STILTS_FN void
 __Stilts_String_destroy(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
     if (__Stilts_String_isLarge(self)) __STILTS_FREE(self->buffer);
+}
+
+// TODO:
+// find, findIdx, rfind, rfindidx
+// clear, resize
+// split, splitFirst, splitLast
+// replace, replaceFirst, replaceLast
+// trim
+// startsWith, endsWith
+// append
+// swap
+// substring
+// insert
+// format
+// toUpper, toLower
+// hash
+// equals
+// compareto
+
+__STILTS_FN bool
+__Stilts_String_cstr_startsWith(char* self, char* delim) {
+    char* prefix = delim;
+    while (*prefix)
+        if (*prefix++ != *self++) return false;
+    return true;
+}
+
+__STILTS_FN char*
+__Stilts_String_find_cstr(char* str, char* subseq) {
+    while (*str) {
+        if (__Stilts_String_cstr_startsWith(str, subseq))
+            return str;
+        else
+            str++;
+    }
+    return NULL;
+}
+
+// cstr startsWith(), but returns strlen(delim) instead of true on match.
+__STILTS_FN size_t
+__Stilts_String_split_helper(char* self, char* delim) {
+    char* str = self;
+    while (*delim)
+        if (*delim++ != *self++) return 0;
+    return (size_t)(self - str);
+}
+
+__STILTS_FN void
+__Stilts_String_split_impl(char* self, char* delim) {
+    // Iterate over self, until the end of the string.
+    char* checkpoint = self;  // after delim of last match.
+    while (true) {
+        // Find the next match, or the end of the string.
+        size_t startsWithdelimlen = 0;
+        char* match = checkpoint;
+        while (__STILTS_UNLIKELY(*match)) {
+            startsWithdelimlen = __Stilts_String_split_helper(match, delim);
+            if (__STILTS_UNLIKELY(startsWithdelimlen))
+                break;
+            else
+                match++;
+        }
+
+        /* If there's no more matches, we're done. */
+        if (match == checkpoint) break;
+
+        // Copy from the last checkpoint until start of the match (or the whole
+        // string if no match) into a new __Stilts_String.
+        __Stilts_String newstr;
+        __Stilts_String_initWith(&newstr, checkpoint,
+                                 (size_t)(match - checkpoint));
+
+        // TODO: Figure out how better to output the list of strings. This may
+        // have to wait until generics are implemented.
+        __Stilts_String_println(&newstr);
+
+        checkpoint = match + startsWithdelimlen;
+    }
 }
 
 #endif /* __STILTS_STDLIB_STRING */

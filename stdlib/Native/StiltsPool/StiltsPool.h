@@ -9,32 +9,20 @@
 
 /* Tasks */
 typedef void (*__Stilts_Task_Fn)(void*);
+
 typedef struct {
     __Stilts_Task_Fn fn;
     void* args;
 } __Stilts_Task;
 
 /* Circular queue for tasks. */
-#define __STILTS_TASK_QUEUE_INITIALIZER \
-    { .tasks = {0}, .front = 0, .back = 0 }
 typedef struct {
-    __Stilts_Task tasks[__STILTS_TASK_BUFFER_SIZE];
     size_t front;
     size_t back;
+    __Stilts_Task tasks[__STILTS_TASK_BUFFER_SIZE];
 } __Stilts_Task_Queue;
 
 /* Threadpool */
-#define __STILTS_SHARED_POOL_INITIALIZER                              \
-    {                                                                 \
-        .pool_mutex = __STILTS_MUTEX_INITIALIZER,                     \
-        .task_queue = __STILTS_TASK_QUEUE_INITIALIZER,                \
-        .num_threads_running = 0, .threads = {0}, .is_shutdown = true \
-    }
-#define __Stilts_SHARED_POOL_CRITICAL_BEGIN() \
-    __Stilts_mutex_lock(&(__Stilts_shared_pool.pool_mutex));
-#define __Stilts_SHARED_POOL_CRITICAL_END() \
-    __Stilts_mutex_unlock(&(__Stilts_shared_pool.pool_mutex));
-#define __STILTS_TQUEUE __Stilts_shared_pool.task_queue
 typedef struct {
     /* Protects the pool and task stack */
     __Stilts_Mutex pool_mutex;
@@ -47,9 +35,26 @@ typedef struct {
     bool is_shutdown;
 } __Stilts_Threadpool;
 
-/* One global shared threadpool containing a queue. */
-static __Stilts_Threadpool __Stilts_shared_pool =
-    __STILTS_SHARED_POOL_INITIALIZER;
+/* Initialize tne global shared threadpool containing a queue. Static
+ * initialization is handled differently in C/C++. */
+
+#ifndef __cplusplus
+static __Stilts_Threadpool __Stilts_shared_pool = {
+    .pool_mutex = __STILTS_MUTEX_INITIALIZER,
+    .task_queue = {0},
+    .num_threads_running = 0,
+    .threads = {0},
+    .is_shutdown = true};
+#else /* __cplusplus */
+static __Stilts_Threadpool __Stilts_shared_pool = {
+    __STILTS_MUTEX_INITIALIZER, {}, 0, {}, true};
+#endif
+
+#define __Stilts_SHARED_POOL_CRITICAL_BEGIN() \
+    __Stilts_mutex_lock(&(__Stilts_shared_pool.pool_mutex));
+#define __Stilts_SHARED_POOL_CRITICAL_END() \
+    __Stilts_mutex_unlock(&(__Stilts_shared_pool.pool_mutex));
+#define __STILTS_TQUEUE __Stilts_shared_pool.task_queue
 
 __STILTS_FN void __Stilts_shared_pool_submit(__Stilts_Task task);
 __STILTS_FN __Stilts_Task __Stilts_shared_pool_take(void);
@@ -125,7 +130,8 @@ __Stilts_shared_pool_take(void) {
     } else {
         // Queue is empty, return nothing.
         __Stilts_SHARED_POOL_CRITICAL_END();
-        return (__Stilts_Task){.fn = NULL, .args = NULL};
+        __Stilts_Task task = {NULL, NULL};
+        return task;
     }
 }
 

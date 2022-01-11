@@ -49,8 +49,8 @@ def rm(s):
 def heading(s):
     print("\x1b[31m" + s + "\x1b[0m")
 
-os.system("")  # Enables escape sequences on windows lmao
 
+os.system("")  # Enables escape sequences on windows lmao
 
 
 ############
@@ -71,13 +71,31 @@ pyldconfig = subprocess.run(["python3-config", "--ldflags", "--embed"], stdout=s
 pyldconfig = re.sub("\n", " ", pyldconfig)
 pyldconfig = re.sub(" +", " ", pyldconfig)
 
-warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes -Wno-missing-braces"
+warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes -Wno-missing-braces -Wno-unused-function"
 
-extras = "-O1 -D__STILTS_EMBED_PYTHON=1 -g"
+extras = "-O0 -D__STILTS_EMBED_PYTHON=1 -g -rdynamic"
 
+
+invocations = []
 
 def compile(script, exename):
-    run(f'{cc} {pycconfig} {warnings} {extras} {script} {pyldconfig} -o {exename}')
+    command = f'{cc} {pycconfig} {warnings} {extras} {script} {pyldconfig} -o {exename}'
+    run(command)
+    invocations.append([os.getcwd(), command, exename])
+
+
+def writelint():
+    with open("../compile_commands.json", 'w') as f:
+        f.write('[')
+        for n, i in enumerate(invocations):
+            f.write('{')
+            f.write(f'"directory": "{i[0]}",')
+            f.write(f'"command": "{i[1]}",')
+            f.write(F'"file": "{i[2]}"')
+            f.write('}')
+            if n != (len(invocations)-1):
+                f.write(',')
+        f.write(']')
 
 
 scripts = []
@@ -130,6 +148,9 @@ def cleanTests():
 
 if (len(sys.argv) > 1):
     taken = False
+    if 'lint' in sys.argv:
+        writelint()
+        taken = True
     if 'run' in sys.argv:
         buildTests()
         runTests()
@@ -144,3 +165,4 @@ if (len(sys.argv) > 1):
 buildTests()
 runTests()
 cleanTests()
+writelint()

@@ -2,12 +2,11 @@
 #ifndef __STILTS_STDLIB_PYTHON
 #define __STILTS_STDLIB_PYTHON
 
+#include "../StiltsStdInclude.h"
+
 /* No stdlib stuff in here. Only python. */
 
 #if __STILTS_EMBED_PYTHON
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
-
 
 static wchar_t* __Stilts_py_progname = NULL;
 

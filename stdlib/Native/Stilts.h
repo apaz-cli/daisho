@@ -7,29 +7,18 @@
 
 \******************************************/
 
-
 #pragma once
 #ifndef __STILTS_STD_RUNTIME_INCLUDE
 #define __STILTS_STD_RUNTIME_INCLUDE
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
+/* Includes config files. */
 #include "StiltsStdInclude.h"
 
 #include "StiltsAllocator/StiltsAllocator.h"
-
-#include "StiltsPython/StiltsPython.h"
-
 #include "StiltsPool/StiltsPool.h"
-
-#include "StiltsString/StiltsString.h"
-
+#include "StiltsPython/StiltsPython.h"
 #include "StiltsStart/StiltsStart.h"
-
-#ifdef __cplusplus
-}
-#endif
+#include "StiltsString/StiltsString.h"
 
 #endif /* __STILTS_STD_RUNTIME_INCLUDE */
