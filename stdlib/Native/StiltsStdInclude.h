@@ -76,7 +76,6 @@
 #define __STILTS_ALIGNOF(type) _Alignof(type)
 #define __STILTS_NORETURN _Noreturn
 #define __STILTS_RESTRICT restrict
-#define __STILTS_STATIC_ASSERT(x, msg) _Static_assert(x, msg)
 #ifdef __GNUC__
 #define __STILTS_LIKELY(expr) __builtin_expect(!!(expr), 1)
 #define __STILTS_UNLIKELY(expr) __builtin_expect(!!(expr), 0)
@@ -90,7 +89,6 @@
 #define __STILTS_ALIGNOF(type) alignof(type)
 #define __STILTS_NORETURN
 #define __STILTS_RESTRICT
-#define __STILTS_STATIC_ASSERT(x, msg) static_assert(x, msg)
 #if __cplusplus >= 202002L /* C++20 and up use attributes */
 #define __STILTS_LIKELY(expr)                       \
     (([](bool __Stilts_expr) {                      \
