@@ -15,6 +15,7 @@
 /* Includes config files. */
 #include "StiltsStdInclude.h"
 
+#include "StiltsPtrFlag/StiltsPtrFlag.h"
 #include "StiltsAllocator/StiltsAllocator.h"
 #include "StiltsPool/StiltsPool.h"
 #include "StiltsPython/StiltsPython.h"
