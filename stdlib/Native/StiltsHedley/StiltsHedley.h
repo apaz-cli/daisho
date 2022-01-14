@@ -1,9 +1,18 @@
- /*
-  * NOTE: I have replaced all instances of HEDLEY_ with __STILTS_
-  * to avoid the need to reserve extra identifiers and avoid name
-  * clashes with already existing macros. Credit still goes to the
-  * original dev below.
-  */
+/*
+ * NOTE: I have made a lot of changes to this file (including renaming
+ * all the macros), but no substantive changes. The library still
+ * functions exactly the same. Although I've slapped the name of my
+ * project onto it, full credit still goes to the developers of Hedley below.
+ */
+
+/* Changes:
+ * 1. Replaced all instances of HEDLEY_ with __STILTS_.
+ *    This is to avoid introducing any identifiers not
+ *    starting with __STILTS_.
+ * 2. Changed HEDLEY_MALLOC to __STILTS_MALLOC_ATTR to
+ *    avoid name clash with existing macro elsewhere.
+ * 3. Renamed HEDLEY_VERSION to __STILTS_HEDLEY_VERSION.
+ */
 
 
  /* Hedley - https://nemequ.github.io/hedley
@@ -18,11 +27,11 @@
  * SPDX-License-Identifier: CC0-1.0
  */
 
-#if !defined(__STILTS_VERSION) || (__STILTS_VERSION < 15)
-#if defined(__STILTS_VERSION)
-#  undef __STILTS_VERSION
+#if !defined(__STILTS_HEDLEY_VERSION) || (__STILTS_HEDLEY_VERSION < 15)
+#if defined(__STILTS_HEDLEY_VERSION)
+#  undef __STILTS_HEDLEY_VERSION
 #endif
-#define __STILTS_VERSION 15
+#define __STILTS_HEDLEY_VERSION 15
 
 #if defined(__STILTS_STRINGIFY_EX)
 #  undef __STILTS_STRINGIFY_EX
@@ -54,40 +63,40 @@
 #endif
 #define __STILTS_CONCAT3(a,b,c) __STILTS_CONCAT3_EX(a,b,c)
 
-#if defined(__STILTS_VERSION_ENCODE)
-#  undef __STILTS_VERSION_ENCODE
+#if defined(__STILTS_HEDLEY_VERSION_ENCODE)
+#  undef __STILTS_HEDLEY_VERSION_ENCODE
 #endif
-#define __STILTS_VERSION_ENCODE(major,minor,revision) (((major) * 1000000) + ((minor) * 1000) + (revision))
+#define __STILTS_HEDLEY_VERSION_ENCODE(major,minor,revision) (((major) * 1000000) + ((minor) * 1000) + (revision))
 
-#if defined(__STILTS_VERSION_DECODE_MAJOR)
-#  undef __STILTS_VERSION_DECODE_MAJOR
+#if defined(__STILTS_HEDLEY_VERSION_DECODE_MAJOR)
+#  undef __STILTS_HEDLEY_VERSION_DECODE_MAJOR
 #endif
-#define __STILTS_VERSION_DECODE_MAJOR(version) ((version) / 1000000)
+#define __STILTS_HEDLEY_VERSION_DECODE_MAJOR(version) ((version) / 1000000)
 
-#if defined(__STILTS_VERSION_DECODE_MINOR)
-#  undef __STILTS_VERSION_DECODE_MINOR
+#if defined(__STILTS_HEDLEY_VERSION_DECODE_MINOR)
+#  undef __STILTS_HEDLEY_VERSION_DECODE_MINOR
 #endif
-#define __STILTS_VERSION_DECODE_MINOR(version) (((version) % 1000000) / 1000)
+#define __STILTS_HEDLEY_VERSION_DECODE_MINOR(version) (((version) % 1000000) / 1000)
 
-#if defined(__STILTS_VERSION_DECODE_REVISION)
-#  undef __STILTS_VERSION_DECODE_REVISION
+#if defined(__STILTS_HEDLEY_VERSION_DECODE_REVISION)
+#  undef __STILTS_HEDLEY_VERSION_DECODE_REVISION
 #endif
-#define __STILTS_VERSION_DECODE_REVISION(version) ((version) % 1000)
+#define __STILTS_HEDLEY_VERSION_DECODE_REVISION(version) ((version) % 1000)
 
 #if defined(__STILTS_GNUC_VERSION)
 #  undef __STILTS_GNUC_VERSION
 #endif
 #if defined(__GNUC__) && defined(__GNUC_PATCHLEVEL__)
-#  define __STILTS_GNUC_VERSION __STILTS_VERSION_ENCODE(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+#  define __STILTS_GNUC_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #elif defined(__GNUC__)
-#  define __STILTS_GNUC_VERSION __STILTS_VERSION_ENCODE(__GNUC__, __GNUC_MINOR__, 0)
+#  define __STILTS_GNUC_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__GNUC__, __GNUC_MINOR__, 0)
 #endif
 
 #if defined(__STILTS_GNUC_VERSION_CHECK)
 #  undef __STILTS_GNUC_VERSION_CHECK
 #endif
 #if defined(__STILTS_GNUC_VERSION)
-#  define __STILTS_GNUC_VERSION_CHECK(major,minor,patch) (__STILTS_GNUC_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_GNUC_VERSION_CHECK(major,minor,patch) (__STILTS_GNUC_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_GNUC_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -96,11 +105,11 @@
 #  undef __STILTS_MSVC_VERSION
 #endif
 #if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 140000000) && !defined(__ICL)
-#  define __STILTS_MSVC_VERSION __STILTS_VERSION_ENCODE(_MSC_FULL_VER / 10000000, (_MSC_FULL_VER % 10000000) / 100000, (_MSC_FULL_VER % 100000) / 100)
+#  define __STILTS_MSVC_VERSION __STILTS_HEDLEY_VERSION_ENCODE(_MSC_FULL_VER / 10000000, (_MSC_FULL_VER % 10000000) / 100000, (_MSC_FULL_VER % 100000) / 100)
 #elif defined(_MSC_FULL_VER) && !defined(__ICL)
-#  define __STILTS_MSVC_VERSION __STILTS_VERSION_ENCODE(_MSC_FULL_VER / 1000000, (_MSC_FULL_VER % 1000000) / 10000, (_MSC_FULL_VER % 10000) / 10)
+#  define __STILTS_MSVC_VERSION __STILTS_HEDLEY_VERSION_ENCODE(_MSC_FULL_VER / 1000000, (_MSC_FULL_VER % 1000000) / 10000, (_MSC_FULL_VER % 10000) / 10)
 #elif defined(_MSC_VER) && !defined(__ICL)
-#  define __STILTS_MSVC_VERSION __STILTS_VERSION_ENCODE(_MSC_VER / 100, _MSC_VER % 100, 0)
+#  define __STILTS_MSVC_VERSION __STILTS_HEDLEY_VERSION_ENCODE(_MSC_VER / 100, _MSC_VER % 100, 0)
 #endif
 
 #if defined(__STILTS_MSVC_VERSION_CHECK)
@@ -120,16 +129,16 @@
 #  undef __STILTS_INTEL_VERSION
 #endif
 #if defined(__INTEL_COMPILER) && defined(__INTEL_COMPILER_UPDATE) && !defined(__ICL)
-#  define __STILTS_INTEL_VERSION __STILTS_VERSION_ENCODE(__INTEL_COMPILER / 100, __INTEL_COMPILER % 100, __INTEL_COMPILER_UPDATE)
+#  define __STILTS_INTEL_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__INTEL_COMPILER / 100, __INTEL_COMPILER % 100, __INTEL_COMPILER_UPDATE)
 #elif defined(__INTEL_COMPILER) && !defined(__ICL)
-#  define __STILTS_INTEL_VERSION __STILTS_VERSION_ENCODE(__INTEL_COMPILER / 100, __INTEL_COMPILER % 100, 0)
+#  define __STILTS_INTEL_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__INTEL_COMPILER / 100, __INTEL_COMPILER % 100, 0)
 #endif
 
 #if defined(__STILTS_INTEL_VERSION_CHECK)
 #  undef __STILTS_INTEL_VERSION_CHECK
 #endif
 #if defined(__STILTS_INTEL_VERSION)
-#  define __STILTS_INTEL_VERSION_CHECK(major,minor,patch) (__STILTS_INTEL_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_INTEL_VERSION_CHECK(major,minor,patch) (__STILTS_INTEL_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_INTEL_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -138,14 +147,14 @@
 #  undef __STILTS_INTEL_CL_VERSION
 #endif
 #if defined(__INTEL_COMPILER) && defined(__INTEL_COMPILER_UPDATE) && defined(__ICL)
-#  define __STILTS_INTEL_CL_VERSION __STILTS_VERSION_ENCODE(__INTEL_COMPILER, __INTEL_COMPILER_UPDATE, 0)
+#  define __STILTS_INTEL_CL_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__INTEL_COMPILER, __INTEL_COMPILER_UPDATE, 0)
 #endif
 
 #if defined(__STILTS_INTEL_CL_VERSION_CHECK)
 #  undef __STILTS_INTEL_CL_VERSION_CHECK
 #endif
 #if defined(__STILTS_INTEL_CL_VERSION)
-#  define __STILTS_INTEL_CL_VERSION_CHECK(major,minor,patch) (__STILTS_INTEL_CL_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_INTEL_CL_VERSION_CHECK(major,minor,patch) (__STILTS_INTEL_CL_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_INTEL_CL_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -154,14 +163,14 @@
 #  undef __STILTS_PGI_VERSION
 #endif
 #if defined(__PGI) && defined(__PGIC__) && defined(__PGIC_MINOR__) && defined(__PGIC_PATCHLEVEL__)
-#  define __STILTS_PGI_VERSION __STILTS_VERSION_ENCODE(__PGIC__, __PGIC_MINOR__, __PGIC_PATCHLEVEL__)
+#  define __STILTS_PGI_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__PGIC__, __PGIC_MINOR__, __PGIC_PATCHLEVEL__)
 #endif
 
 #if defined(__STILTS_PGI_VERSION_CHECK)
 #  undef __STILTS_PGI_VERSION_CHECK
 #endif
 #if defined(__STILTS_PGI_VERSION)
-#  define __STILTS_PGI_VERSION_CHECK(major,minor,patch) (__STILTS_PGI_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_PGI_VERSION_CHECK(major,minor,patch) (__STILTS_PGI_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_PGI_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -170,20 +179,20 @@
 #  undef __STILTS_SUNPRO_VERSION
 #endif
 #if defined(__SUNPRO_C) && (__SUNPRO_C > 0x1000)
-#  define __STILTS_SUNPRO_VERSION __STILTS_VERSION_ENCODE((((__SUNPRO_C >> 16) & 0xf) * 10) + ((__SUNPRO_C >> 12) & 0xf), (((__SUNPRO_C >> 8) & 0xf) * 10) + ((__SUNPRO_C >> 4) & 0xf), (__SUNPRO_C & 0xf) * 10)
+#  define __STILTS_SUNPRO_VERSION __STILTS_HEDLEY_VERSION_ENCODE((((__SUNPRO_C >> 16) & 0xf) * 10) + ((__SUNPRO_C >> 12) & 0xf), (((__SUNPRO_C >> 8) & 0xf) * 10) + ((__SUNPRO_C >> 4) & 0xf), (__SUNPRO_C & 0xf) * 10)
 #elif defined(__SUNPRO_C)
-#  define __STILTS_SUNPRO_VERSION __STILTS_VERSION_ENCODE((__SUNPRO_C >> 8) & 0xf, (__SUNPRO_C >> 4) & 0xf, (__SUNPRO_C) & 0xf)
+#  define __STILTS_SUNPRO_VERSION __STILTS_HEDLEY_VERSION_ENCODE((__SUNPRO_C >> 8) & 0xf, (__SUNPRO_C >> 4) & 0xf, (__SUNPRO_C) & 0xf)
 #elif defined(__SUNPRO_CC) && (__SUNPRO_CC > 0x1000)
-#  define __STILTS_SUNPRO_VERSION __STILTS_VERSION_ENCODE((((__SUNPRO_CC >> 16) & 0xf) * 10) + ((__SUNPRO_CC >> 12) & 0xf), (((__SUNPRO_CC >> 8) & 0xf) * 10) + ((__SUNPRO_CC >> 4) & 0xf), (__SUNPRO_CC & 0xf) * 10)
+#  define __STILTS_SUNPRO_VERSION __STILTS_HEDLEY_VERSION_ENCODE((((__SUNPRO_CC >> 16) & 0xf) * 10) + ((__SUNPRO_CC >> 12) & 0xf), (((__SUNPRO_CC >> 8) & 0xf) * 10) + ((__SUNPRO_CC >> 4) & 0xf), (__SUNPRO_CC & 0xf) * 10)
 #elif defined(__SUNPRO_CC)
-#  define __STILTS_SUNPRO_VERSION __STILTS_VERSION_ENCODE((__SUNPRO_CC >> 8) & 0xf, (__SUNPRO_CC >> 4) & 0xf, (__SUNPRO_CC) & 0xf)
+#  define __STILTS_SUNPRO_VERSION __STILTS_HEDLEY_VERSION_ENCODE((__SUNPRO_CC >> 8) & 0xf, (__SUNPRO_CC >> 4) & 0xf, (__SUNPRO_CC) & 0xf)
 #endif
 
 #if defined(__STILTS_SUNPRO_VERSION_CHECK)
 #  undef __STILTS_SUNPRO_VERSION_CHECK
 #endif
 #if defined(__STILTS_SUNPRO_VERSION)
-#  define __STILTS_SUNPRO_VERSION_CHECK(major,minor,patch) (__STILTS_SUNPRO_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_SUNPRO_VERSION_CHECK(major,minor,patch) (__STILTS_SUNPRO_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_SUNPRO_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -192,14 +201,14 @@
 #  undef __STILTS_EMSCRIPTEN_VERSION
 #endif
 #if defined(__EMSCRIPTEN__)
-#  define __STILTS_EMSCRIPTEN_VERSION __STILTS_VERSION_ENCODE(__EMSCRIPTEN_major__, __EMSCRIPTEN_minor__, __EMSCRIPTEN_tiny__)
+#  define __STILTS_EMSCRIPTEN_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__EMSCRIPTEN_major__, __EMSCRIPTEN_minor__, __EMSCRIPTEN_tiny__)
 #endif
 
 #if defined(__STILTS_EMSCRIPTEN_VERSION_CHECK)
 #  undef __STILTS_EMSCRIPTEN_VERSION_CHECK
 #endif
 #if defined(__STILTS_EMSCRIPTEN_VERSION)
-#  define __STILTS_EMSCRIPTEN_VERSION_CHECK(major,minor,patch) (__STILTS_EMSCRIPTEN_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_EMSCRIPTEN_VERSION_CHECK(major,minor,patch) (__STILTS_EMSCRIPTEN_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_EMSCRIPTEN_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -208,16 +217,16 @@
 #  undef __STILTS_ARM_VERSION
 #endif
 #if defined(__CC_ARM) && defined(__ARMCOMPILER_VERSION)
-#  define __STILTS_ARM_VERSION __STILTS_VERSION_ENCODE(__ARMCOMPILER_VERSION / 1000000, (__ARMCOMPILER_VERSION % 1000000) / 10000, (__ARMCOMPILER_VERSION % 10000) / 100)
+#  define __STILTS_ARM_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__ARMCOMPILER_VERSION / 1000000, (__ARMCOMPILER_VERSION % 1000000) / 10000, (__ARMCOMPILER_VERSION % 10000) / 100)
 #elif defined(__CC_ARM) && defined(__ARMCC_VERSION)
-#  define __STILTS_ARM_VERSION __STILTS_VERSION_ENCODE(__ARMCC_VERSION / 1000000, (__ARMCC_VERSION % 1000000) / 10000, (__ARMCC_VERSION % 10000) / 100)
+#  define __STILTS_ARM_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__ARMCC_VERSION / 1000000, (__ARMCC_VERSION % 1000000) / 10000, (__ARMCC_VERSION % 10000) / 100)
 #endif
 
 #if defined(__STILTS_ARM_VERSION_CHECK)
 #  undef __STILTS_ARM_VERSION_CHECK
 #endif
 #if defined(__STILTS_ARM_VERSION)
-#  define __STILTS_ARM_VERSION_CHECK(major,minor,patch) (__STILTS_ARM_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_ARM_VERSION_CHECK(major,minor,patch) (__STILTS_ARM_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_ARM_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -226,18 +235,18 @@
 #  undef __STILTS_IBM_VERSION
 #endif
 #if defined(__ibmxl__)
-#  define __STILTS_IBM_VERSION __STILTS_VERSION_ENCODE(__ibmxl_version__, __ibmxl_release__, __ibmxl_modification__)
+#  define __STILTS_IBM_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__ibmxl_version__, __ibmxl_release__, __ibmxl_modification__)
 #elif defined(__xlC__) && defined(__xlC_ver__)
-#  define __STILTS_IBM_VERSION __STILTS_VERSION_ENCODE(__xlC__ >> 8, __xlC__ & 0xff, (__xlC_ver__ >> 8) & 0xff)
+#  define __STILTS_IBM_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__xlC__ >> 8, __xlC__ & 0xff, (__xlC_ver__ >> 8) & 0xff)
 #elif defined(__xlC__)
-#  define __STILTS_IBM_VERSION __STILTS_VERSION_ENCODE(__xlC__ >> 8, __xlC__ & 0xff, 0)
+#  define __STILTS_IBM_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__xlC__ >> 8, __xlC__ & 0xff, 0)
 #endif
 
 #if defined(__STILTS_IBM_VERSION_CHECK)
 #  undef __STILTS_IBM_VERSION_CHECK
 #endif
 #if defined(__STILTS_IBM_VERSION)
-#  define __STILTS_IBM_VERSION_CHECK(major,minor,patch) (__STILTS_IBM_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_IBM_VERSION_CHECK(major,minor,patch) (__STILTS_IBM_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_IBM_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -253,7 +262,7 @@
       defined(__TMS320C2000__) \
     )
 #  if (__TI_COMPILER_VERSION__ >= 16000000)
-#    define __STILTS_TI_VERSION __STILTS_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
+#    define __STILTS_TI_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
 #  endif
 #endif
 
@@ -261,7 +270,7 @@
 #  undef __STILTS_TI_VERSION_CHECK
 #endif
 #if defined(__STILTS_TI_VERSION)
-#  define __STILTS_TI_VERSION_CHECK(major,minor,patch) (__STILTS_TI_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_TI_VERSION_CHECK(major,minor,patch) (__STILTS_TI_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_TI_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -270,14 +279,14 @@
 #  undef __STILTS_TI_CL2000_VERSION
 #endif
 #if defined(__TI_COMPILER_VERSION__) && defined(__TMS320C2000__)
-#  define __STILTS_TI_CL2000_VERSION __STILTS_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
+#  define __STILTS_TI_CL2000_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
 #endif
 
 #if defined(__STILTS_TI_CL2000_VERSION_CHECK)
 #  undef __STILTS_TI_CL2000_VERSION_CHECK
 #endif
 #if defined(__STILTS_TI_CL2000_VERSION)
-#  define __STILTS_TI_CL2000_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CL2000_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_TI_CL2000_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CL2000_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_TI_CL2000_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -286,14 +295,14 @@
 #  undef __STILTS_TI_CL430_VERSION
 #endif
 #if defined(__TI_COMPILER_VERSION__) && defined(__MSP430__)
-#  define __STILTS_TI_CL430_VERSION __STILTS_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
+#  define __STILTS_TI_CL430_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
 #endif
 
 #if defined(__STILTS_TI_CL430_VERSION_CHECK)
 #  undef __STILTS_TI_CL430_VERSION_CHECK
 #endif
 #if defined(__STILTS_TI_CL430_VERSION)
-#  define __STILTS_TI_CL430_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CL430_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_TI_CL430_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CL430_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_TI_CL430_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -302,14 +311,14 @@
 #  undef __STILTS_TI_ARMCL_VERSION
 #endif
 #if defined(__TI_COMPILER_VERSION__) && (defined(__TMS470__) || defined(__TI_ARM__))
-#  define __STILTS_TI_ARMCL_VERSION __STILTS_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
+#  define __STILTS_TI_ARMCL_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
 #endif
 
 #if defined(__STILTS_TI_ARMCL_VERSION_CHECK)
 #  undef __STILTS_TI_ARMCL_VERSION_CHECK
 #endif
 #if defined(__STILTS_TI_ARMCL_VERSION)
-#  define __STILTS_TI_ARMCL_VERSION_CHECK(major,minor,patch) (__STILTS_TI_ARMCL_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_TI_ARMCL_VERSION_CHECK(major,minor,patch) (__STILTS_TI_ARMCL_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_TI_ARMCL_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -318,14 +327,14 @@
 #  undef __STILTS_TI_CL6X_VERSION
 #endif
 #if defined(__TI_COMPILER_VERSION__) && defined(__TMS320C6X__)
-#  define __STILTS_TI_CL6X_VERSION __STILTS_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
+#  define __STILTS_TI_CL6X_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
 #endif
 
 #if defined(__STILTS_TI_CL6X_VERSION_CHECK)
 #  undef __STILTS_TI_CL6X_VERSION_CHECK
 #endif
 #if defined(__STILTS_TI_CL6X_VERSION)
-#  define __STILTS_TI_CL6X_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CL6X_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_TI_CL6X_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CL6X_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_TI_CL6X_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -334,14 +343,14 @@
 #  undef __STILTS_TI_CL7X_VERSION
 #endif
 #if defined(__TI_COMPILER_VERSION__) && defined(__C7000__)
-#  define __STILTS_TI_CL7X_VERSION __STILTS_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
+#  define __STILTS_TI_CL7X_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
 #endif
 
 #if defined(__STILTS_TI_CL7X_VERSION_CHECK)
 #  undef __STILTS_TI_CL7X_VERSION_CHECK
 #endif
 #if defined(__STILTS_TI_CL7X_VERSION)
-#  define __STILTS_TI_CL7X_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CL7X_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_TI_CL7X_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CL7X_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_TI_CL7X_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -350,14 +359,14 @@
 #  undef __STILTS_TI_CLPRU_VERSION
 #endif
 #if defined(__TI_COMPILER_VERSION__) && defined(__PRU__)
-#  define __STILTS_TI_CLPRU_VERSION __STILTS_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
+#  define __STILTS_TI_CLPRU_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__TI_COMPILER_VERSION__ / 1000000, (__TI_COMPILER_VERSION__ % 1000000) / 1000, (__TI_COMPILER_VERSION__ % 1000))
 #endif
 
 #if defined(__STILTS_TI_CLPRU_VERSION_CHECK)
 #  undef __STILTS_TI_CLPRU_VERSION_CHECK
 #endif
 #if defined(__STILTS_TI_CLPRU_VERSION)
-#  define __STILTS_TI_CLPRU_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CLPRU_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_TI_CLPRU_VERSION_CHECK(major,minor,patch) (__STILTS_TI_CLPRU_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_TI_CLPRU_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -367,9 +376,9 @@
 #endif
 #if defined(_CRAYC)
 #  if defined(_RELEASE_PATCHLEVEL)
-#    define __STILTS_CRAY_VERSION __STILTS_VERSION_ENCODE(_RELEASE_MAJOR, _RELEASE_MINOR, _RELEASE_PATCHLEVEL)
+#    define __STILTS_CRAY_VERSION __STILTS_HEDLEY_VERSION_ENCODE(_RELEASE_MAJOR, _RELEASE_MINOR, _RELEASE_PATCHLEVEL)
 #  else
-#    define __STILTS_CRAY_VERSION __STILTS_VERSION_ENCODE(_RELEASE_MAJOR, _RELEASE_MINOR, 0)
+#    define __STILTS_CRAY_VERSION __STILTS_HEDLEY_VERSION_ENCODE(_RELEASE_MAJOR, _RELEASE_MINOR, 0)
 #  endif
 #endif
 
@@ -377,7 +386,7 @@
 #  undef __STILTS_CRAY_VERSION_CHECK
 #endif
 #if defined(__STILTS_CRAY_VERSION)
-#  define __STILTS_CRAY_VERSION_CHECK(major,minor,patch) (__STILTS_CRAY_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_CRAY_VERSION_CHECK(major,minor,patch) (__STILTS_CRAY_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_CRAY_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -387,9 +396,9 @@
 #endif
 #if defined(__IAR_SYSTEMS_ICC__)
 #  if __VER__ > 1000
-#    define __STILTS_IAR_VERSION __STILTS_VERSION_ENCODE((__VER__ / 1000000), ((__VER__ / 1000) % 1000), (__VER__ % 1000))
+#    define __STILTS_IAR_VERSION __STILTS_HEDLEY_VERSION_ENCODE((__VER__ / 1000000), ((__VER__ / 1000) % 1000), (__VER__ % 1000))
 #  else
-#    define __STILTS_IAR_VERSION __STILTS_VERSION_ENCODE(__VER__ / 100, __VER__ % 100, 0)
+#    define __STILTS_IAR_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__VER__ / 100, __VER__ % 100, 0)
 #  endif
 #endif
 
@@ -397,7 +406,7 @@
 #  undef __STILTS_IAR_VERSION_CHECK
 #endif
 #if defined(__STILTS_IAR_VERSION)
-#  define __STILTS_IAR_VERSION_CHECK(major,minor,patch) (__STILTS_IAR_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_IAR_VERSION_CHECK(major,minor,patch) (__STILTS_IAR_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_IAR_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -406,14 +415,14 @@
 #  undef __STILTS_TINYC_VERSION
 #endif
 #if defined(__TINYC__)
-#  define __STILTS_TINYC_VERSION __STILTS_VERSION_ENCODE(__TINYC__ / 1000, (__TINYC__ / 100) % 10, __TINYC__ % 100)
+#  define __STILTS_TINYC_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__TINYC__ / 1000, (__TINYC__ / 100) % 10, __TINYC__ % 100)
 #endif
 
 #if defined(__STILTS_TINYC_VERSION_CHECK)
 #  undef __STILTS_TINYC_VERSION_CHECK
 #endif
 #if defined(__STILTS_TINYC_VERSION)
-#  define __STILTS_TINYC_VERSION_CHECK(major,minor,patch) (__STILTS_TINYC_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_TINYC_VERSION_CHECK(major,minor,patch) (__STILTS_TINYC_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_TINYC_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -422,14 +431,14 @@
 #  undef __STILTS_DMC_VERSION
 #endif
 #if defined(__DMC__)
-#  define __STILTS_DMC_VERSION __STILTS_VERSION_ENCODE(__DMC__ >> 8, (__DMC__ >> 4) & 0xf, __DMC__ & 0xf)
+#  define __STILTS_DMC_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__DMC__ >> 8, (__DMC__ >> 4) & 0xf, __DMC__ & 0xf)
 #endif
 
 #if defined(__STILTS_DMC_VERSION_CHECK)
 #  undef __STILTS_DMC_VERSION_CHECK
 #endif
 #if defined(__STILTS_DMC_VERSION)
-#  define __STILTS_DMC_VERSION_CHECK(major,minor,patch) (__STILTS_DMC_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_DMC_VERSION_CHECK(major,minor,patch) (__STILTS_DMC_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_DMC_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -438,14 +447,14 @@
 #  undef __STILTS_COMPCERT_VERSION
 #endif
 #if defined(__COMPCERT_VERSION__)
-#  define __STILTS_COMPCERT_VERSION __STILTS_VERSION_ENCODE(__COMPCERT_VERSION__ / 10000, (__COMPCERT_VERSION__ / 100) % 100, __COMPCERT_VERSION__ % 100)
+#  define __STILTS_COMPCERT_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__COMPCERT_VERSION__ / 10000, (__COMPCERT_VERSION__ / 100) % 100, __COMPCERT_VERSION__ % 100)
 #endif
 
 #if defined(__STILTS_COMPCERT_VERSION_CHECK)
 #  undef __STILTS_COMPCERT_VERSION_CHECK
 #endif
 #if defined(__STILTS_COMPCERT_VERSION)
-#  define __STILTS_COMPCERT_VERSION_CHECK(major,minor,patch) (__STILTS_COMPCERT_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_COMPCERT_VERSION_CHECK(major,minor,patch) (__STILTS_COMPCERT_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_COMPCERT_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -454,14 +463,14 @@
 #  undef __STILTS_PELLES_VERSION
 #endif
 #if defined(__POCC__)
-#  define __STILTS_PELLES_VERSION __STILTS_VERSION_ENCODE(__POCC__ / 100, __POCC__ % 100, 0)
+#  define __STILTS_PELLES_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__POCC__ / 100, __POCC__ % 100, 0)
 #endif
 
 #if defined(__STILTS_PELLES_VERSION_CHECK)
 #  undef __STILTS_PELLES_VERSION_CHECK
 #endif
 #if defined(__STILTS_PELLES_VERSION)
-#  define __STILTS_PELLES_VERSION_CHECK(major,minor,patch) (__STILTS_PELLES_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_PELLES_VERSION_CHECK(major,minor,patch) (__STILTS_PELLES_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_PELLES_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -470,14 +479,14 @@
 #  undef __STILTS_MCST_LCC_VERSION
 #endif
 #if defined(__LCC__) && defined(__LCC_MINOR__)
-#  define __STILTS_MCST_LCC_VERSION __STILTS_VERSION_ENCODE(__LCC__ / 100, __LCC__ % 100, __LCC_MINOR__)
+#  define __STILTS_MCST_LCC_VERSION __STILTS_HEDLEY_VERSION_ENCODE(__LCC__ / 100, __LCC__ % 100, __LCC_MINOR__)
 #endif
 
 #if defined(__STILTS_MCST_LCC_VERSION_CHECK)
 #  undef __STILTS_MCST_LCC_VERSION_CHECK
 #endif
 #if defined(__STILTS_MCST_LCC_VERSION)
-#  define __STILTS_MCST_LCC_VERSION_CHECK(major,minor,patch) (__STILTS_MCST_LCC_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_MCST_LCC_VERSION_CHECK(major,minor,patch) (__STILTS_MCST_LCC_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_MCST_LCC_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -508,7 +517,7 @@
 #  undef __STILTS_GCC_VERSION_CHECK
 #endif
 #if defined(__STILTS_GCC_VERSION)
-#  define __STILTS_GCC_VERSION_CHECK(major,minor,patch) (__STILTS_GCC_VERSION >= __STILTS_VERSION_ENCODE(major, minor, patch))
+#  define __STILTS_GCC_VERSION_CHECK(major,minor,patch) (__STILTS_GCC_VERSION >= __STILTS_HEDLEY_VERSION_ENCODE(major, minor, patch))
 #else
 #  define __STILTS_GCC_VERSION_CHECK(major,minor,patch) (0)
 #endif
@@ -2047,4 +2056,4 @@ __STILTS_DIAGNOSTIC_POP
 #endif
 #define __STILTS_CLANG_HAS_WARNING(warning) __STILTS_HAS_WARNING(warning)
 
-#endif /* !defined(__STILTS_VERSION) || (__STILTS_VERSION < X) */
+#endif /* !defined(__STILTS_HEDLEY_VERSION) || (__STILTS_HEDLEY_VERSION < X) */

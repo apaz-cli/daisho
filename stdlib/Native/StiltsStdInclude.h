@@ -61,9 +61,9 @@
 
 /* note: pthread.h is used over C11's threads.h because
    it's better and actually more portable. */
-#include "hedley.h"    /* Portable builtin macros */
-#include <pthread.h>   /* Threads, Muxtexes, RWLocks */
-#include <sys/types.h> /* POSIX */
+#include "StiltsHedley/StiltsHedley.h"    /* Portable builtin macros */
+#include <pthread.h>                      /* Threads, Muxtexes, RWLocks */
+#include <sys/types.h>                    /* POSIX */
 #include <unistd.h>    /* POSIX */
 
 // TODO: Use GNU backtraces if possible.
