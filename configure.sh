@@ -4,7 +4,7 @@
 
 # Generates a config file by appending to this variable.
 CONFIG=""
-WRITE_TO="stdlib/Native/StiltsGeneratedConfig.h"
+WRITE_TO="stdlib/Native/Configs/StiltsGeneratedConfig.h"
 COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
 if test $COLS -gt 90; then COLS=57; fi
 NL=$(printf %s '\n')
@@ -47,23 +47,34 @@ guard() { CONFIG="#pragma once$NL#ifndef __STILTS_STDLIB_GENERATEDCONFIG$NL#defi
 writeconfig() { echo $CONFIG > $WRITE_TO; }
 
 
+echo $magenta"#######################"
+echo         "# Compatibility Tests #"
+echo         "#######################"$normal
+
+
 ##############
 # ASSERTIONS #
 ##############
-if sh ./config/assertions.sh; then :; else
+if sh ./config/assertions.sh; then
+    msg "ASSERTIONS" "PASSED"
+else
     echo
     echo "Stilts is not supported on this system for the reason specified in the error message above."
     exit 1
 fi;
-if sh ./config/endianness.sh; then :; else
+if sh ./config/endianness.sh; then
+   msg "ENDIANNESS" "PASSED"
+else
     echo "Stilts is not supported on Big-Endian or Unknown-Endianness machines."
     exit 1
 fi
 
 
+echo
 echo $magenta"###########################"
 echo         "# Configuration Variables #"
 echo         "###########################"$normal
+
 
 ##########
 # COLORS #

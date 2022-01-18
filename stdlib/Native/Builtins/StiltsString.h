@@ -1,7 +1,7 @@
 #pragma once
 #ifndef __STILTS_STDLIB_STRING
 #define __STILTS_STDLIB_STRING
-#include "../StiltsAllocator/StiltsAllocator.h"
+#include "../PreStart/StiltsPreStart.h"
 
 /* Classic triple with small string
    optimization. (abbreviated ssopt.) */
@@ -44,9 +44,8 @@ typedef struct {
 #endif
 
 /* Little endianness is asserted elsewhere. */
-__STILTS_STATIC_ASSERT(
-    CHAR_BIT == 8,
-    "Stilts's implementation of String assumes CHAR_BIT to be 8.");
+__STILTS_STATIC_ASSERT(CHAR_BIT == 8,
+                       "Stilts's implementation of String assumes CHAR_BIT to be 8.");
 __STILTS_STATIC_ASSERT(sizeof(size_t) <= sizeof(uint64_t),
                        "Stilts's implementation of String assumes size_t to be "
                        "uint64_t or smaller.");
@@ -76,16 +75,14 @@ __Stilts_String_isLarge(__Stilts_String* self) {
 __STILTS_FN size_t
 __Stilts_String_get_cap(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
-    if ((__STILTS_SANITY_CHECK == 2) && !__Stilts_String_isLarge(self))
-        __STILTS_SANITY_FAIL();
+    if ((__STILTS_SANITY_CHECK == 2) && !__Stilts_String_isLarge(self)) __STILTS_SANITY_FAIL();
     return (self->_cap) >> CHAR_BIT;
 }
 
 __STILTS_FN void
 __Stilts_String_set_cap(__Stilts_String* self, size_t cap) {
     __STILTS_STRING_NONNULL(self);
-    if ((__STILTS_SANITY_CHECK == 2) && !__Stilts_String_isLarge(self))
-        __STILTS_SANITY_FAIL();
+    if ((__STILTS_SANITY_CHECK == 2) && !__Stilts_String_isLarge(self)) __STILTS_SANITY_FAIL();
     self->_cap = (cap << CHAR_BIT) | ((size_t)__Stilts_String_get_flag(self));
 }
 
@@ -98,8 +95,7 @@ __Stilts_String_set_flag_cap(__Stilts_String* self, char flag, size_t cap) {
 __STILTS_FN size_t
 __Stilts_String_small_len(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
-    return (size_t)(__STILTS_STR_SSOPT_BUF_LEN -
-                    __Stilts_String_get_flag(self));
+    return (size_t)(__STILTS_STR_SSOPT_BUF_LEN - __Stilts_String_get_flag(self));
 }
 
 __STILTS_FN size_t
@@ -153,8 +149,7 @@ __Stilts_String_println(__Stilts_String* self) {
 __STILTS_FN void
 __Stilts_String_set_char(__Stilts_String* self, size_t pos, char c) {
     __STILTS_STRING_NONNULL(self);
-    if (__STILTS_SANITY_CHECK && pos >= __Stilts_String_len(self))
-        __STILTS_SANITY_FAIL();
+    if (__STILTS_SANITY_CHECK && pos >= __Stilts_String_len(self)) __STILTS_SANITY_FAIL();
     if (__Stilts_String_isLarge(self)) {
         self->buffer[pos] = c;
     } else {
@@ -165,17 +160,14 @@ __Stilts_String_set_char(__Stilts_String* self, size_t pos, char c) {
 __STILTS_FN char
 __Stilts_String_get_char(__Stilts_String* self, size_t pos) {
     __STILTS_STRING_NONNULL(self);
-    if (__STILTS_SANITY_CHECK && pos >= __Stilts_String_len(self))
-        __STILTS_SANITY_FAIL();
-    return __Stilts_String_isLarge(self) ? self->buffer[pos]
-                                         : ((char*)self)[pos];
+    if (__STILTS_SANITY_CHECK && pos >= __Stilts_String_len(self)) __STILTS_SANITY_FAIL();
+    return __Stilts_String_isLarge(self) ? self->buffer[pos] : ((char*)self)[pos];
 }
 
 __STILTS_FN bool
 __Stilts_String_isEmpty(__Stilts_String* self) {
     __STILTS_STRING_NONNULL(self);
-    return __Stilts_String_isLarge(self) ? self->buffer[0] == '\0'
-                                         : ((char*)self)[0] == '\0';
+    return __Stilts_String_isLarge(self) ? self->buffer[0] == '\0' : ((char*)self)[0] == '\0';
 }
 
 /******************/
@@ -218,8 +210,8 @@ __Stilts_String_shrink(__Stilts_String* self, __STILTS_SRC_INFO_ARGS) {
         /* If not small enough for ssopt, shrink. */
         else {
             // len unchanged
-            self->buffer = (char*)__Stilts_realloc(self->buffer, self->size,
-                                                   __STILTS_SRC_INFO_PASS);
+            self->buffer =
+                (char*)__Stilts_realloc(self->buffer, self->size, __STILTS_SRC_INFO_PASS);
             __Stilts_String_set_cap(self, self->size);
         }
     }
@@ -276,8 +268,7 @@ __Stilts_String_initWith(__Stilts_String* self, char* data, size_t len) {
 /* Takes ownership of the memory. Assumes that it's allocated on the heap with
  * malloc(). */
 __STILTS_FN __Stilts_String*
-__Stilts_String_initMalloced(__Stilts_String* self, char* data, size_t cap,
-                             size_t len) {
+__Stilts_String_initMalloced(__Stilts_String* self, char* data, size_t cap, size_t len) {
     __STILTS_STRING_NONNULL(self);
     self->buffer = data;
     self->size = len;
@@ -382,8 +373,7 @@ __Stilts_String_split_impl(char* self, char* delim) {
         // Copy from the last checkpoint until start of the match (or the whole
         // string if no match) into a new __Stilts_String.
         __Stilts_String newstr;
-        __Stilts_String_initWith(&newstr, checkpoint,
-                                 (size_t)(match - checkpoint));
+        __Stilts_String_initWith(&newstr, checkpoint, (size_t)(match - checkpoint));
 
         // TODO: Figure out how better to output the list of strings. This may
         // have to wait until generics are implemented.

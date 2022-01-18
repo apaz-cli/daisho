@@ -1,7 +1,7 @@
 #pragma once
 #ifndef __STILTS_STDLIB_POOL
 #define __STILTS_STDLIB_POOL
-#include "../StiltsAllocator/StiltsAllocator.h"
+#include "../PreProcessor/StiltsPreprocessor.h"
 #include "StiltsMutex.h"
 
 #define __STILTS_THREADPOOL_NUM_THREADS (__STILTS_IDEAL_NUM_THREADS - 1)
@@ -39,15 +39,13 @@ typedef struct {
  * initialization is handled differently in C/C++. */
 
 #ifndef __cplusplus
-static __Stilts_Threadpool __Stilts_shared_pool = {
-    .pool_mutex = __STILTS_MUTEX_INITIALIZER,
-    .task_queue = {0},
-    .num_threads_running = 0,
-    .threads = {0},
-    .is_shutdown = true};
+static __Stilts_Threadpool __Stilts_shared_pool = {.pool_mutex = __STILTS_MUTEX_INITIALIZER,
+                                                   .task_queue = {0},
+                                                   .num_threads_running = 0,
+                                                   .threads = {0},
+                                                   .is_shutdown = true};
 #else /* __cplusplus */
-static __Stilts_Threadpool __Stilts_shared_pool = {
-    __STILTS_MUTEX_INITIALIZER, {}, 0, {}, true};
+static __Stilts_Threadpool __Stilts_shared_pool = {__STILTS_MUTEX_INITIALIZER, {}, 0, {}, true};
 #endif
 
 #define __Stilts_SHARED_POOL_CRITICAL_BEGIN() \
@@ -86,21 +84,17 @@ __STILTS_FN void
 __Stilts_shared_pool_submit(__Stilts_Task task) {
     __Stilts_SHARED_POOL_CRITICAL_BEGIN();
     // Check for overflow
-    if (((__STILTS_TQUEUE.back + 2) % __STILTS_TASK_BUFFER_SIZE) !=
-        __STILTS_TQUEUE.front) {
+    if (((__STILTS_TQUEUE.back + 2) % __STILTS_TASK_BUFFER_SIZE) != __STILTS_TQUEUE.front) {
         // No overflow, push onto queue
-        __STILTS_TQUEUE.back =
-            (__STILTS_TQUEUE.back + 1) % __STILTS_TASK_BUFFER_SIZE;
+        __STILTS_TQUEUE.back = (__STILTS_TQUEUE.back + 1) % __STILTS_TASK_BUFFER_SIZE;
         __STILTS_TQUEUE.tasks[__STILTS_TQUEUE.back] = task;
 
         // While we have the mutex, if not already at capacity, start a thread
         // to do the work.
-        if (__Stilts_shared_pool.num_threads_running <
-            __STILTS_THREADPOOL_NUM_THREADS) {
-            pthread_t* thread = __Stilts_shared_pool.threads +
-                                __Stilts_shared_pool.num_threads_running;
-            if (!pthread_create(thread, NULL, __Stilts_shared_pool_do_work,
-                                NULL) &&
+        if (__Stilts_shared_pool.num_threads_running < __STILTS_THREADPOOL_NUM_THREADS) {
+            pthread_t* thread =
+                __Stilts_shared_pool.threads + __Stilts_shared_pool.num_threads_running;
+            if (!pthread_create(thread, NULL, __Stilts_shared_pool_do_work, NULL) &&
                 __STILTS_SANITY_CHECK == 2)
                 __STILTS_SANITY_FAIL();
         }
@@ -118,12 +112,10 @@ __STILTS_FN __Stilts_Task
 __Stilts_shared_pool_take(void) {
     __Stilts_SHARED_POOL_CRITICAL_BEGIN();
     // Check if empty
-    if (((__STILTS_TQUEUE.back + 1) % __STILTS_TASK_BUFFER_SIZE) !=
-        __STILTS_TQUEUE.front) {
+    if (((__STILTS_TQUEUE.back + 1) % __STILTS_TASK_BUFFER_SIZE) != __STILTS_TQUEUE.front) {
         // Not empty, grab task from front of queue and return.
         __Stilts_Task p = __STILTS_TQUEUE.tasks[__STILTS_TQUEUE.front];
-        __STILTS_TQUEUE.front =
-            (__STILTS_TQUEUE.front + 1) % __STILTS_TASK_BUFFER_SIZE;
+        __STILTS_TQUEUE.front = (__STILTS_TQUEUE.front + 1) % __STILTS_TASK_BUFFER_SIZE;
 
         __Stilts_SHARED_POOL_CRITICAL_END();
         return p;

@@ -1,13 +1,13 @@
 #pragma once
 #ifndef __STILTS_STDLIB_ALLOCATOR
 #define __STILTS_STDLIB_ALLOCATOR
-#include "../StiltsStdInclude.h"
+#include "../PreProcessor/StiltsPreprocessor.h"
+#include "StiltsError.h"
 
 /******************/
 /* Error Handling */
 /******************/
 
-/* Powers of two */
 #define __STILTS_KILOBYTE (1024L)
 #define __STILTS_MEGABYTE (1024L * 1024L)
 #define __STILTS_GIGABYTE (1024L * 1024L * 1024L)
@@ -78,15 +78,25 @@ __Stilts_free(void* ptr, __STILTS_SRC_INFO_ARGS) {
     free(ptr);
 }
 
-__STILTS_FN void*  __Stilts_originalMalloc(size_t size) { return malloc(size); }
-__STILTS_FN void*  __Stilts_originalRealloc(void* ptr, size_t size) { return realloc(ptr, size); }
-__STILTS_FN void*  __Stilts_originalCallloc(size_t num, size_t size) { return calloc(num, size); }
-__STILTS_FN void   __Stilts_originalFree(void* ptr) { free(ptr); }
-
+__STILTS_FN void*
+__Stilts_originalMalloc(size_t size) {
+    return malloc(size);
+}
+__STILTS_FN void*
+__Stilts_originalRealloc(void* ptr, size_t size) {
+    return realloc(ptr, size);
+}
+__STILTS_FN void*
+__Stilts_originalCallloc(size_t num, size_t size) {
+    return calloc(num, size);
+}
+__STILTS_FN void
+__Stilts_originalFree(void* ptr) {
+    free(ptr);
+}
 
 #define __STILTS_MALLOC(size) __Stilts_malloc(size, __STILTS_SRC_INFO)
-#define __STILTS_REALLOC(ptr, size) \
-    __Stilts_realloc(ptr, size, __STILTS_SRC_INFO)
+#define __STILTS_REALLOC(ptr, size) __Stilts_realloc(ptr, size, __STILTS_SRC_INFO)
 #define __STILTS_CALLOC(num, size) __Stilts_calloc(num, size, __STILTS_SRC_INFO)
 #define __STILTS_FREE(ptr) __Stilts_free(ptr, __STILTS_SRC_INFO)
 

@@ -104,21 +104,19 @@
 #endif
 
 /*
- * Modifiers that are used on all (or almost all) functions
- * in the Stilts stdlib.
- *
- * Be careful with ODR if you change this setting and want
- * to include Stilts.h in multiple compliation units.
- */
-#define __STILTS_FN static inline
-
-/*
  * The maximum number of stack frames that can be backtraced through.
  * If backtraces are not enabled, this has no effect.
  *
  * If this number is smaller than the number of stack frames to report,
  * then the newest ones are reported.
  */
-#define __STILTS_BT_MAX_FRAMES 8192
+#define __STILTS_BT_MAX_FRAMES 128
+
+/* 
+ * 2 - Fully buffered
+ * 1 - Line Buffered (default)
+ * 0 - Unbuffered
+ */
+#define __STILTS_OUTPUT_BUFFERING 2
 
 #endif /* __STILTS_STDLIB_CONFIG */

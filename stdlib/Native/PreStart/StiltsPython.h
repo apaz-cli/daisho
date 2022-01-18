@@ -1,8 +1,7 @@
-#pragma once
 #ifndef __STILTS_STDLIB_PYTHON
 #define __STILTS_STDLIB_PYTHON
 
-#include "../StiltsStdInclude.h"
+#include "../PreProcessor/StiltsPreprocessor.h"
 
 /* No stdlib stuff in here. Only python. */
 
@@ -36,6 +35,21 @@ __Stilts_py_exit(void) {
 __STILTS_FN void
 __Stilts_py_eval(char* to_eval) {
     PyRun_SimpleString(to_eval);
+}
+
+#else /* __STILTS_EMBED_PYTHON */
+
+__STILTS_FN void
+__Stilts_py_init(int argc, char** argv) {
+    (void)argc;
+    (void)argv;
+}
+__STILTS_FN void
+__Stilts_py_exit(void) {}
+
+__STILTS_FN void
+__Stilts_py_eval(char* to_eval) {
+    fprintf(stderr, "Cannot eval python code. Python is not enabled.\n");
 }
 
 #endif /* __STILTS_EMBED_PYTHON */

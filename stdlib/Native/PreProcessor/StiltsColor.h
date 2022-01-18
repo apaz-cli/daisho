@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __STILTS_STDLIB_COLOR
 #define __STILTS_STDLIB_COLOR
 
