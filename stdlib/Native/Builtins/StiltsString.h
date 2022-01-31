@@ -17,7 +17,7 @@ typedef struct {
 typedef struct {
     char* cstr;
     size_t len;
-} __Stilts_String_Raw;
+} __Stilts_String_View;
 
 #define __STILTS_STR_BUF_OFFSET 0
 #define __STILTS_STR_SIZE_OFFSET sizeof(char*)
@@ -30,10 +30,10 @@ typedef struct {
 
 #if __STILTS_SANITY_CHECK
 #define __STILTS_STRING_NONNULL(self) \
-    if (__STILTS_SANITY_CHECK == 2 && !self) __STILTS_SANITY_FAIL()
+    if (__STILTS_SANITY_PEDANTIC && !self) __STILTS_SANITY_FAIL()
 #define __STILTS_STRING_NULL_TERM(self)                                     \
     do {                                                                    \
-        if (__STILTS_SANITY_CHECK == 2) {                                   \
+        if (__STILTS_SANITY_PEDANTIC) {                                   \
             if (!*(__Stilts_String_cstr(self) + __Stilts_String_len(self))) \
                 __STILTS_SANITY_FAIL();                                     \
         }                                                                   \
@@ -42,13 +42,6 @@ typedef struct {
 #define __STILTS_STRING_NONNULL(self)
 #define __STILTS_STRING_NULL_TERM(self)
 #endif
-
-/* Little endianness is asserted elsewhere. */
-__STILTS_STATIC_ASSERT(CHAR_BIT == 8,
-                       "Stilts's implementation of String assumes CHAR_BIT to be 8.");
-__STILTS_STATIC_ASSERT(sizeof(size_t) <= sizeof(uint64_t),
-                       "Stilts's implementation of String assumes size_t to be "
-                       "uint64_t or smaller.");
 
 /***********************/
 /* "Private" functions */
@@ -104,9 +97,9 @@ __Stilts_String_large_len(__Stilts_String* self) {
     return self->size;
 }
 
-__STILTS_FN __Stilts_String_Raw
+__STILTS_FN __Stilts_String_View
 __Stilts_String_getRaw(__Stilts_String* self) {
-    __Stilts_String_Raw raw;
+    __Stilts_String_View raw;
     if (__Stilts_String_isLarge(self)) {
         raw.cstr = self->buffer;
         raw.len = self->size;

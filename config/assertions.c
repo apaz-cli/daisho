@@ -15,7 +15,8 @@
 #define __STILTS_ASSERTING 1
 #include "../stdlib/Native/PreProcessor/StiltsPreprocessor.h"
 
-
+__STILTS_STATIC_ASSERT(CHAR_BIT == 8,
+                       "Stilts's implementation of String assumes CHAR_BIT to be 8.");
 __STILTS_STATIC_ASSERT(SIZE_MAX <= UINT64_MAX,
                        "The Stilts standard library assumes that size_t's max value "
                        "is less than or equal to uint64_t's max value.");

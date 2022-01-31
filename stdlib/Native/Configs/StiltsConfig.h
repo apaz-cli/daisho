@@ -1,6 +1,6 @@
 /***********************************************************************\
-* Feel free to change the constants in this file. Incompatible values   *
-* will be caught at compile time.                                       *
+* Feel free to change the default values in this file. They can be      *
+* overrided in the command line.                                        *
 *                                                                       *
 * Do not include any files inside this header. Doing so has the         *
 * potential to break the Python runtime. Please only change configs.    *
@@ -19,13 +19,13 @@
  *
  * Can be declared by stiltc as a flag to the C compiler.
  * Use stiltc flags to control this. Passing neither uses
- * the default below.
+ * the default above.
  *
  * --no-python specifies 0.
  * --python    specifies 1.
  */
 #ifndef __STILTS_EMBED_PYTHON
-#define __STILTS_EMBED_PYTHON __SILTS_HAS_PYTHON
+#define __STILTS_EMBED_PYTHON 0
 #endif
 
 /*
@@ -35,7 +35,7 @@
  *
  * Can be declared by stiltc as a flag to the C compiler.
  * Use stiltc flags to control this. Passing neither uses
- * the default below.
+ * the default above.
  *
  * --insane   specifies 0.
  * --sane     specifies 1.
@@ -64,7 +64,7 @@
  *
  * Can be declared by stiltc as a flag to the C compiler.
  * Use stiltc flags to control this. Passing neither uses
- * the default below.
+ * the default above.
  *
  * --no-memdebug    specifies 0.
  * --memdebug       specifies 1.
@@ -94,7 +94,7 @@
  *
  * Can be declared by stiltc as a flag to the C compiler.
  * Use stiltc flags to control this. Passing neither uses
- * the default below.
+ * the default above.
  *
  * --normal-malloc  specifies 0.
  * --replace-malloc specifies 1.
@@ -110,13 +110,20 @@
  * If this number is smaller than the number of stack frames to report,
  * then the newest ones are reported.
  */
+#ifndef __STILTS_BT_MAX_FRAMES
 #define __STILTS_BT_MAX_FRAMES 128
+#endif
 
-/* 
+/*
  * 2 - Fully buffered
  * 1 - Line Buffered (default)
  * 0 - Unbuffered
+ *
+ * Controls how stdout and stderr are flushed. Behavior is the same
+ * as setvbuf() from the c stdlib.
  */
-#define __STILTS_OUTPUT_BUFFERING 2
+#ifndef __STILTS_OUTPUT_BUFFERING
+#define __STILTS_OUTPUT_BUFFERING 1
+#endif
 
 #endif /* __STILTS_STDLIB_CONFIG */

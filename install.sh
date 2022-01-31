@@ -12,9 +12,10 @@ else
   FLAGS="${FLAGS} -O0 -g -rdynamic -fsanitize=address"
 fi
 
+# Move common headers into place
+sudo cp -r stdlib/ /usr/include/stilts/
+
 # Install stiltc executable
 cc stiltc/Compiler.c $FLAGS
 sudo mv a.out /usr/bin/stiltc
 
-# Move common headers into place
-sudo cp -r stdlib/ /usr/include/stilts/

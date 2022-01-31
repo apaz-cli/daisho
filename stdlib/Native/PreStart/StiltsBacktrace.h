@@ -2,6 +2,7 @@
 #define __STILTS_STDLIB_BACKTRACE
 
 #include "../PreProcessor/StiltsPreprocessor.h"
+#include "StiltsBuffering.h"
 
 #define __STITLS_BT_MAX_FRAMES 50
 
@@ -84,7 +85,6 @@ __Stilts_SymInfo_print(__Stilts_SymInfo info) {
 
 static void __STILTS_NEVER_INLINE
 __Stilts_backtrace(void) {
-    
     void* symbol_arr[__STITLS_BT_MAX_FRAMES];
     char** symbol_strings = NULL;
     int num_addrs, i;
@@ -92,16 +92,19 @@ __Stilts_backtrace(void) {
     symbol_strings = backtrace_symbols(symbol_arr, num_addrs);
     if (symbol_strings) {
         __Stilts_bt_header();
-        fprintf(stderr, "Obtained %d stack frames.\n", num_addrs);
+        const char errmsg[] = "Obtained %d stack frames.\n";
+        fprintf(stderr, errmsg, num_addrs);
         fflush(stderr);
         for (i = 0; i < num_addrs; i++)
             __Stilts_SymInfo_print(__Stilts_SymInfo_parse(symbol_strings[i]));
         __STILTS_bt_footer(NULL);
-        fflush(stdout);
+        __Stilts_newline_flush(stdout);
         /* Original (glibc) free, not wrapped. */
         free(symbol_strings);
     } else {
-        puts("Backtrace failed.");
+        const char errmsg[] = "Backtrace failed.";
+        puts(errmsg);
+        __Stilts_newline_flush(stdout);
     }
 }
 
@@ -119,12 +122,13 @@ __Stilts_low_mem_backtrace(void) {
 static void __STILTS_NEVER_INLINE
 __Stilts_backtrace(void) {
     const char buf[] = "Backtraces are not supported on this system.\n";
-    write(STDOUT_FILENO, buf, strlen(buf));
+    fprintf(stdout, buf);
 }
 
-static void __STILTS_ALWAYS_INLINE
+static void __STILTS_NEVER_INLINE
 __Stilts_low_mem_backtrace(void) {
-    __Stilts_backtrace();
+    const char buf[] = "Backtraces are not supported on this system.\n";
+    write(STDERR_FILENO, buf, strlen(buf));
 }
 #endif
 

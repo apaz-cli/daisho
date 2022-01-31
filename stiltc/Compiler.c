@@ -1,4 +1,5 @@
 #include <apaz-libc.h>
+#include <stilts/Stilts.h>
 
 #include "Declarations/Declarations.h"
 #include "Declarations/Generated/Automata.h"

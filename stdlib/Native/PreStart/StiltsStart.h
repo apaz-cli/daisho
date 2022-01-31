@@ -1,6 +1,7 @@
 #ifndef __STILTS_STDLIB_START
 #define __STILTS_STDLIB_START
 #include "../PreProcessor/StiltsPreprocessor.h"
+#include "StiltsBuffering.h"
 #include "StiltsPython.h"
 
 /* Routines that should happen before main(). */
@@ -22,37 +23,8 @@ __Stilts_setlocale(void) {
 }
 
 __STILTS_FN void
-__Stilts_configure_buffering() {
-#if __STILTS_OUTPUT_BUFFERING == 0 /* No buffering */
-    char errmsg[] = "Could not set unbuffered stdout/stderr output.";
-    if (setvbuf(stdout, NULL, _IONBF, 0) && (__STILTS_SANITY_CHECK == 2)) {
-        write(STDOUT_FILENO, errmsg, strlen(errmsg));
-        exit(1);
-    }
-    if (setvbuf(stderr, NULL, _IONBF, 0) && (__STILTS_SANITY_CHECK == 2)) {
-        write(STDERR_FILENO, errmsg, strlen(errmsg));
-        exit(1);
-    }
-#elif __STILTS_OUTPUT_BUFFERING == 1 /* Line buffering */
-    /* Line buffering is the default in the C standard. */
-    // setvbuf(stdout, NULL, _IOLBF, 0);
-#elif __STILTS_OUTPUT_BUFFERING == 2 /* Full buffering */
-    char errmsg[] = "Could not set fully buffered stdout/stderr output.";
-    if (setvbuf(stdout, NULL, _IOFBF, 0) && (__STILTS_SANITY_CHECK == 2)) {
-        write(STDOUT_FILENO, errmsg, strlen(errmsg));
-        exit(1);
-    }
-    if (setvbuf(stderr, NULL, _IOFBF, 0) && (__STILTS_SANITY_CHECK == 2)) {
-        write(STDERR_FILENO, errmsg, strlen(errmsg));
-        exit(1);
-    }
-#else
-    __STILTS_STATIC_ASSERT(false, "__STILTS_OUTPUT_BUFFERING may only be 0, 1, or 2.");
-#endif
-}
-
-__STILTS_FN void
 __Stilts_pre_main(int argc, char** argv) {
+    /* From StitlsBuffering.h */
     __Stilts_configure_buffering();
 
     /* Start python (which sets the locale),
