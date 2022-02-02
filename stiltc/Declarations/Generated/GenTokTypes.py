@@ -152,6 +152,21 @@ exact_tokens = [
     ["MOD_ASSIGN", "%="],
 ]
 
+#
+# "Token Name": [
+#    ['start_range', 'end_range', 'start_state', 'end_state'],
+#    ['start_range', 'end_range', 'start_state', 'end_state'],
+#    ...
+# ]
+#
+
+tokenizer_automata = {
+    "IDENT": [
+        ['a', 'z', 1, 2],
+        ['A', 'Z', 1, 2],
+    ],
+}
+
 custom_rules = """
 /* IDENT */
 #define IDENT_ACCEPTING 2
