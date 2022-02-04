@@ -24,8 +24,6 @@ __Stilts_setlocale(void) {
 
 __STILTS_FN void
 __Stilts_pre_main(int argc, char** argv) {
-    /* From StitlsBuffering.h */
-    __Stilts_configure_buffering();
 
     /* Start python (which sets the locale),
        or set the locale ourselves. */
@@ -36,6 +34,9 @@ __Stilts_pre_main(int argc, char** argv) {
     (void)argv;
     __Stilts_setlocale();
 #endif
+
+    /* From StiltsBuffering.h */
+    __Stilts_configure_buffering();
 }
 
 /********/
