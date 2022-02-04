@@ -66,78 +66,6 @@ static DFARule CTYPE_rule_3 = { .start_range = 'y', .end_range = 'y', .start_sta
 static DFARule CTYPE_rule_4 = { .start_range = 'p', .end_range = 'p', .start_state = 4, .end_state = 5 };
 static DFARule CTYPE_rule_5 = { .start_range = 'e', .end_range = 'e', .start_state = 5, .end_state = 6 };
 
-#define BOOL_ACCEPTING 5
-static DFARule BOOL_rule_1 = { .start_range = 'B', .end_range = 'B', .start_state = 1, .end_state = 2 };
-static DFARule BOOL_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
-static DFARule BOOL_rule_3 = { .start_range = 'o', .end_range = 'o', .start_state = 3, .end_state = 4 };
-static DFARule BOOL_rule_4 = { .start_range = 'l', .end_range = 'l', .start_state = 4, .end_state = 5 };
-
-#define CHAR_ACCEPTING 5
-static DFARule CHAR_rule_1 = { .start_range = 'C', .end_range = 'C', .start_state = 1, .end_state = 2 };
-static DFARule CHAR_rule_2 = { .start_range = 'h', .end_range = 'h', .start_state = 2, .end_state = 3 };
-static DFARule CHAR_rule_3 = { .start_range = 'a', .end_range = 'a', .start_state = 3, .end_state = 4 };
-static DFARule CHAR_rule_4 = { .start_range = 'r', .end_range = 'r', .start_state = 4, .end_state = 5 };
-
-#define UCHAR_ACCEPTING 6
-static DFARule UCHAR_rule_1 = { .start_range = 'U', .end_range = 'U', .start_state = 1, .end_state = 2 };
-static DFARule UCHAR_rule_2 = { .start_range = 'C', .end_range = 'C', .start_state = 2, .end_state = 3 };
-static DFARule UCHAR_rule_3 = { .start_range = 'h', .end_range = 'h', .start_state = 3, .end_state = 4 };
-static DFARule UCHAR_rule_4 = { .start_range = 'a', .end_range = 'a', .start_state = 4, .end_state = 5 };
-static DFARule UCHAR_rule_5 = { .start_range = 'r', .end_range = 'r', .start_state = 5, .end_state = 6 };
-
-#define SHORT_ACCEPTING 6
-static DFARule SHORT_rule_1 = { .start_range = 'S', .end_range = 'S', .start_state = 1, .end_state = 2 };
-static DFARule SHORT_rule_2 = { .start_range = 'h', .end_range = 'h', .start_state = 2, .end_state = 3 };
-static DFARule SHORT_rule_3 = { .start_range = 'o', .end_range = 'o', .start_state = 3, .end_state = 4 };
-static DFARule SHORT_rule_4 = { .start_range = 'r', .end_range = 'r', .start_state = 4, .end_state = 5 };
-static DFARule SHORT_rule_5 = { .start_range = 't', .end_range = 't', .start_state = 5, .end_state = 6 };
-
-#define USHORT_ACCEPTING 7
-static DFARule USHORT_rule_1 = { .start_range = 'U', .end_range = 'U', .start_state = 1, .end_state = 2 };
-static DFARule USHORT_rule_2 = { .start_range = 'S', .end_range = 'S', .start_state = 2, .end_state = 3 };
-static DFARule USHORT_rule_3 = { .start_range = 'h', .end_range = 'h', .start_state = 3, .end_state = 4 };
-static DFARule USHORT_rule_4 = { .start_range = 'o', .end_range = 'o', .start_state = 4, .end_state = 5 };
-static DFARule USHORT_rule_5 = { .start_range = 'r', .end_range = 'r', .start_state = 5, .end_state = 6 };
-static DFARule USHORT_rule_6 = { .start_range = 't', .end_range = 't', .start_state = 6, .end_state = 7 };
-
-#define INT_ACCEPTING 4
-static DFARule INT_rule_1 = { .start_range = 'I', .end_range = 'I', .start_state = 1, .end_state = 2 };
-static DFARule INT_rule_2 = { .start_range = 'n', .end_range = 'n', .start_state = 2, .end_state = 3 };
-static DFARule INT_rule_3 = { .start_range = 't', .end_range = 't', .start_state = 3, .end_state = 4 };
-
-#define UINT_ACCEPTING 5
-static DFARule UINT_rule_1 = { .start_range = 'U', .end_range = 'U', .start_state = 1, .end_state = 2 };
-static DFARule UINT_rule_2 = { .start_range = 'I', .end_range = 'I', .start_state = 2, .end_state = 3 };
-static DFARule UINT_rule_3 = { .start_range = 'n', .end_range = 'n', .start_state = 3, .end_state = 4 };
-static DFARule UINT_rule_4 = { .start_range = 't', .end_range = 't', .start_state = 4, .end_state = 5 };
-
-#define LONG_ACCEPTING 5
-static DFARule LONG_rule_1 = { .start_range = 'L', .end_range = 'L', .start_state = 1, .end_state = 2 };
-static DFARule LONG_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
-static DFARule LONG_rule_3 = { .start_range = 'n', .end_range = 'n', .start_state = 3, .end_state = 4 };
-static DFARule LONG_rule_4 = { .start_range = 'g', .end_range = 'g', .start_state = 4, .end_state = 5 };
-
-#define FLOAT_ACCEPTING 6
-static DFARule FLOAT_rule_1 = { .start_range = 'F', .end_range = 'F', .start_state = 1, .end_state = 2 };
-static DFARule FLOAT_rule_2 = { .start_range = 'l', .end_range = 'l', .start_state = 2, .end_state = 3 };
-static DFARule FLOAT_rule_3 = { .start_range = 'o', .end_range = 'o', .start_state = 3, .end_state = 4 };
-static DFARule FLOAT_rule_4 = { .start_range = 'a', .end_range = 'a', .start_state = 4, .end_state = 5 };
-static DFARule FLOAT_rule_5 = { .start_range = 't', .end_range = 't', .start_state = 5, .end_state = 6 };
-
-#define DOUBLE_ACCEPTING 7
-static DFARule DOUBLE_rule_1 = { .start_range = 'D', .end_range = 'D', .start_state = 1, .end_state = 2 };
-static DFARule DOUBLE_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
-static DFARule DOUBLE_rule_3 = { .start_range = 'u', .end_range = 'u', .start_state = 3, .end_state = 4 };
-static DFARule DOUBLE_rule_4 = { .start_range = 'b', .end_range = 'b', .start_state = 4, .end_state = 5 };
-static DFARule DOUBLE_rule_5 = { .start_range = 'l', .end_range = 'l', .start_state = 5, .end_state = 6 };
-static DFARule DOUBLE_rule_6 = { .start_range = 'e', .end_range = 'e', .start_state = 6, .end_state = 7 };
-
-#define VOID_ACCEPTING 5
-static DFARule VOID_rule_1 = { .start_range = 'V', .end_range = 'V', .start_state = 1, .end_state = 2 };
-static DFARule VOID_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
-static DFARule VOID_rule_3 = { .start_range = 'i', .end_range = 'i', .start_state = 3, .end_state = 4 };
-static DFARule VOID_rule_4 = { .start_range = 'd', .end_range = 'd', .start_state = 4, .end_state = 5 };
-
 #define IF_ACCEPTING 3
 static DFARule IF_rule_1 = { .start_range = 'i', .end_range = 'i', .start_state = 1, .end_state = 2 };
 static DFARule IF_rule_2 = { .start_range = 'f', .end_range = 'f', .start_state = 2, .end_state = 3 };
@@ -152,6 +80,12 @@ static DFARule ELSE_rule_4 = { .start_range = 'e', .end_range = 'e', .start_stat
 static DFARule FOR_rule_1 = { .start_range = 'f', .end_range = 'f', .start_state = 1, .end_state = 2 };
 static DFARule FOR_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
 static DFARule FOR_rule_3 = { .start_range = 'r', .end_range = 'r', .start_state = 3, .end_state = 4 };
+
+#define LOOP_ACCEPTING 5
+static DFARule LOOP_rule_1 = { .start_range = 'l', .end_range = 'l', .start_state = 1, .end_state = 2 };
+static DFARule LOOP_rule_2 = { .start_range = 'o', .end_range = 'o', .start_state = 2, .end_state = 3 };
+static DFARule LOOP_rule_3 = { .start_range = 'o', .end_range = 'o', .start_state = 3, .end_state = 4 };
+static DFARule LOOP_rule_4 = { .start_range = 'p', .end_range = 'p', .start_state = 4, .end_state = 5 };
 
 #define WHILE_ACCEPTING 6
 static DFARule WHILE_rule_1 = { .start_range = 'w', .end_range = 'w', .start_state = 1, .end_state = 2 };
@@ -188,11 +122,15 @@ static DFARule CLASS_rule_3 = { .start_range = 'a', .end_range = 'a', .start_sta
 static DFARule CLASS_rule_4 = { .start_range = 's', .end_range = 's', .start_state = 4, .end_state = 5 };
 static DFARule CLASS_rule_5 = { .start_range = 's', .end_range = 's', .start_state = 5, .end_state = 6 };
 
-#define THIS_ACCEPTING 5
-static DFARule THIS_rule_1 = { .start_range = 't', .end_range = 't', .start_state = 1, .end_state = 2 };
-static DFARule THIS_rule_2 = { .start_range = 'h', .end_range = 'h', .start_state = 2, .end_state = 3 };
-static DFARule THIS_rule_3 = { .start_range = 'i', .end_range = 'i', .start_state = 3, .end_state = 4 };
-static DFARule THIS_rule_4 = { .start_range = 's', .end_range = 's', .start_state = 4, .end_state = 5 };
+#define SELF_ACCEPTING 5
+static DFARule SELF_rule_1 = { .start_range = 's', .end_range = 's', .start_state = 1, .end_state = 2 };
+static DFARule SELF_rule_2 = { .start_range = 'e', .end_range = 'e', .start_state = 2, .end_state = 3 };
+static DFARule SELF_rule_3 = { .start_range = 'l', .end_range = 'l', .start_state = 3, .end_state = 4 };
+static DFARule SELF_rule_4 = { .start_range = 'f', .end_range = 'f', .start_state = 4, .end_state = 5 };
+
+#define OP_ACCEPTING 3
+static DFARule OP_rule_1 = { .start_range = 'o', .end_range = 'o', .start_state = 1, .end_state = 2 };
+static DFARule OP_rule_2 = { .start_range = 'p', .end_range = 'p', .start_state = 2, .end_state = 3 };
 
 #define OPERATOR_ACCEPTING 9
 static DFARule OPERATOR_rule_1 = { .start_range = 'o', .end_range = 'o', .start_state = 1, .end_state = 2 };
@@ -203,6 +141,13 @@ static DFARule OPERATOR_rule_5 = { .start_range = 'a', .end_range = 'a', .start_
 static DFARule OPERATOR_rule_6 = { .start_range = 't', .end_range = 't', .start_state = 6, .end_state = 7 };
 static DFARule OPERATOR_rule_7 = { .start_range = 'o', .end_range = 'o', .start_state = 7, .end_state = 8 };
 static DFARule OPERATOR_rule_8 = { .start_range = 'r', .end_range = 'r', .start_state = 8, .end_state = 9 };
+
+#define TRAIT_ACCEPTING 6
+static DFARule TRAIT_rule_1 = { .start_range = 't', .end_range = 't', .start_state = 1, .end_state = 2 };
+static DFARule TRAIT_rule_2 = { .start_range = 'r', .end_range = 'r', .start_state = 2, .end_state = 3 };
+static DFARule TRAIT_rule_3 = { .start_range = 'a', .end_range = 'a', .start_state = 3, .end_state = 4 };
+static DFARule TRAIT_rule_4 = { .start_range = 'i', .end_range = 'i', .start_state = 4, .end_state = 5 };
+static DFARule TRAIT_rule_5 = { .start_range = 't', .end_range = 't', .start_state = 5, .end_state = 6 };
 
 #define IMPL_ACCEPTING 5
 static DFARule IMPL_rule_1 = { .start_range = 'i', .end_range = 'i', .start_state = 1, .end_state = 2 };
@@ -434,6 +379,8 @@ static DFARule MOD_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .star
 /* Custom Tokenizer DFA Rules */
 /******************************/
 
+// Add op | operator
+
 /* IDENT */
 #define IDENT_ACCEPTING 2
 /* First char of idexnt, [_a-zA-Zalpha-omegaALPHA-OMEGA] */
@@ -517,34 +464,14 @@ static DFARule NATIVE_rules[6];
 static DFA NATIVE_DFA;
 static DFARule CTYPE_rules[5];
 static DFA CTYPE_DFA;
-static DFARule BOOL_rules[4];
-static DFA BOOL_DFA;
-static DFARule CHAR_rules[4];
-static DFA CHAR_DFA;
-static DFARule UCHAR_rules[5];
-static DFA UCHAR_DFA;
-static DFARule SHORT_rules[5];
-static DFA SHORT_DFA;
-static DFARule USHORT_rules[6];
-static DFA USHORT_DFA;
-static DFARule INT_rules[3];
-static DFA INT_DFA;
-static DFARule UINT_rules[4];
-static DFA UINT_DFA;
-static DFARule LONG_rules[4];
-static DFA LONG_DFA;
-static DFARule FLOAT_rules[5];
-static DFA FLOAT_DFA;
-static DFARule DOUBLE_rules[6];
-static DFA DOUBLE_DFA;
-static DFARule VOID_rules[4];
-static DFA VOID_DFA;
 static DFARule IF_rules[2];
 static DFA IF_DFA;
 static DFARule ELSE_rules[4];
 static DFA ELSE_DFA;
 static DFARule FOR_rules[3];
 static DFA FOR_DFA;
+static DFARule LOOP_rules[4];
+static DFA LOOP_DFA;
 static DFARule WHILE_rules[5];
 static DFA WHILE_DFA;
 static DFARule CONTINUE_rules[8];
@@ -555,10 +482,14 @@ static DFARule IN_rules[2];
 static DFA IN_DFA;
 static DFARule CLASS_rules[5];
 static DFA CLASS_DFA;
-static DFARule THIS_rules[4];
-static DFA THIS_DFA;
+static DFARule SELF_rules[4];
+static DFA SELF_DFA;
+static DFARule OP_rules[2];
+static DFA OP_DFA;
 static DFARule OPERATOR_rules[8];
 static DFA OPERATOR_DFA;
+static DFARule TRAIT_rules[5];
+static DFA TRAIT_DFA;
 static DFARule IMPL_rules[4];
 static DFA IMPL_DFA;
 static DFARule ENUM_rules[4];
@@ -678,7 +609,7 @@ static DFA TRAIT_DFA;
 /************/
 /* All DFAs */
 /************/
-static DFA all_DFAs[81];
+static DFA all_DFAs[73];
 
 /* Initializes the global variable all_DFAs. */
 static inline DFA* initTokenizerDFAs() {
@@ -700,89 +631,6 @@ static inline DFA* initTokenizerDFAs() {
   CTYPE_DFA.rules = CTYPE_rules;
   CTYPE_DFA.num_rules = ARR_SIZE(CTYPE_rules);
   CTYPE_DFA.accepting_state = CTYPE_ACCEPTING;
-  BOOL_rules[0] = BOOL_rule_1;
-  BOOL_rules[1] = BOOL_rule_2;
-  BOOL_rules[2] = BOOL_rule_3;
-  BOOL_rules[3] = BOOL_rule_4;
-  BOOL_DFA.rules = BOOL_rules;
-  BOOL_DFA.num_rules = ARR_SIZE(BOOL_rules);
-  BOOL_DFA.accepting_state = BOOL_ACCEPTING;
-  CHAR_rules[0] = CHAR_rule_1;
-  CHAR_rules[1] = CHAR_rule_2;
-  CHAR_rules[2] = CHAR_rule_3;
-  CHAR_rules[3] = CHAR_rule_4;
-  CHAR_DFA.rules = CHAR_rules;
-  CHAR_DFA.num_rules = ARR_SIZE(CHAR_rules);
-  CHAR_DFA.accepting_state = CHAR_ACCEPTING;
-  UCHAR_rules[0] = UCHAR_rule_1;
-  UCHAR_rules[1] = UCHAR_rule_2;
-  UCHAR_rules[2] = UCHAR_rule_3;
-  UCHAR_rules[3] = UCHAR_rule_4;
-  UCHAR_rules[4] = UCHAR_rule_5;
-  UCHAR_DFA.rules = UCHAR_rules;
-  UCHAR_DFA.num_rules = ARR_SIZE(UCHAR_rules);
-  UCHAR_DFA.accepting_state = UCHAR_ACCEPTING;
-  SHORT_rules[0] = SHORT_rule_1;
-  SHORT_rules[1] = SHORT_rule_2;
-  SHORT_rules[2] = SHORT_rule_3;
-  SHORT_rules[3] = SHORT_rule_4;
-  SHORT_rules[4] = SHORT_rule_5;
-  SHORT_DFA.rules = SHORT_rules;
-  SHORT_DFA.num_rules = ARR_SIZE(SHORT_rules);
-  SHORT_DFA.accepting_state = SHORT_ACCEPTING;
-  USHORT_rules[0] = USHORT_rule_1;
-  USHORT_rules[1] = USHORT_rule_2;
-  USHORT_rules[2] = USHORT_rule_3;
-  USHORT_rules[3] = USHORT_rule_4;
-  USHORT_rules[4] = USHORT_rule_5;
-  USHORT_rules[5] = USHORT_rule_6;
-  USHORT_DFA.rules = USHORT_rules;
-  USHORT_DFA.num_rules = ARR_SIZE(USHORT_rules);
-  USHORT_DFA.accepting_state = USHORT_ACCEPTING;
-  INT_rules[0] = INT_rule_1;
-  INT_rules[1] = INT_rule_2;
-  INT_rules[2] = INT_rule_3;
-  INT_DFA.rules = INT_rules;
-  INT_DFA.num_rules = ARR_SIZE(INT_rules);
-  INT_DFA.accepting_state = INT_ACCEPTING;
-  UINT_rules[0] = UINT_rule_1;
-  UINT_rules[1] = UINT_rule_2;
-  UINT_rules[2] = UINT_rule_3;
-  UINT_rules[3] = UINT_rule_4;
-  UINT_DFA.rules = UINT_rules;
-  UINT_DFA.num_rules = ARR_SIZE(UINT_rules);
-  UINT_DFA.accepting_state = UINT_ACCEPTING;
-  LONG_rules[0] = LONG_rule_1;
-  LONG_rules[1] = LONG_rule_2;
-  LONG_rules[2] = LONG_rule_3;
-  LONG_rules[3] = LONG_rule_4;
-  LONG_DFA.rules = LONG_rules;
-  LONG_DFA.num_rules = ARR_SIZE(LONG_rules);
-  LONG_DFA.accepting_state = LONG_ACCEPTING;
-  FLOAT_rules[0] = FLOAT_rule_1;
-  FLOAT_rules[1] = FLOAT_rule_2;
-  FLOAT_rules[2] = FLOAT_rule_3;
-  FLOAT_rules[3] = FLOAT_rule_4;
-  FLOAT_rules[4] = FLOAT_rule_5;
-  FLOAT_DFA.rules = FLOAT_rules;
-  FLOAT_DFA.num_rules = ARR_SIZE(FLOAT_rules);
-  FLOAT_DFA.accepting_state = FLOAT_ACCEPTING;
-  DOUBLE_rules[0] = DOUBLE_rule_1;
-  DOUBLE_rules[1] = DOUBLE_rule_2;
-  DOUBLE_rules[2] = DOUBLE_rule_3;
-  DOUBLE_rules[3] = DOUBLE_rule_4;
-  DOUBLE_rules[4] = DOUBLE_rule_5;
-  DOUBLE_rules[5] = DOUBLE_rule_6;
-  DOUBLE_DFA.rules = DOUBLE_rules;
-  DOUBLE_DFA.num_rules = ARR_SIZE(DOUBLE_rules);
-  DOUBLE_DFA.accepting_state = DOUBLE_ACCEPTING;
-  VOID_rules[0] = VOID_rule_1;
-  VOID_rules[1] = VOID_rule_2;
-  VOID_rules[2] = VOID_rule_3;
-  VOID_rules[3] = VOID_rule_4;
-  VOID_DFA.rules = VOID_rules;
-  VOID_DFA.num_rules = ARR_SIZE(VOID_rules);
-  VOID_DFA.accepting_state = VOID_ACCEPTING;
   IF_rules[0] = IF_rule_1;
   IF_rules[1] = IF_rule_2;
   IF_DFA.rules = IF_rules;
@@ -801,6 +649,13 @@ static inline DFA* initTokenizerDFAs() {
   FOR_DFA.rules = FOR_rules;
   FOR_DFA.num_rules = ARR_SIZE(FOR_rules);
   FOR_DFA.accepting_state = FOR_ACCEPTING;
+  LOOP_rules[0] = LOOP_rule_1;
+  LOOP_rules[1] = LOOP_rule_2;
+  LOOP_rules[2] = LOOP_rule_3;
+  LOOP_rules[3] = LOOP_rule_4;
+  LOOP_DFA.rules = LOOP_rules;
+  LOOP_DFA.num_rules = ARR_SIZE(LOOP_rules);
+  LOOP_DFA.accepting_state = LOOP_ACCEPTING;
   WHILE_rules[0] = WHILE_rule_1;
   WHILE_rules[1] = WHILE_rule_2;
   WHILE_rules[2] = WHILE_rule_3;
@@ -841,13 +696,18 @@ static inline DFA* initTokenizerDFAs() {
   CLASS_DFA.rules = CLASS_rules;
   CLASS_DFA.num_rules = ARR_SIZE(CLASS_rules);
   CLASS_DFA.accepting_state = CLASS_ACCEPTING;
-  THIS_rules[0] = THIS_rule_1;
-  THIS_rules[1] = THIS_rule_2;
-  THIS_rules[2] = THIS_rule_3;
-  THIS_rules[3] = THIS_rule_4;
-  THIS_DFA.rules = THIS_rules;
-  THIS_DFA.num_rules = ARR_SIZE(THIS_rules);
-  THIS_DFA.accepting_state = THIS_ACCEPTING;
+  SELF_rules[0] = SELF_rule_1;
+  SELF_rules[1] = SELF_rule_2;
+  SELF_rules[2] = SELF_rule_3;
+  SELF_rules[3] = SELF_rule_4;
+  SELF_DFA.rules = SELF_rules;
+  SELF_DFA.num_rules = ARR_SIZE(SELF_rules);
+  SELF_DFA.accepting_state = SELF_ACCEPTING;
+  OP_rules[0] = OP_rule_1;
+  OP_rules[1] = OP_rule_2;
+  OP_DFA.rules = OP_rules;
+  OP_DFA.num_rules = ARR_SIZE(OP_rules);
+  OP_DFA.accepting_state = OP_ACCEPTING;
   OPERATOR_rules[0] = OPERATOR_rule_1;
   OPERATOR_rules[1] = OPERATOR_rule_2;
   OPERATOR_rules[2] = OPERATOR_rule_3;
@@ -859,6 +719,14 @@ static inline DFA* initTokenizerDFAs() {
   OPERATOR_DFA.rules = OPERATOR_rules;
   OPERATOR_DFA.num_rules = ARR_SIZE(OPERATOR_rules);
   OPERATOR_DFA.accepting_state = OPERATOR_ACCEPTING;
+  TRAIT_rules[0] = TRAIT_rule_1;
+  TRAIT_rules[1] = TRAIT_rule_2;
+  TRAIT_rules[2] = TRAIT_rule_3;
+  TRAIT_rules[3] = TRAIT_rule_4;
+  TRAIT_rules[4] = TRAIT_rule_5;
+  TRAIT_DFA.rules = TRAIT_rules;
+  TRAIT_DFA.num_rules = ARR_SIZE(TRAIT_rules);
+  TRAIT_DFA.accepting_state = TRAIT_ACCEPTING;
   IMPL_rules[0] = IMPL_rule_1;
   IMPL_rules[1] = IMPL_rule_2;
   IMPL_rules[2] = IMPL_rule_3;
@@ -1221,85 +1089,77 @@ static inline DFA* initTokenizerDFAs() {
   /*******************************************************************/
   all_DFAs[0] = NATIVE_DFA;
   all_DFAs[1] = CTYPE_DFA;
-  all_DFAs[2] = BOOL_DFA;
-  all_DFAs[3] = CHAR_DFA;
-  all_DFAs[4] = UCHAR_DFA;
-  all_DFAs[5] = SHORT_DFA;
-  all_DFAs[6] = USHORT_DFA;
-  all_DFAs[7] = INT_DFA;
-  all_DFAs[8] = UINT_DFA;
-  all_DFAs[9] = LONG_DFA;
-  all_DFAs[10] = FLOAT_DFA;
-  all_DFAs[11] = DOUBLE_DFA;
-  all_DFAs[12] = VOID_DFA;
-  all_DFAs[13] = IF_DFA;
-  all_DFAs[14] = ELSE_DFA;
-  all_DFAs[15] = FOR_DFA;
-  all_DFAs[16] = WHILE_DFA;
-  all_DFAs[17] = CONTINUE_DFA;
-  all_DFAs[18] = BREAK_DFA;
-  all_DFAs[19] = IN_DFA;
-  all_DFAs[20] = CLASS_DFA;
-  all_DFAs[21] = THIS_DFA;
-  all_DFAs[22] = OPERATOR_DFA;
-  all_DFAs[23] = IMPL_DFA;
-  all_DFAs[24] = ENUM_DFA;
-  all_DFAs[25] = PRIVATE_DFA;
-  all_DFAs[26] = PROTECTED_DFA;
-  all_DFAs[27] = PUBLIC_DFA;
-  all_DFAs[28] = INSTANCEOF_DFA;
-  all_DFAs[29] = SIZEOF_DFA;
-  all_DFAs[30] = ASSERT_DFA;
-  all_DFAs[31] = TRUE_DFA;
-  all_DFAs[32] = FALSE_DFA;
-  all_DFAs[33] = LPAREN_DFA;
-  all_DFAs[34] = RPAREN_DFA;
-  all_DFAs[35] = LBRACE_DFA;
-  all_DFAs[36] = RBRACE_DFA;
-  all_DFAs[37] = LBRACK_DFA;
-  all_DFAs[38] = RBRACK_DFA;
-  all_DFAs[39] = LARROW_DFA;
-  all_DFAs[40] = RARROW_DFA;
-  all_DFAs[41] = SEMI_DFA;
-  all_DFAs[42] = COMMA_DFA;
-  all_DFAs[43] = DOT_DFA;
-  all_DFAs[44] = STAR_DFA;
-  all_DFAs[45] = EQUALS_DFA;
-  all_DFAs[46] = LAMBDA_ARROW_DFA;
-  all_DFAs[47] = BANG_DFA;
-  all_DFAs[48] = TILDE_DFA;
-  all_DFAs[49] = QUESTION_DFA;
-  all_DFAs[50] = COLON_DFA;
-  all_DFAs[51] = EQUAL_DFA;
-  all_DFAs[52] = LE_DFA;
-  all_DFAs[53] = GE_DFA;
-  all_DFAs[54] = NOTEQUAL_DFA;
-  all_DFAs[55] = AND_DFA;
-  all_DFAs[56] = OR_DFA;
-  all_DFAs[57] = INC_DFA;
-  all_DFAs[58] = DEC_DFA;
-  all_DFAs[59] = ADD_DFA;
-  all_DFAs[60] = SUB_DFA;
-  all_DFAs[61] = DIV_DFA;
-  all_DFAs[62] = AMP_DFA;
-  all_DFAs[63] = BITOR_DFA;
-  all_DFAs[64] = CARET_DFA;
-  all_DFAs[65] = MOD_DFA;
-  all_DFAs[66] = DEREF_ARROW_DFA;
-  all_DFAs[67] = ADD_ASSIGN_DFA;
-  all_DFAs[68] = SUB_ASSIGN_DFA;
-  all_DFAs[69] = MUL_ASSIGN_DFA;
-  all_DFAs[70] = DIV_ASSIGN_DFA;
-  all_DFAs[71] = AND_ASSIGN_DFA;
-  all_DFAs[72] = OR_ASSIGN_DFA;
-  all_DFAs[73] = XOR_ASSIGN_DFA;
-  all_DFAs[74] = MOD_ASSIGN_DFA;
-  all_DFAs[75] = WS_DFA;
-  all_DFAs[76] = IMPORT_DFA;
-  all_DFAs[77] = SL_COMMENT_DFA;
-  all_DFAs[78] = ML_COMMENT_DFA;
-  all_DFAs[79] = IDENT_DFA;
-  all_DFAs[80] = TRAIT_DFA;
+  all_DFAs[2] = IF_DFA;
+  all_DFAs[3] = ELSE_DFA;
+  all_DFAs[4] = FOR_DFA;
+  all_DFAs[5] = LOOP_DFA;
+  all_DFAs[6] = WHILE_DFA;
+  all_DFAs[7] = CONTINUE_DFA;
+  all_DFAs[8] = BREAK_DFA;
+  all_DFAs[9] = IN_DFA;
+  all_DFAs[10] = CLASS_DFA;
+  all_DFAs[11] = SELF_DFA;
+  all_DFAs[12] = OP_DFA;
+  all_DFAs[13] = OPERATOR_DFA;
+  all_DFAs[14] = TRAIT_DFA;
+  all_DFAs[15] = IMPL_DFA;
+  all_DFAs[16] = ENUM_DFA;
+  all_DFAs[17] = PRIVATE_DFA;
+  all_DFAs[18] = PROTECTED_DFA;
+  all_DFAs[19] = PUBLIC_DFA;
+  all_DFAs[20] = INSTANCEOF_DFA;
+  all_DFAs[21] = SIZEOF_DFA;
+  all_DFAs[22] = ASSERT_DFA;
+  all_DFAs[23] = TRUE_DFA;
+  all_DFAs[24] = FALSE_DFA;
+  all_DFAs[25] = LPAREN_DFA;
+  all_DFAs[26] = RPAREN_DFA;
+  all_DFAs[27] = LBRACE_DFA;
+  all_DFAs[28] = RBRACE_DFA;
+  all_DFAs[29] = LBRACK_DFA;
+  all_DFAs[30] = RBRACK_DFA;
+  all_DFAs[31] = LARROW_DFA;
+  all_DFAs[32] = RARROW_DFA;
+  all_DFAs[33] = SEMI_DFA;
+  all_DFAs[34] = COMMA_DFA;
+  all_DFAs[35] = DOT_DFA;
+  all_DFAs[36] = STAR_DFA;
+  all_DFAs[37] = EQUALS_DFA;
+  all_DFAs[38] = LAMBDA_ARROW_DFA;
+  all_DFAs[39] = BANG_DFA;
+  all_DFAs[40] = TILDE_DFA;
+  all_DFAs[41] = QUESTION_DFA;
+  all_DFAs[42] = COLON_DFA;
+  all_DFAs[43] = EQUAL_DFA;
+  all_DFAs[44] = LE_DFA;
+  all_DFAs[45] = GE_DFA;
+  all_DFAs[46] = NOTEQUAL_DFA;
+  all_DFAs[47] = AND_DFA;
+  all_DFAs[48] = OR_DFA;
+  all_DFAs[49] = INC_DFA;
+  all_DFAs[50] = DEC_DFA;
+  all_DFAs[51] = ADD_DFA;
+  all_DFAs[52] = SUB_DFA;
+  all_DFAs[53] = DIV_DFA;
+  all_DFAs[54] = AMP_DFA;
+  all_DFAs[55] = BITOR_DFA;
+  all_DFAs[56] = CARET_DFA;
+  all_DFAs[57] = MOD_DFA;
+  all_DFAs[58] = DEREF_ARROW_DFA;
+  all_DFAs[59] = ADD_ASSIGN_DFA;
+  all_DFAs[60] = SUB_ASSIGN_DFA;
+  all_DFAs[61] = MUL_ASSIGN_DFA;
+  all_DFAs[62] = DIV_ASSIGN_DFA;
+  all_DFAs[63] = AND_ASSIGN_DFA;
+  all_DFAs[64] = OR_ASSIGN_DFA;
+  all_DFAs[65] = XOR_ASSIGN_DFA;
+  all_DFAs[66] = MOD_ASSIGN_DFA;
+  all_DFAs[67] = WS_DFA;
+  all_DFAs[68] = IMPORT_DFA;
+  all_DFAs[69] = SL_COMMENT_DFA;
+  all_DFAs[70] = ML_COMMENT_DFA;
+  all_DFAs[71] = IDENT_DFA;
+  all_DFAs[72] = TRAIT_DFA;
   return all_DFAs;
 }
 #endif // INCLUDE_AUTOMATA

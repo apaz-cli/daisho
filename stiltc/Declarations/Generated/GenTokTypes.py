@@ -1,7 +1,6 @@
 #!/bin/python
 
-# [TokType, literal]
-
+from Trie import Trie
 
 automata_description = """
 /*
@@ -31,9 +30,7 @@ automata_description = """
  */
 """
 
-
-def pcase(s): return [s.upper(), s.lower()]
-
+trie = Trie()
 
 def flowerbox(str, pad=0):
     pad = pad * ' '
@@ -43,66 +40,51 @@ def flowerbox(str, pad=0):
     f.write(tb)
 
 
+# [TokType, literal]
+def keyword(s): return [s.upper(), s.lower()]
+
+
 exact_tokens = [
     # Pragma
-    pcase("native"),
-    pcase("ctype"),
-
-    # Types
-    ["BOOL", "Bool"],
-    ["CHAR", "Char"],
-    ["UCHAR", "UChar"],
-    ["SHORT", "Short"],
-    ["USHORT", "UShort"],
-    ["INT", "Int"],
-    ["UINT", "UInt"],
-    ["LONG", "Long"],
-    ["FLOAT", "Float"],
-    ["DOUBLE", "Double"],
-    ["VOID", "Void"],
+    keyword("native"),
+    keyword("ctype"),
 
     # Control
-    pcase('if'),
-    pcase('else'),
+    keyword('if'),
+    keyword('else'),
 
     # Loops
-    pcase('for'),
-    pcase('while'),
-    pcase('continue'),
-    pcase('break'),
-    pcase('in'),
-
-    # Exceptions
-    # makeLower('try'),
-    # makeLower('catch'),
-    # makeLower('finally'),
+    keyword('for'),
+    keyword('loop'),
+    keyword('while'),
+    keyword('continue'),
+    keyword('break'),
+    keyword('in'),
 
     # Classes
-    pcase('class'),
-    pcase('this'),
-    pcase('operator'),
-    # pcase('extends'),
-
-    # Interfaces
-    # trait is custom
-    pcase('impl'),
+    keyword('class'),
+    keyword('self'),
+    keyword('op'),
+    keyword('operator'),
+    keyword('trait'),
+    keyword('impl'),
 
     # Other containers
-    pcase('enum'),
+    keyword('enum'),
 
     # Access Modifiers
-    pcase('private'),
-    pcase('protected'),
-    pcase('public'),
+    keyword('private'),
+    keyword('protected'),
+    keyword('public'),
 
     # Builtin functions
-    pcase('instanceof'),
-    pcase('sizeof'),
-    pcase('assert'),
+    keyword('instanceof'),
+    keyword('sizeof'),
+    keyword('assert'),
 
     # Boolean literals
-    pcase('true'),
-    pcase('false'),
+    keyword('true'),
+    keyword('false'),
 
     # Separators
     ["LPAREN", "("],
@@ -152,6 +134,10 @@ exact_tokens = [
     ["MOD_ASSIGN", "%="],
 ]
 
+[trie.add(k) for k in [t[1] for t in exact_tokens]]
+
+print(trie.serialize())
+
 #
 # "Token Name": [
 #    ['start_range', 'end_range', 'start_state', 'end_state'],
@@ -160,7 +146,7 @@ exact_tokens = [
 # ]
 #
 
-tokenizer_automata = {
+custom_automata = {
     "IDENT": [
         ['a', 'z', 1, 2],
         ['A', 'Z', 1, 2],
@@ -168,6 +154,8 @@ tokenizer_automata = {
 }
 
 custom_rules = """
+// Add op | operator
+
 /* IDENT */
 #define IDENT_ACCEPTING 2
 /* First char of idexnt, [_a-zA-Zalpha-omegaALPHA-OMEGA] */

@@ -1,5 +1,5 @@
 bin/**
-__pycache__/**
+**/__pycache__/
 .vscode/**
 .cache/**
 tests/bin/*

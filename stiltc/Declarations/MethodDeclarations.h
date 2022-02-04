@@ -86,10 +86,10 @@ static inline void usage();                  // --help and exit
 static inline void arg_err(const char *msg); // Error parsing args
 
 // Pipeline:
-static inline void runTokenizers();
-static inline void runParsers();
-static inline void runLowering();
-static inline void runSemanticAnalysis();
-static inline void runCodegen();
+static inline void runTokenizers(void);
+static inline void runParsers(void);
+static inline void runLowering(void);
+static inline void runSemanticAnalysis(void);
+static inline void runCodegen(void);
 
 #endif // METHOD_DECLARATIONS
