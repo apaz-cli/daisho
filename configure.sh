@@ -101,6 +101,21 @@ else
     append "#define __STILTS_PYTHON_EXECUTABLE NULL"
 fi
 
+#PYEXEC=""
+if test $PYEXEC; then
+    PYV=$($PYEXEC -c "import platform;print(platform.python_version())")
+    msg "PYTHON VERSION" "$PYV"
+    append "#define __STILTS_PYTHON_VERSION \"$PYV\""
+    append "#define __STILTS_PYTHON_MAJOR_VERSION $(echo $PYV | cut -d. -f1)"
+    append "#define __STILTS_PYTHON_MINOR_VERSION $(echo $PYV | cut -d. -f2)"
+    append "#define __STILTS_PYTHON_SUBMINOR_VERSION $(echo $PYV | cut -d. -f3)"
+else
+    msg "PYTHON VERSION" "NONE"
+    append "#define __STILTS_PYTHON_VERSION \"\""
+    append "#define __STILTS_PYTHON_MAJOR_VERSION 0"
+    append "#define __STILTS_PYTHON_MINOR_VERSION 0"
+    append "#define __STILTS_PYTHON_SUBMINOR_VERSION 0"
+fi
 
 #############
 # PAGE SIZE #
