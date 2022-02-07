@@ -1,4 +1,5 @@
-#include "../../stdlib/Native/Stilts.h"
+#define __STILTS_EMBED_PYTHON 1
+#include "../../stdlib/Stilts.h"
 
 int
 main(int argc, char** argv) {

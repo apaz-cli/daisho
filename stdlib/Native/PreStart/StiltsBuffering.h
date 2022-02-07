@@ -6,39 +6,29 @@
 __STILTS_FN void
 __Stilts_configure_buffering() {
 
-    char errmsg0[] = "Could not set unbuffered IO.";
-    char errmsg1[] = "Could not set line buffered IO.";
-    char errmsg2[] = "Could not set fully buffered IO.";
-    char* errmsgs[] = {errmsg0, errmsg1, errmsg2};
-
-    int in, out, err;
-
-    /* Determine the current buffering mode. */
-#if __STILTS_EMBED_PYTHON
-    
-#else
-    in = out = 1; err = 0;
-#endif
 
 #if __STILTS_OUTPUT_BUFFERING == 0 /* No buffering */
+    char errmsg0[] = "Could not set unbuffered IO.";
     if (setvbuf(stdout, NULL, _IONBF, 0) && (__STILTS_SANITY_CHECK == 2)) {
-        write(STDOUT_FILENO, errmsg, strlen(errmsg));
+        write(STDOUT_FILENO, errmsg0, strlen(errmsg0));
         exit(1);
     }
     if (setvbuf(stderr, NULL, _IONBF, 0) && (__STILTS_SANITY_CHECK == 2)) {
-        write(STDERR_FILENO, errmsg, strlen(errmsg));
+        write(STDERR_FILENO, errmsg0, strlen(errmsg0));
         exit(1);
     }
 #elif __STILTS_OUTPUT_BUFFERING == 1 /* Line buffering */
     /* Line buffering is the default in the C standard. */
+    // char errmsg1[] = "Could not set line buffered IO.";
     // setvbuf(stdout, NULL, _IOLBF, 0);
 #elif __STILTS_OUTPUT_BUFFERING == 2 /* Full buffering */
+    char errmsg2[] = "Could not set fully buffered IO.";
     if (setvbuf(stdout, NULL, _IOFBF, 0) && (__STILTS_SANITY_CHECK == 2)) {
-        write(STDOUT_FILENO, errmsg, strlen(errmsg));
+        write(STDOUT_FILENO, errmsg2, strlen(errmsg2));
         exit(1);
     }
     if (setvbuf(stderr, NULL, _IOFBF, 0) && (__STILTS_SANITY_CHECK == 2)) {
-        write(STDERR_FILENO, errmsg, strlen(errmsg));
+        write(STDERR_FILENO, errmsg2, strlen(errmsg2));
         exit(1);
     }
 #else
