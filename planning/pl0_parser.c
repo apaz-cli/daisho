@@ -4,14 +4,17 @@
 /* Start of GOTO xmacros */
 /*************************/
 
-#define LOCATIONS             \
-    X(program, PROGRAM)       \
-    X(block, BLOCK)           \
-    X(statement, STATEMENT)   \
-    X(condition, CONDITION)   \
-    X(expression, EXPRESSION) \
-    X(term, TERM)             \
-    X(factor, FACTOR)         \
+#define LOCATIONS                 \
+    X(program, PROGRAM)           \
+    X(block, BLOCK)               \
+    X(statement, STATEMENT)       \
+    X(condition, CONDITION)       \
+    X(expression, EXPRESSION)     \
+    X(term, TERM)                 \
+    X(factor, FACTOR)             \
+    X(blockretproc, BLOCKRETPROC) \
+    X(factretterm1, FACTRETTERM1) \
+    X(factretterm2, FACTRETTERM2) \
     X(end, END)
 
 typedef enum {
@@ -26,12 +29,12 @@ typedef enum {
 #define GOTO(number) \
     switch (number) { LOCATIONS default : error("AAAAAAAAH!"); }
 
-#define CALL(from, to, on)                           \
+#define CALL(from, to)                               \
     do {                                             \
         current_frame++;                             \
         current_frame->return_address = from;        \
         current_frame->stream_start_pos = spos->pos; \
-        current_frame->parent = on;                  \
+        current_frame->parent = node;                \
         GOTO(to);                                    \
     } while (0)
 
@@ -93,7 +96,7 @@ struct ASTNode {
 typedef struct {
     size_t stream_start_pos;
     goto_t return_address;
-    ASTNode parent;
+    ASTNode* parent;
 } ParserStackFrame;
 
 static inline Symbol
@@ -125,10 +128,13 @@ expect(StreamPosition* spos, Symbol s) {
 #define PARSER_STACK_SIZE 10000
 
 int
-main(int argc, char** argv) {
-    (void)argc;
-    char* input = argv[1];
-    if (!input) error("Please provide input.\n");
+main(void) {
+    Symbol program[] = {VARSYM,    IDENT,     COMMA,     IDENT,  SEMICOLON, BEGINSYM, IDENT, EQL,
+                        NUMBER,    SEMICOLON, WHILESYM,  IDENT,  BEGINSYM,  IDENT,    EQL,   IDENT,
+                        PLUS,      NUMBER,    SEMICOLON, IDENT,  EQL,       IDENT,    TIMES, NUMBER,
+                        SEMICOLON, ENDSYM,    SEMICOLON, ENDSYM, PERIOD};
+    StreamPosition p = {(SymbolStream)program, 0};
+    StreamPosition* spos = &p;
 
     ParserStackFrame stack_space[PARSER_STACK_SIZE];
     ParserStackFrame* stack_end = stack_space + PARSER_STACK_SIZE;
@@ -136,15 +142,33 @@ main(int argc, char** argv) {
     stack_space->stream_start_pos = 0;
     stack_space->return_address = END;
 
-    SymbolStream stream = NULL;
-    StreamPosition p = {stream, 0};
-    StreamPosition* spos = &p;
+    ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode*));
 
 program:;
     puts("program");
     GOTO(BLOCK);
 block:;
-    puts("block");
+    if (accept(spos, CONSTSYM)) {
+        do {
+            expect(spos, IDENT);
+            expect(spos, EQL);
+            expect(spos, NUMBER);
+        } while (accept(spos, COMMA));
+        expect(spos, SEMICOLON);
+    }
+    if (accept(spos, VARSYM)) {
+        do {
+            expect(spos, IDENT);
+        } while (accept(spos, COMMA));
+        expect(spos, SEMICOLON);
+    }
+    while (accept(spos, PROCSYM)) {
+        expect(spos, IDENT);
+        expect(spos, SEMICOLON);
+        CALL(BLOCKRETPROC, PROCSYM);
+    blockretproc:;
+        expect(spos, SEMICOLON);
+    }
     GOTO(STATEMENT);
 statement:;
     puts("statement");
@@ -152,6 +176,15 @@ statement:;
 condition:;
 expression:;
 term:;
+    {
+        factor();
+    factretterm1:;
+        while (sym_at(spos) == TIMES || sym_at(spos) == SLASH) {
+            spos->pos++;
+            factor();
+        factretterm2:;
+        }
+    }
 factor:;
 end:;
 }
