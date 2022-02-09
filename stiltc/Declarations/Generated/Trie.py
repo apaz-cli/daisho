@@ -29,7 +29,6 @@ class Trie(object):
         dmp.append([root.char, len(root.children), root.word_finished])
         for c in root.children:
             c.serialize(dmp)
-
         return dmp if not first else dmp[1:]
 
     def query(root, query):

@@ -57,41 +57,40 @@
 // #include <threads.h>
 
 #else /* __cplusplus */
-#include <assert>
-#include <ctype>
-#include <errno>
-#include <float>
-#include <limits>
-#include <locale>
-#include <math>
-#include <setjmp>
-#include <signal>
-#include <stdarg>
-#include <stddef>
-#include <stdio>
-#include <stdlib>
-#include <string>
-#include <time>
+#include <cassert>
+#include <cctype>
+#include <cerrno>
+#include <cfloat>
+#include <climits>
+#include <clocale>
+#include <cmath>
+#include <csetjmp>
+#include <csignal>
+#include <cstdarg>
+#include <cstddef>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
 
 /* C95 */
-#include <iso646>
-#include <wchar>
-#include <wctype>
+#include <ciso646>
+#include <cwchar>
+#include <cwctype>
 
 /* C99 */
-#include <complex>
-#include <fenv>
-#include <inttypes>
-#include <stdbool>
-#include <stdint>
-#include <tgmath>
+#include <ccomplex>
+#include <cfenv>
+#include <cinttypes>
+#include <cstdbool>
+#include <cstdint>
+#include <ctgmath>
 
 /* C11 */
-#include <stdalign>
-#include <stdnoreturn>
-#include <uchar>
-// #include <stdatomic>
-// #include <threads>
+#include <cstdalign>
+#include <cuchar>
+// #include <cstdatomic>
+// #include <cthreads>
 
 #endif /* End of stdlib includes */
 

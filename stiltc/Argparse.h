@@ -2,6 +2,7 @@
 #define ARGPARSE_INCLUDE
 
 #include <apaz-libc.h>
+
 #include "Declarations/Declarations.h"
 
 static const char* usageMesasge =
@@ -17,7 +18,7 @@ static const char* usageMesasge =
     "  --compile  : Execute the whole pipeline and produce a binary (defaut).\n"
     "\n"
     "C Compiler Flags:\n"
-    "  --CC       : Specify which C compiler to use (System cc by default).\n"
+    "  --cc       : Specify which C compiler to use (System cc by default).\n"
     "  --cflags   : Specify which flags to give to the C compiler.\n"
     "\n"
     "Runtime Extension Flags:\n"
@@ -49,11 +50,12 @@ static const char* usageMesasge =
 // Lambdas
 static inline void
 str_destroy(String s, void* none) {
+    (void)none;
     String_destroy(s);
 }
 static inline bool
-filterEmpty(String str, void* extra) {
-    (void)extra;
+filterEmpty(String str, void* none) {
+    (void)none;
     bool empty = str[0] == '\0';
     if (empty) String_destroy(str);
     return !empty;
@@ -76,10 +78,9 @@ usage() {
 
 static inline void
 parseFlags(int argc, char** argv) {
-
     // Set defaults
     cmdFlags.temp_folder = (char*)"/tmp/stilts/";
-    cmdFlags.CC = (char*)"cc";
+    cmdFlags.cc = (char*)"cc";
     cmdFlags.cflags = List_String_new_cap(0);
     cmdFlags.targets = List_Target_new_cap(1);
     cmdFlags.parse = true;
@@ -93,27 +94,25 @@ parseFlags(int argc, char** argv) {
     if (argc <= 1) {
         usage();
     } else {
-        for (size_t i = 1; i < argc; i++) {
+        for (size_t i = 1; i < (size_t)argc; i++) {
             // If the previous flag had an argument, grab it instead of
             // interpreting the argument as a flag.
             if (grabNext) {
                 grabNext = false;
 
-                if (apaz_str_equals(argv[i - 1], (char*)"--CC")) {
-                    cmdFlags.CC = String_new_of_strlen(argv[i]);
+                if (apaz_str_equals(argv[i - 1], (char*)"--cc")) {
+                    cmdFlags.cc = String_new_of_strlen(argv[i]);
                     continue;
                 } else if (apaz_str_equals(argv[i - 1], (char*)"--cflags")) {
                     String sarg = String_new_of_strlen(argv[i]);
                     List_String_destroy(cmdFlags.cflags);
-                    cmdFlags.cflags = List_String_filter(
-                        String_split(sarg, (char*)" "), filterEmpty, NULL);
+                    cmdFlags.cflags =
+                        List_String_filter(String_split(sarg, (char*)" "), filterEmpty, NULL);
                     String_destroy(sarg);
                     continue;
                 } else if (apaz_str_equals(argv[i - 1], (char*)"-j")) {
-                    int i = atoi(argv[i]);
-                    if (!(i > 0))
-                        arg_err(
-                            "The number of jobs must be a number greater than zero.");
+                    int j = atoi(argv[i]);
+                    if (!(j > 0)) arg_err("The number of jobs must be a number greater than zero.");
                     cmdFlags.num_threads = (size_t)i;
                 }
             }
@@ -135,20 +134,19 @@ parseFlags(int argc, char** argv) {
                 cmdFlags.compileC = false;
 
             // C Compiler Flags
-            else if (apaz_str_equals(argv[i], (char*)"--CC")) {
-                if (i == argc)
-                    arg_err(
-                        "--CC requires an argument (The C compiler to use).");
+            else if (apaz_str_equals(argv[i], (char*)"--cc")) {
+                if (i == (size_t)argc)
+                    arg_err("--cc requires an argument (The C compiler to use).");
                 grabNext = true;
             } else if (apaz_str_equals(argv[i], (char*)"--cflags")) {
-                if (i == argc)
+                if (i == (size_t)argc)
                     arg_err(
                         "--cflags requires an argument (The flags to pass to "
                         "the C compiler, all in one argument).");
                 grabNext = true;
             } else if (apaz_str_equals(argv[i], (char*)"-j") ||
                        apaz_str_equals(argv[i], (char*)"--jobs")) {
-                if (i == argc)
+                if (i == (size_t)argc)
                     arg_err(
                         "--jobs/-j requires an argument (The number of threads "
                         "to create).");
@@ -207,7 +205,7 @@ printFlags() {
         strb(cmdFlags.compileC));
 
     puts("    /* Codegen Options */");
-    printf("    CC:      %s\n", cmdFlags.CC);
+    printf("    cc:      %s\n", cmdFlags.cc);
     printf("    cflags:  [");
     if (List_String_len(cmdFlags.cflags)) printf("%s", cmdFlags.cflags[0]);
     for (size_t i = 1; i < List_String_len(cmdFlags.cflags); i++)
@@ -215,8 +213,7 @@ printFlags() {
     printf("]\n");
 
     printf("    targets: [");
-    if (List_Target_len(cmdFlags.targets))
-        printf("%s", cmdFlags.targets[0].file_name);
+    if (List_Target_len(cmdFlags.targets)) printf("%s", cmdFlags.targets[0].file_name);
     for (size_t i = 1; i < List_Target_len(cmdFlags.targets); i++)
         printf(", %s", cmdFlags.targets[i].file_name);
     printf("]\n\n");

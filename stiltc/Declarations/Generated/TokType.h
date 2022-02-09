@@ -3,14 +3,13 @@
 #define INCLUDE_TOKENS
 #include <apaz-libc.h>
 
-#define NUM_TOKTYPES 75
+#define NUM_TOKTYPES 74
 enum TokType {
   WS,
   IMPORT,
   SL_COMMENT,
   ML_COMMENT,
   IDENT,
-  TRAIT,
   END_OF_FILE,
   INVALID,
   NATIVE,
@@ -155,7 +154,6 @@ static const char* TokNameMap[] = {
   "SL_COMMENT", 
   "ML_COMMENT", 
   "IDENT", 
-  "TRAIT", 
   "END_OF_FILE", 
   "INVALID"
 };

@@ -193,7 +193,7 @@ struct CMDLineFlags {
   char sanity;
 
   /* C codegen options */
-  char* CC;
+  char* cc;
   size_t num_threads;
   List_String cflags;
   char* temp_folder;

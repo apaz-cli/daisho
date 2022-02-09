@@ -21,7 +21,7 @@ struct TokenizeTaskArgs {};
 typedef struct TokenizeTaskArgs TokenizeTaskArgs;
 static inline void
 tokenize_task(void* targs) {
-    TokenizeTaskArgs* args = targs;
+    TokenizeTaskArgs* args = (TokenizeTaskArgs*)targs;
 }
 static inline void
 tokenizeTargets() {

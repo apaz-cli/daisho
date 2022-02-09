@@ -13,6 +13,7 @@ else
 fi
 
 # Move common headers into place
+sudo rm -rf /usr/include/stilts/
 sudo cp -r stdlib/ /usr/include/stilts/
 
 # Install stiltc executable

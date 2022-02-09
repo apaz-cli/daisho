@@ -436,24 +436,6 @@ static const DFARule IMPORT_rule_10 = { .start_range = 'u', .end_range = 'i', .s
 static const DFARule IMPORT_rule_11 = { .start_range = 'd', .end_range = 'i', .start_state = 6, .end_state = 7 };
 static const DFARule IMPORT_rule_12 = { .start_range = 'e', .end_range = 'i', .start_state = 7, .end_state = 8 };
 
-/* Trait / Interface */
-#define TRAIT_ACCEPTING 10
-static const DFARule TRAIT_rule_1  = { .start_range = 't', .end_range = 't', .start_state = 1, .end_state = 2 };
-static const DFARule TRAIT_rule_2  = { .start_range = 'r', .end_range = 'r', .start_state = 2, .end_state = 3 };
-static const DFARule TRAIT_rule_3  = { .start_range = 'a', .end_range = 'a', .start_state = 3, .end_state = 4 };
-static const DFARule TRAIT_rule_4  = { .start_range = 'i', .end_range = 'i', .start_state = 4, .end_state = 5 };
-static const DFARule TRAIT_rule_5  = { .start_range = 't', .end_range = 't', .start_state = 5, .end_state = 10 };
-static const DFARule TRAIT_rule_6  = { .start_range = 'i', .end_range = 'i', .start_state = 1, .end_state = 2 };
-static const DFARule TRAIT_rule_7  = { .start_range = 'n', .end_range = 'n', .start_state = 2, .end_state = 3 };
-static const DFARule TRAIT_rule_8  = { .start_range = 't', .end_range = 't', .start_state = 3, .end_state = 4 };
-static const DFARule TRAIT_rule_9  = { .start_range = 'e', .end_range = 'e', .start_state = 4, .end_state = 5 };
-static const DFARule TRAIT_rule_10 = { .start_range = 'r', .end_range = 'r', .start_state = 5, .end_state = 6 };
-static const DFARule TRAIT_rule_11 = { .start_range = 'f', .end_range = 'f', .start_state = 6, .end_state = 7 };
-static const DFARule TRAIT_rule_12 = { .start_range = 'a', .end_range = 'a', .start_state = 7, .end_state = 8 };
-static const DFARule TRAIT_rule_13 = { .start_range = 'c', .end_range = 'c', .start_state = 8, .end_state = 9 };
-static const DFARule TRAIT_rule_14 = { .start_range = 'e', .end_range = 'e', .start_state = 9, .end_state = 10 };
-
-
 
 
 
@@ -604,12 +586,10 @@ static DFARule SL_COMMENT_rules[4];
 static DFA SL_COMMENT_DFA;
 static DFARule IMPORT_rules[12];
 static DFA IMPORT_DFA;
-static DFARule TRAIT_rules[14];
-static DFA TRAIT_DFA;
 /************/
 /* All DFAs */
 /************/
-static DFA all_DFAs[73];
+static DFA all_DFAs[72];
 
 /* Initializes the global variable all_DFAs. */
 static inline DFA* initTokenizerDFAs() {
@@ -1065,25 +1045,6 @@ static inline DFA* initTokenizerDFAs() {
   IMPORT_DFA.num_rules = ARR_SIZE(IMPORT_rules);
   IMPORT_DFA.accepting_state = IMPORT_ACCEPTING;
 
-  /* TRAIT */
-  TRAIT_rules[0] = TRAIT_rule_1;
-  TRAIT_rules[1] = TRAIT_rule_2;
-  TRAIT_rules[2] = TRAIT_rule_3;
-  TRAIT_rules[3] = TRAIT_rule_4;
-  TRAIT_rules[4] = TRAIT_rule_5;
-  TRAIT_rules[5] = TRAIT_rule_6;
-  TRAIT_rules[6] = TRAIT_rule_7;
-  TRAIT_rules[7] = TRAIT_rule_8;
-  TRAIT_rules[8] = TRAIT_rule_9;
-  TRAIT_rules[9] = TRAIT_rule_10;
-  TRAIT_rules[10] = TRAIT_rule_11;
-  TRAIT_rules[11] = TRAIT_rule_12;
-  TRAIT_rules[12] = TRAIT_rule_13;
-  TRAIT_rules[13] = TRAIT_rule_14;
-  TRAIT_DFA.rules = TRAIT_rules;
-  TRAIT_DFA.num_rules = ARR_SIZE(TRAIT_rules);
-  TRAIT_DFA.accepting_state = TRAIT_ACCEPTING;
-
   /*******************************************************************/
   /* Initialize DFA Array (The point of this entire painful episode) */
   /*******************************************************************/
@@ -1159,7 +1120,6 @@ static inline DFA* initTokenizerDFAs() {
   all_DFAs[69] = SL_COMMENT_DFA;
   all_DFAs[70] = ML_COMMENT_DFA;
   all_DFAs[71] = IDENT_DFA;
-  all_DFAs[72] = TRAIT_DFA;
   return all_DFAs;
 }
 #endif // INCLUDE_AUTOMATA

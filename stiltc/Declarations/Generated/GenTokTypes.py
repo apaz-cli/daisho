@@ -30,7 +30,8 @@ automata_description = """
  */
 """
 
-trie = Trie()
+keywordDFA = Trie()
+
 
 def flowerbox(str, pad=0):
     pad = pad * ' '
@@ -134,9 +135,9 @@ exact_tokens = [
     ["MOD_ASSIGN", "%="],
 ]
 
-[trie.add(k) for k in [t[1] for t in exact_tokens]]
+[keywordDFA.add(k) for k in [t[1] for t in exact_tokens]]
 
-print(trie.serialize())
+print(keywordDFA.serialize())
 
 #
 # "Token Name": [
@@ -154,8 +155,6 @@ custom_automata = {
 }
 
 custom_rules = """
-// Add op | operator
-
 /* IDENT */
 #define IDENT_ACCEPTING 2
 /* First char of idexnt, [_a-zA-Zalpha-omegaALPHA-OMEGA] */
@@ -211,29 +210,11 @@ static const DFARule IMPORT_rule_10 = { .start_range = 'u', .end_range = 'i', .s
 static const DFARule IMPORT_rule_11 = { .start_range = 'd', .end_range = 'i', .start_state = 6, .end_state = 7 };
 static const DFARule IMPORT_rule_12 = { .start_range = 'e', .end_range = 'i', .start_state = 7, .end_state = 8 };
 
-/* Trait / Interface */
-#define TRAIT_ACCEPTING 10
-static const DFARule TRAIT_rule_1  = { .start_range = 't', .end_range = 't', .start_state = 1, .end_state = 2 };
-static const DFARule TRAIT_rule_2  = { .start_range = 'r', .end_range = 'r', .start_state = 2, .end_state = 3 };
-static const DFARule TRAIT_rule_3  = { .start_range = 'a', .end_range = 'a', .start_state = 3, .end_state = 4 };
-static const DFARule TRAIT_rule_4  = { .start_range = 'i', .end_range = 'i', .start_state = 4, .end_state = 5 };
-static const DFARule TRAIT_rule_5  = { .start_range = 't', .end_range = 't', .start_state = 5, .end_state = 10 };
-static const DFARule TRAIT_rule_6  = { .start_range = 'i', .end_range = 'i', .start_state = 1, .end_state = 2 };
-static const DFARule TRAIT_rule_7  = { .start_range = 'n', .end_range = 'n', .start_state = 2, .end_state = 3 };
-static const DFARule TRAIT_rule_8  = { .start_range = 't', .end_range = 't', .start_state = 3, .end_state = 4 };
-static const DFARule TRAIT_rule_9  = { .start_range = 'e', .end_range = 'e', .start_state = 4, .end_state = 5 };
-static const DFARule TRAIT_rule_10 = { .start_range = 'r', .end_range = 'r', .start_state = 5, .end_state = 6 };
-static const DFARule TRAIT_rule_11 = { .start_range = 'f', .end_range = 'f', .start_state = 6, .end_state = 7 };
-static const DFARule TRAIT_rule_12 = { .start_range = 'a', .end_range = 'a', .start_state = 7, .end_state = 8 };
-static const DFARule TRAIT_rule_13 = { .start_range = 'c', .end_range = 'c', .start_state = 8, .end_state = 9 };
-static const DFARule TRAIT_rule_14 = { .start_range = 'e', .end_range = 'e', .start_state = 9, .end_state = 10 };
-
-
 
 """
 
 custom_tokens = ['WS', 'IMPORT', 'SL_COMMENT', 'ML_COMMENT',
-                 'IDENT', 'TRAIT', 'END_OF_FILE', 'INVALID']
+                 'IDENT', 'END_OF_FILE', 'INVALID']
 
 # name, num_rules
 customInfo = [
@@ -242,7 +223,6 @@ customInfo = [
     ['ML_COMMENT', 5],
     ['SL_COMMENT', 4],
     ['IMPORT', 12],
-    ['TRAIT', 14]
 ]
 
 
