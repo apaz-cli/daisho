@@ -1,49 +1,84 @@
-#include <apaz-libc.h>
+#ifndef PL0_PARSER_INCLUDE
+#define PL0_PARSER_INCLUDE
+#include <stdio.h>
+#include <stdlib.h>
 
-/*************************/
-/* Start of GOTO xmacros */
-/*************************/
+/* GCC has an extension called "Labels as Values." It's also been adopted by
+   Clang and the Intel C compiler. It greatly simplifies the code, and also
+   makes it considerably more efficient. However, it's not available in standard
+   C, so for compatibility's sake I'm defining it both ways. */
 
+
+/* If we're forced to use standard C, create an xmacro enum of locations we can go to, and fill an enum. */
+/* If we have labels as values, identify labels with void*. Otherwise, use the enum values.*/
+#define HAS_LABEL_VALUES
+#ifndef HAS_LABEL_VALUES
 #define LOCATIONS                 \
-    X(program, PROGRAM)           \
-    X(block, BLOCK)               \
-    X(statement, STATEMENT)       \
-    X(condition, CONDITION)       \
-    X(expression, EXPRESSION)     \
-    X(term, TERM)                 \
-    X(factor, FACTOR)             \
-    X(blockretproc, BLOCKRETPROC) \
-    X(factretterm1, FACTRETTERM1) \
-    X(factretterm2, FACTRETTERM2) \
-    X(end, END)
+    X(program)           \
+    X(block)               \
+    X(statement)       \
+    X(condition)       \
+    X(expression)     \
+    X(term)                 \
+    X(factor)             \
+    X(blockretproc) \
+    X(factretterm1) \
+    X(factretterm2) \
+    X(end)
 
 typedef enum {
-#define X(label, num) num,
+#define X(label) label##_loc,
     LOCATIONS
 #undef X
 } goto_t;
+#else /* HAS_LABEL_VALUES */
+typedef void* goto_t;
+#endif
 
-#define X(label, num) \
-    case num:         \
-        goto label;
-#define GOTO(number) \
-    switch (number) { LOCATIONS default : error("AAAAAAAAH!"); }
 
-#define CALL(from, to)                               \
-    do {                                             \
-        current_frame++;                             \
-        current_frame->return_address = from;        \
-        current_frame->stream_start_pos = spos->pos; \
-        current_frame->parent = node;                \
-        GOTO(to);                                    \
+/* Define GOTO(label_val). It will be use to define CALL() and RETURN(). */
+#ifndef HAS_LABEL_VALUES
+#define X(label) case label##_loc: goto label;
+#define GOTO(label_val) do { switch (label_val) { LOCATIONS default : error("Invalid GOTO variable!"); } } while(0)
+#else /* HAS_LABEL_VALUES */
+#define GOTO(label_val) do { goto *label_val; } while(0)
+#endif
+
+
+#define __CAT(a,b) a##b
+#define __LBL(b,l) __CAT(b, l)
+#define UNIQUE(base) __LBL(base, __LINE__)
+
+#define CALL(to_val)                                                \
+    do {                                                            \
+        puts("Saving info for call.");\
+        /* Push a frame with the address and state that we want to \
+           return to. */ \
+        current_frame++;                                            \
+        puts("Pushed frame.");\
+        printf("%p\n", &&UNIQUE(__label_));\
+        current_frame->return_address = &&UNIQUE(__label_);         \
+        puts("Saved address.");\
+        current_frame->stream_pos = spos->pos;                      \
+        current_frame->parent = node;                               \
+                                                                    \
+        /* Jump to what we're calling. */                           \
+        puts("jumping");\
+        goto to_val;                                           \
+                                                                    \
+        /* Use the __LINE__ trick to generate a label with a        \
+           unique name. We can reference it above because a         \
+           macro only expands into one line. */                     \
+        UNIQUE(__label_):;                                          \
+        puts("Loading info for call.");                                                            \
+        /* Now that we've returned, rewind the token stream         \
+           and pop the stack frame. */                              \
+        spos->pos = current_frame->stream_pos;                      \
+        current_frame--;                                            \
     } while (0)
 
-#define RETURN()                                           \
-    do {                                                   \
-        goto_t __ret_addr = current_frame->return_address; \
-        current_frame--;                                   \
-        GOTO(__ret_addr);                                  \
-    } while (0)
+#define RETURN() do { goto_t __retaddr = current_frame->return_address; GOTO(__retaddr); } while(0)
+
 
 /************/
 /* Typedefs */
@@ -94,7 +129,7 @@ struct ASTNode {
 };
 
 typedef struct {
-    size_t stream_start_pos;
+    size_t stream_pos;
     goto_t return_address;
     ASTNode* parent;
 } ParserStackFrame;
@@ -133,21 +168,26 @@ main(void) {
                         NUMBER,    SEMICOLON, WHILESYM,  IDENT,  BEGINSYM,  IDENT,    EQL,   IDENT,
                         PLUS,      NUMBER,    SEMICOLON, IDENT,  EQL,       IDENT,    TIMES, NUMBER,
                         SEMICOLON, ENDSYM,    SEMICOLON, ENDSYM, PERIOD};
-    StreamPosition p = {(SymbolStream)program, 0};
+    size_t num_symbols = sizeof(program) / sizeof(Symbol);
+    StreamPosition p = {program, 0};
     StreamPosition* spos = &p;
 
     ParserStackFrame stack_space[PARSER_STACK_SIZE];
     ParserStackFrame* stack_end = stack_space + PARSER_STACK_SIZE;
     ParserStackFrame* current_frame = current_frame;
-    stack_space->stream_start_pos = 0;
-    stack_space->return_address = END;
+    stack_space->stream_pos = 0;
+    stack_space->return_address = &&end;
 
     ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode*));
 
 program:;
     puts("program");
-    GOTO(BLOCK);
+    CALL(block);
+    puts("Called block.");
+    expect(spos, PERIOD);
+    RETURN();
 block:;
+    puts("block");
     if (accept(spos, CONSTSYM)) {
         do {
             expect(spos, IDENT);
@@ -165,26 +205,24 @@ block:;
     while (accept(spos, PROCSYM)) {
         expect(spos, IDENT);
         expect(spos, SEMICOLON);
-        CALL(BLOCKRETPROC, PROCSYM);
-    blockretproc:;
+        CALL(block);
         expect(spos, SEMICOLON);
     }
-    GOTO(STATEMENT);
+    CALL(statement);
+    RETURN();
 statement:;
     puts("statement");
-    GOTO(PROGRAM);
 condition:;
+    puts("condition");
 expression:;
+    puts("expression");
 term:;
-    {
-        factor();
-    factretterm1:;
-        while (sym_at(spos) == TIMES || sym_at(spos) == SLASH) {
-            spos->pos++;
-            factor();
-        factretterm2:;
-        }
-    }
+    puts("term");
 factor:;
+    puts("factor");
 end:;
+    puts("end");
 }
+
+#undef X
+#endif
