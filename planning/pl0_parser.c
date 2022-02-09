@@ -51,26 +51,20 @@ typedef void* goto_t;
 
 #define CALL(to_val)                                                \
     do {                                                            \
-        puts("Saving info for call.");\
-        /* Push a frame with the address and state that we want to \
-           return to. */ \
+        /* Push a frame with the address and state that we want to  \
+           return to. */                                            \
         current_frame++;                                            \
-        puts("Pushed frame.");\
-        printf("%p\n", &&UNIQUE(__label_));\
         current_frame->return_address = &&UNIQUE(__label_);         \
-        puts("Saved address.");\
         current_frame->stream_pos = spos->pos;                      \
         current_frame->parent = node;                               \
                                                                     \
         /* Jump to what we're calling. */                           \
-        puts("jumping");\
         goto to_val;                                           \
                                                                     \
         /* Use the __LINE__ trick to generate a label with a        \
            unique name. We can reference it above because a         \
            macro only expands into one line. */                     \
         UNIQUE(__label_):;                                          \
-        puts("Loading info for call.");                                                            \
         /* Now that we've returned, rewind the token stream         \
            and pop the stack frame. */                              \
         spos->pos = current_frame->stream_pos;                      \
@@ -145,16 +139,9 @@ error(const char* msg) {
     exit(1);
 }
 
-static inline int
-accept(StreamPosition* spos, Symbol s) {
-    return sym_at(spos++) == s;
-}
+#define accept(s) (sym_at(spos++) == (s))
+#define expect(s) (accept(s) ? 1 : (error("unexpected symbol."), 1))
 
-static inline int
-expect(StreamPosition* spos, Symbol s) {
-    if (accept(spos, s)) return 1;
-    error("unexpected symbol.");
-}
 
 /*************************/
 /* Parser Implementation */
@@ -174,7 +161,7 @@ main(void) {
 
     ParserStackFrame stack_space[PARSER_STACK_SIZE];
     ParserStackFrame* stack_end = stack_space + PARSER_STACK_SIZE;
-    ParserStackFrame* current_frame = current_frame;
+    ParserStackFrame* current_frame = stack_space;
     stack_space->stream_pos = 0;
     stack_space->return_address = &&end;
 
@@ -183,35 +170,47 @@ main(void) {
 program:;
     puts("program");
     CALL(block);
-    puts("Called block.");
-    expect(spos, PERIOD);
+    expect(PERIOD);
     RETURN();
 block:;
     puts("block");
-    if (accept(spos, CONSTSYM)) {
+    if (accept(CONSTSYM)) {
         do {
-            expect(spos, IDENT);
-            expect(spos, EQL);
-            expect(spos, NUMBER);
-        } while (accept(spos, COMMA));
-        expect(spos, SEMICOLON);
+            expect(IDENT);
+            expect(EQL);
+            expect(NUMBER);
+        } while (accept(COMMA));
+        expect(SEMICOLON);
     }
-    if (accept(spos, VARSYM)) {
+    if (accept(VARSYM)) {
         do {
-            expect(spos, IDENT);
-        } while (accept(spos, COMMA));
-        expect(spos, SEMICOLON);
+            expect(IDENT);
+        } while (accept(COMMA));
+        expect(SEMICOLON);
     }
-    while (accept(spos, PROCSYM)) {
-        expect(spos, IDENT);
-        expect(spos, SEMICOLON);
+    while (accept(PROCSYM)) {
+        expect(IDENT);
+        expect(SEMICOLON);
         CALL(block);
-        expect(spos, SEMICOLON);
+        expect(SEMICOLON);
     }
     CALL(statement);
     RETURN();
 statement:;
     puts("statement");
+    if (accept(IDENT)) {
+        expect(EQL);
+        CALL(expression);
+    } else if (accept(CALLSYM)) {
+        expect(IDENT);
+    } else if (accept(BEGINSYM)) {
+        CALL(statement);
+        while(accept(SEMICOLON)) {
+            CALL(statement);
+        }
+        expect(ENDSYM);
+    }
+    RETURN();
 condition:;
     puts("condition");
 expression:;
