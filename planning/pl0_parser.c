@@ -51,15 +51,15 @@ typedef void* goto_t;
 
 #define CALL(to_val)                                                \
     do {                                                            \
-        /* Push a frame with the address and state that we want to  \
-           return to. */                                            \
+        /* Push a frame with the address and state that             \
+           we want to return to. */                                 \
         current_frame++;                                            \
         current_frame->return_address = &&UNIQUE(__label_);         \
         current_frame->stream_pos = spos->pos;                      \
         current_frame->parent = node;                               \
                                                                     \
         /* Jump to what we're calling. */                           \
-        goto to_val;                                           \
+        goto to_val;                                                \
                                                                     \
         /* Use the __LINE__ trick to generate a label with a        \
            unique name. We can reference it above because a         \
