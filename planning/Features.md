@@ -1,15 +1,16 @@
 
 # Language Features:
+* Everything from C
 * Classes
-* Traits
-* Parametric Polymorphism
+* Traits (Using labeled unions with optimized vtables)
+* Templates (Using macros)
 * Automatic type deduction
 * Automatic template deduction
-* Inline native C
+* Inline C
 * Inline Python
-* Memdebug leak detection
-* Builtins
-  * sizeof(), alignof()
+* Memory Debugger
+* Lifetime Debugger
+* UB Debugger
 
 # Standard Library Features:
 * IO (println, fopen, etc through native bindings)
@@ -23,6 +24,7 @@ The following must agree:
 * Handling of Optionals
 * Lambda expressions
 * Trait types
+* Pointer marking
 * Mangling conventions
 * Calling conventions
 * C bindings
