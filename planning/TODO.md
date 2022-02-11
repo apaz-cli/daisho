@@ -10,10 +10,19 @@
 | Memory Debugger       | apaz    | Medium   |                                |
 | Named Memory Areas    | apaz    | High     | Do before parser and debugger. |
 | FP Assertions to main | apaz    | High     | So I don't forget.             |
-| Stream Memory Model   | apaz    | Medium   | Polymorphishm beyond traits?   |
+| Iterator Memory Model | apaz    | Medium   | Polymorphishm beyond traits?   |
+| Type System Thoughts  | apaz    | Medium   | Traits and optimization?       |
 
 
 ## Backlog
 | Task:                 | Asignee | Priority | Notes:                         |
 | :-------------------- | :-----: | :------: | -----------------------------: |
-| Fix Configure Script  |         | Medium   | Need an sh expert.             |
+| Fix Configure Script  |         |          | Need an sh expert.             |
+| PythonObject class    |         |          | See Swift's implementation.    |
+| Name Mangling rules   |         |          |                                |
+| String implementation |         |          |                                |
+| Stdlib Traits API     |         |          |                                |
+| Thread/Mutex bindings |         |          |                                |
+| Name Mangling rules   |         |          |                                |
+| UTF8String (Separate) |         |          |                                |
+| File API bindings     |         |          |                                |
