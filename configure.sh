@@ -7,48 +7,29 @@ CONFIG=""
 WRITE_TO="stdlib/Native/Configs/StiltsGeneratedConfig.h"
 COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
 if test $COLS -gt 90; then COLS=57; fi
-NL=$(printf %s '\n')
 IN_CMT="// __STILTS_STDLIB_GENERATEDCONFIG"
 
 # COLORS
 ncolors=$(tput colors)
 if test -n "$ncolors" && test "$ncolors" -ge 8; then
     hascolors=1
-    bold="$(tput bold)"
-    underline="$(tput smul)"
-    standout="$(tput smso)"
     normal="$(tput sgr0)"
-    black="$(tput setaf 0)"
-    red="$(tput setaf 1)"
     green="$(tput setaf 2)"
     yellow="$(tput setaf 3)"
-    blue="$(tput setaf 4)"
     magenta="$(tput setaf 5)"
-    cyan="$(tput setaf 6)"
-    white="$(tput setaf 7)"
 else
     hascolors=0
-    bold=""
-    underline=""
-    standout=""
     normal=""
-    black=""
-    red=""
     green=""
     yellow=""
-    blue=""
     magenta=""
-    cyan=""
-    white=""
 fi
 
-msg() { printf "${green}%-20s:${normal} ${yellow}%"$COLS"s${normal}\n" "$1" "$2"; }
-append() { CONFIG="$CONFIG$1$(printf %s '\n')"; }
-guard() { CONFIG="#pragma once$NL#ifndef __STILTS_STDLIB_GENERATEDCONFIG$NL#define __STILTS_STDLIB_GENERATEDCONFIG$NL$NL$CONFIG$NL#endif $IN_CMT"; }
-writeconfig() { echo $CONFIG > $WRITE_TO; }
 
-
-
+msg() { printf "${green}%-20s:${normal} ${yellow}%""$COLS""s${normal}\n" "$1" "$2"; }
+append() { CONFIG="$CONFIG$1\n"; }
+guard() { CONFIG="#pragma once\n#ifndef __STILTS_STDLIB_GENERATEDCONFIG\n#define __STILTS_STDLIB_GENERATEDCONFIG\n\n$CONFIG\n#endif $IN_CMT"; }
+writeconfig() { printf "%b" "$CONFIG" > $WRITE_TO; }
 
 
 #############################
