@@ -12,13 +12,13 @@ for file in glob("**/*", recursive=True):
 
     print(file)
 
-    with open(file, 'w+') as f:
+    nls = []
+    with open(file, 'r') as f:
         try:
             lines = f.readlines()
         except:
             continue
 
-        nls = []
         for l in lines:
             nl  = l[:len(l)-1]
             nl = nl.replace("__STILTS", "__DAI")
@@ -29,3 +29,6 @@ for file in glob("**/*", recursive=True):
             nl = nl.replace("stiltc", "daic")
             f.write(nl + '\n')
 
+    with open(file, 'w+') as f:
+        for nl in nls:
+            f.write(nl + '\n')
