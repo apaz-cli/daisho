@@ -2,17 +2,17 @@
 
 from glob import glob
 from os.path import isfile
-from re import sub
 
 
 for file in glob("**/*", recursive=True):
     if not isfile(file):
         continue
-    if not (file.endswith(".c") or file.endswith(".py") or file.endswith(".h")):
+    if not (file.endswith(".c") or file.endswith(".py") or file.endswith(".h") or file.endswith(".md") or file.endswith(".sh")):
         continue
 
     print(file)
-    with open(file, 'r') as f:
+
+    with open(file, 'w+') as f:
         try:
             lines = f.readlines()
         except:
@@ -20,12 +20,12 @@ for file in glob("**/*", recursive=True):
 
         nls = []
         for l in lines:
-            l  = l[:len(l)-1]
-            nl = sub("__STILTS", "__DAI", l)
-            nl = sub("__Stilts", "__Dai", nl)
-            nl = sub("stilts", "daisho", nl)
-            nl = sub("Stilts", "Daisho", nl)
-            nl = sub("STILTS", "DAISHO", l)
-            nl = sub("stiltc", "daic", nl)
+            nl  = l[:len(l)-1]
+            nl = nl.replace("__STILTS", "__DAI")
+            nl = nl.replace("__Stilts", "__Dai")
+            nl = nl.replace("stilts", "daisho")
+            nl = nl.replace("Stilts", "Daisho")
+            nl = nl.replace("STILTS", "DAISHO")
+            nl = nl.replace("stiltc", "daic")
+            f.write(nl + '\n')
 
-            print(nl)
