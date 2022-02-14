@@ -9,7 +9,6 @@ class Pair<K,V> {
   K key; V value; 
   K first() return key;
   V second() return value;
-
 };
 
 trait Stream<T> {
@@ -20,18 +19,22 @@ trait Stream<T> {
   Stream<T> skip(Size_t num); 
 };
 
-trait Iterator<T> impl Stream<T> {
+trait Iterator<T> impl Stream<T>, Assignable<T>?, RandomIterable<T>?  {
+  if RandomIterator<T>: T operator=[](Size_t idx);
+  if Assignable<T>: Void operator$();
+  if RandomIterable<T> && Assignable<T>: Void operator[]=(Size_t idx, T item);
+  
   T next(bool* more);
 };
 
 trait RandomIterator<T> impl Iterator<T>, Stream<T> {
   T operator=[](Size_t idx);
+
+  
 };
 
 trait Iterable<T> impl Stream<T> {
   Iterator<T> iter();
-  T operator=[](Size_t idx);
-
 
   Void        forEach(Consumer<T> consumer)        return self.iter().forEach(consumer);
   Iterator<K> map(Mapper<T, K> mapper)             return self.iter().map(mapper);
@@ -46,7 +49,7 @@ trait RandomIterable<T> impl Stream<T> {
 
 
 class List<T> impl RandomIterable<T> {
-  native List();
+
 };
 
 

@@ -8,23 +8,26 @@
    makes it considerably more efficient. However, it's not available in standard
    C, so for compatibility's sake I'm defining it both ways. */
 
-
-/* If we're forced to use standard C, create an xmacro enum of locations we can go to, and fill an enum. */
+/* If we're forced to use standard C, create an xmacro enum of locations we can go to, and fill an
+ * enum. */
 /* If we have labels as values, identify labels with void*. Otherwise, use the enum values.*/
 #define HAS_LABEL_VALUES
 #ifndef HAS_LABEL_VALUES
-#define LOCATIONS                 \
-    X(program)           \
-    X(block)               \
-    X(statement)       \
-    X(condition)       \
-    X(expression)     \
-    X(term)                 \
-    X(factor)             \
+#define LOCATIONS   \
+    X(program)      \
+    X(block)        \
+    X(statement)    \
+    X(condition)    \
+    X(expression)   \
+    X(term)         \
+    X(factor)       \
     X(blockretproc) \
     X(factretterm1) \
     X(factretterm2) \
     X(end)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-label-as-value"
 
 typedef enum {
 #define X(label) label##_loc,
@@ -35,44 +38,54 @@ typedef enum {
 typedef void* goto_t;
 #endif
 
-
 /* Define GOTO(label_val). It will be use to define CALL() and RETURN(). */
 #ifndef HAS_LABEL_VALUES
-#define X(label) case label##_loc: goto label;
-#define GOTO(label_val) do { switch (label_val) { LOCATIONS default : error("Invalid GOTO variable!"); } } while(0)
+#define X(label)      \
+    case label##_loc: \
+        goto label;
+#define GOTO(label_val)                                                             \
+    do {                                                                            \
+        switch (label_val) { LOCATIONS default : error("Invalid GOTO variable!"); } \
+    } while (0)
 #else /* HAS_LABEL_VALUES */
-#define GOTO(label_val) do { goto *label_val; } while(0)
+#define GOTO(label_val)  \
+    do {                 \
+        goto* label_val; \
+    } while (0)
 #endif
 
-
-#define __CAT(a,b) a##b
-#define __LBL(b,l) __CAT(b, l)
+/* Use the __LINE__ trick to generate an identifier with a
+   unique name. Note that inside the expansion of a single
+   macro, all the expansions of UNIQUE will be the same,
+   since it expands into a single line.  */
+#define __CAT(a, b) a##b
+#define __LBL(b, l) __CAT(b, l)
 #define UNIQUE(base) __LBL(base, __LINE__)
 
-#define CALL(to_val)                                                \
-    do {                                                            \
-        /* Push a frame with the address and state that             \
-           we want to return to. */                                 \
-        current_frame++;                                            \
-        current_frame->return_address = &&UNIQUE(__label_);         \
-        current_frame->stream_pos = spos->pos;                      \
-        current_frame->parent = node;                               \
-                                                                    \
-        /* Jump to what we're calling. */                           \
-        goto to_val;                                                \
-                                                                    \
-        /* Use the __LINE__ trick to generate a label with a        \
-           unique name. We can reference it above because a         \
-           macro only expands into one line. */                     \
-        UNIQUE(__label_):;                                          \
-        /* Now that we've returned, rewind the token stream         \
-           and pop the stack frame. */                              \
-        spos->pos = current_frame->stream_pos;                      \
-        current_frame--;                                            \
+#define CALL(to_val)                                        \
+    do {                                                    \
+        /* Push a frame with the address and state that     \
+           we want to return to. */                         \
+        current_frame++;                                    \
+        current_frame->return_address = &&UNIQUE(__label_); \
+        current_frame->stream_pos = spos->pos;              \
+        current_frame->parent = node;                       \
+                                                            \
+        /* Jump to what we're calling. */                   \
+        goto to_val;                                        \
+                                                            \
+        UNIQUE(__label_) :;                                 \
+        /* Now that we've returned, rewind the token stream \
+           and pop the stack frame. */                      \
+        spos->pos = current_frame->stream_pos;              \
+        current_frame--;                                    \
     } while (0)
 
-#define RETURN() do { goto_t __retaddr = current_frame->return_address; GOTO(__retaddr); } while(0)
-
+#define RETURN()                                          \
+    do {                                                  \
+        goto_t __retaddr = current_frame->return_address; \
+        GOTO(__retaddr);                                  \
+    } while (0)
 
 /************/
 /* Typedefs */
@@ -142,7 +155,6 @@ error(const char* msg) {
 #define accept(s) (sym_at(spos++) == (s))
 #define expect(s) (accept(s) ? 1 : (error("unexpected symbol."), 1))
 
-
 /*************************/
 /* Parser Implementation */
 /*************************/
@@ -205,7 +217,7 @@ statement:;
         expect(IDENT);
     } else if (accept(BEGINSYM)) {
         CALL(statement);
-        while(accept(SEMICOLON)) {
+        while (accept(SEMICOLON)) {
             CALL(statement);
         }
         expect(ENDSYM);

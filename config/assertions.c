@@ -18,13 +18,16 @@
 #define __STILTS_ASSERTING 1
 #include "../stdlib/Native/PreProcessor/StiltsPreprocessor.h"
 
+__STILTS_STATIC_ASSERT(__STDC_VERSION__ >= 201112L, "Stilts requires a C11 compiler or above.");
+
 __STILTS_STATIC_ASSERT(CHAR_BIT == 8,
                        "Stilts's implementation of String assumes CHAR_BIT to be 8.");
+
 __STILTS_STATIC_ASSERT(SIZE_MAX <= UINT64_MAX,
                        "The Stilts standard library assumes that size_t's max value "
                        "is less than or equal to uint64_t's max value.");
 
-__STILTS_STATIC_ASSERT(__STILTS_MAX_OF_TYPE(clock_t) > UINT32_MAX,
+__STILTS_STATIC_ASSERT(__STILTS_MAX_OF_INTEGER_TYPE(clock_t) > UINT32_MAX,
                        "The Stilts standard library assumes that the max value "
                        "of clock_t is more than 32 bits.");
 
@@ -43,14 +46,14 @@ __STILTS_STATIC_ASSERT((~(long)0U) == (long)(-1),
     __STILTS_STATIC_ASSERT(!__STILTS_IS_TYPE_SIGNED(type) ? 1 : (~(type)0) == (type)(-1), \
                            #type " is not represented as two's complement.");
 
-#define ASSERT_TYPE(type, min, max)                                \
-    TWOS_COMPLEMENT(type)                                          \
-    __STILTS_STATIC_ASSERT(__STILTS_MIN_OF_TYPE(type) == min, ""); \
-    __STILTS_STATIC_ASSERT(__STILTS_MAX_OF_TYPE(type) == max, "");
+#define ASSERT_TYPE(type, min, max)                                        \
+    TWOS_COMPLEMENT(type)                                                  \
+    __STILTS_STATIC_ASSERT(__STILTS_MIN_OF_INTEGER_TYPE(type) == min, ""); \
+    __STILTS_STATIC_ASSERT(__STILTS_MAX_OF_INTEGER_TYPE(type) == max, "");
 
-#define ASSERT_FLOAT_TYPE(type, min, max)                                   \
-    __STILTS_STATIC_ASSERT(__STILTS_MIN_OF_FLOATING_TYPE(type) == min, ""); \
-    __STILTS_STATIC_ASSERT(__STILTS_MAX_OF_FLOATING_TYPE(type) == max, "");
+#define ASSERT_FLOAT_TYPE(type, min, max)                     \
+    if (__STILTS_MIN_OF_FLOATING_TYPE(type) != min) return 1; \
+    if (__STILTS_MAX_OF_FLOATING_TYPE(type) != max) return 1;
 
 ASSERT_TYPE(char, CHAR_MIN, CHAR_MAX)
 ASSERT_TYPE(unsigned char, 0, UCHAR_MAX)
@@ -70,9 +73,10 @@ ASSERT_TYPE(wint_t, WINT_MIN, WINT_MAX)
 ASSERT_TYPE(intmax_t, INTMAX_MIN, INTMAX_MAX)
 ASSERT_TYPE(uintmax_t, 0, UINTMAX_MAX)
 
-ASSERT_FLOAT_TYPE(float, FLT_MIN, FLT_MAX)
-ASSERT_FLOAT_TYPE(double, DBL_MIN, DBL_MAX)
-ASSERT_FLOAT_TYPE(long double, LDBL_MIN, LDBL_MAX)
-
 int
-main(void) {}
+main(void) {
+    /* Unfortunately , _Static_assert cannot */
+    ASSERT_FLOAT_TYPE(float, FLT_MIN, FLT_MAX)
+    ASSERT_FLOAT_TYPE(double, DBL_MIN, DBL_MAX)
+    ASSERT_FLOAT_TYPE(long double, LDBL_MIN, LDBL_MAX)
+}
