@@ -1,4 +1,4 @@
-#include "../../stdlib/Native/Stilts.h"
+#include "../../stdlib/Native/Daisho.h"
 
 /*****************************************/
 /* LIST OF PLATFORM SPECIFIC ASSUMPTIONS */
@@ -15,7 +15,7 @@ static inline void
 types_valid(void) {
     if (sizeof(uint32_t) != 4 * sizeof(uint8_t)) {
         fprintf(stderr,
-                "The Stilts standard library is not supported on platforms "
+                "The Daisho standard library is not supported on platforms "
                 "where sizeof(uint32_t) != 4 * sizeof(uint8_t).");
         exit(1);
     }

@@ -6,7 +6,7 @@
 #include "Declarations/Declarations.h"
 
 static const char* usageMesasge =
-    "Stilts v0.1\n"
+    "Daisho v0.1\n"
     "Usage:\n"
     "  -h --help : Display this message and exit.\n"
     "\n"
@@ -44,7 +44,7 @@ static const char* usageMesasge =
     " --replace-malloc : Wrap malloc() in a macro using a custom allocator.\n"
     "\n"
     "Stiltc Flags:\n"
-    "  --jobs -j  : Specify how many threads stiltc should use.\n"
+    "  --jobs -j  : Specify how many threads daic should use.\n"
     "\n";
 
 // Lambdas
@@ -79,7 +79,7 @@ usage() {
 static inline void
 parseFlags(int argc, char** argv) {
     // Set defaults
-    cmdFlags.temp_folder = (char*)"/tmp/stilts/";
+    cmdFlags.temp_folder = (char*)"/tmp/daisho/";
     cmdFlags.cc = (char*)"cc";
     cmdFlags.cflags = List_String_new_cap(0);
     cmdFlags.targets = List_Target_new_cap(1);

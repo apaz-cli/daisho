@@ -15,24 +15,24 @@
 #endif
 
 /* Don't include external libraries. */
-#define __STILTS_ASSERTING 1
-#include "../stdlib/Native/PreProcessor/StiltsPreprocessor.h"
+#define __DAI_ASSERTING 1
+#include "../stdlib/Native/PreProcessor/DaishoPreprocessor.h"
 
-__STILTS_STATIC_ASSERT(__STDC_VERSION__ >= 201112L, "Stilts requires a C11 compiler or above.");
+__DAI_STATIC_ASSERT(__STDC_VERSION__ >= 201112L, "Daisho requires a C11 compiler or above.");
 
-__STILTS_STATIC_ASSERT(CHAR_BIT == 8,
-                       "Stilts's implementation of String assumes CHAR_BIT to be 8.");
+__DAI_STATIC_ASSERT(CHAR_BIT == 8,
+                       "Daisho's implementation of String assumes CHAR_BIT to be 8.");
 
-__STILTS_STATIC_ASSERT(SIZE_MAX <= UINT64_MAX,
-                       "The Stilts standard library assumes that size_t's max value "
+__DAI_STATIC_ASSERT(SIZE_MAX <= UINT64_MAX,
+                       "The Daisho standard library assumes that size_t's max value "
                        "is less than or equal to uint64_t's max value.");
 
-__STILTS_STATIC_ASSERT(__STILTS_MAX_OF_INTEGER_TYPE(clock_t) > UINT32_MAX,
-                       "The Stilts standard library assumes that the max value "
+__DAI_STATIC_ASSERT(__DAI_MAX_OF_INTEGER_TYPE(clock_t) > UINT32_MAX,
+                       "The Daisho standard library assumes that the max value "
                        "of clock_t is more than 32 bits.");
 
-__STILTS_STATIC_ASSERT((~(long)0U) == (long)(-1),
-                       "The Stilts standard library assumes "
+__DAI_STATIC_ASSERT((~(long)0U) == (long)(-1),
+                       "The Daisho standard library assumes "
                        "that the archetecture uses two's complement to represent "
                        "numbers.");
 
@@ -43,17 +43,17 @@ __STILTS_STATIC_ASSERT((~(long)0U) == (long)(-1),
  */
 
 #define TWOS_COMPLEMENT(type)                                                             \
-    __STILTS_STATIC_ASSERT(!__STILTS_IS_TYPE_SIGNED(type) ? 1 : (~(type)0) == (type)(-1), \
+    __DAI_STATIC_ASSERT(!__DAI_IS_TYPE_SIGNED(type) ? 1 : (~(type)0) == (type)(-1), \
                            #type " is not represented as two's complement.");
 
 #define ASSERT_TYPE(type, min, max)                                        \
     TWOS_COMPLEMENT(type)                                                  \
-    __STILTS_STATIC_ASSERT(__STILTS_MIN_OF_INTEGER_TYPE(type) == min, ""); \
-    __STILTS_STATIC_ASSERT(__STILTS_MAX_OF_INTEGER_TYPE(type) == max, "");
+    __DAI_STATIC_ASSERT(__DAI_MIN_OF_INTEGER_TYPE(type) == min, ""); \
+    __DAI_STATIC_ASSERT(__DAI_MAX_OF_INTEGER_TYPE(type) == max, "");
 
 #define ASSERT_FLOAT_TYPE(type, min, max)                     \
-    if (__STILTS_MIN_OF_FLOATING_TYPE(type) != min) return 1; \
-    if (__STILTS_MAX_OF_FLOATING_TYPE(type) != max) return 1;
+    if (__DAI_MIN_OF_FLOATING_TYPE(type) != min) return 1; \
+    if (__DAI_MAX_OF_FLOATING_TYPE(type) != max) return 1;
 
 ASSERT_TYPE(char, CHAR_MIN, CHAR_MAX)
 ASSERT_TYPE(unsigned char, 0, UCHAR_MAX)

@@ -13,8 +13,8 @@ Target_readFile(Target* target) {
     return target;
 }
 
-static inline StiltsTokenizer*
-Tokenizer_init(StiltsTokenizer* tokenizer, Target* target) {
+static inline DaishoTokenizer*
+Tokenizer_init(DaishoTokenizer* tokenizer, Target* target) {
     tokenizer->DFAs = all_DFAs;
     tokenizer->target = target;
     tokenizer->current_pos = 0;
@@ -23,7 +23,7 @@ Tokenizer_init(StiltsTokenizer* tokenizer, Target* target) {
 }
 
 static inline bool
-Tokenizer_nextToken(StiltsTokenizer* tokenizer, TokenStream stream) {
+Tokenizer_nextToken(DaishoTokenizer* tokenizer, TokenStream stream) {
     utf8_t* current = tokenizer->target->fileInfo.content + tokenizer->current_pos;
     for (size_t i = 0; i < NUM_TOKTYPES; i++) {
         utf8_t c = *(current + i);
@@ -33,7 +33,7 @@ Tokenizer_nextToken(StiltsTokenizer* tokenizer, TokenStream stream) {
 }
 
 static inline TokenStream
-Tokenizer_tokenize(StiltsTokenizer* tokenizer) {
+Tokenizer_tokenize(DaishoTokenizer* tokenizer) {
     // Tokenize the content
     TokenStream stream = List_Token_new_cap(10000);
     while (Tokenizer_nextToken(tokenizer, stream))
@@ -42,6 +42,6 @@ Tokenizer_tokenize(StiltsTokenizer* tokenizer) {
 }
 
 static inline void
-Tokenizer_destroy(StiltsTokenizer* tokenizer) {}
+Tokenizer_destroy(DaishoTokenizer* tokenizer) {}
 
 #endif  // TOKENIZER_INCLUDE

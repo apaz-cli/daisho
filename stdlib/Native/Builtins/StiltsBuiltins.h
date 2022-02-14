@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __STILTS_STDLIB_BUILTINS
-#define __STILTS_STDLIB_BUILTINS
-#include "StiltsString.h"
+#ifndef __DAI_STDLIB_BUILTINS
+#define __DAI_STDLIB_BUILTINS
+#include "DaishoString.h"
 
-#endif /* __STILTS_STDLIB_BUILTINS */
+#endif /* __DAI_STDLIB_BUILTINS */

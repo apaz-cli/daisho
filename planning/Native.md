@@ -11,7 +11,7 @@
 
 ## Rules:
 1. Native methods cannot be defined on a trait.
-   * However you can declare a native function and call it inside a Stilts method to get around this.
+   * However you can declare a native function and call it inside a Daisho method to get around this.
     ```rust
     // Ex:
     native Void nativeFn() { printf("Native Code.\n"); fflush(stdout); };
@@ -20,11 +20,11 @@
 
 2. The body of a `native` function or method is copy/pasted directly into the generated C code.
 
-3. Don't use Stilts functions/methods inside of native methods.
-   * A `native` function/method is a Stilts function/method.
+3. Don't use Daisho functions/methods inside of native methods.
+   * A `native` function/method is a Daisho function/method.
    * Please only call C methods inside your `native` functions/methods.
    * This also means no recursion.
-   * Basically, calling Stilts from C is unsupported. Although technically possible and prone to breakage.
+   * Basically, calling Daisho from C is unsupported. Although technically possible and prone to breakage.
 
 4. The arguments of a native function must all be native-qualified types.
    * Passing a `class` means you can't use its methods, since those are mangled.

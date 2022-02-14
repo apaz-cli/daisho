@@ -20,15 +20,15 @@ for file in glob("**/*", recursive=True):
             continue
 
         for l in lines:
-            nl  = l[:len(l)-1]
+            nl  = l
             nl = nl.replace("__STILTS", "__DAI")
             nl = nl.replace("__Stilts", "__Dai")
             nl = nl.replace("stilts", "daisho")
             nl = nl.replace("Stilts", "Daisho")
             nl = nl.replace("STILTS", "DAISHO")
             nl = nl.replace("stiltc", "daic")
-            f.write(nl + '\n')
+            nls.append(nl)
 
     with open(file, 'w+') as f:
         for nl in nls:
-            f.write(nl + '\n')
+            f.write(nl)

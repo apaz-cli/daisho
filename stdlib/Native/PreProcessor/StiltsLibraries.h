@@ -1,15 +1,15 @@
-#ifndef __STILTS_STDLIB_LIBRARIES
-#define __STILTS_STDLIB_LIBRARIES
-#include "../Configs/StiltsConfigs.h"
+#ifndef __DAI_STDLIB_LIBRARIES
+#define __DAI_STDLIB_LIBRARIES
+#include "../Configs/DaishoConfigs.h"
 
 /*
  * Embed a python interpreter, because why not.
  * This has to be done before including stdlib files.
  * It can be disabled in the config files, or on the
- * stiltc command line.
+ * daic command line.
  */
-#ifndef __STILTS_ASSERTING
-#if __STILTS_EMBED_PYTHON
+#ifndef __DAI_ASSERTING
+#if __DAI_EMBED_PYTHON
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #endif
@@ -103,10 +103,10 @@
 #include <unistd.h>    /* POSIX */
 
 /* Use GNU backtraces if possible. */
-#ifndef __STILTS_ASSERTING
-#if __STILTS_BACKTRACES_SUPPORTED
+#ifndef __DAI_ASSERTING
+#if __DAI_BACKTRACES_SUPPORTED
 #include <execinfo.h>
 #endif
 #endif
 
-#endif /* __STILTS_STDLIB_LIBRARIES */
+#endif /* __DAI_STDLIB_LIBRARIES */

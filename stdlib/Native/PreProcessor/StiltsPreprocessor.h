@@ -1,11 +1,11 @@
-#ifndef __STILTS_STDLIB_PREPROCESSOR
-#define __STILTS_STDLIB_PREPROCESSOR
+#ifndef __DAI_STDLIB_PREPROCESSOR
+#define __DAI_STDLIB_PREPROCESSOR
 
-#include "../Configs/StiltsConfigs.h"
-#include "StiltsColor.h"
-#include "StiltsCompatibility.h"
-#include "StiltsHedley.h"
-#include "StiltsLibraries.h"
-#include "StiltsLimits.h"
+#include "../Configs/DaishoConfigs.h"
+#include "DaishoColor.h"
+#include "DaishoCompatibility.h"
+#include "DaishoHedley.h"
+#include "DaishoLibraries.h"
+#include "DaishoLimits.h"
 
-#endif /* __STILTS_STDLIB_PREPROCESSOR */
+#endif /* __DAI_STDLIB_PREPROCESSOR */

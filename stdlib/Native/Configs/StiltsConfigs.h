@@ -1,8 +1,8 @@
 #pragma once
-#ifndef __STILTS_STDLIB_CONFIGS
-#define __STILTS_STDLIB_CONFIGS
+#ifndef __DAI_STDLIB_CONFIGS
+#define __DAI_STDLIB_CONFIGS
 
-#include "StiltsConfig.h"
-#include "StiltsGeneratedConfig.h"
+#include "DaishoConfig.h"
+#include "DaishoGeneratedConfig.h"
 
-#endif /* __STILTS_STDLIB_CONFIGS */
+#endif /* __DAI_STDLIB_CONFIGS */

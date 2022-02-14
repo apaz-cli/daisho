@@ -33,8 +33,8 @@ typedef List_Token TokenStream;
 
 #include "Generated/Automata.h"
 
-TYPE_DECLARE(StiltsTokenizer);
-struct StiltsTokenizer {
+TYPE_DECLARE(DaishoTokenizer);
+struct DaishoTokenizer {
   // NUM_DFAS is a generated macro.
   DFA* DFAs;
   Target* target;
@@ -68,18 +68,18 @@ LIST_DEFINE(AST);
 /* Parser */
 /**********/
 
-#define STILTS_PARSER_MAX_STACK_FRAMES 500
+#define DAISHO_PARSER_MAX_STACK_FRAMES 500
 struct ParserStackFrame {
   TokType currently_parsing;
   size_t token_num;
 };
 typedef struct ParserStackFrame ParserStackFrame;
 struct ParserCallStack {
-  ASTNodeType frames[STILTS_PARSER_MAX_STACK_FRAMES];
+  ASTNodeType frames[DAISHO_PARSER_MAX_STACK_FRAMES];
   size_t height;
 };
 typedef struct ParserCallStack ParserCallStack;
-struct StiltsParser {
+struct DaishoParser {
   Arena* arena;
   ParserCallStack call_stack;
 
@@ -87,7 +87,7 @@ struct StiltsParser {
   Token current_token;
   TokenStream token_stream;
 };
-typedef struct StiltsParser StiltsParser;
+typedef struct DaishoParser DaishoParser;
 
 /*************/
 /* ASTWalker */

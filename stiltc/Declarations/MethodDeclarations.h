@@ -16,10 +16,10 @@ static inline void Token_print(Token tok);
 static inline Token* Token_new_on(Arena arena, String content, TokType type, Target* source,
                                   size_t line, size_t pos);
 
-static inline StiltsTokenizer* Tokenizer_init(StiltsTokenizer* tokenizer, Target* target);
-static inline bool Tokenizer_nextToken(StiltsTokenizer* tokenizer, TokenStream stream);
-static inline TokenStream Tokenizer_tokenize(StiltsTokenizer* tokenizer);
-static inline void Tokenizer_destroy(StiltsTokenizer* tokenizer);
+static inline DaishoTokenizer* Tokenizer_init(DaishoTokenizer* tokenizer, Target* target);
+static inline bool Tokenizer_nextToken(DaishoTokenizer* tokenizer, TokenStream stream);
+static inline TokenStream Tokenizer_tokenize(DaishoTokenizer* tokenizer);
+static inline void Tokenizer_destroy(DaishoTokenizer* tokenizer);
 
 /*******/
 /* AST */
@@ -32,14 +32,14 @@ static inline void Tokenizer_destroy(StiltsTokenizer* tokenizer);
 /* Parser */
 /**********/
 
-static inline void StiltsParser_init(StiltsParser* parser);
-static inline void StiltsParser_destroy(StiltsParser* parser);
-static inline AST StiltsParser_parse(StiltsParser* parser, TokenStream tokens);
-static inline void next_token(StiltsParser* parser);
-static inline void parser_stack_trace(StiltsParser* parser);
-static inline void parse_error(StiltsParser* parser, char* message);
-static inline bool accept(StiltsParser* parser, TokType s);
-static inline bool expect(StiltsParser* parser, TokType s);
+static inline void DaishoParser_init(DaishoParser* parser);
+static inline void DaishoParser_destroy(DaishoParser* parser);
+static inline AST DaishoParser_parse(DaishoParser* parser, TokenStream tokens);
+static inline void next_token(DaishoParser* parser);
+static inline void parser_stack_trace(DaishoParser* parser);
+static inline void parse_error(DaishoParser* parser, char* message);
+static inline bool accept(DaishoParser* parser, TokType s);
+static inline bool expect(DaishoParser* parser, TokType s);
 
 /*************/
 /* ASTWalker */

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# COMPILE STILTS
+# COMPILE DAISHO
 FLAGS="-lpthread"
 if [ $1 ] && [ $1 = "release" ]; then
   FLAGS="${FLAGS} -O3 -march=native"
@@ -13,10 +13,10 @@ else
 fi
 
 # Move common headers into place
-sudo rm -rf /usr/include/stilts/
-sudo cp -r stdlib/ /usr/include/stilts/
+sudo rm -rf /usr/include/daisho/
+sudo cp -r stdlib/ /usr/include/daisho/
 
-# Install stiltc executable
-cc stiltc/Compiler.c $FLAGS
-sudo mv a.out /usr/bin/stiltc
+# Install daic executable
+cc daic/Compiler.c $FLAGS
+sudo mv a.out /usr/bin/daic
 

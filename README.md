@@ -1,7 +1,7 @@
-# What is Stilts?
+# What is Daisho?
 
 <p align="center">
-<img src="https://github.com/apaz-cli/apaz-cli.github.io/raw/7c2d224aae86f228347dadbdcd22c159cfcfcb52/Stilts.png", alt="Boy on Stilts">
+<img src="https://github.com/apaz-cli/apaz-cli.github.io/raw/7c2d224aae86f228347dadbdcd22c159cfcfcb52/Daisho.png", alt="Boy on Daisho">
 </p>
 
 The goal of this project is to create a language that's nice to work with, looks and feels like Java, but maps to low level C code with manual memory management.
@@ -41,13 +41,13 @@ Regardless of if the language gains popularity or not, I want to share the resul
 ./install.sh release
 ```
 
-Now you have the compiler, `stiltc`. You can check to make sure everything installed correctly by trying to run it. It should spit out a help message.
+Now you have the compiler, `daic`. You can check to make sure everything installed correctly by trying to run it. It should spit out a help message.
 
 ```bash
-stiltc
+daic
 ```
 
-If you're not on a POSIX operating system (If you're on Windows), I recommend switching to one. PopOS is a good beginner distro, and is quickly getting better and better. It's possible that Stilts gets ported to Windows, but I don't want to be the one who does it. If you want to be the one that does it, please contact me on Discord.
+If you're not on a POSIX operating system (If you're on Windows), I recommend switching to one. PopOS is a good beginner distro, and is quickly getting better and better. It's possible that Daisho gets ported to Windows, but I don't want to be the one who does it. If you want to be the one that does it, please contact me on Discord.
 
 
 <br>
@@ -66,15 +66,15 @@ If you're not on a POSIX operating system (If you're on Windows), I recommend sw
 | Vala   | Compilation model, interop |
 
 
-## Stilts is:
+## Daisho is:
 * C, with modern high level language features
 * Fast to execute (like C), but also fast to write (unlike C)
-* Easy to use, mixing C, Python, and Stilts in the same file.
+* Easy to use, mixing C, Python, and Daisho in the same file.
 * Focused on tooling and user experience
 * A passion project
 
 
-## Stilts is not:
+## Daisho is not:
 * Memory safe
   * Just like the C that it's based on and compiles to.
   * In practice, you should be fine. A memory debugger is included to help you find leaks and double frees.
@@ -91,7 +91,7 @@ If you're not on a POSIX operating system (If you're on Windows), I recommend sw
 
 
 # Sub-Projects:
-* Stilts Compiler  (`stiltc` folder)
+* Daisho Compiler  (`daic` folder)
 * Standard Library (`stdlib` folder)
 * Language Server  (coming eventually)
 * VSCode Extension (coming eventually)

@@ -1,14 +1,14 @@
 
 # Types
 
-Other languages have language bindings. Stilts, the whole entire programming 
+Other languages have language bindings. Daisho, the whole entire programming 
 language, IS a language binding. Specifically, to the C programming language. 
 C makes sense as a compilation target because of the rich ecosystem of 
-libraries already available to do just about any task. Therefore, Stilts can 
+libraries already available to do just about any task. Therefore, Daisho can 
 already do everything that C can. It can also do anything that extensions of 
 C can do, such as C++ and OpenCL.
 
-Calling Stilts "just" a language binding would be disingenuous. Stilts is a 
+Calling Daisho "just" a language binding would be disingenuous. Daisho is a 
 pathway to many abilities some consider to be unnatural. Abilities such as 
 metaprogramming enabled by a traits, a generic type system, a collections 
 framework, lambda expressions, optional typing, differentiable programming, 
@@ -32,12 +32,12 @@ leaving any performance on the table or leaving out any features.
 
 ## CTypes
 
-Stilts's concept of a primitive/integral type is replaced with ctype. Since 
-Stilts transpiles to C, C types are the base of the type system. A CType can 
+Daisho's concept of a primitive/integral type is replaced with ctype. Since 
+Daisho transpiles to C, C types are the base of the type system. A CType can 
 be any fully qualified struct or an integral type from C. You can define your 
 own in a syntax similar to C's typedef syntax. You can also strap methods to 
 them. However, you cannot access a ctype's state outside of `native` bindings. 
-What happens in C stays in C, Stilts has no knowledge of it. This allows all 
+What happens in C stays in C, Daisho has no knowledge of it. This allows all 
 `ctype`s to be treated equally by the language.
 
 `ctype` and `native` bindings are central to how the entire standard library 
@@ -45,10 +45,10 @@ is designed and implemented. `Int` from the standard library (which is always
 implicitly included) is declared with `ctype int32_t Int;`. The reason why 
 `5 + 4` is valid in the language is becuause `Int operator+(Int rhs)` is 
 implemented on `Int` as a native method. There is no such thing as primitive 
-addition in Stilts. In fact, Stilts has no concept of numbers. Or anything 
+addition in Daisho. In fact, Daisho has no concept of numbers. Or anything 
 else. Everything traces back to `ctype`s and `native` implementations. All 
 the language does is stitch these together with a polymorphic trait-based 
-type system on top. Hence the opening statements about how Stilts is a 
+type system on top. Hence the opening statements about how Daisho is a 
 language binding.
 
 Builtin functions such as `sizeof()` work on `ctype`s because the compiler 
@@ -77,7 +77,7 @@ as a member. To get around this, store a reference instead.
 ## Generics
 
 A generic is a compile-time stand-in for another type or value. The way that 
-Stilts handles them is similar to C++ templates. You can add generics to 
+Daisho handles them is similar to C++ templates. You can add generics to 
 methods, classes, traits, impls, and structs. When a generic is used, the 
 compiler generates a matching definition for you with the given parameters. 
 They are implemented using `#define` and duplication of the generated section 
@@ -116,7 +116,7 @@ A note on type inference - Types can be inferred from the bottom up. That is
 to say, the type of the result of an expression can be inferred from its 
 subexpressions. The type T of Box<T> is inferred first on the right (because 
 the argument given was of type T), and then on the left (because of the type 
-result of the expression). Stilts will never infer types the other direction.
+result of the expression). Daisho will never infer types the other direction.
 
 To infer the type of an expression, all pertinent types must be inferrable or 
 defaulted.
@@ -134,7 +134,7 @@ There are two ways to use a trait.
 2. Dynamic (Runtime)
 
 
-First let's talk about option two, dynamic traits. Unlike in Rust, Stilts 
+First let's talk about option two, dynamic traits. Unlike in Rust, Daisho 
 traits are real types. They do exist at runtime. An instance of a trait has 
 a size, and a storage duration. You cannot instantiate a trait, but you can 
 instantiate a class that implements a trait, and store it into a trait 
@@ -151,7 +151,7 @@ Since a runtime trait is a union, its size is the largest size out of every
 type that implements it, plus the size of a pointer on your machine. The total 
 overhead is the size of an extra pointer, plus the cost of accessing the vtable 
 pointer, plus the cost of a virtual function call. The chances are pretty good 
-that stiltc emits code for this which your C compiler will optimize. The 
+that daic emits code for this which your C compiler will optimize. The 
 clang/gcc static optimizers will probably do away with some, or perhaps even 
 all of this already negligible overhead where possible. However, for those 
 inclined, there exists another, zero-overhead option.
@@ -255,7 +255,7 @@ http://people.csail.mit.edu/gregs/ll1-discuss-archive-html/msg03277.html
 
 When you declare a lambda expression, you expect it to capture variables from 
 the context it was declared in. This is called a closure. This closure is 
-expressed in Stilts as an object, since as master Qc Na has taught us, the two 
+expressed in Daisho as an object, since as master Qc Na has taught us, the two 
 are equivalent. Captures are just a fancy way to provide arguments to a 
 constructor. That's how we get an instance of our lambda. This closure object 
 is the anonymous type that implements our functional trait.
@@ -266,14 +266,14 @@ handled.
 # Pointers
 
 C lets you choose to pass by value or reference, and do pointer arithmetic. 
-Why should Stilts be less powerful than C? You can take the memory address of 
+Why should Daisho be less powerful than C? You can take the memory address of 
 variables, and dereference them as well. No problem. Similarly, if you want 
 to call `malloc()` to allocate a number of bytes, that's totally allowed. 
 The standard library provides it, along with `sizeof()`. If you want to, you 
-can do memory management in Stilts exactly the same way as in C. Just 
+can do memory management in Daisho exactly the same way as in C. Just 
 `malloc()` and `free()` your way to victory.
 
-One difference is that Stilts is much kinder with implicit conversions. 
+One difference is that Daisho is much kinder with implicit conversions. 
 Suppose you have an interesting type, with a lot going on.
 ```rust
 trait Mammal impl Printable { String getName(); }
@@ -315,7 +315,7 @@ The following happens behind the scenes, in order:
  * A `new` `Herold` is created on the heap. It is not guaranteed that this 
    object instance is allocated by `malloc()`, so don't try to `free()` it. 
    Clean it up with `del` instead. Immediately after space is carved out for 
-   the object by Stilts's builtin allocator, `Herold`'s default constructor is 
+   the object by Daisho's builtin allocator, `Herold`'s default constructor is 
    called on it, to initialize that memory with its contents. Constructor 
    calling conventions are exactly the same whether you allocate on the stack 
    or on the heap. The only difference is allocation overhead, required 
@@ -399,27 +399,27 @@ You can expect this to generate something like:
  * ODR violations, etc.
  *
  * In C, identifiers beginning with "__" are reserved
- * for use by the compiler. For Stilts code and C code
+ * for use by the compiler. For Daisho code and C code
  * expected to work with the language, we reserve
- * "__Stilts", used anywhere within any identifiers.
+ * "__Dai", used anywhere within any identifiers.
  * This is enough to let us mangle names correctly.
  */
 
-typedef void* __Stilts_Fancy;
-struct __Stilts_FancyBox { __Stilts_Fancy __Stilts_f1; __Stilts_Fancy __Stilts_f2; };
-typedef struct __Stilts_FancyBox __Stilts_FancyBox;
+typedef void* __Dai_Fancy;
+struct __Dai_FancyBox { __Dai_Fancy __Dai_f1; __Dai_Fancy __Dai_f2; };
+typedef struct __Dai_FancyBox __Dai_FancyBox;
 
-static inline __Stilts_FancyBox*
-__Stilts_FancyBox_FancyBox__StiltsPtr_this_Fancy_f1_Fancy__StiltsPtr_f2_fillBox(
-__Stilts_FancyBox* __Stilts_this, __Stilts_Fancy __Stilts_f1, __Stilts_Fancy* __Stilts_f2) {
-	__Stilts_this->__Stilts_f1 = __Stilts_f1;
-	__Stilts_this->__Stilts_f2 = __Stilts_f2;
-	return __Stilts_this;
+static inline __Dai_FancyBox*
+__Dai_FancyBox_FancyBox__DaiPtr_this_Fancy_f1_Fancy__DaiPtr_f2_fillBox(
+__Dai_FancyBox* __Dai_this, __Dai_Fancy __Dai_f1, __Dai_Fancy* __Dai_f2) {
+	__Dai_this->__Dai_f1 = __Dai_f1;
+	__Dai_this->__Dai_f2 = __Dai_f2;
+	return __Dai_this;
 }
 ```
 
 If you squint really hard, you can see that just like in the 
-Stilts code that generates it, we're taking the `this` 
+Daisho code that generates it, we're taking the `this` 
 pointer as the first argument, a `Fancy` by value as the 
 second, and a `Fancy*` (by reference) as the third. As you 
 would expect.

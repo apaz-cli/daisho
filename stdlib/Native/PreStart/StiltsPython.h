@@ -1,14 +1,14 @@
-#ifndef __STILTS_STDLIB_PYTHON
-#define __STILTS_STDLIB_PYTHON
+#ifndef __DAI_STDLIB_PYTHON
+#define __DAI_STDLIB_PYTHON
 
-#include "../PreProcessor/StiltsPreprocessor.h"
+#include "../PreProcessor/DaishoPreprocessor.h"
 
 /* No stdlib stuff in here. Only python. */
 
-#if __STILTS_EMBED_PYTHON
+#if __DAI_EMBED_PYTHON
 
-__STILTS_FN void
-__Stilts_py_init(int argc, char** argv) {
+__DAI_FN void
+__Dai_py_init(int argc, char** argv) {
 
     /* Create a status and config. */
     PyStatus status;
@@ -40,8 +40,8 @@ __Stilts_py_init(int argc, char** argv) {
     PyConfig_Clear(&config);
 }
 
-__STILTS_FN void
-__Stilts_py_exit(void) {
+__DAI_FN void
+__Dai_py_exit(void) {
     /* Shut down the python interpreter */
     /* This should be the last thing that's done. */
     if (Py_FinalizeEx() < 0) {
@@ -51,25 +51,25 @@ __Stilts_py_exit(void) {
     exit(0);
 }
 
-__STILTS_FN void
-__Stilts_py_eval(char* to_eval) {
+__DAI_FN void
+__Dai_py_eval(char* to_eval) {
     PyRun_SimpleString(to_eval);
 }
 
-#else /* __STILTS_EMBED_PYTHON */
+#else /* __DAI_EMBED_PYTHON */
 
-__STILTS_FN void
-__Stilts_py_init(int argc, char** argv) {
+__DAI_FN void
+__Dai_py_init(int argc, char** argv) {
     (void)argc;
     (void)argv;
 }
-__STILTS_FN void
-__Stilts_py_exit(void) {}
+__DAI_FN void
+__Dai_py_exit(void) {}
 
-__STILTS_FN void
-__Stilts_py_eval(char* to_eval) {
+__DAI_FN void
+__Dai_py_eval(char* to_eval) {
     fprintf(stderr, "Cannot eval python code. Python is not enabled.\n");
 }
 
-#endif /* __STILTS_EMBED_PYTHON */
-#endif /* __STILTS_STDLIB_PYTHON */
+#endif /* __DAI_EMBED_PYTHON */
+#endif /* __DAI_STDLIB_PYTHON */

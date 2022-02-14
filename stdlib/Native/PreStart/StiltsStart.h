@@ -1,8 +1,8 @@
-#ifndef __STILTS_STDLIB_START
-#define __STILTS_STDLIB_START
-#include "../PreProcessor/StiltsPreprocessor.h"
-#include "StiltsBuffering.h"
-#include "StiltsPython.h"
+#ifndef __DAI_STDLIB_START
+#define __DAI_STDLIB_START
+#include "../PreProcessor/DaishoPreprocessor.h"
+#include "DaishoBuffering.h"
+#include "DaishoPython.h"
 
 /* Routines that should happen before main(). */
 
@@ -10,11 +10,11 @@
 /* Start */
 /*********/
 
-__STILTS_FN void
-__Stilts_signal(void) {}
+__DAI_FN void
+__Dai_signal(void) {}
 
-__STILTS_FN void
-__Stilts_setlocale(void) {
+__DAI_FN void
+__Dai_setlocale(void) {
     /* I'm putting off messing with this until it inevitably becomes a problem. */
     if (!setlocale(LC_ALL, "")) {
         fprintf(stderr, "Could not set locale to system locale.\n");
@@ -22,34 +22,34 @@ __Stilts_setlocale(void) {
     }
 }
 
-__STILTS_FN void
-__Stilts_pre_main(int argc, char** argv) {
+__DAI_FN void
+__Dai_pre_main(int argc, char** argv) {
 
     /* Start python (which sets the locale),
        or set the locale ourselves. */
-#if __STILTS_EMBED_PYTHON
-    __Stilts_py_init(argc, argv);
+#if __DAI_EMBED_PYTHON
+    __Dai_py_init(argc, argv);
 #else
     (void)argc;
     (void)argv;
-    __Stilts_setlocale();
+    __Dai_setlocale();
 #endif
 
     /* Configure stdio buffering. The python runtime, if we're using it,
        has been configured not to mess this up. */
-    __Stilts_configure_buffering();
+    __Dai_configure_buffering();
 }
 
 /********/
 /* Exit */
 /********/
 
-__STILTS_FN __STILTS_NORETURN void
-__Stilts_exit(int code) {
-#if __STILTS_EMBED_PYTHON
-    __Stilts_py_exit();
+__DAI_FN __DAI_NORETURN void
+__Dai_exit(int code) {
+#if __DAI_EMBED_PYTHON
+    __Dai_py_exit();
 #endif
     exit(code);
 }
 
-#endif /* __STILTS_STDLIB_START */
+#endif /* __DAI_STDLIB_START */

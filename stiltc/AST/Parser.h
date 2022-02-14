@@ -30,7 +30,7 @@ static inline void ASTNode_CompilationUnit_destroy(Arena *arena) {
 /* Function Implementations */
 /****************************/
 
-static inline void StiltsParser_init(StiltsParser *parser,
+static inline void DaishoParser_init(DaishoParser *parser,
                                      List_Token token_stream) {
   parser->token_stream = token_stream;
   parser->current_token_pos = 0;
@@ -38,17 +38,17 @@ static inline void StiltsParser_init(StiltsParser *parser,
   next_token(parser);
 }
 
-static inline void next_token(StiltsParser *parser) {
+static inline void next_token(DaishoParser *parser) {
   parser->current_token = parser->token_stream[parser->current_token_pos++];
 }
 
-static inline void parser_stack_trace(StiltsParser *parser) {}
+static inline void parser_stack_trace(DaishoParser *parser) {}
 
-static inline void parse_error(StiltsParser *parser, const char *message) {
+static inline void parse_error(DaishoParser *parser, const char *message) {
   parser_stack_trace(parser);
 }
 
-static inline bool accept(StiltsParser *parser, TokType s) {
+static inline bool accept(DaishoParser *parser, TokType s) {
   if (parser->current_token.type == s) {
     next_token(parser);
     return 1;
@@ -56,7 +56,7 @@ static inline bool accept(StiltsParser *parser, TokType s) {
   return 0;
 }
 
-static inline bool expect(StiltsParser *parser, TokType s) {
+static inline bool expect(DaishoParser *parser, TokType s) {
   if (accept(parser, s))
     return 1;
 
@@ -66,7 +66,7 @@ static inline bool expect(StiltsParser *parser, TokType s) {
   return 0;
 }
 
-static inline ASTNode *parse_CompilationUnit(StiltsParser *parser) {
+static inline ASTNode *parse_CompilationUnit(DaishoParser *parser) {
   RULE_ENTER(CompilationUnit);
   
   RULE_EXIT(new_node);

@@ -1,6 +1,6 @@
-#include "../../stdlib/Native/Stilts.h"
+#include "../../stdlib/Native/Daisho.h"
 
 int main() {
-    __Stilts_String_split_impl("This has many words.", " ");
-    __Stilts_String_split_impl("Thisisarunonsentence.", " ");
+    __Dai_String_split_impl("This has many words.", " ");
+    __Dai_String_split_impl("Thisisarunonsentence.", " ");
 }

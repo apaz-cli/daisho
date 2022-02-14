@@ -1,16 +1,16 @@
 #pragma once
-#ifndef __STILTS_STD_RUNTIME_INCLUDE
-#define __STILTS_STD_RUNTIME_INCLUDE
+#ifndef __DAI_STD_RUNTIME_INCLUDE
+#define __DAI_STD_RUNTIME_INCLUDE
 
 /* The project is structured hierarchically like so. */
 
-#include "Native/Configs/StiltsConfigs.h"
-#define __STILTS
-#include "Native/PreProcessor/StiltsPreprocessor.h"
-#undef __STILTS
-#include "Native/PreStart/StiltsPreStart.h"
-#define __STILTS
-#include "Native/Builtins/StiltsBuiltins.h"
-#undef __STILTS
+#include "Native/Configs/DaishoConfigs.h"
+#define __DAI
+#include "Native/PreProcessor/DaishoPreprocessor.h"
+#undef __DAI
+#include "Native/PreStart/DaishoPreStart.h"
+#define __DAI
+#include "Native/Builtins/DaishoBuiltins.h"
+#undef __DAI
 
-#endif /* __STILTS_STDLIB_INCLUDES */
+#endif /* __DAI_STDLIB_INCLUDES */

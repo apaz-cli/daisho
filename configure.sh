@@ -4,10 +4,10 @@
 
 # Generates a config file by appending to this variable.
 CONFIG=""
-WRITE_TO="stdlib/Native/Configs/StiltsGeneratedConfig.h"
+WRITE_TO="stdlib/Native/Configs/DaishoGeneratedConfig.h"
 COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
 if test $COLS -gt 90; then COLS=57; fi
-IN_CMT="// __STILTS_STDLIB_GENERATEDCONFIG"
+IN_CMT="// __DAI_STDLIB_GENERATEDCONFIG"
 
 # COLORS
 ncolors=$(tput colors)
@@ -28,7 +28,7 @@ fi
 
 msg() { printf "${green}%-20s:${normal} ${yellow}%""$COLS""s${normal}\n" "$1" "$2"; }
 append() { CONFIG="$CONFIG$1\n"; }
-guard() { CONFIG="#pragma once\n#ifndef __STILTS_STDLIB_GENERATEDCONFIG\n#define __STILTS_STDLIB_GENERATEDCONFIG\n\n$CONFIG\n#endif $IN_CMT"; }
+guard() { CONFIG="#pragma once\n#ifndef __DAI_STDLIB_GENERATEDCONFIG\n#define __DAI_STDLIB_GENERATEDCONFIG\n\n$CONFIG\n#endif $IN_CMT"; }
 writeconfig() { printf "%b" "$CONFIG" > $WRITE_TO; }
 
 
@@ -49,7 +49,7 @@ if sh ./config/assertions.sh; then
     msg "ASSERTIONS" "PASSED"
 else
     echo
-    echo "Stilts is not supported on this system for the reason specified in the error message above."
+    echo "Daisho is not supported on this system for the reason specified in the error message above."
     exit 1
 fi;
 
@@ -60,7 +60,7 @@ fi;
 if sh ./config/endianness.sh; then
    msg "ENDIANNESS" "PASSED"
 else
-    echo "Stilts is not supported on Big-Endian or Unknown-Endianness machines."
+    echo "Daisho is not supported on Big-Endian or Unknown-Endianness machines."
     exit 1
 fi
 
@@ -85,7 +85,7 @@ append "/***************************/"
 #############
 PAGESIZE=$(sh config/pagesize.sh)
 msg "PAGE SIZE" "$PAGESIZE"
-append "#define __STILTS_PAGESIZE $PAGESIZE"
+append "#define __DAI_PAGESIZE $PAGESIZE"
 
 
 #################
@@ -93,7 +93,7 @@ append "#define __STILTS_PAGESIZE $PAGESIZE"
 #################
 THREADS=$(sh config/threads.sh)
 msg "THREADS" "$THREADS"
-append "#define __STILTS_IDEAL_NUM_THREADS $THREADS"
+append "#define __DAI_IDEAL_NUM_THREADS $THREADS"
 
 
 ############################
@@ -117,24 +117,24 @@ PYEXEC=$(sh config/findpython.sh)
 if test $PYEXEC; then
     msg "PYTHON EXECUTABLE" $PYEXEC
     append "#define __SILTS_HAS_PYTHON 1"
-    append "#define __STILTS_PYTHON_EXECUTABLE \"$PYEXEC\""
+    append "#define __DAI_PYTHON_EXECUTABLE \"$PYEXEC\""
 
     PYV=$($PYEXEC -c "import platform;print(platform.python_version())")
     msg "PYTHON VERSION" "$PYV"
-    append "#define __STILTS_PYTHON_VERSION \"$PYV\""
-    append "#define __STILTS_PYTHON_MAJOR_VERSION $(echo $PYV | cut -d. -f1)"
-    append "#define __STILTS_PYTHON_MINOR_VERSION $(echo $PYV | cut -d. -f2)"
-    append "#define __STILTS_PYTHON_SUBMINOR_VERSION $(echo $PYV | cut -d. -f3)"
+    append "#define __DAI_PYTHON_VERSION \"$PYV\""
+    append "#define __DAI_PYTHON_MAJOR_VERSION $(echo $PYV | cut -d. -f1)"
+    append "#define __DAI_PYTHON_MINOR_VERSION $(echo $PYV | cut -d. -f2)"
+    append "#define __DAI_PYTHON_SUBMINOR_VERSION $(echo $PYV | cut -d. -f3)"
 else
     msg "PYTHON EXECUTABLE" "NONE"
-    append "#define __STILTS_HAS_PYTHON 0"
-    append "#define __STILTS_PYTHON_EXECUTABLE NULL"
+    append "#define __DAI_HAS_PYTHON 0"
+    append "#define __DAI_PYTHON_EXECUTABLE NULL"
     
     msg "PYTHON VERSION" "NONE"
-    append "#define __STILTS_PYTHON_VERSION \"\""
-    append "#define __STILTS_PYTHON_MAJOR_VERSION 0"
-    append "#define __STILTS_PYTHON_MINOR_VERSION 0"
-    append "#define __STILTS_PYTHON_SUBMINOR_VERSION 0"
+    append "#define __DAI_PYTHON_VERSION \"\""
+    append "#define __DAI_PYTHON_MAJOR_VERSION 0"
+    append "#define __DAI_PYTHON_MINOR_VERSION 0"
+    append "#define __DAI_PYTHON_SUBMINOR_VERSION 0"
 fi
 
 
@@ -144,11 +144,11 @@ fi
 if test $hascolors -eq 1; then
     msg "ANSI COLORS" "YES"
     append ""
-    append "#define __STILTS_HAS_ANSI_COLORS 1"
+    append "#define __DAI_HAS_ANSI_COLORS 1"
 else
     msg "ANSI COLORS" "NO"
     append ""
-    append "#define __STILTS_HAS_ANSI_COLORS 0"
+    append "#define __DAI_HAS_ANSI_COLORS 0"
 fi
 
 
@@ -158,11 +158,11 @@ fi
 if sh config/backtraces.sh; then
     msg "BACKTRACES" "YES"
     append ""
-    append "#define __STILTS_HAS_BACKTRACES 1"
+    append "#define __DAI_HAS_BACKTRACES 1"
 else
     msg "BACKTRACES" "NO"
     append ""
-    append "#define __STILTS_HAS_BACKTRACES 0"
+    append "#define __DAI_HAS_BACKTRACES 0"
 fi
 
 
@@ -172,11 +172,11 @@ fi
 if sh config/label_values.sh; then
     msg "LABEL VALUES" "YES"
     append ""
-    append "#define __STILTS_HAS_LABEL_VALUES 1"
+    append "#define __DAI_HAS_LABEL_VALUES 1"
 else
     msg "LABEL VALUES" "NO"
     append ""
-    append "#define __STILTS_HAS_LABEL_VALUES 0"
+    append "#define __DAI_HAS_LABEL_VALUES 0"
 fi
 
 guard
