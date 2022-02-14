@@ -1,3 +1,0 @@
-[submodule "Grammar/packcc"]
-	path = grammar/packcc
-	url = https://github.com/apaz-cli/packcc.git
