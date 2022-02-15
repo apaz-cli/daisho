@@ -1,8 +1,8 @@
 #pragma once
 #ifndef __DAI_STDLIB_POOL
 #define __DAI_STDLIB_POOL
-#include "../PreProcessor/DaishoPreprocessor.h"
-#include "DaishoMutex.h"
+#include "../PreProcessor/PreProcessor.h"
+#include "Mutex.h"
 
 #define __DAI_THREADPOOL_NUM_THREADS (__DAI_IDEAL_NUM_THREADS - 1)
 #define __DAI_TASK_BUFFER_SIZE 512

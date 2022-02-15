@@ -1,6 +1,6 @@
 #ifndef __DAI_STDLIB_ERROR
 #define __DAI_STDLIB_ERROR
-#include "../PreProcessor/DaishoPreprocessor.h"
+#include "../PreProcessor/PreProcessor.h"
 
 #define __DAI_SANITY_RETURN 23
 #define __DAI_OOM_RETURN 24

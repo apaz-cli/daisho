@@ -73,7 +73,7 @@ pyldconfig = re.sub(" +", " ", pyldconfig)
 
 warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes -Wno-missing-braces -Wno-unused-function"
 
-extras = "-O0 -D__STILTS_EMBED_PYTHON=1 -g -rdynamic"
+extras = "-O0 -D__DAI_EMBED_PYTHON=1 -g -rdynamic"
 
 
 invocations = []
@@ -102,7 +102,7 @@ scripts = []
 
 
 def buildTests():
-    heading("Building stiltc.")
+    heading("Building daic.")
     cd('..')
     run('./rungenerators.sh')
     run('./install.sh')

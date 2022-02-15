@@ -2,7 +2,7 @@
 #ifndef __DAI_STDLIB_CONFIGS
 #define __DAI_STDLIB_CONFIGS
 
-#include "DaishoConfig.h"
-#include "DaishoGeneratedConfig.h"
+#include "Config.h"
+#include "GeneratedConfig.h"
 
 #endif /* __DAI_STDLIB_CONFIGS */

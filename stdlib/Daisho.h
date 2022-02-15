@@ -4,13 +4,13 @@
 
 /* The project is structured hierarchically like so. */
 
-#include "Native/Configs/DaishoConfigs.h"
+#include "Native/Configs/Configs.h"
 #define __DAI
-#include "Native/PreProcessor/DaishoPreprocessor.h"
+#include "Native/PreProcessor/PreProcessor.h"
 #undef __DAI
-#include "Native/PreStart/DaishoPreStart.h"
+#include "Native/PreStart/PreStart.h"
 #define __DAI
-#include "Native/Builtins/DaishoBuiltins.h"
+#include "Native/Builtins/Builtins.h"
 #undef __DAI
 
 #endif /* __DAI_STDLIB_INCLUDES */

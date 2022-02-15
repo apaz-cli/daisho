@@ -1,8 +1,8 @@
 #ifndef __DAI_STDLIB_START
 #define __DAI_STDLIB_START
-#include "../PreProcessor/DaishoPreprocessor.h"
-#include "DaishoBuffering.h"
-#include "DaishoPython.h"
+#include "../PreProcessor/PreProcessor.h"
+#include "Buffering.h"
+#include "Python.h"
 
 /* Routines that should happen before main(). */
 

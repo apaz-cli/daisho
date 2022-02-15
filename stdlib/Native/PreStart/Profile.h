@@ -1,7 +1,7 @@
 #ifndef __DAI_STDLIB_PROFILE
 #define __DAI_STDLIB_PROFILE
 
-#include "../PreProcessor/DaishoPreprocessor.h"
+#include "../PreProcessor/PreProcessor.h"
 
 #define __DAI_PROFILE 1
 
@@ -52,19 +52,19 @@ __Dai_stopwatch_init(const __Dai_StopwatchIncrement resolution) {
     __Dai_stopwatch_laps = 0;
     if (resolution == __DAI_STOPWATCH_HOURS) {
         __Dai_stopwatch_resolution = (CLOCKS_PER_SEC * 60 * 60);
-        __Dai_stopwatch_tstr = "hours";
+        __Dai_stopwatch_tstr = (char*)"hours";
     } else if (resolution == __DAI_STOPWATCH_MINUTES) {
         __Dai_stopwatch_resolution = (CLOCKS_PER_SEC * 60);
-        __Dai_stopwatch_tstr = "min";
+        __Dai_stopwatch_tstr = (char*)"min";
     } else if (resolution == __DAI_STOPWATCH_SECONDS) {
         __Dai_stopwatch_resolution = (CLOCKS_PER_SEC);
-        __Dai_stopwatch_tstr = "s";
+        __Dai_stopwatch_tstr = (char*)"s";
     } else if (resolution == __DAI_STOPWATCH_MILLISECONDS) {
         __Dai_stopwatch_resolution = (CLOCKS_PER_SEC / 1000.0);
-        __Dai_stopwatch_tstr = "ms";
+        __Dai_stopwatch_tstr = (char*)"ms";
     } else if (resolution == __DAI_STOPWATCH_MICROSECONDS) {
         __Dai_stopwatch_resolution = (CLOCKS_PER_SEC / 1000000.0);
-        __Dai_stopwatch_tstr = "us";
+        __Dai_stopwatch_tstr = (char*)"us";
     } else {
         fprintf(stdout,
                 "Please provide a proper argument to "

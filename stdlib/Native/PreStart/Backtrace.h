@@ -1,8 +1,8 @@
 #ifndef __DAI_STDLIB_BACKTRACE
 #define __DAI_STDLIB_BACKTRACE
 
-#include "../PreProcessor/DaishoPreprocessor.h"
-#include "DaishoBuffering.h"
+#include "../PreProcessor/PreProcessor.h"
+#include "Buffering.h"
 
 #define __STITLS_BT_MAX_FRAMES 50
 

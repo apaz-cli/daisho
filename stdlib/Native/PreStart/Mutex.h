@@ -1,8 +1,8 @@
 #pragma once
 #ifndef __DAI_STDLIB_MUTEX
 #define __DAI_STDLIB_MUTEX
-#include "../PreProcessor/DaishoPreprocessor.h"
-#include "DaishoError.h"
+#include "../PreProcessor/PreProcessor.h"
+#include "Error.h"
 
 /*********/
 /* MUTEX */

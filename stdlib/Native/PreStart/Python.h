@@ -1,7 +1,7 @@
 #ifndef __DAI_STDLIB_PYTHON
 #define __DAI_STDLIB_PYTHON
 
-#include "../PreProcessor/DaishoPreprocessor.h"
+#include "../PreProcessor/PreProcessor.h"
 
 /* No stdlib stuff in here. Only python. */
 

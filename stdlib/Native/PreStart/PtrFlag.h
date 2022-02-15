@@ -1,7 +1,7 @@
 #ifndef __DAI_STDLIB_PTRFLAG
 #define __DAI_STDLIB_PTRFLAG
 
-#include "../PreProcessor/DaishoPreprocessor.h"
+#include "../PreProcessor/PreProcessor.h"
 
 #define __DAI_RESERVED_PTR_BITS 16
 

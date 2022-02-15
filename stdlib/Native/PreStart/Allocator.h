@@ -1,8 +1,8 @@
 #pragma once
 #ifndef __DAI_STDLIB_ALLOCATOR
 #define __DAI_STDLIB_ALLOCATOR
-#include "../PreProcessor/DaishoPreprocessor.h"
-#include "DaishoError.h"
+#include "../PreProcessor/PreProcessor.h"
+#include "Error.h"
 
 /******************/
 /* Error Handling */

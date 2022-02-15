@@ -11,7 +11,7 @@
 #define __DAI_STDLIB_CONFIG
 
 /* Generated from the configure script. */
-#include "DaishoGeneratedConfig.h"
+#include "GeneratedConfig.h"
 
 /*
  * 0 - Don't embed Python (default if python is not configured)

@@ -1,7 +1,7 @@
 #pragma once
 #ifndef __DAI_STDLIB_STRING
 #define __DAI_STDLIB_STRING
-#include "../PreStart/DaishoPreStart.h"
+#include "../PreStart/PreStart.h"
 
 /* Classic triple with small string
    optimization. (abbreviated ssopt.) */

@@ -1,7 +1,7 @@
 #ifndef __DAI_STDLIB_BUFFERING
 #define __DAI_STDLIB_BUFFERING
 
-#include "../PreProcessor/DaishoPreprocessor.h"
+#include "../PreProcessor/PreProcessor.h"
 
 __DAI_FN void
 __Dai_configure_buffering() {

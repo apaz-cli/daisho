@@ -1,6 +1,6 @@
 #ifndef __DAI_STDLIB_LIBRARIES
 #define __DAI_STDLIB_LIBRARIES
-#include "../Configs/DaishoConfigs.h"
+#include "../Configs/Configs.h"
 
 /*
  * Embed a python interpreter, because why not.
