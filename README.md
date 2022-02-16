@@ -56,13 +56,13 @@ If you're not on a POSIX operating system (If you're on Windows), I recommend sw
 ## List of inspiring languages:
 |  Lang  |                   Inspiration |
 | :----: | ----------------------------: |
-|   C    | Simplicity, flat memory model |
-|  C++   |     Templates, language goals |
-|  Java  |      Collections/Streams APIs |
+| C      | Simplicity, flat memory model |
+| C++    |     Templates, language goals |
+| Java   |      Collections/Streams APIs |
 | Python |          List comprehensions, |
-|  Rust  |             static/dyn Traits |
-|  Vala  |    Compilation model, interop |
-
+| Rust   |             static/dyn Traits |
+| Vala   |    Compilation model, interop |
+| Cello  |   Metaprogramming on top of C |
 
 ## Daisho is:
 * C, with modern high level language features
