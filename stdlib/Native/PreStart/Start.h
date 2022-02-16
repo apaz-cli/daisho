@@ -26,7 +26,7 @@ __DAI_FN void
 __Dai_setlocale(void) {
     /* I'm putting off messing with this until it inevitably becomes a problem. */
     if (!setlocale(LC_ALL, __DAI_LOCALE)) {
-        fprintf(stderr, "Could not set locale to the \"" " locale.");
+        fprintf(stderr, "Could not set locale to the \"" __DAI_LOCALE " locale.");
         exit(70);
     }
 }
