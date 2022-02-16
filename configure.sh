@@ -58,13 +58,22 @@ fi;
 # ENDIANNESS #
 ##############
 if sh ./config/endianness.sh; then
-   msg "ENDIANNESS" "PASSED"
+    msg "ENDIANNESS" "PASSED"
 else
     echo "Daisho is not supported on Big-Endian or Unknown-Endianness machines."
     exit 1
 fi
 
 
+###############
+# UTF8 LOCALE #
+###############
+if sh ./config/locale.sh; then
+    msg "UTF8 LOCALE" "PASSED"
+else
+    echo "Daisho is not supported on systems that do not support the \"C.UTF-8\" locale."
+    exit 1
+fi
 
 #################################
 #                               #
@@ -118,7 +127,7 @@ if test $PYEXEC; then
     msg "PYTHON EXECUTABLE" $PYEXEC
     append "#define __SILTS_HAS_PYTHON 1"
     append "#define __DAI_PYTHON_EXECUTABLE \"$PYEXEC\""
-
+    
     PYV=$($PYEXEC -c "import platform;print(platform.python_version())")
     msg "PYTHON VERSION" "$PYV"
     append "#define __DAI_PYTHON_VERSION \"$PYV\""

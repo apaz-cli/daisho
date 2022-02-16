@@ -379,8 +379,6 @@ static DFARule MOD_ASSIGN_rule_2 = { .start_range = '=', .end_range = '=', .star
 /* Custom Tokenizer DFA Rules */
 /******************************/
 
-// Add op | operator
-
 /* IDENT */
 #define IDENT_ACCEPTING 2
 /* First char of idexnt, [_a-zA-Zalpha-omegaALPHA-OMEGA] */
