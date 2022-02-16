@@ -1,8 +1,9 @@
 
 # Named Lifetimes and Their Practical Implementation
-### An intereactive approach to memory management.
+### An interactive approach to memory management.
 
 ## Abstract
+ * Write the abstract last.
 
 
 ## Introduction
@@ -22,18 +23,18 @@ still presenting a significant improvement in terms of mental overhead over manu
 situations.
 
 
-## Outline
+# Outline
 
-Overview of memory allocators
+## Overview of memory allocators
  * Define Arena
  * Memory from malloc vs the OS
- * Stack memory may be an alternative.
+ * Stack or global memory may be an alternative, depening on the lifetime.
 
  * Once you have this memory, you have to chunk it up and give it out.
 
  * Define Bump Allocator
    * Trivial, and very fast.
-   * No "free()" on individual regions, unless just allocated. Memory comitted can't be reclaimed.
+   * No free() on individual regions, unless just allocated. Memory comitted can't be reclaimed.
    * Not what malloc() implementations use.
 
  * Other allocator strategies
@@ -45,32 +46,44 @@ Overview of memory allocators
 
  * Each type of allocator has its own tradeoffs as well.
 
-The strategy
- * Implicit creation of memory allocators
+ * Optimizing C code is about not doing slow things. Quote the pareto principle.
+
+ * Allocating memory is one of the slowest things your program does, unless it does IO. This means
+   optimizing C means writing memory allocators.
+
+
+## The strategy
+ * High level syntax
+ * Implicit or explicit creation of memory allocators
  * Explicit destruction of allocator and all contents
  * Build allocator information into the programming language
 
-Upsides
+
+## Upsides
  * Frontloads the cost of asking the OS for memory
  * Very fast compared to garbage collection
- * Faster than calling malloc() in some cases
-   * Don't have to call free()
+ * Faster than calling malloc() in most cases
+   * Don't have to call free(), which is another speedup.
  * Reduces time spent writing custom allocators
  * Names allow you to reason about lifetimes
  * Easier for an optimizer to reason about in some cases
 
-Drawbacks
+
+## Drawbacks
  * No single memory allocator is an upside and a downside
    * Performance depends on the pattern you dereference.
  * Extending lifetime -> Move to another allocator, get new pointer
    * This sort of copy can't be elided.
 
-Example Syntax
- * example 1
- * example 2
+
+## Example Syntax
 
 
+## Implementation
+ * Basic implementation (global arenas)
+ * Optimized implementation (Semantic analysis, customized allocators)
 
 
 ## References:
 https://pypl.github.io/PYPL.html
+
