@@ -2,7 +2,6 @@
 #define STRUCT_DECLARATIONS
 
 #include "Generated/TokType.h"
-#include <apaz-libc.h>
 
 /***************************/
 /*    TYPE DECLARATIONS    */

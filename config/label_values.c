@@ -1,11 +1,7 @@
-#include <apaz-libc.h>
-#include <stdint.h>
-#include <stdio.h>
-
 int main(void) {
     void* lblval = &&lbl;
-    goto *lblval;
+    goto* lblval;
 
-    lbl:;
+lbl:;
     return 0;
 }

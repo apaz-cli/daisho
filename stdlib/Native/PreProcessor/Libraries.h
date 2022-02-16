@@ -8,7 +8,7 @@
  * It can be disabled in the config files, or on the
  * daic command line.
  */
-#ifndef __DAI_ASSERTING
+#ifndef __DAI_NO_LIBRARIES
 #if __DAI_EMBED_PYTHON
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -98,12 +98,15 @@
 /* Additional Libraries */
 /************************/
 
-#include <pthread.h>   /* Threads, Muxtexes, RWLocks */
-#include <sys/types.h> /* POSIX */
-#include <unistd.h>    /* POSIX */
+/* POSIX */
+#include <fcntl.h>
+#include <pthread.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 /* Use GNU backtraces if possible. */
-#ifndef __DAI_ASSERTING
+#ifndef __DAI_NO_LIBRARIES
 #if __DAI_BACKTRACES_SUPPORTED
 #include <execinfo.h>
 #endif

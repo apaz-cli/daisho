@@ -9,7 +9,9 @@ COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
 if test $COLS -gt 90; then COLS=57; fi
 IN_CMT="// __DAI_STDLIB_GENERATEDCONFIG"
 
-# COLORS
+##########
+# COLORS #
+##########
 ncolors=$(tput colors)
 if test -n "$ncolors" && test "$ncolors" -ge 8; then
     hascolors=1

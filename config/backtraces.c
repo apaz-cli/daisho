@@ -1,5 +1,4 @@
 #include <execinfo.h>
-#include <stdio.h>
 
 int main() {
     void* arr[50];

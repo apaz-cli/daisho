@@ -1,10 +1,11 @@
-#include <apaz-libc.h>
+#include "../../stdlib/Daisho.h"
 
 int
-toFromTest(const char* path) {
-    UTF8FileContent to = utf8_readFile((char*)path);
-    FileContent back = utf8_encode_content(to);
-    FileContent original = apaz_str_readFile((char*)path);
+toFromTest(char* path) {
+    __Dai_String_View raw = __Dai_readFile(path);
+    __Dai_UTF8_String_View utf = __Dai_UTF8_readFile(path);
+    __Dai_Unicode_Codepoint_String_View cps = __Dai_Unicode_readFile(path);
+    // __Dai_Unicode_Codepoint_String_View raw_cps = __Dai_;
 
     // These had better match up.
     // printf("[%zu, %zu]", back.len, original.len);

@@ -15,7 +15,7 @@ typedef struct {
    The representation doesn't matter, so there should be an
    easy way to extract it. */
 typedef struct {
-    char* cstr;
+    char* str;
     size_t len;
 } __Dai_String_View;
 
@@ -31,12 +31,11 @@ typedef struct {
 #if __DAI_SANITY_CHECK
 #define __DAI_STRING_NONNULL(self) \
     if (__DAI_SANITY_PEDANTIC && !self) __DAI_SANITY_FAIL()
-#define __DAI_STRING_NULL_TERM(self)                                     \
-    do {                                                                    \
-        if (__DAI_SANITY_PEDANTIC) {                                   \
-            if (!*(__Dai_String_cstr(self) + __Dai_String_len(self))) \
-                __DAI_SANITY_FAIL();                                     \
-        }                                                                   \
+#define __DAI_STRING_NULL_TERM(self)                                                       \
+    do {                                                                                   \
+        if (__DAI_SANITY_PEDANTIC) {                                                       \
+            if (!*(__Dai_String_cstr(self) + __Dai_String_len(self))) __DAI_SANITY_FAIL(); \
+        }                                                                                  \
     } while (0)
 #else
 #define __DAI_STRING_NONNULL(self)
@@ -97,19 +96,6 @@ __Dai_String_large_len(__Dai_String* self) {
     return self->size;
 }
 
-__DAI_FN __Dai_String_View
-__Dai_String_getRaw(__Dai_String* self) {
-    __Dai_String_View raw;
-    if (__Dai_String_isLarge(self)) {
-        raw.cstr = self->buffer;
-        raw.len = self->size;
-    } else {
-        raw.cstr = (char*)self;
-        raw.len = __Dai_String_small_len(self);
-    }
-    return raw;
-}
-
 /**********************/
 /* "Public" Functions */
 /**********************/
@@ -117,14 +103,26 @@ __Dai_String_getRaw(__Dai_String* self) {
 __DAI_FN size_t
 __Dai_String_len(__Dai_String* self) {
     __DAI_STRING_NONNULL(self);
-    return __Dai_String_isLarge(self) ? __Dai_String_large_len(self)
-                                         : __Dai_String_small_len(self);
+    return __Dai_String_isLarge(self) ? __Dai_String_large_len(self) : __Dai_String_small_len(self);
 }
 
 __DAI_FN char*
 __Dai_String_cstr(__Dai_String* self) {
     __DAI_STRING_NONNULL(self);
     return __Dai_String_isLarge(self) ? self->buffer : (char*)self;
+}
+
+__DAI_FN __Dai_String_View
+__DAI_String_to_View(__Dai_String* self) {
+    __Dai_String_View view;
+    if (__Dai_String_isLarge(self)) {
+        view.str = self->buffer;
+        view.len = self->size;
+    } else {
+        view.str = (char*)self;
+        view.len = __Dai_String_small_len(self);
+    }
+    return view;
 }
 
 __DAI_FN void
@@ -203,8 +201,7 @@ __Dai_String_shrink(__Dai_String* self, __DAI_SRC_INFO_ARGS) {
         /* If not small enough for ssopt, shrink. */
         else {
             // len unchanged
-            self->buffer =
-                (char*)__Dai_realloc(self->buffer, self->size, __DAI_SRC_INFO_PASS);
+            self->buffer = (char*)__Dai_realloc(self->buffer, self->size, __DAI_SRC_INFO_PASS);
             __Dai_String_set_cap(self, self->size);
         }
     }
@@ -277,8 +274,7 @@ __DaiString_initLen(__Dai_String* self, char* data) {
 }
 
 __DAI_FN __Dai_String*
-__Dai_String_copy(__Dai_String* __DAI_RESTRICT self,
-                     __Dai_String* __DAI_RESTRICT other) {
+__Dai_String_copy(__Dai_String* __DAI_RESTRICT self, __Dai_String* __DAI_RESTRICT other) {
     __DAI_STRING_NONNULL(self);
     __DAI_STRING_NONNULL(other);
     if (__Dai_String_isLarge(self)) {

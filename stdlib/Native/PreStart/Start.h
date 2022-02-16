@@ -1,30 +1,42 @@
 #ifndef __DAI_STDLIB_START
 #define __DAI_STDLIB_START
 #include "../PreProcessor/PreProcessor.h"
-#include "Buffering.h"
-#include "Python.h"
+#include "Mutex.h"
 
 /* Routines that should happen before main(). */
 
 /*********/
-/* Start */
+/* To be called in Start */
 /*********/
 
-__DAI_FN void
-__Dai_signal(void) {}
+/* __Dai_configure_buffering() */
+#include "Buffering.h"
 
+/* __Dai_py_init() */
+#include "Python.h"
+
+/* Stack Traces */
+static char __Dai_stacktrace_buffer[50];
+static __Dai_Mutex __Dai_stacktrace_mutex = __DAI_MUTEX_INITIALIZER;
+__DAI_FN void
+__Dai_configure_signals(void) {}
+
+/* Locale */
 __DAI_FN void
 __Dai_setlocale(void) {
     /* I'm putting off messing with this until it inevitably becomes a problem. */
-    if (!setlocale(LC_ALL, "")) {
-        fprintf(stderr, "Could not set locale to system locale.\n");
+    if (!setlocale(LC_ALL, __DAI_LOCALE)) {
+        fprintf(stderr, "Could not set locale to the \"" " locale.");
         exit(70);
     }
 }
 
+/******************/
+/* Start Function */
+/******************/
+
 __DAI_FN void
 __Dai_pre_main(int argc, char** argv) {
-
     /* Start python (which sets the locale),
        or set the locale ourselves. */
 #if __DAI_EMBED_PYTHON

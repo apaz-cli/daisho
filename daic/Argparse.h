@@ -49,13 +49,11 @@ static const char* usageMesasge =
 
 // Lambdas
 static inline void
-str_destroy(String s, void* none) {
-    (void)none;
+str_destroy(String s) {
     String_destroy(s);
 }
 static inline bool
-filterEmpty(String str, void* none) {
-    (void)none;
+filterEmpty(String str) {
     bool empty = str[0] == '\0';
     if (empty) String_destroy(str);
     return !empty;
@@ -107,7 +105,7 @@ parseFlags(int argc, char** argv) {
                     String sarg = String_new_of_strlen(argv[i]);
                     List_String_destroy(cmdFlags.cflags);
                     cmdFlags.cflags =
-                        List_String_filter(String_split(sarg, (char*)" "), filterEmpty, NULL);
+                        List_String_filter(String_split(sarg, (char*)" "), filterEmpty);
                     String_destroy(sarg);
                     continue;
                 } else if (apaz_str_equals(argv[i - 1], (char*)"-j")) {
@@ -187,7 +185,7 @@ parseFlags(int argc, char** argv) {
 
 static inline void
 destroyFlags() {
-    List_String_foreach(cmdFlags.cflags, str_destroy, NULL);
+    List_String_foreach(cmdFlags.cflags, str_destroy);
     List_Target_destroy(cmdFlags.targets);
 }
 

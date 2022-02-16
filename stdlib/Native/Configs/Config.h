@@ -126,4 +126,12 @@
 #define __DAI_OUTPUT_BUFFERING 1
 #endif
 
+/*
+ * The C runtime locale for Daisho to use.
+ * Default: "C.UTF-8"
+ */
+#ifndef __DAI_LOCALE
+#define __DAI_LOCALE "C.UTF-8"
+#endif
+
 #endif /* __DAI_STDLIB_CONFIG */
