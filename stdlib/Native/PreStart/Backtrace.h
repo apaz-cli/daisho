@@ -16,6 +16,16 @@
 
 #if __DAI_BACKTRACES_SUPPORTED
 
+static size_t __Dai_bt_buf_size;
+static const size_t __Dai_bt_cap = __DAI_PAGESIZE * 4;
+static char __Dai_bt_buffer[__Dai_bt_cap];
+static FILE* __Dai_bt_stream;
+
+__DAI_FN void
+__DAI_bt_init(void) {
+    __Dai_bt_stream = open_memstream(&__Dai_bt_buffer, &__Dai_bt_buf_size);
+}
+
 __DAI_FN void
 __Dai_bt_header(void) {
     fprintf(stderr, __DAI_COLOR_HEAD("***************\n* Stack Trace *\n***************\n"));
@@ -26,9 +36,9 @@ __DAI_bt_footer(char* sigstr) {
     char* errmsg = errno ? strerror(errno) : (char*)"0 (Success)";
     fprintf(stderr,
             __DAI_COLOR_MAGENTA "Errno: " __DAI_COLOR_RESET " " __DAI_COLOR_BLUE
-                                   "%s" __DAI_COLOR_RESET "\n" __DAI_COLOR_MAGENTA
-                                   "Signal:" __DAI_COLOR_RESET " " __DAI_COLOR_BLUE
-                                   "%s" __DAI_COLOR_RESET "\n\n",
+                                "%s" __DAI_COLOR_RESET "\n" __DAI_COLOR_MAGENTA
+                                "Signal:" __DAI_COLOR_RESET " " __DAI_COLOR_BLUE
+                                "%s" __DAI_COLOR_RESET "\n\n",
             errmsg, sigstr ? sigstr : "N/A");
 }
 
@@ -95,8 +105,7 @@ __Dai_backtrace(void) {
         const char errmsg[] = "Obtained %d stack frames.\n";
         fprintf(stderr, errmsg, num_addrs);
         fflush(stderr);
-        for (i = 0; i < num_addrs; i++)
-            __Dai_SymInfo_print(__Dai_SymInfo_parse(symbol_strings[i]));
+        for (i = 0; i < num_addrs; i++) __Dai_SymInfo_print(__Dai_SymInfo_parse(symbol_strings[i]));
         __DAI_bt_footer(NULL);
         __Dai_newline_flush(stdout);
         /* Original (glibc) free, not wrapped. */

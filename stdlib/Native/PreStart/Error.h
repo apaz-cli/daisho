@@ -61,7 +61,7 @@ __Dai_default_error(char* message, __DAI_SRC_INFO_ARGS) {
 #if __DAI_SANITY_CHECK
 #define __DAI_OOM() __Dai_default_OOM(__DAI_SRC_INFO)
 #define __DAI_SANITY_FAIL() __Dai_default_sanity_check_fail(__DAI_SRC_INFO)
-#define __DAI_ERROR(message) __Dai_default_error(message, __DAI_SRC_INFO)
+#define __DAI_ERROR(message) __Dai_default_error((char*)(message), __DAI_SRC_INFO)
 #else /* __DAI_SANITY_CHECK */
 #define __DAI_OOM()
 #define __DAI_SANITY_FAIL()

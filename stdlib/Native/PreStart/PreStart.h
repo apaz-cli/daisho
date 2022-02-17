@@ -2,7 +2,6 @@
 #ifndef __DAI_STDLIB_PRESTART
 #define __DAI_STDLIB_PRESTART
 
-#include "Allocator.h"
 #include "Backtrace.h"
 #include "Error.h"
 #include "Mutex.h"
@@ -11,5 +10,7 @@
 #include "PtrFlag.h"
 #include "Python.h"
 #include "Start.h"
+
+#include "Allocators/Allocators.h"
 
 #endif /* __DAI_STDLIB_PRESTART */
