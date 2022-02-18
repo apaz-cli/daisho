@@ -3,7 +3,6 @@
 ## TODO
 | Task:                 | Asignee | Priority | Notes:                         |
 | :-------------------- | :-----: | :------: | -----------------------------: |
-| Purge apaz-libc       | apaz    | High     |                                |
 | Tokenizer             | apaz    | High     | Write a Tokenizer generator.   |
 | Parser                | apaz    | Medium   | Complete PL\0 demo first.      |
 | Memory Allocator      | apaz    | High     | Slices, memdebug.              |

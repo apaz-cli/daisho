@@ -3,7 +3,6 @@
 #define INCLUDE_ASTNODEMETHODS
 #include "../StructDeclarations.h"
 #include "ASTNodeType.h"
-#include <apaz-libc.h>
 
 /****************/
 /* Info Structs */

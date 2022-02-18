@@ -1,6 +1,5 @@
 #ifndef GLOBAL_STATE_INCLUDE
 #define GLOBAL_STATE_INCLUDE
-#include <apaz-libc.h>
 #include "StructDeclarations.h"
 
 /* Compiler */

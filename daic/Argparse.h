@@ -1,8 +1,6 @@
 #ifndef ARGPARSE_INCLUDE
 #define ARGPARSE_INCLUDE
 
-#include <apaz-libc.h>
-
 #include "Declarations/Declarations.h"
 
 static const char* usageMesasge =

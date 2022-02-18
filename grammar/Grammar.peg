@@ -1,7 +1,6 @@
 %prefix "sp"
 %value "NTYPE"
 %header {
-#include <apaz-libc.h>
 typedef void* NTYPE;
 }
 
