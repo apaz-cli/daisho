@@ -14,19 +14,18 @@ typedef struct {
 /* Only a cstr and a length is required for many operations.
    The representation doesn't matter, so there should be an
    easy way to extract it. */
+/* As a side note, __Dai_String and __Dai_String_View should
+   be compatible types. We shouldn't assume they are in our
+   source code for the sake of C standard compliance, but
+   all unpacking and repacking should end up getting
+   optimized out. */
 typedef struct {
     char* str;
     size_t len;
 } __Dai_String_View;
 
-#define __DAI_STR_BUF_OFFSET 0
-#define __DAI_STR_SIZE_OFFSET sizeof(char*)
-#define __DAI_STR_CAP_OFFSET (sizeof(char*) + sizeof(size_t))
 #define __DAI_STR_FLAG_OFFSET (sizeof(__Dai_String) - 1)
 #define __DAI_STR_SSOPT_BUF_LEN (sizeof(__Dai_String) - 1)
-
-#define __DAI_SIZE_BIT (sizeof(size_t) * CHAR_BIT)
-#define __DAI_STR_MAX_LEN ((1 << __DAI_SIZE_BIT) - 1)
 
 #if __DAI_SANITY_CHECK
 #define __DAI_STRING_NONNULL(self) \

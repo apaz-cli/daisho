@@ -31,7 +31,7 @@
 /*
  * 0 - No sanity checks. Difficult to debug, but very fast.
  * 1 - Basic sanity checks are performed. (default)
- * 2 - Pedantic sanity checks. Slow, but good for debugging.
+ * 2 - Pedantic sanity checks. Very slow, but good for debugging.
  *
  * Can be declared by daic as a flag to the C compiler.
  * Use daic flags to control this. Passing neither uses
@@ -88,7 +88,7 @@
  * combination with __DAI_MEMDEBUG, this can be used to track down errors in
  * code not written by daic.
  *
- * When you use __DAI_REPLACE_MEMDEBUG, be sure to always include Daisho.h
+ * When you use __DAI_REPLACE_MALLOC, be sure to always include Daisho.h
  * before including the file that provides malloc(), so that it can be wrapped
  * for the whole translation unit.
  *
