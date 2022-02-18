@@ -95,4 +95,18 @@ const __Dai_Siginfo __Dai_siglist[] = {
 
 const size_t SIGLIST_LENGTH = sizeof(__Dai_siglist) / sizeof(__Dai_siglist[0]);
 
+__DAI_FN void __Dai_print_siglist(void) {
+    puts(" X--------------------------------------------------X");
+    puts(" |                Supported Signals:                |");
+    puts(" X-----------X---------X----------------X-----------X");
+    puts(" |  Signal   | Number  | Default Action | Catchable |");
+    puts(" X-----------X---------X----------------X-----------X");
+    char* actions[] = {"Ignore", "Dump Core", "Terminate", "Stop", "Continue"}
+    char* tf[] = {"True", "False"}
+    for (size_t i = 0; i < SIGLIST_LENGTH; i++) {
+        __Dai_Default_Siginfo action = __Dai_siglist[i];
+        printf(" | %-9s | %7i | %14s | %9s |\n", action.name, action.code, actions[action.action], tf[action.catchable]);
+    }
+}
+
 #endif  // SIGLIST_H_INCLUDED
