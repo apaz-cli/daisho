@@ -25,11 +25,7 @@ __Dai_initialization_failure(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
         "  ERRNO: %i, (%s)\n"
         "  SANITY: %i, (%i required)"
         "  MESSAGE: %s\n";
-    int sterr = 1;
-    if (!errno){
-        sterr = strerror_r(errno, errstr, 32);
-    }
-    fprintf(stderr, fmt, file, line, func, errno, errno ? (sterr ? descerr : errstr) : succ,
+    fprintf(stderr, fmt, file, line, func, errno, errno ? strerror(errno) : succ,
             __DAI_SANITY_CHECK, sanity, msg);
     exit(1);
 }
