@@ -4,42 +4,30 @@
 #include "../PreProcessor/PreProcessor.h"
 #include "Buffering.h"
 
-#define __STITLS_BT_MAX_FRAMES 50
-
-// TODO replace feature test macros with a configure script.
-
-/*
- * On compilers that support include checking (Clang and GCC), we can check if
- * we have backtraces. If we aren't able to check, or we don't, just print that
- * we can't provide one.
- */
-
-#if __DAI_BACKTRACES_SUPPORTED
+#if (__DAI_BACKTRACES_SUPPORTED || defined(__DAI_TESTING_BACKTRACES))
 
 static size_t __Dai_bt_buf_size;
 static const size_t __Dai_bt_cap = __DAI_PAGESIZE * 4;
 static char __Dai_bt_buffer[__Dai_bt_cap];
 static FILE* __Dai_bt_stream;
-
-__DAI_FN void
-__DAI_bt_init(void) {
-    __Dai_bt_stream = open_memstream(&__Dai_bt_buffer, &__Dai_bt_buf_size);
-}
+static int __Dai_bt_fd;
 
 __DAI_FN void
 __Dai_bt_header(void) {
-    fprintf(stderr, __DAI_COLOR_HEAD("***************\n* Stack Trace *\n***************\n"));
+    const char[] sthead = "***************\n* Stack Trace *\n***************\n";
+    fprintf(stderr, __DAI_COLOR_HEAD(sthead));
 }
 
 __DAI_FN void
-__DAI_bt_footer(char* sigstr) {
-    char* errmsg = errno ? strerror(errno) : (char*)"0 (Success)";
-    fprintf(stderr,
-            __DAI_COLOR_MAGENTA "Errno: " __DAI_COLOR_RESET " " __DAI_COLOR_BLUE
-                                "%s" __DAI_COLOR_RESET "\n" __DAI_COLOR_MAGENTA
-                                "Signal:" __DAI_COLOR_RESET " " __DAI_COLOR_BLUE
-                                "%s" __DAI_COLOR_RESET "\n\n",
-            errmsg, sigstr ? sigstr : "N/A");
+__Dai_bt_footer(char* sigstr) {
+    const char[] na = "N/A";
+    const char[] success = "0 (Success)";
+    const char[] fmt =
+        __DAI_COLOR_MAGENTA "Errno: " __DAI_COLOR_RESET " " __DAI_COLOR_BLUE "%s" __DAI_COLOR_RESET
+                            "\n" __DAI_COLOR_MAGENTA "Signal:" __DAI_COLOR_RESET
+                            " " __DAI_COLOR_BLUE "%s" __DAI_COLOR_RESET "\n\n";
+    char* errmsg = errno ? strerror(errno) : success;
+    fprintf(stderr, fmt, errmsg, sigstr ? sigstr : na);
 }
 
 /*
@@ -52,6 +40,9 @@ typedef struct {
     char* addr;
 } __Dai_SymInfo;
 
+/* This looks ugly, and it is. But, it null terminates
+ * and returns the positions of the file, name, and
+ * address a frame of a glibc backtrace. */
 __DAI_FN __Dai_SymInfo
 __Dai_SymInfo_parse(char* str) {
     char *file = str, *name = NULL, *addr;
@@ -94,7 +85,7 @@ __Dai_SymInfo_print(__Dai_SymInfo info) {
 }
 
 static void __DAI_NEVER_INLINE
-__Dai_backtrace(void) {
+__Dai_print_backtrace(void) {
     void* symbol_arr[__STITLS_BT_MAX_FRAMES];
     char** symbol_strings = NULL;
     int num_addrs, i;
@@ -106,7 +97,7 @@ __Dai_backtrace(void) {
         fprintf(stderr, errmsg, num_addrs);
         fflush(stderr);
         for (i = 0; i < num_addrs; i++) __Dai_SymInfo_print(__Dai_SymInfo_parse(symbol_strings[i]));
-        __DAI_bt_footer(NULL);
+        __Dai_bt_footer(NULL);
         __Dai_newline_flush(stdout);
         /* Original (glibc) free, not wrapped. */
         free(symbol_strings);
@@ -127,11 +118,60 @@ __Dai_low_mem_backtrace(void) {
     write(STDOUT_FILENO, &nl, 1);
 }
 
+__DAI_FN void
+__Dai_install_backtrace_signals(void) {
+    int sigs[] = {__DAI_BACKTRACE_SIGNALS + 0};
+    size_t num_sigs = sizeof(sigs) / sizeof(int);
+    const char nserr[] =
+        "Daisho has been misconfigured.\n"
+        "In Daisho/stdlib/Native/config.h, the list "
+        "of signals that trigger a backtrace cannot be empty.\n"
+        "If you want to disable backtraces, #define __DAI_BACKTRACES_SUPPORTED to 0.";
+    __DAI_ASSERT(num_sigs[0] != 0, nserr);
+
+    /* Ensure backtraces' .so is loaded. */
+    void* frames[50];
+    int num_frames = backtrace(frames, 50);
+    const char bterr[] = "Empty backtrace.";
+    __DAI_SANE_ASSERTMSG(num_frames, bterr);
+
+    // Create a temp file buffer.
+    char template[] = "/tmp/Daisho Backtrace XXXXXX";
+    __Dai_bt_fd = mkstemp(template);
+    const char tmperr[] = "Could not create temp file.";
+    __DAI_SANE_ASSERTMSG(__Dai_bt_fd != -1, tmperr);
+
+    /* Create mask */
+    sigset_t set;
+    const char seteerr[] = "Could not empty the sigset.";
+    const char seterr[] = "Could not add a signal to the set.";
+    __DAI_PEDANTIC_ASSERTMSG(sigemptyset(&set), seteerr);
+    for (size_t i = 0; i < num_sigs; i++)
+        __DAI_PEDANTIC_ASSERTMSG(sigaddset(&set, sigs[i], seterr);
+
+    /* Install Handlers */
+    const char sseterr[] = "Could not install a signal handler.";
+    for (size_t i = 0; i < num_sigs; i++) {
+            struct sigaction action;
+            action.sa_sigaction = sighandler;
+            action.sa_flags = 0;
+            action.sa_mask = set;
+            __DAI_SANE_ASSERTMSG(!sigaction(sigs[i], &action, NULL), sseterr);
+    }
+}
+
+__DAI_FN void
+__Dai_raise_test_backtrace_signal(void) {
+    int sigs[] = {__DAI_BACKTRACE_SIGNALS + 0};
+    size_t num_sigs = sizeof(sigs) / sizeof(int);
+    raise(sigs[0]);
+}
+
 #else /* Backtraces unsupported */
 static void __DAI_NEVER_INLINE
-__Dai_backtrace(void) {
+__Dai_print_backtrace(void) {
     const char buf[] = "Backtraces are not supported on this system.\n";
-    fprintf(stdout, buf);
+    fprintf(stderr, buf);
 }
 
 static void __DAI_NEVER_INLINE

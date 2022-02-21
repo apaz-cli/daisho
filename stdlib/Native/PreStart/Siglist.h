@@ -1,116 +1,129 @@
-#ifndef SIGLIST_H_INCLUDED
-#define SIGLIST_H_INCLUDED
+#ifndef __DAI_STDLIB_SIGLIST
+#define __DAI_STDLIB_SIGLIST
 #include "../PreProcessor/PreProcessor.h"
 
 /* http://www.skrenta.com/rt/man/signal.7.html */
 
-typedef enum {
-    __DAI_DSA_IGNO, /* Default action is to ignore the signal. */
-    __DAI_DSA_CORE, /* Default action is to terminate the process and dump core. */
-    __DAI_DSA_TERM, /* Default action is to terminate the process. */
-    __DAI_DSA_STOP, /* Default action is to stop the process until it receives a continue signal. */
-    __DAI_DSA_CONT, /* Default action is to continue the process from where it stopped. */
-} __Dai_Default_Sigaction;
-
-typedef struct {
-    int code;
-    __Dai_Default_Sigaction action;
-    bool catchable;
-    const char* name;
-    const char* description;
-} __Dai_Siginfo;
-
-const __Dai_Siginfo __Dai_siglist[] = {
-
-    /**********************/
-    /* POSIX 1990 SIGNALS */
-    /**********************/
-    {SIGHUP, __DAI_DSA_TERM, true, "SIGHUP", "Controlling system hung up"},
-    {SIGINT, __DAI_DSA_TERM, true, "SIGINT", "Interrupt from keyboard"},
-    {SIGQUIT, __DAI_DSA_CORE, true, "SIGQUIT", "Quit from keyboard"},
-    {SIGILL, __DAI_DSA_CORE, true, "SIGILL", "Illegal Instruction"},
-    {SIGABRT, __DAI_DSA_CORE, true, "SIGABRT", "Abort signal"},
-    {SIGFPE, __DAI_DSA_CORE, true, "SIGFPE", "Floating-point exception"},
-    {SIGKILL, __DAI_DSA_TERM, false, "SIGKILL", "Kill signal"},
-    {SIGSEGV, __DAI_DSA_CORE, true, "SIGSEGV", "Segmentation fault"},
-    {SIGPIPE, __DAI_DSA_TERM, true, "SIGPIPE", "Broken pipe: write to pipe with no readers"},
-    {SIGALRM, __DAI_DSA_TERM, true, "SIGALRM", "Timer signal"},
-    {SIGTERM, __DAI_DSA_TERM, true, "SIGTERM", "Termination signal"},
-    {SIGUSR1, __DAI_DSA_TERM, true, "SIGUSR1", "User-defined signal 1"},
-    {SIGUSR2, __DAI_DSA_TERM, true, "SIGUSR2", "User-defined signal 2"},
-    {SIGCHLD, __DAI_DSA_IGNO, true, "SIGCHLD", "Child stopped or terminated"},
-    {SIGCONT, __DAI_DSA_CONT, true, "SIGCONT", "Continue if stopped"},
-    {SIGSTOP, __DAI_DSA_STOP, false, "SIGSTOP", "Stop process"},
-    {SIGTSTP, __DAI_DSA_STOP, true, "SIGTSTP", "Stop typed at terminal"},
-    {SIGTTIN, __DAI_DSA_STOP, true, "SIGTTIN", "Terminal input for background process"},
-    {SIGTTOU, __DAI_DSA_STOP, true, "SIGTTOU", "Terminal output for background process"},
-
-    /**********************/
-    /* POSIX 2001 SIGNALS */
-    /**********************/
-    {SIGBUS, __DAI_DSA_CORE, true, "SIGBUS", "Bus error (bad memory access)"},
-    {SIGPOLL, __DAI_DSA_TERM, true, "SIGPOLL", "Pollable event: I/O now possible"},
-    {SIGPROF, __DAI_DSA_TERM, true, "SIGPROF", "Profiling timer expired"},
-    {SIGSYS, __DAI_DSA_CORE, true, "SIGSYS", "Bad system call"},
-    {SIGTRAP, __DAI_DSA_CORE, true, "SIGTRAP", "Trace/breakpoint trap"},
-    {SIGURG, __DAI_DSA_IGNO, true, "SIGURG", "Urgent condition on socket "},
-    {SIGVTALRM, __DAI_DSA_TERM, true, "SIGVTALRM", "Process CPU timer expired."},
-    {SIGXCPU, __DAI_DSA_CORE, true, "SIGXCPU", "CPU time limit exceeded "},
-    {SIGXFSZ, __DAI_DSA_CORE, true, "SIGXFSZ", "File size limit exceeded"},
-
-/*********************/
-/* NON-POSIX SIGNALS */
-/*********************/
-#ifdef SIGCLD
-    {SIGCLD, __DAI_DSA_IGNO, true, "SIGCLD", "Child stopped or terminated (Synonym for SIGCHLD)"},
-#endif
-#ifdef SIGEMT
-    {SIGEMT, __DAI_DSA_CORE, true, "SIGEMT", "Emulator trap"},
-#endif
-#ifdef SIGINFO
-    {SIGINFO, __DAI_DSA_TERM, true, "SIGINFO", "Power failure"},
-#endif
-#ifdef SIGIO
-    {SIGIO, __DAI_DSA_TERM, true, "SIGIO", "I/O now possible"},
-#endif
-#ifdef SIGIOT
-    {SIGIOT, __DAI_DSA_CORE, true, "SIGIOT", "IOT trap: Abort signal"},
-#endif
-#ifdef SIGLOST
-    {SIGLOST, __DAI_DSA_TERM, true, "SIGLOST", "File lock lost"},
-#endif
-#ifdef SIGPWR
-    {SIGPWR, __DAI_DSA_TERM, true, "SIGPWR", "Power failure"},
-#endif
-#ifdef SIGSTKFLT
-    {SIGSTKFLT, __DAI_DSA_TERM, true, "SIGSTKFLT", "Stack fault on coprocessor"},
-#endif
-#ifdef SIGUNUSED
-    {SIGUNUSED, __DAI_DSA_CORE, true, "SIGUNUSED", "Bad system call (Synonym for SIGSYS)"},
-#endif
-#ifdef SIGWINCH
-    {SIGWINCH, __DAI_DSA_IGNO, true, "SIGWINCH", "Window resize signal"},
-#endif
-};
-
-const size_t SIGLIST_LENGTH = sizeof(__Dai_siglist) / sizeof(__Dai_siglist[0]);
-
 __DAI_FN void
 __Dai_print_siglist(void) {
-    const char* actions[] = {"Ignore", "Dump Core", "Terminate", "Stop", "Continue"};
-    const char* tf[] = {"False", "True"};
+    // on stack, not to clutter the binary.
 
-    puts(" X---------------------------------------------X");
-    puts(" |             Supported Signals:              |");
-    puts(" X-----------X---------X-----------X-----------X");
-    puts(" |  Signal   | Number  |  Action   | Catchable |");
-    puts(" X-----------X---------X-----------X-----------X");
-    for (size_t i = 0; i < SIGLIST_LENGTH; i++) {
+    typedef enum {
+        __DAI_DSA_IGNO, /* Default action is to ignore the signal. */
+        __DAI_DSA_CORE, /* Default action is to terminate the process and dump core. */
+        __DAI_DSA_TERM, /* Default action is to terminate the process. */
+        __DAI_DSA_STOP, /* Default action is to stop the process until it receives a continue
+                           signal. */
+        __DAI_DSA_CONT, /* Default action is to continue the process from where it stopped. */
+    } __Dai_Default_Sigaction;
+
+    typedef struct {
+        int code;
+        __Dai_Default_Sigaction action;
+        bool catchable;
+        const char* name;
+    } __Dai_Siginfo;
+
+    const __Dai_Siginfo __Dai_siglist[] = {
+
+        /*************************/
+        /* 19 POSIX 1990 SIGNALS */
+        /*************************/
+        {SIGHUP, __DAI_DSA_TERM, true, "SIGHUP"},
+        {SIGINT, __DAI_DSA_TERM, true, "SIGINT"},
+        {SIGQUIT, __DAI_DSA_CORE, true, "SIGQUIT"},
+        {SIGILL, __DAI_DSA_CORE, true, "SIGILL"},
+        {SIGABRT, __DAI_DSA_CORE, true, "SIGABRT"},
+        {SIGFPE, __DAI_DSA_CORE, true, "SIGFPE"},
+        {SIGKILL, __DAI_DSA_TERM, false, "SIGKILL"},
+        {SIGSEGV, __DAI_DSA_CORE, true, "SIGSEGV"},
+        {SIGPIPE, __DAI_DSA_TERM, true, "SIGPIPE"},
+        {SIGALRM, __DAI_DSA_TERM, true, "SIGALRM"},
+        {SIGTERM, __DAI_DSA_TERM, true, "SIGTERM"},
+        {SIGUSR1, __DAI_DSA_TERM, true, "SIGUSR1"},
+        {SIGUSR2, __DAI_DSA_TERM, true, "SIGUSR2"},
+        {SIGCHLD, __DAI_DSA_IGNO, true, "SIGCHLD"},
+        {SIGCONT, __DAI_DSA_CONT, true, "SIGCONT"},
+        {SIGSTOP, __DAI_DSA_STOP, false, "SIGSTOP"},
+        {SIGTSTP, __DAI_DSA_STOP, true, "SIGTSTP"},
+        {SIGTTIN, __DAI_DSA_STOP, true, "SIGTTIN"},
+        {SIGTTOU, __DAI_DSA_STOP, true, "SIGTTOU"},
+
+        /************************/
+        /* 9 POSIX 2001 SIGNALS */
+        /************************/
+        {SIGBUS, __DAI_DSA_CORE, true, "SIGBUS"},
+        {SIGPOLL, __DAI_DSA_TERM, true, "SIGPOLL"},
+        {SIGPROF, __DAI_DSA_TERM, true, "SIGPROF"},
+        {SIGSYS, __DAI_DSA_CORE, true, "SIGSYS"},
+        {SIGTRAP, __DAI_DSA_CORE, true, "SIGTRAP"},
+        {SIGURG, __DAI_DSA_IGNO, true, "SIGURG"},
+        {SIGVTALRM, __DAI_DSA_TERM, true, "SIGVTALRM"},
+        {SIGXCPU, __DAI_DSA_CORE, true, "SIGXCPU"},
+        {SIGXFSZ, __DAI_DSA_CORE, true, "SIGXFSZ"},
+
+/*********************************/
+/* 10 POSSIBLE NON-POSIX SIGNALS */
+/*********************************/
+#ifdef SIGCLD
+        {SIGCLD, __DAI_DSA_IGNO, true, "SIGCLD"},
+#endif
+#ifdef SIGEMT
+        {SIGEMT, __DAI_DSA_CORE, true, "SIGEMT"},
+#endif
+#ifdef SIGINFO
+        {SIGINFO, __DAI_DSA_TERM, true, "SIGINFO"},
+#endif
+#ifdef SIGIO
+        {SIGIO, __DAI_DSA_TERM, true, "SIGIO"},
+#endif
+#ifdef SIGIOT
+        {SIGIOT, __DAI_DSA_CORE, true, "SIGIOT"},
+#endif
+#ifdef SIGLOST
+        {SIGLOST, __DAI_DSA_TERM, true, "SIGLOST"},
+#endif
+#ifdef SIGPWR
+        {SIGPWR, __DAI_DSA_TERM, true, "SIGPWR"},
+#endif
+#ifdef SIGSTKFLT
+        {SIGSTKFLT, __DAI_DSA_TERM, true, "SIGSTKFLT"},
+#endif
+#ifdef SIGUNUSED
+        {SIGUNUSED, __DAI_DSA_CORE, true, "SIGUNUSED"},
+#endif
+#ifdef SIGWINCH
+        {SIGWINCH, __DAI_DSA_IGNO, true, "SIGWINCH"},
+#endif
+    };
+
+#define __DAI_SIGLIST_LENGTH (sizeof(__Dai_siglist) / sizeof(__Dai_siglist[0]))
+
+    const char ign[] = "Ignore";
+    const char dmp[] = "Dump Core";
+    const char term[] = "Terminate";
+    const char stop[] = "Stop";
+    const char cont[] = "Continue";
+    const char* actions[] = {ign, dmp, term, stop, cont};
+    const char f[] = "False";
+    const char t[] = "True";
+    const char* ft[] = {f, t};
+    const char startend[] = " X---------------------------------------------X";
+    const char supported[] = " |             Supported Signals:              |";
+    const char sep[] = " X-----------X---------X-----------X-----------X";
+    const char labels[] = " |  Signal   | Number  |  Action   | Catchable |";
+    const char fmt[] = " | %-9s | %7i | %9s | %9s |\n";
+
+    puts(startend);
+    puts(supported);
+    puts(sep);
+    puts(labels);
+    puts(sep);
+    for (size_t i = 0; i < __DAI_SIGLIST_LENGTH; i++) {
         __Dai_Siginfo sig = __Dai_siglist[i];
-        printf(" | %-9s | %7i | %9s | %9s |\n", sig.name, sig.code, actions[sig.action],
-               tf[sig.catchable]);
+        printf(fmt, sig.name, sig.code, actions[sig.action], ft[sig.catchable]);
     }
-    puts(" X---------------------------------------------X");
+    puts(startend);
 }
 
-#endif  // SIGLIST_H_INCLUDED
+#endif  // __DAI_STDLIB_SIGLIST

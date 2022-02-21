@@ -10,6 +10,7 @@
 #include "PtrFlag.h"
 #include "Python.h"
 #include "Start.h"
+#include "Siglist.h"
 
 #include "Allocators/Allocators.h"
 

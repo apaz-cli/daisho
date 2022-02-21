@@ -14,7 +14,7 @@ __Dai_malloc(size_t size, __DAI_SRC_INFO_ARGS) {
     if (__DAI_SANITY_CHECK) {
         /* Pass through OOM error. */
         void* ret = malloc(size);
-        if (!ret) __Dai_default_OOM(__DAI_SRC_INFO_PASS);
+        if (!ret) __DAI_OOM();
         return ret;
     } else {
         __DAI_SRC_INFO_IGNORE();
@@ -26,7 +26,7 @@ __DAI_FN void*
 __Dai_realloc(void* ptr, size_t size, __DAI_SRC_INFO_ARGS) {
     if (__DAI_SANITY_CHECK) {
         void* ret = realloc(ptr, size);
-        if (!ret) __Dai_default_OOM(__DAI_SRC_INFO_PASS);
+        if (!ret) __DAI_OOM();
         return ret;
     } else {
         __DAI_SRC_INFO_IGNORE();
@@ -36,20 +36,14 @@ __Dai_realloc(void* ptr, size_t size, __DAI_SRC_INFO_ARGS) {
 
 __DAI_FN void*
 __Dai_calloc(size_t num, size_t size, __DAI_SRC_INFO_ARGS) {
-#if __DAI_SANITY_CHECK
-    if (!num)
-        __DAI_ERROR((char*)"Argument \"num\" to calloc() cannot be zero.");
-    else if (!size)
-        __DAI_ERROR((char*)"Argument \"size\" to calloc() cannot be zero.");
-#else
+    __DAI_PEDANTIC_ASSERTMSG(num, "Argument \"num\" to calloc() cannot be zero.");
+    __DAI_PEDANTIC_ASSERTMSG(size, "Argument \"size\" to calloc() cannot be zero.");
+
     __DAI_SRC_INFO_IGNORE();
-#endif
 
     void* result = calloc(num, size);
-
-#if __DAI_SANITY_CHECK
-    if (!result) __Dai_default_OOM(__DAI_SRC_INFO_PASS);
-#endif
+    __DAI_SANE_OOMCHECK(result);
+    
     return result;
 }
 
