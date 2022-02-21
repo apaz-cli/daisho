@@ -42,7 +42,8 @@ typedef struct {
 
 /* This looks ugly, and it is. But, it null terminates
  * and returns the positions of the file, name, and
- * address a frame of a glibc backtrace. */
+ * address a frame of a glibc backtrace.
+ */
 __DAI_FN __Dai_SymInfo
 __Dai_SymInfo_parse(char* str) {
     char *file = str, *name = NULL, *addr;
@@ -154,7 +155,7 @@ __Dai_install_backtrace_signals(void) {
     for (size_t i = 0; i < num_sigs; i++) {
             struct sigaction action;
             action.sa_sigaction = sighandler;
-            action.sa_flags = 0;
+            action.sa_flags = SA_SIGINFO;
             action.sa_mask = set;
             __DAI_SANE_ASSERTMSG(!sigaction(sigs[i], &action, NULL), sseterr);
     }
@@ -162,6 +163,11 @@ __Dai_install_backtrace_signals(void) {
 
 __DAI_FN void
 __Dai_raise_test_backtrace_signal(void) {
+    /*
+     * Init is called before this. So, if __DAI_BACKTRACE_SYMBOLS expands to
+     * nothing, we'll have already errored. However, the +0 is needed so it will
+     * still compile.
+     */
     int sigs[] = {__DAI_BACKTRACE_SIGNALS + 0};
     size_t num_sigs = sizeof(sigs) / sizeof(int);
     raise(sigs[0]);

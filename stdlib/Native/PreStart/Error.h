@@ -14,6 +14,7 @@ __DAI_FN __DAI_NORETURN void
 __Dai_initialization_failure(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
     char errstr[32];
     const char succ[] = "Success";
+    const char descerr[] = "Could not get error description.";
     const char* sanities[] = {"insane", "sane", "pedantic"};
     const char fmt[] =
         "COULD NOT INITIALIZE THE DAISHO RUNTIME.\n"
@@ -24,7 +25,11 @@ __Dai_initialization_failure(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
         "  ERRNO: %i, (%s)\n"
         "  SANITY: %i, (%i required)"
         "  MESSAGE: %s\n";
-    fprintf(stderr, fmt, file, line, func, errno, errno ? strerror_r(errno, errstr, 32) : succ,
+    int sterr = 1;
+    if (!errno){
+        sterr = strerror_r(errno, errstr, 32);
+    }
+    fprintf(stderr, fmt, file, line, func, errno, errno ? (sterr ? descerr : errstr) : succ,
             __DAI_SANITY_CHECK, sanity, msg);
     exit(1);
 }

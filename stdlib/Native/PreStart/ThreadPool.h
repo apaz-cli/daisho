@@ -3,6 +3,7 @@
 #define __DAI_STDLIB_POOL
 #include "../PreProcessor/PreProcessor.h"
 #include "Mutex.h"
+#include "Error.h"
 
 #define __DAI_THREADPOOL_NUM_THREADS (__DAI_IDEAL_NUM_THREADS - 1)
 #define __DAI_TASK_BUFFER_SIZE 512
@@ -82,28 +83,29 @@ __Dai_shared_pool_do_work(void* ignored) {
 /* Put tasks into the queue */
 __DAI_FN void
 __Dai_shared_pool_submit(__Dai_Task task) {
+    int cannot_queue = 1;
+
+    // Check if the queue would overflow
     __Dai_SHARED_POOL_CRITICAL_BEGIN();
-    // Check for overflow
     if (((__DAI_TQUEUE.back + 2) % __DAI_TASK_BUFFER_SIZE) != __DAI_TQUEUE.front) {
         // No overflow, push onto queue
         __DAI_TQUEUE.back = (__DAI_TQUEUE.back + 1) % __DAI_TASK_BUFFER_SIZE;
         __DAI_TQUEUE.tasks[__DAI_TQUEUE.back] = task;
 
-        // While we have the mutex, if not already at capacity, start a thread
-        // to do the work.
+        // Check if we're at thread capacity.
         if (__Dai_shared_pool.num_threads_running < __DAI_THREADPOOL_NUM_THREADS) {
-            pthread_t* thread =
-                __Dai_shared_pool.threads + __Dai_shared_pool.num_threads_running;
-            if (!pthread_create(thread, NULL, __Dai_shared_pool_do_work, NULL) &&
-                __DAI_SANITY_CHECK == 2)
-                __DAI_SANITY_FAIL();
+            // If we're not, spin the thread.
+            pthread_t* thread = __Dai_shared_pool.threads + __Dai_shared_pool.num_threads_running;
+            cannot_queue = pthread_create(thread, NULL, __Dai_shared_pool_do_work, NULL);
         }
 
-        __Dai_SHARED_POOL_CRITICAL_END();
-    } else {
-        // When we can't queue a task, just do it. This not only eliminates the
-        // failure case, but also relieves congestion on the mutex.
-        __Dai_SHARED_POOL_CRITICAL_END();
+    }
+    __Dai_SHARED_POOL_CRITICAL_END();
+
+
+    // If we can't spin a thread to do the work, let's just do it ourselves.
+    // This not only eliminates the failure case, but also relieves congestion on the mutex.
+    if (cannot_queue) {
         task.fn(task.args);
     }
 }

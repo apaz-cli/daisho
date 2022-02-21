@@ -18,30 +18,43 @@
 #define __DAI_ASSERTING 1
 #include "../stdlib/Native/PreProcessor/PreProcessor.h"
 
-
-__DAI_STATIC_ASSERT(CHAR_BIT == 8, "Daisho's implementation of String assumes CHAR_BIT to be 8.");
-
-__DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(void*), "Daisho assumes that size_t is the same size as a pointer.");
-__DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(char*), "Daisho assumes that size_t is the same size as a pointer.");
-__DAI_STATIC_ASSERT(sizeof(uintptr_t) == sizeof(size_t), "Daisho assumes that uintptr_t is the same size as a pointer.");
-__DAI_STATIC_ASSERT(sizeof(intptr_t) == sizeof(size_t), "Daisho assumes that intptr_t is the same size as a pointer.");
-
-
 __DAI_STATIC_ASSERT(__STDC_VERSION__ >= 201112L, "Daisho requires a C11 compiler or above.");
 
+/* Assert about types. */
 
-__DAI_STATIC_ASSERT(SIZE_MAX <= UINT64_MAX,
-                    "The Daisho standard library assumes that size_t's max value "
-                    "is less than or equal to uint64_t's max value.");
-
-__DAI_STATIC_ASSERT(__DAI_MAX_OF_INTEGER_TYPE(clock_t) > UINT32_MAX,
-                    "The Daisho standard library assumes that the max value "
-                    "of clock_t is more than 32 bits.");
-
+__DAI_STATIC_ASSERT(CHAR_BIT == 8, "Daisho's implementation of String assumes CHAR_BIT to be 8.");
 __DAI_STATIC_ASSERT((~(long)0U) == (long)(-1),
                     "The Daisho standard library assumes "
                     "that the archetecture uses two's complement to represent "
                     "numbers.");
+
+#define ASSERT_COMPATIBLE(t1, t2) \
+    __DAI_STATIC_ASSERT(sizeof(t1) == sizeof(t2), "Daisho assumes that "#t1 " is the same size as " #t2 "."); \
+    __DAI_STATIC_ASSERT(__DAI_MIN_OF_INTEGER_TYPE(t1) == __DAI_MIN_OF_INTEGER_TYPE(t2), \
+                        "Daisho assumes that " #t1 " min casts freely with " #t2 " min."); \
+    __DAI_STATIC_ASSERT(__DAI_MAX_OF_INTEGER_TYPE(t1) == __DAI_MAX_OF_INTEGER_TYPE(t2),\
+                        "Daisho assumes that " #t1 " max casts freely with " #t2 " min.");
+
+ASSERT_COMPATIBLE(int8_t, char)
+ASSERT_COMPATIBLE(uint8_t, unsigned char)
+ASSERT_COMPATIBLE(int16_t, short)
+ASSERT_COMPATIBLE(uint16_t, unsigned short)
+ASSERT_COMPATIBLE(int32_t, int)
+ASSERT_COMPATIBLE(uint32_t, unsigned int)
+ASSERT_COMPATIBLE(int64_t, long)
+ASSERT_COMPATIBLE(uint64_t, unsigned long)
+
+ASSERT_COMPATIBLE(size_t, uintptr_t)
+ASSERT_COMPATIBLE(ssize_t, intptr_t)
+ASSERT_COMPATIBLE(intptr_t, ptrdiff_t)
+
+__DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(void*), "Daisho assumes that size_t is the same size as a pointer.");
+__DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(char*), "Daisho assumes that size_t is the same size as a pointer.");
+__DAI_STATIC_ASSERT(sizeof(uintptr_t) == sizeof(intptr_t), "Daisho assumes that intptr_t is the same size as uintptr_t.");
+__DAI_STATIC_ASSERT(__DAI_MAX_OF_INTEGER_TYPE(clock_t) > UINT32_MAX,
+                    "The Daisho standard library assumes that the max value "
+                    "of clock_t is more than 32 bits.");
+
 
 /*
  * Make sure the numeric limits macros work on this system.
@@ -80,8 +93,7 @@ ASSERT_TYPE(wint_t, WINT_MIN, WINT_MAX)
 ASSERT_TYPE(intmax_t, INTMAX_MIN, INTMAX_MAX)
 ASSERT_TYPE(uintmax_t, 0, UINTMAX_MAX)
 
-int
-main(void) {
+int main(void) {
     /* Unfortunately, _Static_assert cannot work on expressions with floats in them.
        No matter where they are. Go figure. */
     ASSERT_FLOAT_TYPE(float, FLT_MIN, FLT_MAX)

@@ -16,6 +16,7 @@
 ## Backlog
 | Task:                 | Asignee | Priority | Notes:                         |
 | :-------------------- | :-----: | :------: | -----------------------------: |
+| itoa() implementation |         | High     |                                |
 | Fix Configure Script  |         |          | Need an sh expert.             |
 | PythonObject class?   |         |          | See Swift's implementation.    |
 | Name Mangling rules   |         |          |                                |

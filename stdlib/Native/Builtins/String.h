@@ -28,8 +28,7 @@ typedef struct {
 #define __DAI_STR_SSOPT_BUF_LEN (sizeof(__Dai_String) - 1)
 
 #if __DAI_SANITY_CHECK
-#define __DAI_STRING_NONNULL(self) \
-    if (__DAI_SANITY_PEDANTIC && !self) __DAI_SANITY_FAIL()
+#define __DAI_STRING_NONNULL(self) __DAI_PEDANTIC_ASSERT(self, "The \"self\" argument cannot be null.")
 #define __DAI_STRING_NULL_TERM(self)                                                       \
     do {                                                                                   \
         if (__DAI_SANITY_PEDANTIC) {                                                       \
@@ -66,14 +65,14 @@ __Dai_String_isLarge(__Dai_String* self) {
 __DAI_FN size_t
 __Dai_String_get_cap(__Dai_String* self) {
     __DAI_STRING_NONNULL(self);
-    if ((__DAI_SANITY_CHECK == 2) && !__Dai_String_isLarge(self)) __DAI_SANITY_FAIL();
+    __DAI_PEDANTIC_ASSERT(__Dai_String_isLarge(self), "The string must be large to have a capacity to get.");
     return (self->_cap) >> CHAR_BIT;
 }
 
 __DAI_FN void
 __Dai_String_set_cap(__Dai_String* self, size_t cap) {
     __DAI_STRING_NONNULL(self);
-    if ((__DAI_SANITY_CHECK == 2) && !__Dai_String_isLarge(self)) __DAI_SANITY_FAIL();
+    __DAI_PEDANTIC_ASSERT(__Dai_String_isLarge(self), "The string must be large to have a capacity to set.");
     self->_cap = (cap << CHAR_BIT) | ((size_t)__Dai_String_get_flag(self));
 }
 
@@ -139,7 +138,7 @@ __Dai_String_println(__Dai_String* self) {
 __DAI_FN void
 __Dai_String_set_char(__Dai_String* self, size_t pos, char c) {
     __DAI_STRING_NONNULL(self);
-    if (__DAI_SANITY_CHECK && pos >= __Dai_String_len(self)) __DAI_SANITY_FAIL();
+    __DAI_PEDANTIC_ASSERT(pos < __Dai_String_len(self), "Out of bounds.");
     if (__Dai_String_isLarge(self)) {
         self->buffer[pos] = c;
     } else {
@@ -150,7 +149,7 @@ __Dai_String_set_char(__Dai_String* self, size_t pos, char c) {
 __DAI_FN char
 __Dai_String_get_char(__Dai_String* self, size_t pos) {
     __DAI_STRING_NONNULL(self);
-    if (__DAI_SANITY_CHECK && pos >= __Dai_String_len(self)) __DAI_SANITY_FAIL();
+    __DAI_PEDANTIC_ASSERT(pos < __Dai_String_len(self), "Out of bounds.");
     return __Dai_String_isLarge(self) ? self->buffer[pos] : ((char*)self)[pos];
 }
 

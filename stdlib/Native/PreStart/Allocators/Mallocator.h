@@ -36,14 +36,14 @@ __Dai_realloc(void* ptr, size_t size, __DAI_SRC_INFO_ARGS) {
 
 __DAI_FN void*
 __Dai_calloc(size_t num, size_t size, __DAI_SRC_INFO_ARGS) {
-    __DAI_PEDANTIC_ASSERTMSG(num, "Argument \"num\" to calloc() cannot be zero.");
-    __DAI_PEDANTIC_ASSERTMSG(size, "Argument \"size\" to calloc() cannot be zero.");
+    __DAI_PEDANTIC_ASSERT(num, "Argument \"num\" to calloc() cannot be zero.");
+    __DAI_PEDANTIC_ASSERT(size, "Argument \"size\" to calloc() cannot be zero.");
 
     __DAI_SRC_INFO_IGNORE();
 
     void* result = calloc(num, size);
     __DAI_SANE_OOMCHECK(result);
-    
+
     return result;
 }
 

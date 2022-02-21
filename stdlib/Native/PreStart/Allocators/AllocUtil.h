@@ -18,7 +18,7 @@ typedef struct {
 /* Only works for multiples of 2 */
 __DAI_FN size_t
 __Dai_Alignment_roundUp(size_t n, size_t alignment) {
-    if (__DAI_SANITY_CHECK && ((alignment % 2) != 0)) __DAI_SANITY_FAIL();
+    __DAI_PEDANTIC_ASSERT((alignment % 2) == 0, "The alignment passed to __Dai_Alignment_roundUp() must be a multiple of two.");
     return (n + alignment - 1) & -alignment;
 }
 

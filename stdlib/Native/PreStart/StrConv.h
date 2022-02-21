@@ -34,20 +34,23 @@ __DAI_FN size_t __Dai_ultoa(unsigned long ul,  char* a);
 /*
  * Convert ascii to int types.
  *
- * Ex:         return,  ret
- *     "1000" -> 1000, "1000"
- *                          ^
- *     "abcd" -> ????,  NULL
+ * Ex:                            return,   ret
+ *     __Dai_atoi("1000a", &ret)  -> 1000, "1000a" (parsed successfully)
+ *                                              ^
+ *     __Dai_atoi("abcde", &ret)  -> ????,  NULL   (doesn't match pattern)
+ *
+ *     __Dai_atos("-99999", &ret) -> ????,  NULL   (overflow / underflow)
+ *
  *
  * Parses and returns a number from its ascii representation a.
- *
- * Expects the number to match the pattern:
+ * The ascii representation is expected to be a null or nondigit
+ * terminated string matching the pattern:
  *
  *     [+-]?[0-9]+
  *
- * An error is thrown if the ascii string to parse does not
- * match this pattern, or would overflow the type being parsed.
- * Matches as many digits as possible.
+ * An error is thrown if the ascii string does not match this
+ * pattern, or would overflow/underflow the type being parsed.
+ * As many digits are matched as possible.
  *
  * On success, writes the position to resume parsing from to ret,
  * directly after the parsed digits.

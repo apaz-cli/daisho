@@ -159,9 +159,9 @@
    Those are the only ones that C defines, but hypothetically other types could exist as an
    extension. Eventually, this should be fixed. */
 #define __DAI_MAX_OF_FLOATING_TYPE(t) \
-    _Generic((t)0, float : FLT_MAX, double : DBL_MAX, long double : LDBL_MAX)
+    _Generic((t)0, float : FLT_MAX, double : DBL_MAX, long double : LDBL_MAX, default: 0)
 #define __DAI_MIN_OF_FLOATING_TYPE(t) \
-    _Generic((t)0, float : FLT_MIN, double : DBL_MIN, long double : LDBL_MIN)
+    _Generic((t)0, float : FLT_MIN, double : DBL_MIN, long double : LDBL_MIN, default: 0)
 
 #define __DAI_MAX_OF_TYPE(t)                                          \
     ((t)(__DAI_IS_TYPE_FLOATING(t) ? __DAI_MAX_OF_FLOATING_TYPE(t) \
