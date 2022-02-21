@@ -18,9 +18,17 @@
 #define __DAI_ASSERTING 1
 #include "../stdlib/Native/PreProcessor/PreProcessor.h"
 
-__DAI_STATIC_ASSERT(__STDC_VERSION__ >= 201112L, "Daisho requires a C11 compiler or above.");
 
 __DAI_STATIC_ASSERT(CHAR_BIT == 8, "Daisho's implementation of String assumes CHAR_BIT to be 8.");
+
+__DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(void*), "Daisho assumes that size_t is the same size as a pointer.");
+__DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(char*), "Daisho assumes that size_t is the same size as a pointer.");
+__DAI_STATIC_ASSERT(sizeof(uintptr_t) == sizeof(size_t), "Daisho assumes that uintptr_t is the same size as a pointer.");
+__DAI_STATIC_ASSERT(sizeof(intptr_t) == sizeof(size_t), "Daisho assumes that intptr_t is the same size as a pointer.");
+
+
+__DAI_STATIC_ASSERT(__STDC_VERSION__ >= 201112L, "Daisho requires a C11 compiler or above.");
+
 
 __DAI_STATIC_ASSERT(SIZE_MAX <= UINT64_MAX,
                     "The Daisho standard library assumes that size_t's max value "
