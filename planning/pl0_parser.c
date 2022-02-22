@@ -68,8 +68,8 @@ typedef void* goto_t;
 #define ERR(str) do { fprintf(stderr, "%s\n" str); exit(1); } while(0)
 #define CALL(to_val)                                        \
     do {                                                    \
-        /* Push a frame with the address and state that     \
-           we want to return to. */                         \
+        /* Push a frame with the address and stream         \
+           position we want to return to. */                \
         current_frame++;                                    \
         if (current_frame == stack_end)                     \
             ERR("Stack Overflow.");                         \
@@ -166,7 +166,7 @@ ASTNode_new(ASTNode* parent, char* rule_name) {
     node->name = rule_name;
 
     if (parent != NULL) {
-        parent->children = (ASTNode**)realloc(sizeof(ASTNode*) * (parent->num_children + 1));
+        parent->children = (ASTNode**)realloc(parent->children, sizeof(ASTNode*) * (parent->num_children + 1));
         parent->children[parent->num_children++] = node;
     }
 
@@ -184,7 +184,7 @@ ASTNode_destroy(ASTNode* self) {
 static inline void
 AST_print_helper(ASTNode* current, size_t depth) {
     for (size_t i = 0; i < depth; i++)
-        printf("  ")
+        printf("  ");
     puts(current->name);
 }
 
@@ -286,7 +286,7 @@ condition:;
     } else {
         CALL(expression);
         (accept(EQLSYM) || accept(NEQSYM) || accept(LSSSYM) ||
-           accept(LEQSYM) | accept(GTRSYM) | expect(GEQSYM));
+           accept(LEQSYM) || accept(GTRSYM) || expect(GEQSYM));
     }
     RETURN();
 expression:;
