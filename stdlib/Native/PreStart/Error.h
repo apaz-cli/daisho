@@ -18,12 +18,12 @@ __Dai_initialization_failure(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
     const char* sanities[] = {"insane", "sane", "pedantic"};
     const char fmt[] =
         "COULD NOT INITIALIZE THE DAISHO RUNTIME.\n"
-        "PLEASE CREATE AN ISSUE ON GITHUB WITH THE\n"
-        "DAIC COMMIT HASH AND THE FOLLOWING INFORMATION:\n"
+        "PLEASE CREATE AN ISSUE ON GITHUB WITH THE DAIC COMMIT HASH,\n"
+        "YOUR PLATFORM, AND THE FOLLOWING INFORMATION:\n"
         "\n"
         "  ERROR AT: %s:%zu inside %s().\n"
         "  ERRNO: %i, (%s)\n"
-        "  SANITY: %i, (%i required)"
+        "  SANITY: %i, (%i required for check)\n"
         "  MESSAGE: %s\n";
     fprintf(stderr, fmt, file, line, func, errno, errno ? strerror(errno) : succ,
             __DAI_SANITY_CHECK, sanity, msg);

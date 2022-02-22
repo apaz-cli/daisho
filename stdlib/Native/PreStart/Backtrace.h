@@ -142,7 +142,7 @@ __Dai_install_backtrace_signals(void) {
     const char tmperr[] = "Could not create temp file.";
     __DAI_SANE_ASSERTMSG(__Dai_bt_fd != -1, tmperr);
 
-    /* Create mask */
+    /* Create sa_mask. This ensures our sighandler is atomic. */
     sigset_t set;
     const char seteerr[] = "Could not empty the sigset.";
     const char seterr[] = "Could not add a signal to the set.";
