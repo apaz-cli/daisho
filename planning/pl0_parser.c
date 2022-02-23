@@ -6,99 +6,9 @@
 #pragma clang diagnostic ignored "-Wgnu-label-as-value"
 
 
-/***********************/
-/* Call Stack Emulator */
-/***********************/
-
-
-/* GCC has an extension called "Labels as Values." It's also been adopted by
-   Clang and the Intel C compiler. It greatly simplifies the code, and also
-   makes it considerably more efficient. However, it's not available in standard
-   C, so for compatibility's sake I'm defining it both ways. */
-
-/* If we're forced to use standard C, create an xmacro enum jump table. */
-/* If we have labels as values, identify labels with void .*/
-#define HAS_LABEL_VALUES
-#ifndef HAS_LABEL_VALUES
-#define LOCATIONS   \
-    X(program)      \
-    X(block)        \
-    X(statement)    \
-    X(condition)    \
-    X(expression)   \
-    X(term)         \
-    X(factor)       \
-    X(blockretproc) \
-    X(factretterm1) \
-    X(factretterm2) \
-    X(end)
-
-
-typedef enum {
-#define X(label) label##_loc,
-    LOCATIONS
-#undef X
-} goto_t;
-#else /* HAS_LABEL_VALUES */
-typedef void* goto_t;
-#endif
-
-/* Define GOTO(label_val). It will be use to define CALL() and RETURN(). */
-#ifndef HAS_LABEL_VALUES
-#define X(label) case label##_loc: goto label;
-#define GOTO(label_val)                                                             \
-    do {                                                                            \
-        switch (label_val) { LOCATIONS default : error("Invalid GOTO variable!"); } \
-    } while (0)
-#else /* HAS_LABEL_VALUES */
-#define GOTO(label_val)  \
-    do {                 \
-        goto* label_val; \
-    } while (0)
-#endif
-
-/* Use the __LINE__ trick to generate an IDENTSYMifier with a
-   unique name. Note that inside the expansion of a single
-   macro, all the expansions of UNIQUE will be the same,
-   since it expands into a single line.  */
-
-#define __CAT(a, b) a##b
-#define __LBL(b, l) __CAT(b, l)
-#define UNIQUE(base) __LBL(base, __LINE__)
-#define ERR(str) do { fprintf(stderr, "%s\n" str); exit(1); } while(0)
-#define CALL(to_val)                                        \
-    do {                                                    \
-        /* Push a frame with the address and stream         \
-           position we want to return to. */                \
-        current_frame++;                                    \
-        if (current_frame == stack_end)                     \
-            ERR("Stack Overflow.");                         \
-        current_frame->return_address = &&UNIQUE(__label_); \
-        current_frame->stream_pos = spos->pos;              \
-        current_frame->parent = node;                       \
-                                                            \
-        /* Jump to what we're calling. */                   \
-        puts("Calling "#to_val"().");                       \
-        goto to_val;                                        \
-                                                            \
-        UNIQUE(__label_):;                                  \
-        puts("Returned from "#to_val"().");                 \
-        /* Now that we've returned, rewind the token stream \
-           and pop the stack frame. */                      \
-        spos->pos = current_frame->stream_pos;              \
-        current_frame--;                                    \
-    } while (0)
-
-#define RETURN()                                          \
-    do {                                                  \
-        goto_t __retaddr = current_frame->return_address; \
-        GOTO(__retaddr);                                  \
-    } while (0)
-
-
-/***********/
-/* Symbols */
-/***********/
+/********************/
+/* Tokens / Symbols */
+/********************/
 
 typedef enum {
     IDENTSYM,
@@ -132,13 +42,6 @@ typedef enum {
     ODDSYM
 } Symbol;
 
-typedef Symbol* SymbolStream;
-
-typedef struct {
-    SymbolStream stream;
-    size_t pos;
-} StreamPosition;
-
 
 /**********************/
 /* AST Implementation */
@@ -151,26 +54,33 @@ typedef struct {
 struct ASTNode;
 typedef struct ASTNode ASTNode;
 struct ASTNode {
+    char* name;
     ASTNode* parent;
     ASTNode** children;
     size_t num_children;
-    char* name;
 };
 
 static inline ASTNode*
-ASTNode_new(ASTNode* parent, char* rule_name) {
+ASTNode_new(char* name) {
     ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
-    node->parent = parent;
-    node->children = NULL; // realloc() below
+    node->name = name;
+    node->parent = NULL;
+    node->children = NULL; // realloc() as children are added
     node->num_children = 0;
-    node->name = rule_name;
+    return node;
+}
 
-    if (parent != NULL) {
-        parent->children = (ASTNode**)realloc(parent->children, sizeof(ASTNode*) * (parent->num_children + 1));
-        parent->children[parent->num_children++] = node;
+static inline void
+ASTNode_addChild(ASTNode* parent, ASTNode* child) {
+    if (!parent || !child) {
+        // TODO: Remove
+        fprintf(stderr, "PANIC!\n");
+        exit(1);
     }
 
-    return node;
+    parent->num_children++;
+    parent->children = (ASTNode**)realloc(parent->children, sizeof(ASTNode*) * parent->num_children);
+    parent->children[parent->num_children - 1] = node;
 }
 
 static inline void
@@ -183,8 +93,7 @@ ASTNode_destroy(ASTNode* self) {
 
 static inline void
 AST_print_helper(ASTNode* current, size_t depth) {
-    for (size_t i = 0; i < depth; i++)
-        printf("  ");
+    for (size_t i = 0; i < depth; i++) printf("  ");
     puts(current->name);
 }
 
@@ -193,56 +102,165 @@ AST_print(ASTNode* root) {
     AST_print_helper(root, 0);
 }
 
+
+/***********************/
+/* Call Stack Emulator */
+/***********************/
+
+
+/* GCC has an extension called "Labels as Values." It's also been adopted by
+   Clang and the Intel C compiler. It greatly simplifies the code, and also
+   makes it considerably more efficient. However, it's not available in standard
+   C, so for compatibility's sake I'm defining it both ways. */
+
+/* If we're forced to use standard C, create an xmacro enum jump table. */
+/* If we have labels as values, identify labels with void .*/
+#define HAS_LABEL_VALUES
+#ifndef HAS_LABEL_VALUES
+#define LOCATIONS   \
+    X(program)      \
+    X(block)        \
+    X(statement)    \
+    X(condition)    \
+    X(expression)   \
+    X(term)         \
+    X(factor)       \
+    X(end)
+
+
+typedef enum {
+#define X(label) label##_loc,
+    LOCATIONS
+#undef X
+} goto_t;
+#else /* HAS_LABEL_VALUES */
+typedef void* goto_t;
+#endif
+
+/* Define GOTO(label_val). It will be use to define CALL() and RETURN(). */
+#ifndef HAS_LABEL_VALUES
+#define X(label) case label##_loc: goto label;
+#define GOTO(label_val)                                                             \
+    do {                                                                            \
+        switch (label_val) { LOCATIONS default : fprintf(stderr, "Error: %s\n", msg), exit(1); } \
+    } while (0)
+#else /* HAS_LABEL_VALUES */
+#define GOTO(label_val)  \
+    do {                 \
+        goto* label_val; \
+    } while (0)
+#endif
+
+/* Use the __LINE__ trick to generate an IDENTSYMifier with a
+   unique name. Note that inside the expansion of a single
+   macro, all the expansions of UNIQUE will be the same,
+   since it expands into a single line.  */
+#define __CAT(a, b) a##b
+#define __LBL(b, l) __CAT(b, l)
+#define UNIQUE(base) __LBL(base, __LINE__)
+
+/* Now for the good part, "Functions." */
+
+#define FUNCTION(name) name:; node = ASTNode_new(parent, #name);
+
+#define CALL(to_val)                                        \
+    do {                                                    \
+        /* Push a frame with the address and stream         \
+           position we want to return to. */                \
+        stack[stack_height].stream_pos = stream_pos;        \
+        stack[stack_height].parent = node;                  \
+        stack[stack_height].return_address =                \
+                                       &&UNIQUE(__label_);  \
+        stack_height++;                                     \
+        if (stack_height >= stack_max_height) {             \
+            fprintf(stderr, "Stack Overflow.\n");           \
+            exit(1);                                        \
+        }                                                   \
+                                                            \
+        /* Jump to what we're calling. */                   \
+        puts("Calling "#to_val"().");                       \
+        goto to_val;                                        \
+                                                            \
+        puts("Returned from "#to_val"().");                 \
+        UNIQUE(__label_):;                                  \
+    } while (0)
+
+/* Return an AST node to add as a child to the calling function's node. */
+#define RETURN(ret)                                         \
+    do {                                                    \
+        /* When we return, check the return value.          \
+         *                                                  \
+         * If it was a failure, clean up. Free all the      \
+         * nodes, rewind the token stream and pop the       \
+         * stack frame.                                     \
+         *                                                  \
+         * If it was a success, add the node to the AST.    \
+         */                                                 \
+        stack_height--;                                     \
+        if (!retval) {                                      \
+            ASTNode_destroy(node);                          \
+            stream_pos = stack[stack_height].stream_pos;    \
+                                                            \
+        } else {                                            \
+            // don't rewind symbol stream (stream_pos)      \
+        }                                                   \
+        stack_height--;                                     \
+        retval = ret;                                       \
+        goto_t __retaddr = stack[stack_height].retaddr;     \
+        GOTO(stack[stack_height].retaddr);                  \
+    } while (0)
+
+
 /*************************/
 /* Parser Implementation */
 /*************************/
 
 typedef struct {
     size_t stream_pos;
-    goto_t return_address;
+    goto_t retaddr;
     ASTNode* parent;
 } ParserStackFrame;
 
-static inline Symbol
-sym_at(StreamPosition* spos) {
-    return spos->stream[spos->pos];
-}
-
-static inline _Noreturn void
-error(const char* msg) {
-    fprintf(stderr, "Error: %s\n", msg);
-    exit(1);
-}
-
-#define accept(s) (sym_at(spos) == (s) ? spos->pos++, puts("Accepted " #s), 1 : 0)
-#define expect(s) (accept(s) ? 1 : (error("unexpected symbol."), 1))
-
+#define accept(s)   (stream[stream_pos] == (s) ? stream_pos++, puts("Accepted: " #s), 1 : puts("Rejected: " #s), 0)
+#define expect(s)   (accept(s) ? 1 : fprintf(stderr, "Unexpected symbol. Expected "#s".\n", sym), exit(1), 1))
 
 #define PARSER_STACK_SIZE 10000
 
-int
-main(void) {
+int main(void) {
+
+    /* Symbol stream and position */
     Symbol program[] = {VARSYM,    IDENTSYM,     COMMASYM,     IDENTSYM,  SEMISYM, BEGINSYM, IDENTSYM, EQLSYM,
                         NUMBERSYM,    SEMISYM, WHILESYM,  IDENTSYM,  BEGINSYM,  IDENTSYM,    EQLSYM,   IDENTSYM,
                         PLUSSYM,      NUMBERSYM,    SEMISYM, IDENTSYM,  EQLSYM,       IDENTSYM,    TIMESSYM, NUMBERSYM,
-                        SEMISYM, ENDSYM,    SEMISYM, ENDSYM, PERIODSYM};
+                        SEMISYM, ENDSYM,    SEMISYM, ENDSYM, PERIODSYM, ENDSYM};
+    Symbol* stream = program;
     size_t num_symbols = sizeof(program) / sizeof(Symbol);
-    StreamPosition p = {program, 0};
-    StreamPosition* spos = &p;
+    size_t stream_pos = 0;
 
-    ParserStackFrame stack_space[PARSER_STACK_SIZE];
-    ParserStackFrame* stack_end = stack_space + PARSER_STACK_SIZE;
-    ParserStackFrame* current_frame = stack_space;
-    stack_space->stream_pos = 0;
-    stack_space->return_address = &&end;
+    /* Call stack */
+    ParserStackFrame stack[PARSER_STACK_SIZE];
+    size_t stack_height = 0;
+    size_t stack_max_height = PARSER_STACK_SIZE - 1;
 
-    ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode*));
+    /* AST variables */
+    ASTNode* node;
+    ASTNode* retval = NULL;
 
-program:;
+
+    /* Start the parser */
+    CALL(program);
+    goto end;
+
+    /****************/
+    /* Parser rules */
+    /****************/
+
+FUNCTION(program) {
     CALL(block);
     expect(PERIODSYM);
     RETURN();
-block:;
+}
+FUNCTION(block) {
     if (accept(CONSTSYM)) {
         do {
             expect(IDENTSYM);
@@ -266,7 +284,8 @@ block:;
     }
     CALL(statement);
     RETURN();
-statement:;
+}
+FUNCTION(statement) {
     if (accept(IDENTSYM)) {
         expect(EQLSYM);
         CALL(expression);
@@ -280,7 +299,8 @@ statement:;
         expect(ENDSYM);
     }
     RETURN();
-condition:;
+}
+FUNCTION(condition) {
     if (accept(ODDSYM)) {
         CALL(expression);
     } else {
@@ -289,23 +309,34 @@ condition:;
            accept(LEQSYM) || accept(GTRSYM) || expect(GEQSYM));
     }
     RETURN();
-expression:;
+}
+FUNCTION(expression) {
     (accept(PLUSSYM) || accept(MINUSSYM));
     CALL(term);
     while (accept(PLUSSYM) || accept(MINUSSYM)) {
         CALL(term);
     }
     RETURN();
-term:;
+}
+FUNCTION(term) {
     // TODO function returns.
     CALL(factor);
-    // or
-    accept(NUMBERSYM);
-    // else
-    expect(RPARENSYM);
-    CALL(expression);
-    expect(LPARENSYM);
-factor:;
+    while(accept(TIMESSYM) || accept(SLASHSYM)) {
+        CALL(factor);
+    }
+    RETURN();
+}
+FUNCTION(factor) {
+    if (accept(IDENTSYM)) {
+    } else if (accept (NUMBERSYM)) {
+    } else {
+        expect(LPARENSYM);
+        CALL(expression);
+        expect(RPARENSYM);
+    }
+    RETURN();
+}
+
 end:;
     return 0;
 }
