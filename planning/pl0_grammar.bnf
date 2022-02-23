@@ -2,8 +2,8 @@ program = block "." .
 
 block =
     ["const" ident "=" num {"," ident "=" num} ";"]
-    ["var" ident {"," ident} ";"]
-    {"procedure" ident ";" block ";"} statement .
+    | ["var" ident {"," ident} ";"]
+    | {"procedure" ident ";" block ";"} statement .
 
 statement =
     ident ":=" expression
@@ -24,4 +24,10 @@ factor =
     ident
     | number
     | "(" expression ")" .
+
+
+prog = { VARSYM,    IDENTSYM,  COMMASYM, IDENTSYM,  SEMISYM,  BEGINSYM, IDENTSYM, EQLSYM,
+         NUMBERSYM, SEMISYM,   WHILESYM, IDENTSYM,  BEGINSYM, IDENTSYM, EQLSYM,   IDENTSYM,
+         PLUSSYM,   NUMBERSYM, SEMISYM,  IDENTSYM,  EQLSYM,   IDENTSYM, TIMESSYM, NUMBERSYM
+         SEMISYM,   ENDSYM,    SEMISYM,  ENDSYM,    PERIODSYM } .
 
