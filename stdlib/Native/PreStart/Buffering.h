@@ -9,11 +9,11 @@ __Dai_configure_buffering() {
 
 #if __DAI_OUTPUT_BUFFERING == 0 /* No buffering */
     char errmsg0[] = "Could not set unbuffered IO.";
-    if (setvbuf(stdout, NULL, _IONBF, 0) && (__DAI_SANITY_CHECK == 2)) {
+    if (setvbuf(stdout, NULL, _IONBF, 0) && __DAI_SANE) {
         write(STDOUT_FILENO, errmsg0, strlen(errmsg0));
         exit(1);
     }
-    if (setvbuf(stderr, NULL, _IONBF, 0) && (__DAI_SANITY_CHECK == 2)) {
+    if (setvbuf(stderr, NULL, _IONBF, 0) && __DAI_SANE) {
         write(STDERR_FILENO, errmsg0, strlen(errmsg0));
         exit(1);
     }
@@ -23,11 +23,11 @@ __Dai_configure_buffering() {
     // setvbuf(stdout, NULL, _IOLBF, 0);
 #elif __DAI_OUTPUT_BUFFERING == 2 /* Full buffering */
     char errmsg2[] = "Could not set fully buffered IO.";
-    if (setvbuf(stdout, NULL, _IOFBF, 0) && (__DAI_SANITY_CHECK == 2)) {
+    if (setvbuf(stdout, NULL, _IOFBF, 0) && __DAI_SANE) {
         write(STDOUT_FILENO, errmsg2, strlen(errmsg2));
         exit(1);
     }
-    if (setvbuf(stderr, NULL, _IOFBF, 0) && (__DAI_SANITY_CHECK == 2)) {
+    if (setvbuf(stderr, NULL, _IOFBF, 0) && __DAI_SANE) {
         write(STDERR_FILENO, errmsg2, strlen(errmsg2));
         exit(1);
     }

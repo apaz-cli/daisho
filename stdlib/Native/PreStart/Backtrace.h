@@ -3,8 +3,9 @@
 
 #include "../PreProcessor/PreProcessor.h"
 #include "Buffering.h"
+#include "Error.h"
 
-#if (__DAI_BACKTRACES_SUPPORTED || defined(__DAI_TESTING_BACKTRACES))
+#if __DAI_USING_BACKTRACES
 
 static size_t __Dai_bt_buf_size;
 static const size_t __Dai_bt_cap = __DAI_PAGESIZE * 4;
@@ -14,19 +15,19 @@ static int __Dai_bt_fd;
 
 __DAI_FN void
 __Dai_bt_header(void) {
-    const char[] sthead = "***************\n* Stack Trace *\n***************\n";
-    fprintf(stderr, __DAI_COLOR_HEAD(sthead));
+    const char sthead[] = __DAI_COLOR_HEAD("***************\n* Stack Trace *\n***************\n");
+    fprintf(stderr, sthead);
 }
 
 __DAI_FN void
 __Dai_bt_footer(char* sigstr) {
-    const char[] na = "N/A";
-    const char[] success = "0 (Success)";
-    const char[] fmt =
+    const char na[] = "N/A";
+    const char success[] = "0 (Success)";
+    const char fmt[] =
         __DAI_COLOR_MAGENTA "Errno: " __DAI_COLOR_RESET " " __DAI_COLOR_BLUE "%s" __DAI_COLOR_RESET
                             "\n" __DAI_COLOR_MAGENTA "Signal:" __DAI_COLOR_RESET
                             " " __DAI_COLOR_BLUE "%s" __DAI_COLOR_RESET "\n\n";
-    char* errmsg = errno ? strerror(errno) : success;
+    const char* errmsg = errno ? strerror(errno) : success;
     fprintf(stderr, fmt, errmsg, sigstr ? sigstr : na);
 }
 
@@ -87,10 +88,10 @@ __Dai_SymInfo_print(__Dai_SymInfo info) {
 
 static void __DAI_NEVER_INLINE
 __Dai_print_backtrace(void) {
-    void* symbol_arr[__STITLS_BT_MAX_FRAMES];
+    void* symbol_arr[__DAI_BT_MAX_FRAMES];
     char** symbol_strings = NULL;
     int num_addrs, i;
-    num_addrs = backtrace(symbol_arr, __STITLS_BT_MAX_FRAMES);
+    num_addrs = backtrace(symbol_arr, __DAI_BT_MAX_FRAMES);
     symbol_strings = backtrace_symbols(symbol_arr, num_addrs);
     if (symbol_strings) {
         __Dai_bt_header();
@@ -113,10 +114,16 @@ static void __DAI_NEVER_INLINE
 __Dai_low_mem_backtrace(void) {
     const char nl = '\n';
     int num_addrs;
-    void* symbol_arr[__STITLS_BT_MAX_FRAMES];
-    num_addrs = backtrace(symbol_arr, __STITLS_BT_MAX_FRAMES);
+    void* symbol_arr[__DAI_BT_MAX_FRAMES];
+    num_addrs = backtrace(symbol_arr, __DAI_BT_MAX_FRAMES);
     backtrace_symbols_fd(symbol_arr, num_addrs, STDOUT_FILENO);
     write(STDOUT_FILENO, &nl, 1);
+}
+
+__DAI_FN void
+sighandler(int sig, siginfo_t* siginfo, void* ucontext) {
+    ucontext_t ctx = *(ucontext_t*)ucontext;
+    
 }
 
 __DAI_FN void
@@ -125,39 +132,40 @@ __Dai_install_backtrace_signals(void) {
     size_t num_sigs = sizeof(sigs) / sizeof(int);
     const char nserr[] =
         "Daisho has been misconfigured.\n"
-        "In Daisho/stdlib/Native/config.h, the list "
+        "In Daisho/stdlib/Native/config.h, the list\n"
         "of signals that trigger a backtrace cannot be empty.\n"
         "If you want to disable backtraces, #define __DAI_BACKTRACES_SUPPORTED to 0.";
-    __DAI_ASSERT(num_sigs[0] != 0, nserr);
+    __DAI_ASSERT(sigs[0] != 0, nserr);
 
     /* Ensure backtraces' .so is loaded. */
     void* frames[50];
     int num_frames = backtrace(frames, 50);
     const char bterr[] = "Empty backtrace.";
-    __DAI_SANE_ASSERTMSG(num_frames, bterr);
+    __DAI_SANE_ASSERT(num_frames, bterr);
 
     // Create a temp file buffer.
-    char template[] = "/tmp/Daisho Backtrace XXXXXX";
-    __Dai_bt_fd = mkstemp(template);
+    char tmpl[] = "/tmp/Daisho Backtrace XXXXXX";
+    __Dai_bt_fd = mkstemp(tmpl);
     const char tmperr[] = "Could not create temp file.";
-    __DAI_SANE_ASSERTMSG(__Dai_bt_fd != -1, tmperr);
+    __DAI_SANE_ASSERT(__Dai_bt_fd != -1, tmperr);
 
     /* Create sa_mask. This ensures our sighandler is atomic. */
     sigset_t set;
     const char seteerr[] = "Could not empty the sigset.";
     const char seterr[] = "Could not add a signal to the set.";
-    __DAI_PEDANTIC_ASSERTMSG(sigemptyset(&set), seteerr);
-    for (size_t i = 0; i < num_sigs; i++)
-        __DAI_PEDANTIC_ASSERTMSG(sigaddset(&set, sigs[i], seterr);
+    __DAI_SANE_ASSERT(sigemptyset(&set), seteerr);
+    for (size_t i = 0; i < num_sigs; i++) {
+        __DAI_SANE_ASSERT(sigaddset(&set, sigs[i]), seterr);
+    }
 
     /* Install Handlers */
     const char sseterr[] = "Could not install a signal handler.";
     for (size_t i = 0; i < num_sigs; i++) {
-            struct sigaction action;
-            action.sa_sigaction = sighandler;
-            action.sa_flags = SA_SIGINFO;
-            action.sa_mask = set;
-            __DAI_SANE_ASSERTMSG(!sigaction(sigs[i], &action, NULL), sseterr);
+        struct sigaction action;
+        action.sa_sigaction = sighandler;
+        action.sa_flags = SA_SIGINFO;
+        action.sa_mask = set;
+        __DAI_SANE_ASSERT(!sigaction(sigs[i], &action, NULL), sseterr);
     }
 }
 

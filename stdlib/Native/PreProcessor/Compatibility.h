@@ -2,8 +2,6 @@
 #ifndef __DAI_STDLIB_COMPATIBILITY
 #define __DAI_STDLIB_COMPATIBILITY
 
-#define __DAI_SANITY_PEDANTIC (__DAI_SANITY_CHECK == 2)
-
 #define __DAI_FN static inline
 
 #ifndef __cplusplus /* C */

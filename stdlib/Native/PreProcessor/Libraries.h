@@ -103,11 +103,12 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 /* Use GNU backtraces if possible. */
 #ifndef __DAI_NO_LIBRARIES
-#if __DAI_BACKTRACES_SUPPORTED
+#if __DAI_USING_BACKTRACES
 #include <execinfo.h>
 #endif
 #endif

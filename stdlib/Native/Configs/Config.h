@@ -44,7 +44,6 @@
 #ifndef __DAI_SANITY_CHECK
 #define __DAI_SANITY_CHECK 1
 #endif
-#define __DAI_PEDANTIC (__DAI_SANITY_CHECK == 2)
 
 /*
  * 0 - No memory debugging. (default)
@@ -141,13 +140,21 @@
  * signal handlers are not registered. All of the default signals below will
  * still by default terminate the program however.
  *
- * An empty list is undefined 
+ * At least one signal must be defined below. If you want to disable backtraces,
+ * 
  *
  * See man signal.h for details and a list of signals and default actions.
  */
 #ifndef __DAI_BACKTRACE_SIGNALS
 #define __DAI_BACKTRACE_SIGNALS \
     SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, SIGVTALRM, SIGXCPU, SIGXFSZ, SIGSYS
+#endif
+
+/*
+ * Backtraces must be both supported and enabled to work.
+ */
+#ifndef __DAI_BACKTRACES_ENABLED
+#define __DAI_BACKTRACES_ENABLED __DAI_HAS_BACKTRACES
 #endif
 
 #endif /* __DAI_STDLIB_CONFIG */

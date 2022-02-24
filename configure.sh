@@ -192,3 +192,4 @@ fi
 
 guard
 writeconfig
+echo "$magenta\nWrote config file to:$normal\nstdlib/Native/Configs/DaishoGeneratedConfig.h"

@@ -36,7 +36,7 @@ __Dai_setlocale(void) {
 /******************/
 
 __DAI_FN void
-__Dai_pre_main(int argc, char** argv) {
+__Dai_initialize(int argc, char** argv) {
     /* Start python (which sets the locale),
        or set the locale ourselves. */
 #if __DAI_EMBED_PYTHON

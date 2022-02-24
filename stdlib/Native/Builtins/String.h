@@ -27,7 +27,7 @@ typedef struct {
 #define __DAI_STR_FLAG_OFFSET (sizeof(__Dai_String) - 1)
 #define __DAI_STR_SSOPT_BUF_LEN (sizeof(__Dai_String) - 1)
 
-#if __DAI_SANITY_CHECK
+#if __DAI_SANE
 #define __DAI_STRING_NONNULL(self) __DAI_PEDANTIC_ASSERT(self, "The \"self\" argument cannot be null.")
 #define __DAI_STRING_NULL_TERM(self)                                                       \
     do {                                                                                   \

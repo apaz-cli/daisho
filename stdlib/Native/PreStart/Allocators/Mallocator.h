@@ -11,7 +11,7 @@
 /* Decide what to do with these in the future. */
 __DAI_FN void*
 __Dai_malloc(size_t size, __DAI_SRC_INFO_ARGS) {
-    if (__DAI_SANITY_CHECK) {
+    if (__DAI_SANE) {
         /* Pass through OOM error. */
         void* ret = malloc(size);
         if (!ret) __DAI_OOM();
@@ -24,7 +24,7 @@ __Dai_malloc(size_t size, __DAI_SRC_INFO_ARGS) {
 
 __DAI_FN void*
 __Dai_realloc(void* ptr, size_t size, __DAI_SRC_INFO_ARGS) {
-    if (__DAI_SANITY_CHECK) {
+    if (__DAI_SANE) {
         void* ret = realloc(ptr, size);
         if (!ret) __DAI_OOM();
         return ret;
