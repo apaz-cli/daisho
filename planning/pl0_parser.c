@@ -5,7 +5,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-label-as-value"
 
-
 /********************/
 /* Tokens / Symbols */
 /********************/
@@ -42,7 +41,6 @@ typedef enum {
     ODDSYM
 } Symbol;
 
-
 /**********************/
 /* AST Implementation */
 /**********************/
@@ -65,7 +63,7 @@ ASTNode_new(char* name) {
     ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
     node->name = name;
     node->parent = NULL;
-    node->children = NULL; // realloc() as children are added
+    node->children = NULL;  // realloc() as children are added
     node->num_children = 0;
     return node;
 }
@@ -79,14 +77,14 @@ ASTNode_addChild(ASTNode* parent, ASTNode* child) {
     }
 
     parent->num_children++;
-    parent->children = (ASTNode**)realloc(parent->children, sizeof(ASTNode*) * parent->num_children);
-    parent->children[parent->num_children - 1] = node;
+    parent->children =
+        (ASTNode**)realloc(parent->children, sizeof(ASTNode*) * parent->num_children);
+    parent->children[parent->num_children - 1] = child;
 }
 
 static inline void
 ASTNode_destroy(ASTNode* self) {
-    for (size_t i = 0; i < self->num_children; i++)
-        ASTNode_destroy(self);
+    for (size_t i = 0; i < self->num_children; i++) ASTNode_destroy(self);
     free(self->children);
     free(self);
 }
@@ -102,11 +100,9 @@ AST_print(ASTNode* root) {
     AST_print_helper(root, 0);
 }
 
-
 /***********************/
 /* Call Stack Emulator */
 /***********************/
-
 
 /* GCC has an extension called "Labels as Values." It's also been adopted by
    Clang and the Intel C compiler. It greatly simplifies the code, and also
@@ -117,16 +113,15 @@ AST_print(ASTNode* root) {
 /* If we have labels as values, identify labels with void .*/
 #define HAS_LABEL_VALUES
 #ifndef HAS_LABEL_VALUES
-#define LOCATIONS   \
-    X(program)      \
-    X(block)        \
-    X(statement)    \
-    X(condition)    \
-    X(expression)   \
-    X(term)         \
-    X(factor)       \
+#define LOCATIONS \
+    X(program)    \
+    X(block)      \
+    X(statement)  \
+    X(condition)  \
+    X(expression) \
+    X(term)       \
+    X(factor)     \
     X(end)
-
 
 typedef enum {
 #define X(label) label##_loc,
@@ -139,9 +134,11 @@ typedef void* goto_t;
 
 /* Define GOTO(label_val). It will be use to define CALL() and RETURN(). */
 #ifndef HAS_LABEL_VALUES
-#define X(label) case label##_loc: goto label;
-#define GOTO(label_val)                                                             \
-    do {                                                                            \
+#define X(label)      \
+    case label##_loc: \
+        goto label;
+#define GOTO(label_val)                                                                          \
+    do {                                                                                         \
         switch (label_val) { LOCATIONS default : fprintf(stderr, "Error: %s\n", msg), exit(1); } \
     } while (0)
 #else /* HAS_LABEL_VALUES */
@@ -161,55 +158,45 @@ typedef void* goto_t;
 
 /* Now for the good part, "Functions." */
 
-#define FUNCTION(name) name:; node = ASTNode_new(parent, #name);
+#define FUNCTION(name) \
+    name:;             \
+    node = ASTNode_new(#name);
 
-#define CALL(to_val)                                        \
-    do {                                                    \
-        /* Push a frame with the address and stream         \
-           position we want to return to. */                \
-        stack[stack_height].stream_pos = stream_pos;        \
-        stack[stack_height].parent = node;                  \
-        stack[stack_height].return_address =                \
-                                       &&UNIQUE(__label_);  \
-        stack_height++;                                     \
-        if (stack_height >= stack_max_height) {             \
-            fprintf(stderr, "Stack Overflow.\n");           \
-            exit(1);                                        \
-        }                                                   \
-                                                            \
-        /* Jump to what we're calling. */                   \
-        puts("Calling "#to_val"().");                       \
-        goto to_val;                                        \
-                                                            \
-        puts("Returned from "#to_val"().");                 \
-        UNIQUE(__label_):;                                  \
+#define CALL(to_val)                                      \
+    do {                                                  \
+        /* Push a frame with the address and stream       \
+           position we want to return to. */              \
+        stack[stack_height].stream_pos = stream_pos;      \
+        stack[stack_height].parent = node;                \
+        stack[stack_height].retaddr = &&UNIQUE(__label_); \
+        stack_height++;                                   \
+        if (stack_height >= stack_max_height) {           \
+            fprintf(stderr, "Stack Overflow.\n");         \
+            exit(1);                                      \
+        }                                                 \
+                                                          \
+        /* Jump to what we're calling. It will            \
+          RETURN() to the label immediately after. */     \
+        puts("Calling " #to_val "().");                   \
+        goto to_val;                                      \
+        UNIQUE(__label_) :;                               \
+        /* puts("Returned from " #to_val "()."); */       \
     } while (0)
 
 /* Return an AST node to add as a child to the calling function's node. */
-#define RETURN(ret)                                         \
-    do {                                                    \
-        /* When we return, check the return value.          \
-         *                                                  \
-         * If it was a failure, clean up. Free all the      \
-         * nodes, rewind the token stream and pop the       \
-         * stack frame.                                     \
-         *                                                  \
-         * If it was a success, add the node to the AST.    \
-         */                                                 \
-        stack_height--;                                     \
-        if (!retval) {                                      \
-            ASTNode_destroy(node);                          \
-            stream_pos = stack[stack_height].stream_pos;    \
-                                                            \
-        } else {                                            \
-            // don't rewind symbol stream (stream_pos)      \
-        }                                                   \
-        stack_height--;                                     \
-        retval = ret;                                       \
-        goto_t __retaddr = stack[stack_height].retaddr;     \
-        GOTO(stack[stack_height].retaddr);                  \
+#define RETURN(ret)                                             \
+    do {                                                        \
+        stack_height--;                                         \
+        retval = ret;                                           \
+        if (!retval) {                                          \
+            ASTNode_destroy(node);                              \
+            stream_pos = stack[stack_height].stream_pos;        \
+        } else {                                                \
+            ASTNode_addChild(stack[stack_height].parent, node); \
+        }                                                       \
+        goto_t __retaddr = stack[stack_height].retaddr;         \
+        GOTO(__retaddr);                                        \
     } while (0)
-
 
 /*************************/
 /* Parser Implementation */
@@ -221,20 +208,20 @@ typedef struct {
     ASTNode* parent;
 } ParserStackFrame;
 
-#define accept(s)   (stream[stream_pos] == (s) ? stream_pos++, puts("Accepted: " #s), 1 : puts("Rejected: " #s), 0)
-#define expect(s)   (accept(s) ? 1 : fprintf(stderr, "Unexpected symbol. Expected "#s".\n", sym), exit(1), 1))
+#define ACCEPT(s) \
+    (stream[stream_pos] == (s) ? stream_pos++, puts("Accepted: " #s), 1 : puts("Rejected: " #s), 0)
 
 #define PARSER_STACK_SIZE 10000
 
-int main(void) {
-
+int
+main(void) {
     /* Symbol stream and position */
-    Symbol program[] = {VARSYM,    IDENTSYM,     COMMASYM,     IDENTSYM,  SEMISYM, BEGINSYM, IDENTSYM, EQLSYM,
-                        NUMBERSYM,    SEMISYM, WHILESYM,  IDENTSYM,  BEGINSYM,  IDENTSYM,    EQLSYM,   IDENTSYM,
-                        PLUSSYM,      NUMBERSYM,    SEMISYM, IDENTSYM,  EQLSYM,       IDENTSYM,    TIMESSYM, NUMBERSYM,
-                        SEMISYM, ENDSYM,    SEMISYM, ENDSYM, PERIODSYM, ENDSYM};
-    Symbol* stream = program;
-    size_t num_symbols = sizeof(program) / sizeof(Symbol);
+    Symbol stream[] = {VARSYM,   IDENTSYM, COMMASYM,  IDENTSYM, SEMISYM,   BEGINSYM,
+                       IDENTSYM, EQLSYM,   NUMBERSYM, SEMISYM,  WHILESYM,  IDENTSYM,
+                       BEGINSYM, IDENTSYM, EQLSYM,    IDENTSYM, PLUSSYM,   NUMBERSYM,
+                       SEMISYM,  IDENTSYM, EQLSYM,    IDENTSYM, TIMESSYM,  NUMBERSYM,
+                       SEMISYM,  ENDSYM,   SEMISYM,   ENDSYM,   PERIODSYM, ENDSYM};
+    size_t num_symbols = sizeof(stream) / sizeof(Symbol);
     size_t stream_pos = 0;
 
     /* Call stack */
@@ -243,9 +230,8 @@ int main(void) {
     size_t stack_max_height = PARSER_STACK_SIZE - 1;
 
     /* AST variables */
-    ASTNode* node;
+    ASTNode* node = ASTNode_new("root");
     ASTNode* retval = NULL;
-
 
     /* Start the parser */
     CALL(program);
@@ -255,89 +241,92 @@ int main(void) {
     /* Parser rules */
     /****************/
 
-FUNCTION(program) {
-    CALL(block);
-    expect(PERIODSYM);
-    RETURN();
-}
-FUNCTION(block) {
-    if (accept(CONSTSYM)) {
-        do {
-            expect(IDENTSYM);
-            expect(EQLSYM);
-            expect(NUMBERSYM);
-        } while (accept(COMMASYM));
-        expect(SEMISYM);
-    }
-
-    if (accept(VARSYM)) {
-        do {
-            expect(IDENTSYM);
-        } while (accept(COMMASYM));
-        expect(SEMISYM);
-    }
-    while (accept(PROCSYM)) {
-        expect(IDENTSYM);
-        expect(SEMISYM);
+    FUNCTION(program) {
         CALL(block);
-        expect(SEMISYM);
+        ACCEPT(PERIODSYM);
+        RETURN(node);
     }
-    CALL(statement);
-    RETURN();
-}
-FUNCTION(statement) {
-    if (accept(IDENTSYM)) {
-        expect(EQLSYM);
-        CALL(expression);
-    } else if (accept(CALLSYM)) {
-        expect(IDENTSYM);
-    } else if (accept(BEGINSYM)) {
-        CALL(statement);
-        while (accept(SEMISYM)) {
-            CALL(statement);
+    FUNCTION(block) {
+        if (ACCEPT(CONSTSYM)) {
+            int i, j, k, l;
+            do {
+                // Fine b/c accept semisym or unwind
+                i = ACCEPT(IDENTSYM);
+                j = ACCEPT(EQLSYM);
+                k = ACCEPT(NUMBERSYM);
+                l = ACCEPT(COMMASYM);
+            } while (i & j & k & l);
+            RETURN(ACCEPT(SEMISYM) ? node : NULL);
         }
-        expect(ENDSYM);
-    }
-    RETURN();
-}
-FUNCTION(condition) {
-    if (accept(ODDSYM)) {
-        CALL(expression);
-    } else {
-        CALL(expression);
-        (accept(EQLSYM) || accept(NEQSYM) || accept(LSSSYM) ||
-           accept(LEQSYM) || accept(GTRSYM) || expect(GEQSYM));
-    }
-    RETURN();
-}
-FUNCTION(expression) {
-    (accept(PLUSSYM) || accept(MINUSSYM));
-    CALL(term);
-    while (accept(PLUSSYM) || accept(MINUSSYM)) {
-        CALL(term);
-    }
-    RETURN();
-}
-FUNCTION(term) {
-    // TODO function returns.
-    CALL(factor);
-    while(accept(TIMESSYM) || accept(SLASHSYM)) {
-        CALL(factor);
-    }
-    RETURN();
-}
-FUNCTION(factor) {
-    if (accept(IDENTSYM)) {
-    } else if (accept (NUMBERSYM)) {
-    } else {
-        expect(LPARENSYM);
-        CALL(expression);
-        expect(RPARENSYM);
-    }
-    RETURN();
-}
 
+        if (ACCEPT(VARSYM)) {
+            do {
+                if (ACCEPT(IDENTSYM)) RETURN(NULL);
+            } while (ACCEPT(COMMASYM));
+            RETURN(ACCEPT(SEMISYM) ? node : NULL);
+        }
+        while (ACCEPT(PROCSYM)) {
+            ACCEPT(IDENTSYM);
+            ACCEPT(SEMISYM);
+            CALL(block);
+            ACCEPT(SEMISYM);
+        }
+        CALL(statement);
+        RETURN(node);
+    }
+    FUNCTION(statement) {
+        if (ACCEPT(IDENTSYM)) {
+            ACCEPT(EQLSYM);
+            CALL(expression);
+        } else if (ACCEPT(CALLSYM)) {
+            ACCEPT(IDENTSYM);
+        } else if (ACCEPT(BEGINSYM)) {
+            CALL(statement);
+            while (ACCEPT(SEMISYM)) {
+                CALL(statement);
+            }
+            ACCEPT(ENDSYM);
+        }
+        RETURN(node);
+    }
+    FUNCTION(condition) {
+        if (ACCEPT(ODDSYM)) {
+            CALL(expression);
+        } else {
+            CALL(expression);
+            (ACCEPT(EQLSYM) || ACCEPT(NEQSYM) || ACCEPT(LSSSYM) ||
+             ACCEPT(LEQSYM) || ACCEPT(GTRSYM) || ACCEPT(GEQSYM));
+        }
+        RETURN(node);
+    }
+    FUNCTION(expression) {
+        (ACCEPT(PLUSSYM) || ACCEPT(MINUSSYM));
+        CALL(term);
+        while (ACCEPT(PLUSSYM) || ACCEPT(MINUSSYM)) {
+            CALL(term);
+        }
+        RETURN(node);
+    }
+    FUNCTION(term) {
+        // TODO function returns.
+        CALL(factor);
+        while (ACCEPT(TIMESSYM) || ACCEPT(SLASHSYM)) {
+            CALL(factor);
+        }
+        RETURN(node);
+    }
+    FUNCTION(factor) {
+        if (ACCEPT(IDENTSYM)) {
+        } else if (ACCEPT(NUMBERSYM)) {
+        } else {
+            ACCEPT(LPARENSYM);
+            CALL(expression);
+            ACCEPT(RPARENSYM);
+        }
+        RETURN(node);
+    }
 end:;
+    AST_print(node);
     return 0;
 }
 
