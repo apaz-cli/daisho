@@ -1,5 +1,7 @@
 #ifndef __DAI_STDLIB_STRCONVERT
 #define __DAI_STDLIB_STRCONVERT
+#include "../PreProcessor/PreProcessor.h"
+
 
 /*
  * Convert int types to ascii.
