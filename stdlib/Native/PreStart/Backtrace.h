@@ -66,7 +66,7 @@ __Dai_SymInfo_parse(char* str) {
         while (*str != ']') str++;
         *str = '\0';
     } else {
-        *(str - 1) = '\0';
+        *str = '\0';
         str++;
 
         addr = str;
@@ -87,7 +87,7 @@ __Dai_SymInfo_print(__Dai_SymInfo info) {
 }
 
 static void __DAI_NEVER_INLINE
-__Dai_print_backtrace(void) {
+__Dai_unsafe_print_backtrace(void) {
     void* symbol_arr[__DAI_BT_MAX_FRAMES];
     char** symbol_strings = NULL;
     int num_addrs, i;
@@ -110,6 +110,10 @@ __Dai_print_backtrace(void) {
     }
 }
 
+static void __Dai_print_backtrace(void) {
+
+}
+
 static void __DAI_NEVER_INLINE
 __Dai_low_mem_backtrace(void) {
     const char nl = '\n';
@@ -121,13 +125,13 @@ __Dai_low_mem_backtrace(void) {
 }
 
 __DAI_FN void
-sighandler(int sig, siginfo_t* siginfo, void* ucontext) {
+__Dai_bt_sighandler(int sig, siginfo_t* siginfo, void* ucontext) {
     ucontext_t ctx = *(ucontext_t*)ucontext;
     
 }
 
 __DAI_FN void
-__Dai_install_backtrace_signals(void) {
+__Dai_init_backtraces(void) {
     int sigs[] = {__DAI_BACKTRACE_SIGNALS + 0};
     size_t num_sigs = sizeof(sigs) / sizeof(int);
     const char nserr[] =
@@ -162,7 +166,7 @@ __Dai_install_backtrace_signals(void) {
     const char sseterr[] = "Could not install a signal handler.";
     for (size_t i = 0; i < num_sigs; i++) {
         struct sigaction action;
-        action.sa_sigaction = sighandler;
+        action.sa_sigaction = __Dai_bt_sighandler;
         action.sa_flags = SA_SIGINFO;
         action.sa_mask = set;
         __DAI_SANE_ASSERT(!sigaction(sigs[i], &action, NULL), sseterr);
