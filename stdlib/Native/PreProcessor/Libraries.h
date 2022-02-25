@@ -107,10 +107,8 @@
 #include <unistd.h>
 
 /* Use GNU backtraces if possible. */
-#ifndef __DAI_NO_LIBRARIES
 #if __DAI_USING_BACKTRACES
 #include <execinfo.h>
-#endif
 #endif
 
 #endif /* __DAI_STDLIB_LIBRARIES */

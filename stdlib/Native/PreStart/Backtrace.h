@@ -7,9 +7,10 @@
 
 #if __DAI_USING_BACKTRACES
 
+#define __DAI_BT_BUF_CAP ((size_t)(__DAI_PAGESIZE * 4))
+
 static size_t __Dai_bt_buf_size;
-static const size_t __Dai_bt_cap = __DAI_PAGESIZE * 4;
-static char __Dai_bt_buffer[__Dai_bt_cap];
+static char __Dai_bt_buffer[__DAI_BT_BUF_CAP];
 static FILE* __Dai_bt_stream;
 static int __Dai_bt_fd;
 
@@ -127,7 +128,7 @@ __Dai_low_mem_backtrace(void) {
 __DAI_FN void
 __Dai_bt_sighandler(int sig, siginfo_t* siginfo, void* ucontext) {
     ucontext_t ctx = *(ucontext_t*)ucontext;
-    
+
 }
 
 __DAI_FN void

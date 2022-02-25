@@ -78,6 +78,9 @@ __Dai_error(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
 /**********/
 /* Assert */
 /**********/
+
+/* Assert up to */
+
 #define __DAI_ASSERT(cond, msg)           do { if (!(cond))                     __Dai_error(0, (char*)(msg), __DAI_SRC_INFO); } while (0)
 
 #define __DAI_SANE_ASSERT(cond, msg)      do {  if ((!(cond)) & __DAI_SANE)     __Dai_error(1, (char*)(msg), __DAI_SRC_INFO); } while (0)

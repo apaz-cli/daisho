@@ -34,7 +34,7 @@ __Dai_SymInfo_parse(char* str) {
         while (*str != ']') str++;
         *str = '\0';
     } else {
-        *(str - 1) = '\0';
+        *str = '\0';
         str++;
 
         addr = str;
@@ -83,6 +83,10 @@ main() {
     char pages[__DAI_BT_BUF_CAP];
     ssize_t num_read = read(fd, pages, __DAI_BT_BUF_CAP - 1);
 
+    // Print the original backtrace.
+    write(STDOUT_FILENO, pages, num_read);
+    puts("");
+
     // Parse the backtrace.
     char* str = pages;
     for (int n = 0; n < num_frames; n++) {
@@ -97,4 +101,5 @@ main() {
     }
 
     close(fd);
+    puts("");
 }
