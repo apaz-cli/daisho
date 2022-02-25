@@ -2,43 +2,6 @@
 #define __DAI_NO_LIBRARIES
 #include "../../stdlib/Daisho.h"
 
-size_t
-itoa(int i, char* a) {
-    int base = 10;
-
-    size_t pos = 0;
-    if (!i) {
-        a[0] = '0';
-        return 1;
-    } else if (i == INT_MIN) {
-        a[pos++] = '-';
-        a[pos++] = '2';
-        a[pos++] = '1';
-        a[pos++] = '4';
-        a[pos++] = '7';
-        a[pos++] = '4';
-        a[pos++] = '8';
-        a[pos++] = '3';
-        a[pos++] = '6';
-        a[pos++] = '4';
-        a[pos++] = '8';
-        return pos;
-    } else if (i < 0) {
-        a[0] = '-';
-        pos++;
-        i = -i;
-    }
-
-    while (i) {
-        // Write ascii 0 - 9
-        a[pos] = 48 + (i % 10);
-
-        i /= 10;
-        pos++;
-    }
-
-    return pos;
-}
 
 int
 main(void) {
@@ -59,7 +22,7 @@ main(void) {
                                                                                                  \
         /* Validate the return */                                                                \
         if (printed != ret) {                                                                    \
-            printf("Expected %i characters printed for " fmt ", but printed %zu.\n", printed, i, \
+            printf("Expected %d characters printed for " fmt ", but printed %zu.\n", printed, i, \
                    ret);                                                                         \
             exit(1);                                                                             \
         }                                                                                        \
@@ -83,7 +46,7 @@ main(void) {
             }                                                                                    \
         }                                                                                        \
         /* Check for memory corruption after. */                                                 \
-        for (size_t j = ret; j < 80; j++) {                                                      \
+        for (size_t j = ret; j < 60; j++) {                                                      \
             if (buf[j] != bead[j % 4]) {                                                         \
                 printf("Subsequent memory corrupted. All memory:\n");                            \
                 write(STDOUT_FILENO, space, 80);                                                 \
