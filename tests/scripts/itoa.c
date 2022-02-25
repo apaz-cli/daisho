@@ -1,5 +1,44 @@
+#define __GNU_SOURCE
 #define __DAI_NO_LIBRARIES
 #include "../../stdlib/Daisho.h"
+
+size_t
+itoa(int i, char* a) {
+    int base = 10;
+
+    size_t pos = 0;
+    if (!i) {
+        a[0] = '0';
+        return 1;
+    } else if (i == INT_MIN) {
+        a[pos++] = '-';
+        a[pos++] = '2';
+        a[pos++] = '1';
+        a[pos++] = '4';
+        a[pos++] = '7';
+        a[pos++] = '4';
+        a[pos++] = '8';
+        a[pos++] = '3';
+        a[pos++] = '6';
+        a[pos++] = '4';
+        a[pos++] = '8';
+        return pos;
+    } else if (i < 0) {
+        a[0] = '-';
+        pos++;
+        i = -i;
+    }
+
+    while (i) {
+        // Write ascii 0 - 9
+        a[pos] = 48 + (i % 10);
+
+        i /= 10;
+        pos++;
+    }
+
+    return pos;
+}
 
 int
 main(void) {
@@ -8,7 +47,7 @@ main(void) {
     char* buf = space + 20;
     const char bead[] = {'B', 'E', 'A', 'D'};
 
-#define TEST_TYPETOA(t, func, fmt, used)                                                         \
+#define TEST_TYPETOA(t, func, fmt)                                                               \
     /* For every possible value of the type */                                                   \
     for (t i = __DAI_MIN_OF_TYPE(t); i <= __DAI_MAX_OF_TYPE(t); i++) {                           \
         /* Initialize the array to known values (BEAD repeating)  */                             \
@@ -53,4 +92,6 @@ main(void) {
             }                                                                                    \
         }                                                                                        \
     }
+
+    TEST_TYPETOA(int, itoa, "i");
 }
