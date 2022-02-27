@@ -1,6 +1,6 @@
 #ifndef __DAI_STDLIB_HASH
 #define __DAI_STDLIB_HASH
-
+#include "../PreStart/PreStart.h"
 
 __DAI_FN uint32_t
 __Dai_murm_fmi32(uint32_t h) {
@@ -11,7 +11,6 @@ __Dai_murm_fmi32(uint32_t h) {
     h ^= h >> 16;
     return h;
 }
-
 
 __DAI_FN uint64_t
 __Dai_murm_fmi64(uint64_t h) {
@@ -24,7 +23,7 @@ __Dai_murm_fmi64(uint64_t h) {
 }
 
 __DAI_FN uint32_t
-__Dai_strhash32(String str) {
+__Dai_strhash32(char* str) {
     char c; // djb2
     uint32_t h = 5381;
     while ((c = *str++))
@@ -33,7 +32,7 @@ __Dai_strhash32(String str) {
 }
 
 __DAI_FN uint64_t
-__Dai_strhash64(String str) {
+__Dai_strhash64(char* str) {
     char c; // djb2
     uint64_t h = 5381;
     while ((c = *str++))
