@@ -11,6 +11,7 @@
 #include "Python.h"
 #include "Start.h"
 #include "Siglist.h"
+#include "StrConv.h"
 
 #include "Allocators/Allocators.h"
 

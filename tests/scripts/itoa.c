@@ -2,9 +2,10 @@
 #define __DAI_NO_LIBRARIES
 #include "../../stdlib/Daisho.h"
 
-
 int
 main(void) {
+    setbuf(stdout, NULL);
+
     char valid[80];
     char space[80];
     char* buf = space + 20;
@@ -13,6 +14,7 @@ main(void) {
 #define TEST_TYPETOA(t, func, fmt)                                                               \
     /* For every possible value of the type */                                                   \
     for (t i = __DAI_MIN_OF_TYPE(t); i <= __DAI_MAX_OF_TYPE(t); i++) {                           \
+        if (!(i % 100000000)) printf(fmt "\n", i);                                               \
         /* Initialize the array to known values (BEAD repeating)  */                             \
         for (size_t j = 0; j < 80; j++) space[j] = bead[j % 4];                                  \
                                                                                                  \
@@ -24,6 +26,8 @@ main(void) {
         if (printed != ret) {                                                                    \
             printf("Expected %d characters printed for " fmt ", but printed %zu.\n", printed, i, \
                    ret);                                                                         \
+            write(STDOUT_FILENO, space, 80);                                                     \
+            puts("");                                                                            \
             exit(1);                                                                             \
         }                                                                                        \
                                                                                                  \
@@ -45,6 +49,7 @@ main(void) {
                 exit(1);                                                                         \
             }                                                                                    \
         }                                                                                        \
+                                                                                                 \
         /* Check for memory corruption after. */                                                 \
         for (size_t j = ret; j < 60; j++) {                                                      \
             if (buf[j] != bead[j % 4]) {                                                         \
@@ -55,6 +60,6 @@ main(void) {
             }                                                                                    \
         }                                                                                        \
     }
-
-    TEST_TYPETOA(int, itoa, "i");
+    TEST_TYPETOA(long, __Dai_ltoa, "%ld");
+    TEST_TYPETOA(unsigned long, __Dai_ultoa, "%lu");
 }
