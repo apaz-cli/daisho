@@ -10,95 +10,90 @@
 
 #include "stdlib/Daisho.h"
 
-typedef struct {
-    void* frames;
-    int size;
-    int fd;
-} __Dai_fallback_args;
+// Call addr2line, and returns the line number for the info.
+// Returns -1 on fork, pipe, close, dup2, execv, wait. Keeps errno set to indicate the error.
+// Returns -2 when addr2line returns ?? as the file or line number.
+// Otherwise, returns the line number.
+__DAI_FN long
+__Dai_SymInfo_linenum(__Dai_SymInfo info) {
 
-// Handle failure in addr2line translation.
-void
-backtrace_fallback(__Dai_fallback_args args) {
-    backtrace_symbols_fd(args.frames, args.size, args.fd);
-    const char msg[] = "Failed to translate addresses to lines.";
-}
-
-// Returns 0 on failure, otherwise num written.
-// Call addr2line, format the results, and append to buf.
-size_t
-translate_append(char* buf, __Dai_fallback_args args, __Dai_SymInfo info) {
+    // Create a file descriptor for addr2line to pipe to.
+    errno = 0;
     int pipes[2];
     if (pipe(pipes) == -1) {
-        backtrace_fallback(args);
-        return 0;
+        return -1;
     }
 
-    int status;
+    // Fork
+    int status, ret;
     int pid = fork();
-    if (pid == -1) {
-        backtrace_fallback(args);
-        return 0;
-    }
+    if (pid == -1) return -1;
     if (!pid) {
         // Child
 
         // Redirect stdout to pipe.
-        close(pipes[0]);
-        dup2(pipes[1], STDOUT_FILENO);
+        ret = close(pipes[0]);
+        if (ret == -1) return -1;
+        ret = dup2(pipes[1], STDOUT_FILENO);
+        if (ret == -1) return -1;
 
-        // Replace execution image or fail.
+        // Replace execution image with addr2line or fail.
         char addrpath[] = "/usr/bin/addr2line";
         char addrname[] = "addr2line";
-        char* addr2lineargs[] = {addrname, "-e", info.file, "-Cfpi", info.addr, NULL};
+        char* addr2lineargs[] = {addrname, "-e", info.file, "-Cpi", info.addr, NULL};
         execv(addrpath, addr2lineargs);
-
-        backtrace_fallback(args);
-        return 0;
+        return -1;
     }
     // Parent
 
     // Wait for addr2line to write to pipe.
-    close(pipes[1]);
-    wait(&status);
-    int failure = (WIFEXITED(status) && WEXITSTATUS(status)) | WIFSIGNALED(status);
-    if (failure) {
-        backtrace_fallback(args);
-        return 0;
-    }
+    ret = close(pipes[1]);
+    if (ret == -1) return -1;
+    ret = waitpid(pid, &status, 1);
+    if (ret == -1) return -1;
+    ret = (WIFEXITED(status) && WEXITSTATUS(status)) | WIFSIGNALED(status);
+    if (ret) return -1;
 
-    // Read from the pipe (addr2line child stdout).
+    // Read from the pipe (addr2line child stdout), and null terminate.
     char tmp[__DAI_BT_BUF_CAP];
     ssize_t bytes_read = read(pipes[0], tmp, __DAI_BT_BUF_CAP);
-    if (bytes_read <= 0) {
-        backtrace_fallback(args);
-        return 0;
-    }
+    if (bytes_read <= 0) return -1;
     if (bytes_read == __DAI_BT_BUF_CAP) {
         /* Large return probably doesn't matter. It shouldn't come up.
            We can do multiple reads instead of erroring if it becomes a problem. */
-        backtrace_fallback(args);
-        return 0;
+        return -1;
     }
+    tmp[bytes_read] = '\0';
 
     // Parse line, write to buf. Example of format:
-    // f1 at /home/apaz/git/Daisho/tests/scripts/backtrace_test.c:8
-    char* str;
-    size_t num_written = 0;
-    char fn_color[] = __DAI_BT_COLOR_FUNC;
-    char file_color[] = __DAI_BT_COLOR_FILE;
-    char reset_color[] = __DAI_BT_COLOR_FUNC;
-    char ptr_color[] = __DAI_BT_COLOR_PNTR;
-    char line_color[] = __DAI_BT_COLOR_LINE;
+    // /home/apaz/git/Daisho/tests/scripts/backtrace_test.c:8
 
-    str = fn_color;
-    while (*str) {
-        buf[num_written++] = *str;
-        str++;
-    }
+    // Check if we got a ??: for the file.
+    size_t pos = 0;
+    if ((tmp[pos] == '?') & (tmp[pos+1] == '?') & (tmp[pos+2] == ':')) return -2;
 
-    return num_written;
+    // Seek to the end.
+    while (tmp[pos] != '\0') pos++;
+
+    // Backtrack to the character past the last colon.
+    while (tmp[pos] != ':') pos--;
+    pos++;
+
+    // Check if we got a ?? for the line number.
+    if ((tmp[pos] == '?') & (tmp[pos+1] == '?')) return -2;
+
+    // Parse line number from addr2line to long.
+    errno = 0;
+    long l = strtol(tmp + pos, NULL, 10);
+    return errno ? -1 : l;
 }
 
+__DAI_FN size_t
+__Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info, int use_color) {
+
+}
+
+// Global. This is necessary, because opening a temp file is not possible in a signal handler.
 static int fd;
 
 int
@@ -129,19 +124,21 @@ main() {
     if (!num_frames) puts("No backtrace.");
     if (num_frames > __DAI_BT_MAX_FRAMES) puts("too long.");
 
-    // Take a backtrace, write it to the buffer.
+    // Write the backtrace to the temp file dedicated for it during initialization.
+    // Unfortunately, redirecting a write() into memory is barely doable and not portable.
     backtrace_symbols_fd(frames, num_frames, fd);
 
-    // Rewind and read back the file.
+    // Rewind and read back the file into memory.
     lseek(fd, 0, SEEK_SET);
     char pages[__DAI_BT_BUF_CAP];
     ssize_t num_read = read(fd, pages, __DAI_BT_BUF_CAP - 1);
 
     // Print the original backtrace.
+    // TODO remove.
     write(STDOUT_FILENO, pages, num_read);
     puts("");
 
-    // Parse the backtrace.
+    // Parse the exename, func, addr from the backtrace.
     char* str = pages;
     for (int n = 0; n < num_frames; n++) {
         char* next = str;
@@ -149,10 +146,29 @@ main() {
         next++;
 
         frameinfo[n] = __Dai_SymInfo_parse(str);
-        fprintf(stderr, "%s %s %s\n", frameinfo[n].file, frameinfo[n].name, frameinfo[n].addr);
+        // fprintf(stderr, "%s %s %s\n", frameinfo[n].file, frameinfo[n].func, frameinfo[n].addr);
 
         str = next;
     }
+
+    // Write some colors to the stack.
+    char fn_color[] = __DAI_BT_COLOR_FUNC;
+    char file_color[] = __DAI_BT_COLOR_FILE;
+    char reset_color[] = __DAI_BT_COLOR_FUNC;
+    char ptr_color[] = __DAI_BT_COLOR_PNTR;
+    char line_color[] = __DAI_BT_COLOR_LINE;
+
+
+    // For each frame (which we now have info for), get the line number.
+    int failed = 0;
+    for (int n = 0; n < num_frames; n++) {
+        long res = __Dai_SymInfo_linenum(frameinfo[n]);
+        if (res == -1) failed = true;
+        frameinfo[n].linenum = res;
+        printf("%ld\n", res);
+    }
+
+    //
 
     close(fd);
     puts("");

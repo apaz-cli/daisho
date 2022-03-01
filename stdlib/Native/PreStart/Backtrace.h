@@ -38,8 +38,9 @@ __Dai_bt_footer(char* sigstr) {
  */
 typedef struct {
     char* file;
-    char* name;
+    char* func;
     char* addr;
+    long linenum;
 } __Dai_SymInfo;
 
 /* This looks ugly, and it is. But, it null terminates
@@ -48,14 +49,14 @@ typedef struct {
  */
 __DAI_FN __Dai_SymInfo
 __Dai_SymInfo_parse(char* str) {
-    char *file = str, *name = NULL, *addr;
+    char *file = str, *func = NULL, *addr;
     while ((*str != '[') & (*str != '(')) str++;
     if (*str == '(') {
         *str = '\0';
         str++;
 
         if ((*str != ')') & (*str != '+')) {
-            name = str;
+            func = str;
             while (*str != '+') str++;
             *str = '\0';
         }
@@ -74,14 +75,14 @@ __Dai_SymInfo_parse(char* str) {
         while (*str != ']') str++;
         *str = '\0';
     }
-    __Dai_SymInfo info = {file, name, addr};
+    __Dai_SymInfo info = {file, func, addr, -1};
     return info;
 }
 
 __DAI_FN void
 __Dai_SymInfo_print(__Dai_SymInfo info) {
     fprintf(stderr, __DAI_COLOR_FILE("%s:") " ", info.file);
-    info.name ? fprintf(stderr, __DAI_COLOR_FUNC("%s()") " at ", info.name)
+    info.func ? fprintf(stderr, __DAI_COLOR_FUNC("%s()") " at ", info.func)
               : fprintf(stderr, __DAI_COLOR_FUNC("%s") " at ", "UNKNOWN");
     fprintf(stderr, __DAI_COLOR_PNTR("%s") "\n", info.addr);
     fflush(stderr);
