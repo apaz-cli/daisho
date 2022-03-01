@@ -5,13 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
-typedef struct {
-    char* file;
-    char* name;
-    char* addr;
-} __Dai_SymInfo;
+#include "stdlib/Daisho.h"
 
 typedef struct {
     void* frames;
@@ -19,57 +16,29 @@ typedef struct {
     int fd;
 } __Dai_fallback_args;
 
-__Dai_SymInfo
-__Dai_SymInfo_parse(char* str) {
-    char *file = str, *name = NULL, *addr;
-    while ((*str != '[') & (*str != '(')) str++;
-    if (*str == '(') {
-        *str = '\0';
-        str++;
-
-        if ((*str != ')') & (*str != '+')) {
-            name = str;
-            while (*str != '+') str++;
-            *str = '\0';
-        }
-
-        while (*str != '[') str++;
-        str++;
-
-        addr = str;
-        while (*str != ']') str++;
-        *str = '\0';
-    } else {
-        *str = '\0';
-        str++;
-
-        addr = str;
-        while (*str != ']') str++;
-        *str = '\0';
-    }
-    __Dai_SymInfo info = {file, name, addr};
-    return info;
-}
-
 // Handle failure in addr2line translation.
-void backtrace_fallback(__Dai_fallback_args args) {
+void
+backtrace_fallback(__Dai_fallback_args args) {
     backtrace_symbols_fd(args.frames, args.size, args.fd);
     const char msg[] = "Failed to translate addresses to lines.";
 }
 
 // Returns 0 on failure, otherwise num written.
 // Call addr2line, format the results, and append to buf.
-size_t translate_append(char* buf, __Dai_fallback_args args, __Dai_SymInfo info) {
-    pid_t addrpid;
-    int status;
-
+size_t
+translate_append(char* buf, __Dai_fallback_args args, __Dai_SymInfo info) {
     int pipes[2];
     if (pipe(pipes) == -1) {
         backtrace_fallback(args);
         return 0;
     }
 
-    pid = fork();
+    int status;
+    int pid = fork();
+    if (pid == -1) {
+        backtrace_fallback(args);
+        return 0;
+    }
     if (!pid) {
         // Child
 
@@ -77,54 +46,63 @@ size_t translate_append(char* buf, __Dai_fallback_args args, __Dai_SymInfo info)
         close(pipes[0]);
         dup2(pipes[1], STDOUT_FILENO);
 
-	// Replace execution image or fail.
-        const char addrpath[] = "/usr/bin/addr2line";
-        const char addrname[] = "addr2line";
-        const char* addr2lineargs[] = { addrname, "-e", info.file, "-Cfpi", addr, NULL };
+        // Replace execution image or fail.
+        char addrpath[] = "/usr/bin/addr2line";
+        char addrname[] = "addr2line";
+        char* addr2lineargs[] = {addrname, "-e", info.file, "-Cfpi", info.addr, NULL};
         execv(addrpath, addr2lineargs);
 
         backtrace_fallback(args);
         return 0;
-    } else {
-        // Parent
+    }
+    // Parent
 
-        // Wait for addr2line to write to pipe.
-        close(pipes[1]);
-        wait(&status);
-        int failure = (WIFEXITED(status) && WEXITSTATUS(status)) | WIFSIGNALED(status);
-        if (failure) {
-            backtrace_fallback(args);
-            return 0;
-        }
-
-        // Read from the pipe (addr2line child stdout).
-        char tmp[__DAI_BT_BUF_CAP];
-        ssize_t bytes_read = read(pipes[0], tmp, __DAI_BT_BUF_CAP);
-        if (bytes_read <= 0) {
-            backtrace_fallback(args);
-            return 0;
-        }
-        if (bytes_read == __DAI_BT_BUF_CAP) {
-            /* Large return probably doesn't matter. It shouldn't come up.
-               We can do multiple reads instead of erroring if it becomes a problem. */
-            backtrace_fallback(args);
-            return 0;
-        }
-
-        // Parse line, write to buf. Example of format:
-        // f1 at /home/apaz/git/Daisho/tests/scripts/backtrace_test.c:8
-        char* t = tmp;
-        
+    // Wait for addr2line to write to pipe.
+    close(pipes[1]);
+    wait(&status);
+    int failure = (WIFEXITED(status) && WEXITSTATUS(status)) | WIFSIGNALED(status);
+    if (failure) {
+        backtrace_fallback(args);
+        return 0;
     }
 
-    return 0;
+    // Read from the pipe (addr2line child stdout).
+    char tmp[__DAI_BT_BUF_CAP];
+    ssize_t bytes_read = read(pipes[0], tmp, __DAI_BT_BUF_CAP);
+    if (bytes_read <= 0) {
+        backtrace_fallback(args);
+        return 0;
+    }
+    if (bytes_read == __DAI_BT_BUF_CAP) {
+        /* Large return probably doesn't matter. It shouldn't come up.
+           We can do multiple reads instead of erroring if it becomes a problem. */
+        backtrace_fallback(args);
+        return 0;
+    }
+
+    // Parse line, write to buf. Example of format:
+    // f1 at /home/apaz/git/Daisho/tests/scripts/backtrace_test.c:8
+    char* str;
+    size_t num_written = 0;
+    char fn_color[] = __DAI_BT_COLOR_FUNC;
+    char file_color[] = __DAI_BT_COLOR_FILE;
+    char reset_color[] = __DAI_BT_COLOR_FUNC;
+    char ptr_color[] = __DAI_BT_COLOR_PNTR;
+    char line_color[] = __DAI_BT_COLOR_LINE;
+
+    str = fn_color;
+    while (*str) {
+        buf[num_written++] = *str;
+        str++;
+    }
+
+    return num_written;
 }
 
-#define __DAI_BT_MAX_FRAMES 50
-#define __DAI_BT_BUF_CAP (4096 * 4)
 static int fd;
 
-int init() {
+int
+init() {
     // Call backtrace once to load the
     // library so dlopen(), which calls malloc(),
     // is not called inside the signal handler.
@@ -178,5 +156,4 @@ main() {
 
     close(fd);
     puts("");
-
 }
