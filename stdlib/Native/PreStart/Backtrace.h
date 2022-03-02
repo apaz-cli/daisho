@@ -7,7 +7,7 @@
 
 #if __DAI_USING_BACKTRACES
 
-#define __DAI_BT_BUF_CAP ((size_t)(__DAI_PAGESIZE * 4))
+#define __DAI_BT_BUF_CAP ((size_t)(__DAI_PAGESIZE * 10))
 
 static size_t __Dai_bt_buf_size;
 static char __Dai_bt_buffer[__DAI_BT_BUF_CAP];
@@ -41,6 +41,7 @@ typedef struct {
     char* file;
     char* func;
     char* addr;
+    char* sourcefile;
     long linenum;
 } __Dai_SymInfo;
 
@@ -76,7 +77,7 @@ __Dai_SymInfo_parse(char* str) {
         while (*str != ']') str++;
         *str = '\0';
     }
-    __Dai_SymInfo info = {file, func, addr, -1};
+    __Dai_SymInfo info = {file, func, addr, NULL, -1};
     return info;
 }
 

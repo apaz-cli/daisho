@@ -1,4 +1,3 @@
-
 #include <execinfo.h>
 #include <signal.h>
 #include <stdio.h>
@@ -10,46 +9,52 @@
 
 #include "stdlib/Daisho.h"
 
-// Call addr2line, write path to the source file to the buffer, write the number of characters written 
+#include "bt_head.h"
+
+
+// Call addr2line, write path to the source file to the buffer, write the number of characters written
 // (including null terminator) to num_written, and return the line number for the info.
-// Returns < -1 on a syscall failure. Keeps errno set to indicate the error.
-// Returns -1 when addr2line returns ?? as the file or line number.
-// Otherwise, returns the line number.
+// Returns < 0 on a syscall or addr2line failure. Keeps errno set to indicate the error, and returns an error code.
+// Otherwise, returns the number of characters written to space, including the null terminator, and
+// writes the source file name to info->sourcefile.
 __DAI_FN long
-__Dai_SymInfo_linenum(__Dai_SymInfo info, char* buf, size_t* num_written) {
+__Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
     // Create a file descriptor for addr2line to pipe to.
     errno = 0;
     int pipes[2];
-    if (pipe(pipes) == -1) return -2;
+    if (pipe(pipes) == -1) return -1;
 
     // Fork
     int status, ret;
     int pid = fork();
-    if (pid == -1) return -3;
+    if (pid == -1) return -2;
     if (!pid) {
         // Child
 
         // Redirect stdout to pipe.
         ret = close(pipes[0]);
-        if (ret == -1) return -4;
+        if (ret == -1) return -3;
         ret = dup2(pipes[1], STDOUT_FILENO);
-        if (ret == -1) return -5;
+        if (ret == -1) return -4;
 
         // Replace execution image with addr2line or fail.
         char addrpath[] = "/usr/bin/addr2line";
         char addrname[] = "addr2line";
-        char* addr2lineargs[] = {addrname, "-e", info.file, "-Cfpi", info.addr, NULL};
+        char* addr2lineargs[] = {addrname, "-e", info->file, "-Cfpi", info->addr, NULL};
         execv(addrpath, addr2lineargs);
-        return -6;
+        return -5;
     }
-    // Parent
 
     // Wait for addr2line to write to pipe.
     ret = close(pipes[1]);
-    if (ret == -1) return -7;
+    if (ret == -1) return -6;
     ret = waitpid(pid, &status, 1);
-    if (ret == -1) return -8;
-    if (WIFEXITED(status) && WEXITSTATUS(status)) return -9;
+    if (ret == -1) return -7;
+    if (WIFEXITED(status) && WEXITSTATUS(status)) {
+        if (WEXITSTATUS(status) == -5) return -8;
+        errno = ENOENT;
+        return -9;
+    }
 
     // Read from the pipe (addr2line child stdout), and null terminate.
     char tmp[__DAI_BT_BUF_CAP];
@@ -61,29 +66,63 @@ __Dai_SymInfo_linenum(__Dai_SymInfo info, char* buf, size_t* num_written) {
         return -11;
     }
     tmp[bytes_read] = '\0';
+
+    // TODO remove when done testing.
+    // Print the output of addr2line.
     printf("%s", tmp);
 
-    // Parse line, write to buf. Example of format:
+    // We need to return two different things. The line number and the source file.
+    // Either could fail independently, resulting in unique return < -1 and no write into info.
+    // However, we should still track the errors seperately.
+    int lnum_failed = 0;
+    int source_failed = 0;
+
+    // Parse line, write to buf. Examples of format:
+    // ??:7
+    // /path/to/file.c:0
+    // /path/to/file.c:??
     // /home/apaz/git/Daisho/tests/scripts/backtrace_test.c:8
 
-    // Check if we got a ??: for the file.
+    // Seek to the end, then backtrack to the last colon. Save the position of the colon.
+    // Then step forward one character. This is the start of the line number.
     size_t pos = 0;
-    if ((tmp[pos] == '?') & (tmp[pos + 1] == '?') & (tmp[pos + 2] == ':')) return -1;
-
-    // Seek to the end.
     while (tmp[pos] != '\0') pos++;
-
-    // Backtrack to the character past the last colon.
     while (tmp[pos] != ':') pos--;
+    size_t colonpos = pos;
     pos++;
+    long written = pos;
 
-    // Check if we got a ?? for the line number.
-    if ((tmp[pos] == '?') & (tmp[pos + 1] == '?')) return -1;
+    // Make sure we have enough space to store the source.
+    if (n < written) source_failed = 1;
 
-    // Parse line number from addr2line to long.
-    errno = 0;
-    long l = strtol(tmp + pos, NULL, 10);
-    return errno ? -12 : l;
+    // Check if we got a ??: for the file.
+    if ((colonpos == 2) & (tmp[colonpos-2] == '?') & (tmp[colonpos - 1] == '?')) source_failed = 1;
+
+    // Check if we got a ?? or a zero for the line number.
+    if ((tmp[pos] == '?') & (tmp[pos + 1] == '?') | (tmp[pos] == '0')) lnum_failed = 1;
+
+    // Copy the source file from the return of addr2line into the space provided.
+    if (!source_failed) {
+        for (size_t i = 0; i < colonpos; i++) {
+            space[i] = tmp[i];
+        }
+        space[colonpos] = '\0';
+
+        info->sourcefile = space;
+    }
+
+    // Parse line number from addr2line to long, or error for line number.
+    if (!lnum_failed) {
+        long l = atol(tmp + pos);
+        if ((l == LONG_MAX) | (l == LONG_MIN)) return -11;
+        info->linenum = l;
+    }
+
+    // If ran out of space, return an error.
+    if (source_failed) return -12;
+
+    // Return the number of characters written to space.
+    return written;
 }
 
 __DAI_FN long
@@ -94,8 +133,6 @@ __Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info) {
     char file_color[] = __DAI_COLOR_FILE;
     char line_color[] = __DAI_COLOR_LINE;
 #endif
-    
-    
 
 
     return 0;
@@ -121,6 +158,8 @@ init() {
     return 1;
 }
 
+
+// Print the 
 void
 print_trace(void) {
     // Call backtrace.
@@ -134,20 +173,29 @@ print_trace(void) {
     // Unfortunately, redirecting a write() into memory is barely doable and not portable.
     backtrace_symbols_fd(frames, num_frames, fd);
 
-    // Rewind and read back the file into memory.
-    lseek(fd, 0, SEEK_SET);
+    // Rewind the file
+    int ret = lseek(fd, 0, SEEK_SET);
+    if (ret == (off_t)-1) {
+        close(fd);
+        backtrace_symbols_fd(frames, num_frames, STDERR_FILENO);
+        return;
+    }
+
+    // Read back the file into memory.
     char pages[__DAI_BT_BUF_CAP];
     ssize_t num_read = read(fd, pages, __DAI_BT_BUF_CAP - 1);
     close(fd);
 
-    // Print the original backtrace.
-    // TODO remove.
-    write(STDOUT_FILENO, pages, num_read);
+    // TODO remove when done testing.
+    write(STDERR_FILENO, pages, num_read);
     puts("");
 
     // Parse the exename, func, addr from the backtrace.
     char* str = pages;
     for (int n = 0; n < num_frames; n++) {
+        // We know that backtrace_symbols_fd() writes each frame, followed by a newline.
+        // We're about to mess up the buffer, so figure out where to resume parsing
+        // after this frame by advancing to just after the \n.
         char* next = str;
         while ((*next != '\n')) next++;
         next++;
@@ -155,11 +203,11 @@ print_trace(void) {
         frameinfo[n] = __Dai_SymInfo_parse(str);
         // fprintf(stderr, "%s %s %s\n", frameinfo[n].file, frameinfo[n].func, frameinfo[n].addr);
 
-        // If we know we've hit, main(), stop early.
+        // If we know we've hit main(), stop early.
         // No reason to unwind through libc start stuff.
         if (frameinfo[n].func) {
             if (strcmp(frameinfo[n].func, "main") == 0) {
-                num_frames = n + 1;
+                num_frames = n + 1; // idx -> count
             }
         }
 
@@ -167,23 +215,28 @@ print_trace(void) {
     }
 
     // For each frame (which we now have info for), get the line number.
-    int failed = 0;
+    char* space = pages + num_read;
+    size_t remaining = __DAI_BT_BUF_CAP - num_read;
     for (int n = 0; n < num_frames; n++) {
-        long res = __Dai_SymInfo_linenum(frameinfo[n]);
-        if (res < -1) {
-            failed = true;
-            perror("error: ");
-            exit(1);
-        }
-        frameinfo[n].linenum = res;
+        // Call addr2line
+        long written = __Dai_SymInfo_linenum(frameinfo+n, space, remaining);
 
-        fprintf(stderr, "%s %s() %s, %ld\n", frameinfo[n].file, frameinfo[n].func,
-                frameinfo[n].addr, frameinfo[n].linenum);
+        // If a syscall failed, error out.
+        if (written < -1) {
+            // TODO use write() here.
+            backtrace_symbols_fd(frames, num_frames, fd);
+            fflush(stderr);
+            fprintf(stderr, "Backtrace failed with error %ld.\nErrno: %i\n", written, errno);
+            return;
+        }
+
+        space += written;
+        remaining -= written;
     }
+    
 }
 
-int
-main() {
+int main() {
     if (!init()) puts("Failed to initialize.");
-    print_trace();
+    indir1();
 }
