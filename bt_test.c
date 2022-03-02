@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+
 #include <execinfo.h>
 #include <signal.h>
 #include <stdio.h>
@@ -10,67 +10,65 @@
 
 #include "stdlib/Daisho.h"
 
-// Call addr2line, and returns the line number for the info.
-// Returns -1 on fork, pipe, close, dup2, execv, wait. Keeps errno set to indicate the error.
-// Returns -2 when addr2line returns ?? as the file or line number.
+// Call addr2line, write path to the source file to the buffer, write the number of characters written 
+// (including null terminator) to num_written, and return the line number for the info.
+// Returns < -1 on a syscall failure. Keeps errno set to indicate the error.
+// Returns -1 when addr2line returns ?? as the file or line number.
 // Otherwise, returns the line number.
 __DAI_FN long
-__Dai_SymInfo_linenum(__Dai_SymInfo info) {
-
+__Dai_SymInfo_linenum(__Dai_SymInfo info, char* buf, size_t* num_written) {
     // Create a file descriptor for addr2line to pipe to.
     errno = 0;
     int pipes[2];
-    if (pipe(pipes) == -1) {
-        return -1;
-    }
+    if (pipe(pipes) == -1) return -2;
 
     // Fork
     int status, ret;
     int pid = fork();
-    if (pid == -1) return -1;
+    if (pid == -1) return -3;
     if (!pid) {
         // Child
 
         // Redirect stdout to pipe.
         ret = close(pipes[0]);
-        if (ret == -1) return -1;
+        if (ret == -1) return -4;
         ret = dup2(pipes[1], STDOUT_FILENO);
-        if (ret == -1) return -1;
+        if (ret == -1) return -5;
 
         // Replace execution image with addr2line or fail.
         char addrpath[] = "/usr/bin/addr2line";
         char addrname[] = "addr2line";
-        char* addr2lineargs[] = {addrname, "-e", info.file, "-Cpi", info.addr, NULL};
+        char* addr2lineargs[] = {addrname, "-e", info.file, "-Cfpi", info.addr, NULL};
         execv(addrpath, addr2lineargs);
-        return -1;
+        return -6;
     }
     // Parent
 
     // Wait for addr2line to write to pipe.
     ret = close(pipes[1]);
-    if (ret == -1) return -1;
+    if (ret == -1) return -7;
     ret = waitpid(pid, &status, 1);
-    if (ret == -1) return -1;
-    ret = (WIFEXITED(status) && WEXITSTATUS(status)) | WIFSIGNALED(status);
-    if (ret) return -1;
+    if (ret == -1) return -8;
+    if (WIFEXITED(status) && WEXITSTATUS(status)) return -9;
 
     // Read from the pipe (addr2line child stdout), and null terminate.
     char tmp[__DAI_BT_BUF_CAP];
     ssize_t bytes_read = read(pipes[0], tmp, __DAI_BT_BUF_CAP);
-    if (bytes_read <= 0) return -1;
+    if (bytes_read <= 0) return -10;
     if (bytes_read == __DAI_BT_BUF_CAP) {
         /* Large return probably doesn't matter. It shouldn't come up.
            We can do multiple reads instead of erroring if it becomes a problem. */
-        return -1;
+        return -11;
     }
     tmp[bytes_read] = '\0';
+    printf("%s", tmp);
 
     // Parse line, write to buf. Example of format:
     // /home/apaz/git/Daisho/tests/scripts/backtrace_test.c:8
 
     // Check if we got a ??: for the file.
     size_t pos = 0;
-    if ((tmp[pos] == '?') & (tmp[pos+1] == '?') & (tmp[pos+2] == ':')) return -2;
+    if ((tmp[pos] == '?') & (tmp[pos + 1] == '?') & (tmp[pos + 2] == ':')) return -1;
 
     // Seek to the end.
     while (tmp[pos] != '\0') pos++;
@@ -80,17 +78,27 @@ __Dai_SymInfo_linenum(__Dai_SymInfo info) {
     pos++;
 
     // Check if we got a ?? for the line number.
-    if ((tmp[pos] == '?') & (tmp[pos+1] == '?')) return -2;
+    if ((tmp[pos] == '?') & (tmp[pos + 1] == '?')) return -1;
 
     // Parse line number from addr2line to long.
     errno = 0;
     long l = strtol(tmp + pos, NULL, 10);
-    return errno ? -1 : l;
+    return errno ? -12 : l;
 }
 
-__DAI_FN size_t
-__Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info, int use_color) {
+__DAI_FN long
+__Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info) {
+    long num_written = 0;
+#if __DAI_BT_COLORS
+    char func_color[] = __DAI_COLOR_FUNC;
+    char file_color[] = __DAI_COLOR_FILE;
+    char line_color[] = __DAI_COLOR_LINE;
+#endif
+    
+    
 
+
+    return 0;
 }
 
 // Global. This is necessary, because opening a temp file is not possible in a signal handler.
@@ -113,10 +121,8 @@ init() {
     return 1;
 }
 
-int
-main() {
-    if (!init()) puts("Failed to initialize.");
-
+void
+print_trace(void) {
     // Call backtrace.
     __Dai_SymInfo frameinfo[__DAI_BT_MAX_FRAMES];
     void* frames[__DAI_BT_MAX_FRAMES];
@@ -132,6 +138,7 @@ main() {
     lseek(fd, 0, SEEK_SET);
     char pages[__DAI_BT_BUF_CAP];
     ssize_t num_read = read(fd, pages, __DAI_BT_BUF_CAP - 1);
+    close(fd);
 
     // Print the original backtrace.
     // TODO remove.
@@ -148,28 +155,35 @@ main() {
         frameinfo[n] = __Dai_SymInfo_parse(str);
         // fprintf(stderr, "%s %s %s\n", frameinfo[n].file, frameinfo[n].func, frameinfo[n].addr);
 
+        // If we know we've hit, main(), stop early.
+        // No reason to unwind through libc start stuff.
+        if (frameinfo[n].func) {
+            if (strcmp(frameinfo[n].func, "main") == 0) {
+                num_frames = n + 1;
+            }
+        }
+
         str = next;
     }
-
-    // Write some colors to the stack.
-    char fn_color[] = __DAI_BT_COLOR_FUNC;
-    char file_color[] = __DAI_BT_COLOR_FILE;
-    char reset_color[] = __DAI_BT_COLOR_FUNC;
-    char ptr_color[] = __DAI_BT_COLOR_PNTR;
-    char line_color[] = __DAI_BT_COLOR_LINE;
-
 
     // For each frame (which we now have info for), get the line number.
     int failed = 0;
     for (int n = 0; n < num_frames; n++) {
         long res = __Dai_SymInfo_linenum(frameinfo[n]);
-        if (res == -1) failed = true;
+        if (res < -1) {
+            failed = true;
+            perror("error: ");
+            exit(1);
+        }
         frameinfo[n].linenum = res;
-        printf("%ld\n", res);
+
+        fprintf(stderr, "%s %s() %s, %ld\n", frameinfo[n].file, frameinfo[n].func,
+                frameinfo[n].addr, frameinfo[n].linenum);
     }
+}
 
-    //
-
-    close(fd);
-    puts("");
+int
+main() {
+    if (!init()) puts("Failed to initialize.");
+    print_trace();
 }

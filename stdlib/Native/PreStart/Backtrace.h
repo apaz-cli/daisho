@@ -16,7 +16,8 @@ static int __Dai_bt_fd;
 
 __DAI_FN void
 __Dai_bt_header(void) {
-    const char sthead[] = __DAI_COLOR_HEAD("***************\n* Stack Trace *\n***************\n");
+    const char sthead[] =
+        __DAI_COLOR_HEAD "***************\n* Stack Trace *\n***************\n" __DAI_COLOR_RESET;
     fprintf(stderr, sthead);
 }
 
@@ -81,10 +82,10 @@ __Dai_SymInfo_parse(char* str) {
 
 __DAI_FN void
 __Dai_SymInfo_print(__Dai_SymInfo info) {
-    fprintf(stderr, __DAI_COLOR_FILE("%s:") " ", info.file);
-    info.func ? fprintf(stderr, __DAI_COLOR_FUNC("%s()") " at ", info.func)
-              : fprintf(stderr, __DAI_COLOR_FUNC("%s") " at ", "UNKNOWN");
-    fprintf(stderr, __DAI_COLOR_PNTR("%s") "\n", info.addr);
+    fprintf(stderr, __DAI_COLOR_FILE "%s:" __DAI_COLOR_RESET " ", info.file);
+    info.func ? fprintf(stderr, __DAI_COLOR_FUNC "%s()" __DAI_COLOR_RESET " at ", info.func)
+              : fprintf(stderr, __DAI_COLOR_FUNC "%s" __DAI_COLOR_RESET " at ", "UNKNOWN");
+    fprintf(stderr, __DAI_COLOR_PNTR "%s" __DAI_COLOR_RESET "\n", info.addr);
     fflush(stderr);
 }
 
@@ -112,9 +113,8 @@ __Dai_unsafe_print_backtrace(void) {
     }
 }
 
-static void __Dai_print_backtrace(void) {
-
-}
+static void
+__Dai_print_backtrace(void) {}
 
 static void __DAI_NEVER_INLINE
 __Dai_low_mem_backtrace(void) {
@@ -129,7 +129,6 @@ __Dai_low_mem_backtrace(void) {
 __DAI_FN void
 __Dai_bt_sighandler(int sig, siginfo_t* siginfo, void* ucontext) {
     ucontext_t ctx = *(ucontext_t*)ucontext;
-
 }
 
 __DAI_FN void

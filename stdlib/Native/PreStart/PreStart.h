@@ -2,6 +2,7 @@
 #ifndef __DAI_STDLIB_PRESTART
 #define __DAI_STDLIB_PRESTART
 
+#include "../PreProcessor/PreProcessor.h"
 #include "Backtrace.h"
 #include "Error.h"
 #include "Mutex.h"

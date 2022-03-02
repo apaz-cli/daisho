@@ -157,4 +157,11 @@
 #define __DAI_BACKTRACES_ENABLED __DAI_HAS_BACKTRACES
 #endif
 
+/*
+ * Use ANSI colors inside backtraces
+ */
+#ifndef __DAI_BT_COLORS
+#define __DAI_BT_COLORS __DAI_HAS_ANSI_COLORS
+#endif
+
 #endif /* __DAI_STDLIB_CONFIG */
