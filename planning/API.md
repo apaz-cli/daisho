@@ -10,9 +10,9 @@ Collections:
 
     trait Stream<T>
 
-    class Array<T, size_t size> impl Slice
-    class NDArray<T, size_t dims...> impl Slice
-    trait List<T> impl RandomIterable
+    class Array<T, Size_t size>
+    class NDArray<T, Size_t dims...>
+    trait List<T> impl RandomIterable<T>
     trait Map<K impl Hashable, V>
     trait Set<T>
 
@@ -29,21 +29,22 @@ OS Stuff:
     trait Allocator
     class File
     trait Slice
-    malloc(), realloc(), calloc(), free()
+    bare malloc(), realloc(), calloc(), free()
 
 Text:
     trait Serializable
     trait Printable
-    trait Stringlike
+    trait CodePoint impl Serializable, Printable
 
-    class StringView impl Slice
-    class String impl Slice
-    class UTF8String
+    class CharString     impl String<Char>
+    class StringView     impl Printable, Serializable
+
+    class UTF8String     impl String<Int>
+    class UTF8StringView impl Printable, Serializable
 
 Math:
-    Trig functions
+    Trig functions (like sin<T>())
     class Complex<T>
-    sin<T>(), cos<T>(), tan<T>()
     sqrt<T>()
     pow<T>()
     max_value<T>()
@@ -52,6 +53,7 @@ Math:
     infinity<T>()
 
 Utilities:
+    printStackTrace();
 
 Additional libraries:
     ArgParser
