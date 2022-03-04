@@ -84,7 +84,7 @@ ASTNode_addChild(ASTNode* parent, ASTNode* child) {
 
 static inline void
 ASTNode_destroy(ASTNode* self) {
-    for (size_t i = 0; i < self->num_children; i++) ASTNode_destroy(self);
+    for (size_t i = 0; i < self->num_children; i++) ASTNode_destroy(self->children[i]);
     free(self->children);
     free(self);
 }

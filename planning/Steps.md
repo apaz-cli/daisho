@@ -2,7 +2,7 @@
 # Parse Flags
 * Determine how much of the pipeline to execute
 * Determine base compiler flags (More are parsed from code)
-* Determine target files
+* Determine all .dai/.daisho target files
 
 
 # Load Files
