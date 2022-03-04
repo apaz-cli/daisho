@@ -7,16 +7,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "bt_head.h"
 #include "stdlib/Daisho.h"
 
-#include "bt_head.h"
-
-
-// Call addr2line, write path to the source file to the buffer, write the number of characters written
-// (including null terminator) to num_written, and return the line number for the info.
-// Returns < 0 on a syscall or addr2line failure. Keeps errno set to indicate the error, and returns an error code.
-// Otherwise, returns the number of characters written to space, including the null terminator, and
-// writes the source file name to info->sourcefile.
+// Call addr2line, write path to the source file to the buffer, write the number of characters
+// written (including null terminator) to num_written, and return the line number for the info.
+// Returns < 0 on a syscall or addr2line failure. Keeps errno set to indicate the error, and returns
+// an error code. Otherwise, returns the number of characters written to space, including the null
+// terminator, and writes the source file name to info->sourcefile.
 __DAI_FN long
 __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
     // Create a file descriptor for addr2line to pipe to.
@@ -40,7 +38,7 @@ __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
         // Replace execution image with addr2line or fail.
         char addrpath[] = "/usr/bin/addr2line";
         char addrname[] = "addr2line";
-        char* addr2lineargs[] = {addrname, "-e", info->file, "-Cfpi", info->addr, NULL};
+        char* addr2lineargs[] = {addrname, "-e", info->file, "-Cpi", info->addr, NULL};
         execv(addrpath, addr2lineargs);
         return -5;
     }
@@ -96,7 +94,8 @@ __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
     if (n < written) source_failed = 1;
 
     // Check if we got a ??: for the file.
-    if ((colonpos == 2) & (tmp[colonpos-2] == '?') & (tmp[colonpos - 1] == '?')) source_failed = 1;
+    if ((colonpos == 2) & (tmp[colonpos - 2] == '?') & (tmp[colonpos - 1] == '?'))
+        source_failed = 1;
 
     // Check if we got a ?? or a zero for the line number.
     if ((tmp[pos] == '?') & (tmp[pos + 1] == '?') | (tmp[pos] == '0')) lnum_failed = 1;
@@ -128,12 +127,23 @@ __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
 __DAI_FN long
 __Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info) {
     long num_written = 0;
-#if __DAI_BT_COLORS
-    char func_color[] = __DAI_COLOR_FUNC;
-    char file_color[] = __DAI_COLOR_FILE;
-    char line_color[] = __DAI_COLOR_LINE;
-#endif
 
+#if __DAI_BT_COLORS
+    // "" if !__DAI_ANSI_TERMINAL
+    const char func_color[] = __DAI_COLOR_FUNC;
+    const char file_color[] = __DAI_COLOR_FILE;
+    const char line_color[] = __DAI_COLOR_LINE;
+    const char reset_color[] = __DAI_COLOR_RESET;
+#else
+    const char func_color[] = "";
+    const char file_color[] = "";
+    const char line_color[] = "";
+    const char reset_color[] = "";
+#endif
+    size_t func_size = sizeof(func_color) - 1;
+    size_t file_size = sizeof(file_color) - 1;
+    size_t line_size = sizeof(line_color) - 1;
+    size_t reset_size = sizeof(reset_color) - 1;
 
     return 0;
 }
@@ -158,8 +168,7 @@ init() {
     return 1;
 }
 
-
-// Print the 
+// Print the
 void
 print_trace(void) {
     // Call backtrace.
@@ -207,7 +216,7 @@ print_trace(void) {
         // No reason to unwind through libc start stuff.
         if (frameinfo[n].func) {
             if (strcmp(frameinfo[n].func, "main") == 0) {
-                num_frames = n + 1; // idx -> count
+                num_frames = n + 1;  // idx -> count
             }
         }
 
@@ -219,7 +228,7 @@ print_trace(void) {
     size_t remaining = __DAI_BT_BUF_CAP - num_read;
     for (int n = 0; n < num_frames; n++) {
         // Call addr2line
-        long written = __Dai_SymInfo_linenum(frameinfo+n, space, remaining);
+        long written = __Dai_SymInfo_linenum(frameinfo + n, space, remaining);
 
         // If a syscall failed, error out.
         if (written < -1) {
@@ -233,10 +242,10 @@ print_trace(void) {
         space += written;
         remaining -= written;
     }
-    
 }
 
-int main() {
+int
+main() {
     if (!init()) puts("Failed to initialize.");
     indir1();
 }
