@@ -29,7 +29,11 @@ __Dai_bt_footer(char* sigstr) {
         __DAI_COLOR_MAGENTA "Errno: " __DAI_COLOR_RESET " " __DAI_COLOR_BLUE "%s" __DAI_COLOR_RESET
                             "\n" __DAI_COLOR_MAGENTA "Signal:" __DAI_COLOR_RESET
                             " " __DAI_COLOR_BLUE "%s" __DAI_COLOR_RESET "\n\n";
-    const char* errmsg = errno ? strerror(errno) : success;
+    char errstr[32];
+    errstr[0] = '\0';
+    if (errno) strerror_r(errno, errstr, 32);
+
+    const char* errmsg = errno ? errstr : success;
     fprintf(stderr, fmt, errmsg, sigstr ? sigstr : na);
 }
 
@@ -41,8 +45,9 @@ typedef struct {
     char* file;
     char* func;
     char* addr;
-    char* sourcefile;
-    long linenum;
+    char* source;
+    long line;
+    char* basename;
 } __Dai_SymInfo;
 
 /* This looks ugly, and it is. But, it null terminates
@@ -77,7 +82,7 @@ __Dai_SymInfo_parse(char* str) {
         while (*str != ']') str++;
         *str = '\0';
     }
-    __Dai_SymInfo info = {file, func, addr, NULL, -1};
+    __Dai_SymInfo info = {file, func, addr, NULL, 0, NULL};
     return info;
 }
 

@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#define __DAI_TESTING_BACKTRACES
 #include "bt_head.h"
 #include "stdlib/Daisho.h"
 
@@ -63,23 +64,25 @@ __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
            We can do multiple reads instead of erroring if it becomes a problem. */
         return -11;
     }
+    ret = close(pipes[0]);
+    if (ret == -1) return -12;
     tmp[bytes_read] = '\0';
-
-    // TODO remove when done testing.
-    // Print the output of addr2line.
-    printf("%s", tmp);
 
     // We need to return two different things. The line number and the source file.
     // Either could fail independently, resulting in unique return < -1 and no write into info.
     // However, we should still track the errors seperately.
-    int lnum_failed = 0;
+    int line_failed = 0;
     int source_failed = 0;
 
     // Parse line, write to buf. Examples of format:
     // ??:7
     // /path/to/file.c:0
     // /path/to/file.c:??
+    // /path/to/file.c:?
     // /home/apaz/git/Daisho/tests/scripts/backtrace_test.c:8
+
+    // There's a solid chance that the following parsing is more robust than it has to be.
+    // Oh well.
 
     // Seek to the end, then backtrack to the last colon. Save the position of the colon.
     // Then step forward one character. This is the start of the line number.
@@ -91,34 +94,51 @@ __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
     long written = pos;
 
     // Make sure we have enough space to store the source.
-    if (n < written) source_failed = 1;
+    if (n < written) {
+        source_failed = 1;
+    }
 
     // Check if we got a ??: for the file.
     if ((colonpos == 2) & (tmp[colonpos - 2] == '?') & (tmp[colonpos - 1] == '?'))
         source_failed = 1;
 
-    // Check if we got a ?? or a zero for the line number.
-    if ((tmp[pos] == '?') & (tmp[pos + 1] == '?') | (tmp[pos] == '0')) lnum_failed = 1;
+    // Check if we got a ? or a zero for the line number.
+    if ((tmp[pos] == '?') | (tmp[pos] == '0')) line_failed = 1;
 
     // Copy the source file from the return of addr2line into the space provided.
     if (!source_failed) {
-        for (size_t i = 0; i < colonpos; i++) {
-            space[i] = tmp[i];
+        // Replace /./ with / to fix "Daisho/./bt_head.h:6"
+        size_t end = colonpos;
+        for (size_t i = 0; i < end - 2; i++) {
+            // Find
+            if ((tmp[i] == '/') & (tmp[i + 1] == '.') & (tmp[i + 2] == '/')) {
+                // Delete two characters
+                for (size_t j = i; j < end - 2; j++) tmp[j] = tmp[j + 2];
+                end -= 2;
+            }
         }
-        space[colonpos] = '\0';
 
-        info->sourcefile = space;
+        // Copy and add to info.
+        for (size_t i = 0; i < end; i++) space[i] = tmp[i];
+        space[end] = '\0';
+        info->source = space;
+
+        // Grab base name from the end of the path as well.
+        while (space[end] != '/') end--;
+        info->basename = space + end;
+    } else {
+        info->source = NULL;
+        info->basename = NULL;
     }
 
     // Parse line number from addr2line to long, or error for line number.
-    if (!lnum_failed) {
+    if (!line_failed) {
         long l = atol(tmp + pos);
-        if ((l == LONG_MAX) | (l == LONG_MIN)) return -11;
-        info->linenum = l;
+        if ((l == LONG_MAX) | (l == LONG_MIN)) return -13;
+        info->line = l;
+    } else {
+        info->line = 0;
     }
-
-    // If ran out of space, return an error.
-    if (source_failed) return -12;
 
     // Return the number of characters written to space.
     return written;
@@ -144,6 +164,13 @@ __Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info) {
     size_t file_size = sizeof(file_color) - 1;
     size_t line_size = sizeof(line_color) - 1;
     size_t reset_size = sizeof(reset_color) - 1;
+
+    if (info.func) {
+        printf("file: %s\nfunc: %s\naddr: %s\nsource: %s\nline: %ld\nbasename: %s\n\n", info.file,
+               info.func, info.addr, info.source, info.line, info.basename);
+    } else {
+        printf("file: %s\naddr: %s\n\n", info.file, info.addr);
+    }
 
     return 0;
 }
@@ -193,11 +220,14 @@ print_trace(void) {
     // Read back the file into memory.
     char pages[__DAI_BT_BUF_CAP];
     ssize_t num_read = read(fd, pages, __DAI_BT_BUF_CAP - 1);
-    close(fd);
 
-    // TODO remove when done testing.
-    write(STDERR_FILENO, pages, num_read);
-    puts("");
+    // Reset the file offset for the next time we backtrace.
+    lseek(fd, 0, SEEK_SET);
+    if (ret == (off_t)-1) {
+        close(fd);
+        backtrace_symbols_fd(frames, num_frames, STDERR_FILENO);
+        return;
+    }
 
     // Parse the exename, func, addr from the backtrace.
     char* str = pages;
@@ -216,7 +246,10 @@ print_trace(void) {
         // No reason to unwind through libc start stuff.
         if (frameinfo[n].func) {
             if (strcmp(frameinfo[n].func, "main") == 0) {
-                num_frames = n + 1;  // idx -> count
+                num_frames = n + 1;  // Keep this frame.
+            }
+            if (strcmp(frameinfo[n].func, "__libc_start_main") == 0) {
+                num_frames = n;  // Cut off this one as well.
             }
         }
 
@@ -235,10 +268,25 @@ print_trace(void) {
             // TODO use write() here.
             backtrace_symbols_fd(frames, num_frames, fd);
             fflush(stderr);
-            fprintf(stderr, "Backtrace failed with error %ld.\nErrno: %i\n", written, errno);
+            char errstr[32];
+            char success[] = "SUCCESS";
+            char *err = errno ? strerror_r(errno, errstr, 32), errstr : success;
+
+            fprintf(stderr, "Backtrace failed with error %ld.\nErrno: %i, %s\n", written, errno,
+                    err);
             return;
         }
 
+        // Advance through the space
+        space += written;
+        remaining -= written;
+    }
+
+    for (size_t i = 0; i < num_frames; i++) {
+        long written = __Dai_SymInfo_snwrite(space, remaining, frameinfo[i]);
+        if (written < 0) exit(1);
+
+        // Advance
         space += written;
         remaining -= written;
     }
