@@ -4,7 +4,7 @@
 
 # Generates a config file by appending to this variable.
 CONFIG=""
-WRITE_TO="stdlib/Native/Configs/DaishoGeneratedConfig.h"
+WRITE_TO="stdlib/Native/Configs/GeneratedConfig.h"
 COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
 if test $COLS -gt 90; then COLS=57; fi
 IN_CMT="// __DAI_STDLIB_GENERATEDCONFIG"
@@ -192,4 +192,4 @@ fi
 
 guard
 writeconfig
-echo "$magenta\nWrote config file to:$normal\nstdlib/Native/Configs/DaishoGeneratedConfig.h"
+echo "$magenta\nWrote config file to:$normal\nstdlib/Native/Configs/GeneratedConfig.h"
