@@ -2,7 +2,7 @@
 
 If C and Python are swords, Daisho is the combination of the two.
 
-The goal of this project is to create a language that's as nice to work with as Java or Rust, but transpiles to <a href="https://en.wikipedia.org/wiki/POSIX">POSIX</a> <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C<img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a> and allows you to write both C and <a href="https://github.com/python/cpython">Python<img src="https://icons.iconarchive.com/icons/cornmanthe3rd/plex/128/Other-python-icon.png" width=15></a> code inline with your C and Daisho code. Interop should be seamless, and it should also leave no performance on the table.
+The goal of this project is to create a language that's as nice to work with as Java or Rust, but transpiles to <a href="https://en.wikipedia.org/wiki/POSIX">POSIX</a> <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a> and allows you to write both C and <a href="https://github.com/python/cpython">Python <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width=15></a> code inline with your C and Daisho code. Interop should be seamless, and it should also leave no performance on the table.
 
 
 ## Status
