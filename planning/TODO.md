@@ -15,7 +15,8 @@
 ## WIP
 | Task:                 | Asignee | Priority | Notes:                         |
 | :-------------------- | :-----: | :------: | -----------------------------: |
-| itoa() implementation | Limits  | High     |                                |
+| itoa() implementation | Limits  | Medium   |                                |
+| AS-Safe TIOCGWINSZ    | infrand | Medium   |                                |
 
 
 ## Backlog
