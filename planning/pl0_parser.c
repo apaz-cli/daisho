@@ -70,7 +70,8 @@ ASTNode_new(char* name) {
 
 static inline void
 ASTNode_addChild(ASTNode* parent, ASTNode* child) {
-    if (!parent || !child) {
+    if (!child) return;
+    if (!parent) {
         // TODO: Remove
         fprintf(stderr, "PANIC!\n");
         exit(1);
@@ -179,6 +180,7 @@ typedef void* goto_t;
           RETURN() to the label immediately after. */     \
         puts("Calling " #to_val "().");                   \
         goto to_val;                                      \
+        /* After some code is run, we return here: */     \
         UNIQUE(__label_) :;                               \
         /* puts("Returned from " #to_val "()."); */       \
     } while (0)
@@ -244,17 +246,22 @@ main(void) {
     FUNCTION(program) {
         CALL(block);
         ACCEPT(PERIODSYM);
+        ACCEPT(ENDSYM);
         RETURN(node);
     }
+
     FUNCTION(block) {
         if (ACCEPT(CONSTSYM)) {
             int i, j, k, l;
+            i = ACCEPT(IDENTSYM);
+            j = ACCEPT(EQLSYM);
+            k = ACCEPT(NUMBERSYM);
+            if (!(i & j & k)) RETURN(NULL);
             do {
-                // Fine b/c accept semisym or unwind
-                i = ACCEPT(IDENTSYM);
-                j = ACCEPT(EQLSYM);
-                k = ACCEPT(NUMBERSYM);
-                l = ACCEPT(COMMASYM);
+                i = ACCEPT(COMMASYM);
+                j = ACCEPT(IDENTSYM);
+                k = ACCEPT(EQLSYM);
+                l = ACCEPT(NUMBERSYM);
             } while (i & j & k & l);
             RETURN(ACCEPT(SEMISYM) ? node : NULL);
         }
@@ -265,6 +272,7 @@ main(void) {
             } while (ACCEPT(COMMASYM));
             RETURN(ACCEPT(SEMISYM) ? node : NULL);
         }
+
         while (ACCEPT(PROCSYM)) {
             ACCEPT(IDENTSYM);
             ACCEPT(SEMISYM);
@@ -274,6 +282,7 @@ main(void) {
         CALL(statement);
         RETURN(node);
     }
+
     FUNCTION(statement) {
         if (ACCEPT(IDENTSYM)) {
             ACCEPT(EQLSYM);
@@ -289,6 +298,7 @@ main(void) {
         }
         RETURN(node);
     }
+
     FUNCTION(condition) {
         if (ACCEPT(ODDSYM)) {
             CALL(expression);
@@ -299,6 +309,7 @@ main(void) {
         }
         RETURN(node);
     }
+
     FUNCTION(expression) {
         (ACCEPT(PLUSSYM) || ACCEPT(MINUSSYM));
         CALL(term);
@@ -307,14 +318,15 @@ main(void) {
         }
         RETURN(node);
     }
+
     FUNCTION(term) {
-        // TODO function returns.
         CALL(factor);
         while (ACCEPT(TIMESSYM) || ACCEPT(SLASHSYM)) {
             CALL(factor);
         }
         RETURN(node);
     }
+
     FUNCTION(factor) {
         if (ACCEPT(IDENTSYM)) {
         } else if (ACCEPT(NUMBERSYM)) {
@@ -325,6 +337,7 @@ main(void) {
         }
         RETURN(node);
     }
+
 end:;
     AST_print(node);
     return 0;
