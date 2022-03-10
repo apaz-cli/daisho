@@ -11,13 +11,67 @@
 #include "bt_head.h"
 #include "stdlib/Daisho.h"
 
+__DAI_FN char*
+__Dai_simplifyPath(char* path) {
+    /* https://leetcode.com/problems/simplify-path/discuss/266774/S-100-speed-(4-ms)-100-memory-(7-mb) */
+    char state = 1;
+    char c; int ri = 1; int wi = 1;
+    while ((c = path[ri]) != '\0') {
+    	if (state == 0) {
+    		if (c == '/') {
+    			state = 1;
+    		}
+    		path[wi] = path[ri];
+    		ri++; wi++; continue;
+    	} else if (state == 1) {
+    		if (c == '/') {
+    			ri++; continue;
+    		}
+    		if (c == '.') {
+    			state = 2;
+    			ri++; continue;
+    		}
+    		state = 0;
+    		path[wi] = path[ri];
+    		ri++; wi++; continue;
+    	}
+        if (c == '/') {
+            state = 1;
+            ri++; continue;
+        }
+        if (c == '.') {
+            if (path[ri + 1] != '/' && path[ri + 1] != '\0') {
+                state = 0;
+                ri -= 1; continue;
+            }
+            int slashes = 2;
+            while (slashes > 0 && wi != 0) {
+                wi--;
+                if (path[wi] == '/') {
+                    slashes--;
+                }
+            }
+            state = 1;
+            ri++; wi++; continue;
+        }
+        state = 0;
+        path[wi++] = '.';
+        path[wi] = path[ri];
+        ri++; wi++; continue;
+    }
+    wi -= wi > 1 && path[wi - 1] == '/';
+    path[wi] = '\0';
+    return path;
+}
+
+
 // Call addr2line, write path to the source file to the buffer, write the number of characters
 // written (including null terminator) to num_written, and return the line number for the info.
 // Returns < 0 on a syscall or addr2line failure. Keeps errno set to indicate the error, and returns
 // an error code. Otherwise, returns the number of characters written to space, including the null
 // terminator, and writes the source file name to info->sourcefile.
 __DAI_FN long
-__Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
+__Dai_SymInfo_addr2line(__Dai_SymInfo* info, char* space, size_t n) {
     // Create a file descriptor for addr2line to pipe to.
     errno = 0;
     int pipes[2];
@@ -90,8 +144,9 @@ __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
     while (tmp[pos] != '\0') pos++;
     while (tmp[pos] != ':') pos--;
     size_t colonpos = pos;
+    tmp[colonpos] = '\0';
     pos++;
-    long written = pos;
+    long written = 0;
 
     // Make sure we have enough space to store the source.
     if (n < written) {
@@ -105,27 +160,24 @@ __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
     // Check if we got a ? or a zero for the line number.
     if ((tmp[pos] == '?') | (tmp[pos] == '0')) line_failed = 1;
 
-    // Copy the source file from the return of addr2line into the space provided.
+    // Copy the line number and source file from the return of addr2line into the space provided.
     if (!source_failed) {
-        // Replace /./ with / to fix "Daisho/./bt_head.h:6"
-        size_t end = colonpos;
-        for (size_t i = 0; i < end - 2; i++) {
-            // Find
-            if ((tmp[i] == '/') & (tmp[i + 1] == '.') & (tmp[i + 2] == '/')) {
-                // Delete two characters
-                for (size_t j = i; j < end - 2; j++) tmp[j] = tmp[j + 2];
-                end -= 2;
-            }
-        }
 
-        // Copy and add to info.
-        for (size_t i = 0; i < end; i++) space[i] = tmp[i];
-        space[end] = '\0';
+        // Copy, null terminate over the colon or end, and add to info.
+        __Dai_simplifyPath(tmp);
+        written = strlen(tmp) + 1;
+        if (n <= written) {
+            info->source = NULL;
+            info->basename = NULL;
+            return -13;
+        }
+        for (size_t i = 0; i < written; i++) space[i] = tmp[i];
         info->source = space;
 
         // Grab base name from the end of the path as well.
+        size_t end = written;
         while (space[end] != '/') end--;
-        info->basename = space + end;
+        info->basename = space + end + 1;
     } else {
         info->source = NULL;
         info->basename = NULL;
@@ -133,9 +185,17 @@ __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
 
     // Parse line number from addr2line to long, or error for line number.
     if (!line_failed) {
-        long l = atol(tmp + pos);
-        if ((l == LONG_MAX) | (l == LONG_MIN)) return -13;
-        info->line = l;
+        size_t copied = 0;
+        char* line = tmp + colonpos + 1;
+        char* into = space + written;
+        while ((line[copied] != '\n') & (line[copied] != '\0')) {
+            into[copied] = line[copied];
+            copied++;
+        }
+        into[copied] = '\0';
+        written += copied + 1;
+        info->line = into;
+
     } else {
         info->line = 0;
     }
@@ -145,7 +205,7 @@ __Dai_SymInfo_linenum(__Dai_SymInfo* info, char* space, size_t n) {
 }
 
 __DAI_FN long
-__Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info) {
+__Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info, size_t width) {
     long num_written = 0;
 
 #if __DAI_BT_COLORS
@@ -154,22 +214,43 @@ __Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info) {
     const char file_color[] = __DAI_COLOR_FILE;
     const char line_color[] = __DAI_COLOR_LINE;
     const char reset_color[] = __DAI_COLOR_RESET;
+    const char head_color[] = __DAI_COLOR_HEAD;
 #else
     const char func_color[] = "";
     const char file_color[] = "";
     const char line_color[] = "";
     const char reset_color[] = "";
+    const char head_color[] "";
 #endif
+    char unk[] = "UNKNOWN";
+
+    size_t unk_size = sizeof(unk) - 1;
     size_t func_size = sizeof(func_color) - 1;
     size_t file_size = sizeof(file_color) - 1;
     size_t line_size = sizeof(line_color) - 1;
     size_t reset_size = sizeof(reset_color) - 1;
+    size_t head_size = sizeof(head_color) - 1;
+
+    size_t total_size = 0;
+    // Box
+    // color|reset <information> color|reset
+    total_size += (2 * head_size) + 2 + (2 * reset_size);
+
 
     if (info.func) {
-        printf("file: %s\nfunc: %s\naddr: %s\nsource: %s\nline: %ld\nbasename: %s\n\n", info.file,
+        // Function
+        total_size += func_size + (info.func ? strlen(info.func) + 2 : unk_size) + reset_size;
+        // line
+        if (info.line)
+        total_size += line_size + strlen(info.line) + reset_size;
+        printf("file: %s\nfunc: %s\naddr: %s\nsource: %s\nline: %s\nbasename: %s\n\n", info.file,
                info.func, info.addr, info.source, info.line, info.basename);
     } else {
-        printf("file: %s\naddr: %s\n\n", info.file, info.addr);
+        // Binary
+        total_size += file_size + strlen(info.file) + reset_size;
+//        printf("file: %s\naddr: %s\n\n", info.file, info.addr);
+        printf("file: %s\nfunc: %s\naddr: %s\nsource: %s\nline: %s\nbasename: %s\n\n", info.file,
+               info.func, info.addr, info.source, info.line, info.basename);
     }
 
     return 0;
@@ -178,8 +259,7 @@ __Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info) {
 // Global. This is necessary, because opening a temp file is not possible in a signal handler.
 static int fd;
 
-int
-init() {
+int init() {
     // Call backtrace once to load the
     // library so dlopen(), which calls malloc(),
     // is not called inside the signal handler.
@@ -247,9 +327,8 @@ print_trace(void) {
         if (frameinfo[n].func) {
             if (strcmp(frameinfo[n].func, "main") == 0) {
                 num_frames = n + 1;  // Keep this frame.
-            }
-            if (strcmp(frameinfo[n].func, "__libc_start_main") == 0) {
-                num_frames = n;  // Cut off this one as well.
+            } else if (strcmp(frameinfo[n].func, "__libc_start_main") == 0) {
+                num_frames = n;  // Cut off this frame.
             }
         }
 
@@ -261,7 +340,7 @@ print_trace(void) {
     size_t remaining = __DAI_BT_BUF_CAP - num_read;
     for (int n = 0; n < num_frames; n++) {
         // Call addr2line
-        long written = __Dai_SymInfo_linenum(frameinfo + n, space, remaining);
+        long written = __Dai_SymInfo_addr2line(frameinfo + n, space, remaining);
 
         // If a syscall failed, error out.
         if (written < -1) {
@@ -283,7 +362,7 @@ print_trace(void) {
     }
 
     for (size_t i = 0; i < num_frames; i++) {
-        long written = __Dai_SymInfo_snwrite(space, remaining, frameinfo[i]);
+        long written = __Dai_SymInfo_snwrite(space, remaining, frameinfo[i], 80);
         if (written < 0) exit(1);
 
         // Advance

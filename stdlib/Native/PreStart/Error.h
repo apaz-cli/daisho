@@ -10,6 +10,21 @@
     (void)func;                 \
     (void)file;
 
+#define __DAI_ERRSTR_LEN 32
+
+/* Accepts a buffer with __DAI_ERRSTR_LEN bytes of space. */
+__DAI_FN char*
+__Dai_strerror(char* errstr) {
+    if (errno) {
+        strerror_r(errno, errstr, __DAI_ERRSTR_LEN);
+    } else {
+        char success[] = "Success";
+        strcpy(errstr, success);
+    }
+    return errstr;
+}
+
+
 __DAI_FN __DAI_NORETURN void
 __Dai_initialization_failure(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
     char errstr[32];
@@ -25,6 +40,8 @@ __Dai_initialization_failure(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
         "  ERRNO: %i, (%s)\n"
         "  SANITY: %i, (%i required for check)\n"
         "  MESSAGE: %s\n";
+
+    /* Runs on asingle thread, strerror() is okay. */
     fprintf(stderr, fmt, file, line, func, errno, errno ? strerror(errno) : succ,
             __DAI_SANITY_CHECK, sanity, msg);
     exit(1);
@@ -45,7 +62,9 @@ __Dai_error(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
     const char fmt1[] = "FAILED SANITY CHECK AT: %s:%zu inside %s().\n";
     const char fmt2[] = "FAILED PEDANTIC SANITY CHECK AT: %s:%zu inside %s().\n";
     fprintf(stderr, sanity ? sanity == 2 ? fmt2 : fmt1 : fmt0, file, line, func);
-    if (msg) fprintf(stderr, "REASON: %s\n", msg);
+
+    char errstr[__DAI_ERRSTR_LEN];
+    if (msg) fprintf(stderr, "REASON: %s\nERRNO: %s\n", msg, __Dai_strerror(errstr));
 
     // TODO also provide a backtrace.
     // TODO color formatting

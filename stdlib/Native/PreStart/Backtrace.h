@@ -46,7 +46,7 @@ typedef struct {
     char* func;
     char* addr;
     char* source;
-    long line;
+    char* line;
     char* basename;
 } __Dai_SymInfo;
 

@@ -4,13 +4,14 @@
 
 /* The project is structured hierarchically like so. */
 
+/* No reorder */
 #include "Native/Configs/Configs.h"
-#define __DAI
+/* No reorder */
 #include "Native/PreProcessor/PreProcessor.h"
-#undef __DAI
+/* No reorder */
 #include "Native/PreStart/PreStart.h"
-#define __DAI
+/* No reorder */
 #include "Native/Builtins/Builtins.h"
-#undef __DAI
+/* No reorder */
 
 #endif /* __DAI_STDLIB_INCLUDES */
