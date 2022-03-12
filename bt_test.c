@@ -8,7 +8,6 @@
 #include <unistd.h>
 
 #define __DAI_TESTING_BACKTRACES
-#include "bt_head.h"
 #include "stdlib/Daisho.h"
 
 __DAI_FN char*
@@ -265,25 +264,25 @@ int init() {
     // is not called inside the signal handler.
     void* frames[__DAI_BT_MAX_FRAMES];
     int num_frames = backtrace(frames, __DAI_BT_MAX_FRAMES);
-    if (!num_frames) return 0;
+    if (!num_frames) return 1;
 
     // Create a temp file buffer.
     char template[] = "/tmp/Daisho Backtrace XXXXXX";
     fd = mkstemp(template);
-    if (fd == -1) return 0;
+    if (fd == -1) return 2;
 
-    return 1;
+    return 0;
 }
 
 // Print the
-void
+long
 print_trace(void) {
     // Call backtrace.
     __Dai_SymInfo frameinfo[__DAI_BT_MAX_FRAMES];
     void* frames[__DAI_BT_MAX_FRAMES];
     int num_frames = backtrace(frames, __DAI_BT_MAX_FRAMES);
-    if (!num_frames) puts("No backtrace.");
-    if (num_frames > __DAI_BT_MAX_FRAMES) puts("too long.");
+    if (!num_frames) return 1; // No backtrace
+    if (num_frames > __DAI_BT_MAX_FRAMES) return 2; // Backtrace too long
 
     // Write the backtrace to the temp file dedicated for it during initialization.
     // Unfortunately, redirecting a write() into memory is barely doable and not portable.
@@ -294,7 +293,7 @@ print_trace(void) {
     if (ret == (off_t)-1) {
         close(fd);
         backtrace_symbols_fd(frames, num_frames, STDERR_FILENO);
-        return;
+        return 3;
     }
 
     // Read back the file into memory.
@@ -306,7 +305,7 @@ print_trace(void) {
     if (ret == (off_t)-1) {
         close(fd);
         backtrace_symbols_fd(frames, num_frames, STDERR_FILENO);
-        return;
+        return 4;
     }
 
     // Parse the exename, func, addr from the backtrace.
@@ -345,15 +344,8 @@ print_trace(void) {
         // If a syscall failed, error out.
         if (written < -1) {
             // TODO use write() here.
-            backtrace_symbols_fd(frames, num_frames, fd);
-            fflush(stderr);
-            char errstr[32];
-            char success[] = "SUCCESS";
-            char *err = errno ? strerror_r(errno, errstr, 32), errstr : success;
-
-            fprintf(stderr, "Backtrace failed with error %ld.\nErrno: %i, %s\n", written, errno,
-                    err);
-            return;
+            backtrace_symbols_fd(frames, num_frames, STDERR_FILENO);
+            return (int)written;
         }
 
         // Advance through the space
@@ -363,16 +355,21 @@ print_trace(void) {
 
     for (size_t i = 0; i < num_frames; i++) {
         long written = __Dai_SymInfo_snwrite(space, remaining, frameinfo[i], 80);
-        if (written < 0) exit(1);
+        if (written <= 0) {
+            backtrace_symbols_fd(frames, num_frames, STDERR_FILENO);
+            return 5;
+        }
 
         // Advance
         space += written;
         remaining -= written;
     }
+
+    return 0;
 }
 
 int
 main() {
-    if (!init()) puts("Failed to initialize.");
-    indir1();
+    if (init()) puts("Failed to initialize.");
+    print_trace();
 }
