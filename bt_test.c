@@ -12,36 +12,47 @@
 
 __DAI_FN char*
 __Dai_simplifyPath(char* path) {
-    /* https://leetcode.com/problems/simplify-path/discuss/266774/S-100-speed-(4-ms)-100-memory-(7-mb) */
+    /* https://leetcode.com/problems/simplify-path/discuss/266774/S-100-speed-(4-ms)-100-memory-(7-mb)
+     */
     char state = 1;
-    char c; int ri = 1; int wi = 1;
+    char c;
+    int ri = 1;
+    int wi = 1;
     while ((c = path[ri]) != '\0') {
-    	if (state == 0) {
-    		if (c == '/') {
-    			state = 1;
-    		}
-    		path[wi] = path[ri];
-    		ri++; wi++; continue;
-    	} else if (state == 1) {
-    		if (c == '/') {
-    			ri++; continue;
-    		}
-    		if (c == '.') {
-    			state = 2;
-    			ri++; continue;
-    		}
-    		state = 0;
-    		path[wi] = path[ri];
-    		ri++; wi++; continue;
-    	}
+        if (state == 0) {
+            if (c == '/') {
+                state = 1;
+            }
+            path[wi] = path[ri];
+            ri++;
+            wi++;
+            continue;
+        } else if (state == 1) {
+            if (c == '/') {
+                ri++;
+                continue;
+            }
+            if (c == '.') {
+                state = 2;
+                ri++;
+                continue;
+            }
+            state = 0;
+            path[wi] = path[ri];
+            ri++;
+            wi++;
+            continue;
+        }
         if (c == '/') {
             state = 1;
-            ri++; continue;
+            ri++;
+            continue;
         }
         if (c == '.') {
             if (path[ri + 1] != '/' && path[ri + 1] != '\0') {
                 state = 0;
-                ri -= 1; continue;
+                ri -= 1;
+                continue;
             }
             int slashes = 2;
             while (slashes > 0 && wi != 0) {
@@ -51,18 +62,21 @@ __Dai_simplifyPath(char* path) {
                 }
             }
             state = 1;
-            ri++; wi++; continue;
+            ri++;
+            wi++;
+            continue;
         }
         state = 0;
         path[wi++] = '.';
         path[wi] = path[ri];
-        ri++; wi++; continue;
+        ri++;
+        wi++;
+        continue;
     }
     wi -= wi > 1 && path[wi - 1] == '/';
     path[wi] = '\0';
     return path;
 }
-
 
 // Call addr2line, write path to the source file to the buffer, write the number of characters
 // written (including null terminator) to num_written, and return the line number for the info.
@@ -161,7 +175,6 @@ __Dai_SymInfo_addr2line(__Dai_SymInfo* info, char* space, size_t n) {
 
     // Copy the line number and source file from the return of addr2line into the space provided.
     if (!source_failed) {
-
         // Copy, null terminate over the colon or end, and add to info.
         __Dai_simplifyPath(tmp);
         written = strlen(tmp) + 1;
@@ -235,19 +248,17 @@ __Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info, size_t width) {
     // color|reset <information> color|reset
     total_size += (2 * head_size) + 2 + (2 * reset_size);
 
-
     if (info.func) {
         // Function
         total_size += func_size + (info.func ? strlen(info.func) + 2 : unk_size) + reset_size;
         // line
-        if (info.line)
-        total_size += line_size + strlen(info.line) + reset_size;
+        if (info.line) total_size += line_size + strlen(info.line) + reset_size;
         printf("file: %s\nfunc: %s\naddr: %s\nsource: %s\nline: %s\nbasename: %s\n\n", info.file,
                info.func, info.addr, info.source, info.line, info.basename);
     } else {
         // Binary
         total_size += file_size + strlen(info.file) + reset_size;
-//        printf("file: %s\naddr: %s\n\n", info.file, info.addr);
+        //        printf("file: %s\naddr: %s\n\n", info.file, info.addr);
         printf("file: %s\nfunc: %s\naddr: %s\nsource: %s\nline: %s\nbasename: %s\n\n", info.file,
                info.func, info.addr, info.source, info.line, info.basename);
     }
@@ -258,7 +269,8 @@ __Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info, size_t width) {
 // Global. This is necessary, because opening a temp file is not possible in a signal handler.
 static int fd;
 
-int init() {
+int
+init() {
     // Call backtrace once to load the
     // library so dlopen(), which calls malloc(),
     // is not called inside the signal handler.
@@ -274,15 +286,13 @@ int init() {
     return 0;
 }
 
-// Print the
-long
-print_trace(void) {
+long print_trace(void) {
     // Call backtrace.
     __Dai_SymInfo frameinfo[__DAI_BT_MAX_FRAMES];
     void* frames[__DAI_BT_MAX_FRAMES];
     int num_frames = backtrace(frames, __DAI_BT_MAX_FRAMES);
-    if (!num_frames) return 1; // No backtrace
-    if (num_frames > __DAI_BT_MAX_FRAMES) return 2; // Backtrace too long
+    if (!num_frames) return 1;                       // No backtrace
+    if (num_frames > __DAI_BT_MAX_FRAMES) return 2;  // Backtrace too long
 
     // Write the backtrace to the temp file dedicated for it during initialization.
     // Unfortunately, redirecting a write() into memory is barely doable and not portable.
@@ -342,10 +352,10 @@ print_trace(void) {
         long written = __Dai_SymInfo_addr2line(frameinfo + n, space, remaining);
 
         // If a syscall failed, error out.
-        if (written < -1) {
+        if (written <= -1) {
             // TODO use write() here.
             backtrace_symbols_fd(frames, num_frames, STDERR_FILENO);
-            return (int)written;
+            return written;
         }
 
         // Advance through the space
@@ -355,7 +365,7 @@ print_trace(void) {
 
     for (size_t i = 0; i < num_frames; i++) {
         long written = __Dai_SymInfo_snwrite(space, remaining, frameinfo[i], 80);
-        if (written <= 0) {
+        if (written < 0) {
             backtrace_symbols_fd(frames, num_frames, STDERR_FILENO);
             return 5;
         }
@@ -371,5 +381,5 @@ print_trace(void) {
 int
 main() {
     if (init()) puts("Failed to initialize.");
-    print_trace();
+    return print_trace();
 }
