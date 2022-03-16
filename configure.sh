@@ -192,4 +192,6 @@ fi
 
 guard
 writeconfig
-echo "$magenta\nWrote config file to:$normal\nstdlib/Native/Configs/GeneratedConfig.h"
+echo
+echo "$magenta""Wrote config file to:""$normal"
+echo "stdlib/Native/Configs/GeneratedConfig.h"
