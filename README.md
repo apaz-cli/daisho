@@ -69,7 +69,7 @@ If you're planning on contributing, here's the general lay of the land.
   * The C compiler should have an optimizer.
 * Python 3.7+ (optional, to support inline python library interop)
 * Reasonable hardware. 
-  * Stilts doesn't support all the platforms that C does. It assumes `CHAR_BIT` is 8, an `int` is 32 bits, `long` is 64, etc.
+  * Daisho doesn't support all the platforms that C does. It assumes `CHAR_BIT` is 8, an `int` is 32 bits, `long` is 64, etc.
   * If your computer isn't 15-20 years old, you're probably fine. If you're not fine, the configure script will fail and you'll get an error message as to why. If that happens, reach out to me on discord with details of your system. If it's a bug, we'll get it worked out.
 
 If you're not on a POSIX operating system (if you're still on Windows), I recommend switching to one. There are good beginner linux distributions, and they're quickly getting better and better. It's possible that Daisho gets ported to Windows, but it's nowhere near my list of priorities, and I don't want to be the one who does it. If you want to be the one that does it, please contact me on Discord. In about a year.
