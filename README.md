@@ -16,7 +16,7 @@ Although everything is a WIP, it's not like no progress has been made. The colle
 
 <a href="https://discord.gg/yM8ZBDHGdR">
 <p align="center">
-<img src="https://github.com/apaz-cli/apaz-cli.github.io/blob/7c2d224aae86f228347dadbdcd22c159cfcfcb52/Join%20Our%20Discord.png?raw=true">
+<img src="https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/cd362cfc9014c90e02c08d741448914cda069efc/Join%20Our%20Discord.png">
 </p>
 </a>
 
