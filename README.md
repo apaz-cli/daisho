@@ -1,14 +1,16 @@
 # What is Daisho?
 
-If C and Python are swords, Daisho is the combination of the two.
+If <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a> and <a href="https://github.com/python/cpython">Python <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width=15></a> are swords, Daisho is their combination.
 
-The goal of this project is to create a language that's as nice to work with as Java or Rust, but transpiles to <a href="https://en.wikipedia.org/wiki/POSIX">POSIX</a> <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a> and allows you to write both C and <a href="https://github.com/python/cpython">Python <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width=15></a> code inline with your C and Daisho code. Interop should be seamless, and it should also leave no performance on the table.
+The goal of this project is to create a language that's as nice to work with as Java or Rust, but transpiles to <a href="https://en.wikipedia.org/wiki/POSIX">POSIX</a> <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>. It should also allow you to write both <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a> and <a href="https://github.com/python/cpython">Python <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width=15></a> code inline with your Daisho code. Interop should be seamless, yet Daisho should leave no performance on the table.
 
 
 ## Status
-The language is currently still in very early stages. I've been working on it for a few months, and everything is still a WIP. If you see something in the repo, talk to me first. It's probably a proof of concept, and it's probably broken. I'm writing pretty much every part of it at once, to get a feel for how everything is supposed to work together. See <a href="https://github.com/apaz-cli/Daisho/blob/master/planning/TODO.md">planning/TODO.md</a> for a roadmap and who is doing what. A lot of people want to help, but unfortunately there's not a lot that other people can do. I just need to work on it every day for a few more months. After that, there should be a bit more to help with.
+The language is currently still in very early stages. I've been working on it for a few months, and everything is still a WIP. If you see something in the repo, talk to me first. It's probably a proof of concept, and it's probably broken. I'm writing pretty much every part at once to get a feel for how everything is supposed to work together. See <a href="https://github.com/apaz-cli/Daisho/blob/master/planning/TODO.md">planning/TODO.md</a> for a roadmap and who is doing what. A lot of people want to help, but unfortunately there's not a lot that other people can do. I just need to work on it every day for a few more months. After that, there should be a bit more to help with.
 
-Although everything is a WIP, it's not like no progress has been made. The collection of C libraries that will underpin the compiler and language runtime is almost done. These libraries are useful tool in their own right. The goal of this project is to make writing C less painful, and these libraries already accomplish that to some degree. They provide many things that C programmers usually spend a considerable amount of time rewriting for every project.
+Although everything is a WIP, it's not like no progress has been made. The collection of C libraries that will underpin the compiler and language runtime is almost done. These libraries are already a useful tool in their own right. The goal of this project is to make writing C less painful, and these libraries already accomplish that to some degree. They provide many things that C programmers usually spend a considerable amount of time rewriting for every project.
+
+Right now, a lot of work is happening in <a href="https://github.com/apaz-cli/pgen">pgen</a>, a tokenizer/parser generator that I'm bootstrapping for compiling the grammar of this language.
 
 <br>
 
@@ -20,7 +22,7 @@ Although everything is a WIP, it's not like no progress has been made. The colle
 </p>
 </a>
 
-If you have suggestions or want to talk about type systems, <a href="https://discord.gg/yM8ZBDHGdR">come on over to our Discord</a>.
+If you have suggestions or want to talk about type systems and their implementation, <a href="https://discord.gg/yM8ZBDHGdR">come on over to our Discord</a>.
 
 On the code side, there's not a lot that people can help with. Once a prototype compiler is working, there should be a lot more to do. But until then, I'm the limiting factor.
 
