@@ -1,197 +1,193 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # To be run from the root directory of the project.
 
+#########################
+# GLOBALS AND CONSTANTS #
+#########################
 # Generates a config file by appending to this variable.
-CONFIG=""
 WRITE_TO="stdlib/Native/Configs/GeneratedConfig.h"
 COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
-if test $COLS -gt 90; then COLS=57; fi
+[ $COLS -gt 90 ] && COLS=57
 IN_CMT="// __DAI_STDLIB_GENERATEDCONFIG"
 
-##########
-# COLORS #
-##########
-ncolors=$(tput colors)
-if test -n "$ncolors" && test "$ncolors" -ge 8; then
-    hascolors=1
-    normal="$(tput sgr0)"
-    green="$(tput setaf 2)"
-    yellow="$(tput setaf 3)"
-    magenta="$(tput setaf 5)"
-else
-    hascolors=0
-    normal=""
-    green=""
-    yellow=""
-    magenta=""
-fi
+msg() { printf "${GREEN}%-20s:${NORMAL} ${YELLOW}%${COLS}s${NORMAL}\n" "$1" "$2"; }
+warn() { printf "${YELLOW}%-20s: %${COLS}s${NORMAL}\n" "$1" "$2"; exit 1; }
+append() { printf "%s\n" "$1" >> "$WRITE_TO"; }
 
+set_colors() {
+	ncolors=$(tput colors)
+	# TODO: Use escape sequences as they're more portable than tput
+	if [ -n "$ncolors" ] && [ "$ncolors" -ge 8 ]; then
+		HAS_COLORS=1
+		NORMAL=$(tput sgr0)
+		GREEN=$(tput setaf 2)
+		YELLOW=$(tput setaf 3)
+		MAGENTA=$(tput setaf 5)
+	fi
+}
 
-msg() { printf "${green}%-20s:${normal} ${yellow}%""$COLS""s${normal}\n" "$1" "$2"; }
-append() { CONFIG="$CONFIG$1\n"; }
-guard() { CONFIG="#pragma once\n#ifndef __DAI_STDLIB_GENERATEDCONFIG\n#define __DAI_STDLIB_GENERATEDCONFIG\n\n$CONFIG\n#endif $IN_CMT"; }
-writeconfig() { printf "%b" "$CONFIG" > $WRITE_TO; }
+test_compatibility() {
+	cat <<- _end_of_text
+	${MAGENTA}
+	#######################
+	# Compatibility Tests #
+	#######################
+	${NORMAL} 
+	_end_of_text
 
+	# TODO delete temp files
 
-#############################
-#                           #
-#    COMPATIBILITY TESTS    #
-#                           #
-#############################
-echo $magenta"#######################"
-echo         "# Compatibility Tests #"
-echo         "#######################"$normal
+	# assertions
+	# TODO use mktemp if it's POSIX
+	# or use path prefix properly
+	cc config/assertions.c -o assertions.cfg 1>/dev/null && msg "ASSERTIONS" "PASSED" || \
+		warn "Daisho is not supported on this system for the reason specified in the error message above"
+	rm assertions.cfg 2>/dev/null
 
+	# endianness
+	# TODO echo not POSIX?
+	echo -n I | od -to2 | awk 'FNR==0{ print substr($2,6,1)}' && msg "ENDIANNESS" "PASSED" || \
+		warn "Daisho is not supported on Big-Endian or Unknown-Endianness machines."
 
-##############
-# ASSERTIONS #
-##############
-if sh ./config/assertions.sh; then
-    msg "ASSERTIONS" "PASSED"
-else
-    echo
-    echo "Daisho is not supported on this system for the reason specified in the error message above."
-    exit 1
-fi;
+	# locale
+	cc config/locale.c -o locale.cfg 1>/dev/null 2>&1
+	./locale.cfg && msg "UTF8 LOCALE" "PASSED" || \
+		warn "Daisho is not supported on systems that do not support the \"C.UTF-8\" locale."
+	rm locale.cfg 2>/dev/null
 
-
-##############
-# ENDIANNESS #
-##############
-if sh ./config/endianness.sh; then
-    msg "ENDIANNESS" "PASSED"
-else
-    echo "Daisho is not supported on Big-Endian or Unknown-Endianness machines."
-    exit 1
-fi
-
-
-###############
-# UTF8 LOCALE #
-###############
-if sh ./config/locale.sh; then
-    msg "UTF8 LOCALE" "PASSED"
-else
-    echo "Daisho is not supported on systems that do not support the \"C.UTF-8\" locale."
-    exit 1
-fi
+}
 
 #################################
 #                               #
 #    CONFIGURATION VARIABLES    #
 #                               #
 #################################
-echo
-echo $magenta"###########################"
-echo         "# Configuration Variables #"
-echo         "###########################"$normal
-append
-append "/***************************/"
-append "/* Configuration Variables */"
-append "/***************************/"
+config_variables() {
+	cat <<- _end_of_text
+	${MAGENTA}
+	###########################
+	# Configuration Variables #
+	###########################
+	${NORMAL} 
+	_end_of_text
 
-#############
-# PAGE SIZE #
-#############
-PAGESIZE=$(sh config/pagesize.sh)
-msg "PAGE SIZE" "$PAGESIZE"
-append "#define __DAI_PAGESIZE $PAGESIZE"
+	cat <<- _end_of_header >> "$WRITE_TO"
+
+	/***************************/
+	/* Configuration Variables */
+	/***************************/
+	_end_of_header
+
+	# page size
+	PAGESIZE=$(getconf PAGE_SIZE)
+	msg "PAGE SIZE" "$PAGESIZE"
+	append "#define __DAI_PAGESIZE $PAGESIZE"
 
 
-#################
-# THREAD NUMBER #
-#################
-THREADS=$(sh config/threads.sh)
-msg "THREADS" "$THREADS"
-append "#define __DAI_IDEAL_NUM_THREADS $THREADS"
+	#################
+	# THREAD NUMBER #
+	#################
+	THREADS=$(grep -c processor /proc/cpuinfo)
+	msg "THREADS" "$THREADS"
+	append "#define __DAI_IDEAL_NUM_THREADS $THREADS"
 
+}
 
 ############################
 #                          #
 #    SUPPORTED FEATURES    #
 #                          #
 ############################
-echo
-echo $magenta"######################"
-echo         "# Supported Features #"
-echo         "######################"$normal
-append
-append "/**********************/"
-append "/* Supported Features */"
-append "/**********************/"
+supported_features() {
+	cat <<- _end_of_text
+	${MAGENTA}
+	######################
+	# Supported Features #
+	######################
+	${NORMAL} 
+	_end_of_text
 
-##########
-# PYTHON #
-##########
-PYEXEC=$(sh config/findpython.sh)
-if test $PYEXEC; then
-    msg "PYTHON EXECUTABLE" $PYEXEC
-    append "#define __SILTS_HAS_PYTHON 1"
-    append "#define __DAI_PYTHON_EXECUTABLE \"$PYEXEC\""
-    
-    PYV=$($PYEXEC -c "import platform;print(platform.python_version())")
-    msg "PYTHON VERSION" "$PYV"
-    append "#define __DAI_PYTHON_VERSION \"$PYV\""
-    append "#define __DAI_PYTHON_MAJOR_VERSION $(echo $PYV | cut -d. -f1)"
-    append "#define __DAI_PYTHON_MINOR_VERSION $(echo $PYV | cut -d. -f2)"
-    append "#define __DAI_PYTHON_SUBMINOR_VERSION $(echo $PYV | cut -d. -f3)"
-else
-    msg "PYTHON EXECUTABLE" "NONE"
-    append "#define __DAI_HAS_PYTHON 0"
-    append "#define __DAI_PYTHON_EXECUTABLE NULL"
-    
-    msg "PYTHON VERSION" "NONE"
-    append "#define __DAI_PYTHON_VERSION \"\""
-    append "#define __DAI_PYTHON_MAJOR_VERSION 0"
-    append "#define __DAI_PYTHON_MINOR_VERSION 0"
-    append "#define __DAI_PYTHON_SUBMINOR_VERSION 0"
-fi
+	cat <<- _end_of_header >> "$WRITE_TO"
 
+	/**********************/
+	/* Supported Features */
+	/**********************/
+	_end_of_header
 
-###############
-# ANSI COLORS #
-###############
-if test $hascolors -eq 1; then
-    msg "ANSI COLORS" "YES"
-    append ""
-    append "#define __DAI_HAS_ANSI_COLORS 1"
-else
-    msg "ANSI COLORS" "NO"
-    append ""
-    append "#define __DAI_HAS_ANSI_COLORS 0"
-fi
+	##########
+	# PYTHON #
+	##########
+	PYEXEC=$(command -pv python3 || command -pv python || command -pv python2)
+	PYEXEC=${PYEXEC:-NONE}
+	if [ -n "$PYEXEC" ]; then
+		msg "PYTHON EXECUTABLE" "$PYEXEC"
+		append "#define __DAI_HAS_PYTHON 1"
+		append "#define __DAI_PYTHON_EXECUTABLE \"$PYEXEC\""
+		
+		PYV=$($PYEXEC --version | cut -d' ' -f2)
+		PYV=${PYV:-0.0.0}
+		msg "PYTHON VERSION" "$PYV"
+		append "#define __DAI_PYTHON_VERSION \"$PYV\""
+		append "#define __DAI_PYTHON_MAJOR_VERSION $(echo $PYV | cut -d. -f1)"
+		append "#define __DAI_PYTHON_MINOR_VERSION $(echo $PYV | cut -d. -f2)"
+		append "#define __DAI_PYTHON_SUBMINOR_VERSION $(echo $PYV | cut -d. -f3)"
+	fi
 
 
-##############
-# BACKTRACES #
-##############
-if sh config/backtraces.sh; then
-    msg "BACKTRACES" "YES"
-    append ""
-    append "#define __DAI_HAS_BACKTRACES 1"
-else
-    msg "BACKTRACES" "NO"
-    append ""
-    append "#define __DAI_HAS_BACKTRACES 0"
-fi
+	###############
+	# ANSI COLORS #
+	###############
+	msg "ANSI COLORS" "$HAS_COLORS"
+	append ""
+	append "#define __DAI_HAS_ANSI_COLORS $HAS_COLORS"
 
 
-####################
-# LABELS AS VALUES #
-####################
-if sh config/label_values.sh; then
-    msg "LABEL VALUES" "YES"
-    append ""
-    append "#define __DAI_HAS_LABEL_VALUES 1"
-else
-    msg "LABEL VALUES" "NO"
-    append ""
-    append "#define __DAI_HAS_LABEL_VALUES 0"
-fi
+	##############
+	# BACKTRACES #
+	##############
+	cc config/backtraces.c -o backtraces.cfg 2>/dev/null
+	./backtraces.cfg 2>/dev/null
+	ret=$(expr $? = 0)
+	msg "BACKTRACES" "$ret"
+	append ""
+	append "#define __DAI_HAS_BACKTRACES $ret"
+	rm backtraces.cfg 2>/dev/null
 
-guard
-writeconfig
-echo
-echo "$magenta""Wrote config file to:""$normal"
-echo "stdlib/Native/Configs/GeneratedConfig.h"
+	####################
+	# LABELS AS VALUES #
+	####################
+	cc config/label_values.c -o label_values.cfg 2>/dev/null
+	ret=$(expr $? = 0)
+	msg "LABEL VALUES" "$ret"
+	append ""
+	append "#define __DAI_HAS_LABEL_VALUES $ret"
+	rm label_values.cfg 2>/dev/null
+}
+
+write_config() {
+
+	test_compatibility
+
+	cat <<- _end_of_guard > "$WRITE_TO"
+	#pragma once
+	#ifndef __DAI_STDLIB_GENERATEDCONFIG
+	#define __DAI_STDLIB_GENERATEDCONFIG
+	_end_of_guard
+
+	config_variables
+	supported_features
+
+	append "#endif $IN_CMT"
+	
+}
+
+set_colors
+write_config
+
+
+cat << _end_of_status
+${MAGENTA}
+Wrote config file to:
+${NORMAL}${WRITE_TO}
+_end_of_status
