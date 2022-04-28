@@ -1,6 +1,7 @@
 #ifndef __DAI_STDLIB_STRCONVERT
 #define __DAI_STDLIB_STRCONVERT
 #include "../PreProcessor/PreProcessor.h"
+#include "Error.h"
 
 /*
  * Convert int types to ascii.
@@ -93,5 +94,44 @@ __DAI_FN unsigned long __Dai_atoul(char* a, char** ret);
 
 /* Pointer to Hex */
 __DAI_FN int __Dai_ptoh(void* ptr, char* h, size_t s);
+
+
+/*
+static inline unsigned long long
+codepoint_atoull_nosigns(const codepoint_t *a, size_t len, size_t *read) {
+
+  unsigned long long parsing = 0;
+  size_t chars = 0;
+  for (size_t i = 0; i < len; i++) {
+    codepoint_t c = a[i];
+    if (!((c >= 48) && (c <= 57)))
+      break;
+    parsing *= 10; // TODO overflow/underflow checks.
+    parsing += (c - 48);
+    chars++;
+  }
+
+  *read = chars;
+  return parsing;
+}
+
+static inline int codepoint_atoi(const codepoint_t *a, size_t len,
+                                 size_t *read) {
+
+  int neg = a[0] == '-';
+  int consumed = (neg | (a[0] == '+'));
+  a += consumed;
+  len -= consumed;
+
+  size_t ullread;
+  unsigned long long ull = codepoint_atoull_nosigns(a, len, &ullread);
+  if (neg ? -ull < INT_MIN : ull > INT_MAX)
+    return *read = 0, 0;
+  int l = (int)(neg ? -ull : ull);
+
+  *read = ullread + consumed;
+  return l;
+}
+*/
 
 #endif /* __DAI_STDLIB_STRCONVERT */
