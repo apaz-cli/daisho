@@ -33,7 +33,7 @@ test_compatibility() {
 	#######################
 	# Compatibility Tests #
 	#######################
-	${NORMAL} 
+	${NORMAL}
 	_end_of_text
 
 	# TODO delete temp files
@@ -69,7 +69,7 @@ config_variables() {
 	###########################
 	# Configuration Variables #
 	###########################
-	${NORMAL} 
+	${NORMAL}
 	_end_of_text
 
 	cat <<- _end_of_header >> "$WRITE_TO"
@@ -105,7 +105,7 @@ supported_features() {
 	######################
 	# Supported Features #
 	######################
-	${NORMAL} 
+	${NORMAL}
 	_end_of_text
 
 	cat <<- _end_of_header >> "$WRITE_TO"
@@ -124,7 +124,7 @@ supported_features() {
 		msg "PYTHON EXECUTABLE" "$PYEXEC"
 		append "#define __DAI_HAS_PYTHON 1"
 		append "#define __DAI_PYTHON_EXECUTABLE \"$PYEXEC\""
-		
+
 		PYV=$($PYEXEC --version | cut -d' ' -f2)
 		PYV=${PYV:-0.0.0}
 		msg "PYTHON VERSION" "$PYV"
@@ -179,7 +179,6 @@ write_config() {
 	supported_features
 
 	append "#endif $IN_CMT"
-	
 }
 
 set_colors
