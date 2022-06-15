@@ -1,0 +1,149 @@
+
+///////////////
+// Operators //
+///////////////
+
+// Note: << and >> are handled in the parser.
+PLUS:   "+";
+MINUS:  "-";
+MUL:    "*";
+DIV:    "/";
+MOD:    "%";
+AND:    "&";
+OR:     "|";
+XOR:    "^";
+NOT:    "!";
+BITNOT: "~";
+LOGAND: "&&";
+LOGOR:  "||";
+
+DEQ:    "==";
+NEQ:    "!=";
+LT:     "<";
+LEQ:    "<=";
+GT:     ">";
+GEQ:    ">=";
+
+EQ:     "=";
+PLEQ:   "+=";
+MINEQ:  "-=";
+MULEQ:  "*=";
+DIVEQ:  "/=";
+MODEQ:  "%=";
+ANDEQ:  "&=";
+OREQ:   "|=";
+XOREQ:  "^=";
+BNEQ:   "~=";
+BSREQ:  ">>=";
+BSLEQ:  "<<=";
+
+INCR:   "++";
+DECR:   "--";
+ELVIS:  "?:";
+QUEST:  "?";
+COLON:  ":";
+
+//////////////////
+// Control Flow //
+//////////////////
+IF: "if";
+ELSE: "else";
+WHILE: "while";
+DO: "do";
+THEN: "then";
+ALSO: "also";
+
+/////////
+// OOP //
+/////////
+CLASS: "class";
+TRAIT: "trait";
+DYN:   "dyn";
+IMPL:  "impl";
+
+/////////////////
+// Misc Syntax //
+/////////////////
+SEMI:   ";";
+DOT:    ".";
+COMMA:  ",";
+OPEN:   "(";
+CLOSE:  ")";
+HASH:   "#";
+DOLLAR: "$";
+AT:     "@";
+
+SHEBANG: 3 {
+  (0, '#') -> 1;
+  (1, '!') -> 2;
+  (2, [^\n]) -> 2;
+  (2, [\n]) -> 3;
+};
+
+// ret(urn)?
+RET: (3, 6) {
+  (0, 'r') -> 1;
+  (1, 'e') -> 2;
+  (2, 't') -> 3;
+  (3, 'u') -> 4;
+  (4, 'r') -> 5;
+  (5, 'n') -> 6;
+};
+
+// [_a-zA-Z][_a-zA-Z0-9]+
+IDENT: (1, 2) {
+  (0, [_a-zA-Z]) -> 1;
+  ((1, 2), [_a-zA-Z0-9]) -> 2;
+};
+
+// [-+]?[0-9]+
+NUM: 2 {
+  (0, [-+]) -> 1;
+  ((0, 1, 2), [0-9]) -> 2;
+};
+
+// ["]([^"\n\\]|\\[nfbrte\\'"])*["]
+STRLIT: 2 {
+  (0, ["])  -> 1;
+  (1, ["])  -> 2;
+  (1, [\n]) -> 9; // no newlines in string.
+  (1, [\\]) -> 3; // start parsing escape sequence
+  (1, [^])  -> 1; // string content
+  (3, [n])  -> 1; // newline
+  (3, [f])  -> 1; // form feed
+  (3, [b])  -> 1; // backspace
+  (3, [r])  -> 1; // carriage return
+  (3, [t])  -> 1; // tab
+  (3, [e])  -> 1; // escape character
+  (3, [\\]) -> 1; // backslash
+  (3, ['])  -> 1; // single quote
+  (3, ["])  -> 1; // double quote
+};
+
+////////////////
+// WHITESPACE //
+////////////////
+
+// [\ \n\r\t]+
+WS: 1 {
+  ((0, 1), [ \n\r\t]) -> 1;
+};
+
+// \/\*([^*]*\*)*\/
+MLCOM: 4 {
+  (0, '/') -> 1;
+  (1, '*') -> 2;
+  (2, '*') -> 3;
+  (2, [^]) -> 2;
+  (3, '*') -> 3;
+  (3, '/') -> 4;
+  (3, [^]) -> 2;
+};
+
+// \/\/[^\n]*
+SLCOM: (2, 3) {
+  (0, '/') -> 1;
+  (1, '/') -> 2;
+  (2, [^\n]) -> 2;
+  (2, [\n]) -> 3;
+};
