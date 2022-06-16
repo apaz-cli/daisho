@@ -993,11 +993,11 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       all_dead = 0;
 
       if ((smaut_state_3 == 0) &
-         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)))) {
+         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)))) {
           smaut_state_3 = 1;
       }
       else if (((smaut_state_3 == 1) | (smaut_state_3 == 2)) &
-         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 48) & (c <= 57)))) {
+         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)) | ((c >= 48) & (c <= 57)))) {
           smaut_state_3 = 2;
       }
       else {
