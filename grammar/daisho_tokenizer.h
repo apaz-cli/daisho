@@ -247,6 +247,7 @@ typedef enum {
   DAISHO_TOK_RET,
   DAISHO_TOK_IMPL,
   DAISHO_TOK_OP,
+  DAISHO_TOK_REDEF,
   DAISHO_TOK_IDENT,
   DAISHO_TOK_NUM,
   DAISHO_TOK_STRLIT,
@@ -257,9 +258,9 @@ typedef enum {
 } daisho_token_kind;
 
 // The 0th token is end of stream.
-// Tokens 1 through 64 are the ones you defined.
-// This totals 65 kinds of tokens.
-static size_t daisho_num_tokens = 65;
+// Tokens 1 through 65 are the ones you defined.
+// This totals 66 kinds of tokens.
+static size_t daisho_num_tokens = 66;
 static const char* daisho_kind_name[] = {
   "DAISHO_TOK_STREAMEND",
   "DAISHO_TOK_PLUS",
@@ -319,6 +320,7 @@ static const char* daisho_kind_name[] = {
   "DAISHO_TOK_RET",
   "DAISHO_TOK_IMPL",
   "DAISHO_TOK_OP",
+  "DAISHO_TOK_REDEF",
   "DAISHO_TOK_IDENT",
   "DAISHO_TOK_NUM",
   "DAISHO_TOK_STRLIT",
@@ -378,6 +380,7 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   int smaut_state_7 = 0;
   int smaut_state_8 = 0;
   int smaut_state_9 = 0;
+  int smaut_state_10 = 0;
   size_t trie_munch_size = 0;
   size_t smaut_munch_size_0 = 0;
   size_t smaut_munch_size_1 = 0;
@@ -389,6 +392,7 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   size_t smaut_munch_size_7 = 0;
   size_t smaut_munch_size_8 = 0;
   size_t smaut_munch_size_9 = 0;
+  size_t smaut_munch_size_10 = 0;
   daisho_token_kind trie_tokenkind = DAISHO_TOK_STREAMEND;
   daisho_token_kind smaut_tokenkind_0 = DAISHO_TOK_STREAMEND;
   daisho_token_kind smaut_tokenkind_1 = DAISHO_TOK_STREAMEND;
@@ -400,6 +404,7 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   daisho_token_kind smaut_tokenkind_7 = DAISHO_TOK_STREAMEND;
   daisho_token_kind smaut_tokenkind_8 = DAISHO_TOK_STREAMEND;
   daisho_token_kind smaut_tokenkind_9 = DAISHO_TOK_STREAMEND;
+  daisho_token_kind smaut_tokenkind_10 = DAISHO_TOK_STREAMEND;
 
 
   for (size_t iidx = 0; iidx < remaining; iidx++) {
@@ -988,39 +993,63 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       }
     }
 
-    // Transition IDENT State Machine
+    // Transition REDEF State Machine
     if (smaut_state_3 != -1) {
       all_dead = 0;
 
       if ((smaut_state_3 == 0) &
-         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)))) {
+         (c == 114)) {
           smaut_state_3 = 1;
       }
-      else if (((smaut_state_3 == 1) | (smaut_state_3 == 2)) &
-         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)) | ((c >= 48) & (c <= 57)))) {
+      else if ((smaut_state_3 == 1) &
+         (c == 101)) {
           smaut_state_3 = 2;
+      }
+      else if ((smaut_state_3 == 2) &
+         (c == 100)) {
+          smaut_state_3 = 3;
+      }
+      else if ((smaut_state_3 == 3) &
+         (c == 101)) {
+          smaut_state_3 = 4;
+      }
+      else if ((smaut_state_3 == 4) &
+         (c == 102)) {
+          smaut_state_3 = 5;
+      }
+      else if ((smaut_state_3 == 5) &
+         (c == 105)) {
+          smaut_state_3 = 6;
+      }
+      else if ((smaut_state_3 == 6) &
+         (c == 110)) {
+          smaut_state_3 = 7;
+      }
+      else if ((smaut_state_3 == 7) &
+         (c == 101)) {
+          smaut_state_3 = 8;
       }
       else {
         smaut_state_3 = -1;
       }
 
       // Check accept
-      if ((smaut_state_3 == 1) | (smaut_state_3 == 2)) {
-        smaut_tokenkind_3 = DAISHO_TOK_IDENT;
+      if ((smaut_state_3 == 5) | (smaut_state_3 == 8)) {
+        smaut_tokenkind_3 = DAISHO_TOK_REDEF;
         smaut_munch_size_3 = iidx + 1;
       }
     }
 
-    // Transition NUM State Machine
+    // Transition IDENT State Machine
     if (smaut_state_4 != -1) {
       all_dead = 0;
 
       if ((smaut_state_4 == 0) &
-         ((c == 45) | (c == 43))) {
+         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)))) {
           smaut_state_4 = 1;
       }
-      else if (((smaut_state_4 == 0) | (smaut_state_4 == 1) | (smaut_state_4 == 2)) &
-         (((c >= 48) & (c <= 57)))) {
+      else if (((smaut_state_4 == 1) | (smaut_state_4 == 2)) &
+         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)) | ((c >= 48) & (c <= 57)))) {
           smaut_state_4 = 2;
       }
       else {
@@ -1028,71 +1057,23 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       }
 
       // Check accept
-      if (smaut_state_4 == 2) {
-        smaut_tokenkind_4 = DAISHO_TOK_NUM;
+      if ((smaut_state_4 == 1) | (smaut_state_4 == 2)) {
+        smaut_tokenkind_4 = DAISHO_TOK_IDENT;
         smaut_munch_size_4 = iidx + 1;
       }
     }
 
-    // Transition STRLIT State Machine
+    // Transition NUM State Machine
     if (smaut_state_5 != -1) {
       all_dead = 0;
 
       if ((smaut_state_5 == 0) &
-         (c == 34)) {
+         ((c == 45) | (c == 43))) {
           smaut_state_5 = 1;
       }
-      else if ((smaut_state_5 == 1) &
-         (c == 34)) {
+      else if (((smaut_state_5 == 0) | (smaut_state_5 == 1) | (smaut_state_5 == 2)) &
+         (((c >= 48) & (c <= 57)))) {
           smaut_state_5 = 2;
-      }
-      else if ((smaut_state_5 == 1) &
-         (c == 10)) {
-          smaut_state_5 = 9;
-      }
-      else if ((smaut_state_5 == 1) &
-         (c == 92)) {
-          smaut_state_5 = 3;
-      }
-      else if ((smaut_state_5 == 1) &
-         (1)) {
-          smaut_state_5 = 1;
-      }
-      else if ((smaut_state_5 == 3) &
-         (c == 110)) {
-          smaut_state_5 = 1;
-      }
-      else if ((smaut_state_5 == 3) &
-         (c == 102)) {
-          smaut_state_5 = 1;
-      }
-      else if ((smaut_state_5 == 3) &
-         (c == 98)) {
-          smaut_state_5 = 1;
-      }
-      else if ((smaut_state_5 == 3) &
-         (c == 114)) {
-          smaut_state_5 = 1;
-      }
-      else if ((smaut_state_5 == 3) &
-         (c == 116)) {
-          smaut_state_5 = 1;
-      }
-      else if ((smaut_state_5 == 3) &
-         (c == 101)) {
-          smaut_state_5 = 1;
-      }
-      else if ((smaut_state_5 == 3) &
-         (c == 92)) {
-          smaut_state_5 = 1;
-      }
-      else if ((smaut_state_5 == 3) &
-         (c == 39)) {
-          smaut_state_5 = 1;
-      }
-      else if ((smaut_state_5 == 3) &
-         (c == 34)) {
-          smaut_state_5 = 1;
       }
       else {
         smaut_state_5 = -1;
@@ -1100,17 +1081,69 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
 
       // Check accept
       if (smaut_state_5 == 2) {
-        smaut_tokenkind_5 = DAISHO_TOK_STRLIT;
+        smaut_tokenkind_5 = DAISHO_TOK_NUM;
         smaut_munch_size_5 = iidx + 1;
       }
     }
 
-    // Transition WS State Machine
+    // Transition STRLIT State Machine
     if (smaut_state_6 != -1) {
       all_dead = 0;
 
-      if (((smaut_state_6 == 0) | (smaut_state_6 == 1)) &
-         ((c == 32) | (c == 10) | (c == 13) | (c == 9))) {
+      if ((smaut_state_6 == 0) &
+         (c == 34)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 1) &
+         (c == 34)) {
+          smaut_state_6 = 2;
+      }
+      else if ((smaut_state_6 == 1) &
+         (c == 10)) {
+          smaut_state_6 = 9;
+      }
+      else if ((smaut_state_6 == 1) &
+         (c == 92)) {
+          smaut_state_6 = 3;
+      }
+      else if ((smaut_state_6 == 1) &
+         (1)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 3) &
+         (c == 110)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 3) &
+         (c == 102)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 3) &
+         (c == 98)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 3) &
+         (c == 114)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 3) &
+         (c == 116)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 3) &
+         (c == 101)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 3) &
+         (c == 92)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 3) &
+         (c == 39)) {
+          smaut_state_6 = 1;
+      }
+      else if ((smaut_state_6 == 3) &
+         (c == 34)) {
           smaut_state_6 = 1;
       }
       else {
@@ -1118,56 +1151,32 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       }
 
       // Check accept
-      if (smaut_state_6 == 1) {
-        smaut_tokenkind_6 = DAISHO_TOK_WS;
+      if (smaut_state_6 == 2) {
+        smaut_tokenkind_6 = DAISHO_TOK_STRLIT;
         smaut_munch_size_6 = iidx + 1;
       }
     }
 
-    // Transition MLCOM State Machine
+    // Transition WS State Machine
     if (smaut_state_7 != -1) {
       all_dead = 0;
 
-      if ((smaut_state_7 == 0) &
-         (c == 47)) {
+      if (((smaut_state_7 == 0) | (smaut_state_7 == 1)) &
+         ((c == 32) | (c == 10) | (c == 13) | (c == 9))) {
           smaut_state_7 = 1;
-      }
-      else if ((smaut_state_7 == 1) &
-         (c == 42)) {
-          smaut_state_7 = 2;
-      }
-      else if ((smaut_state_7 == 2) &
-         (c == 42)) {
-          smaut_state_7 = 3;
-      }
-      else if ((smaut_state_7 == 2) &
-         (1)) {
-          smaut_state_7 = 2;
-      }
-      else if ((smaut_state_7 == 3) &
-         (c == 42)) {
-          smaut_state_7 = 3;
-      }
-      else if ((smaut_state_7 == 3) &
-         (c == 47)) {
-          smaut_state_7 = 4;
-      }
-      else if ((smaut_state_7 == 3) &
-         (1)) {
-          smaut_state_7 = 2;
       }
       else {
         smaut_state_7 = -1;
       }
 
       // Check accept
-      if (smaut_state_7 == 4) {
-        smaut_tokenkind_7 = DAISHO_TOK_MLCOM;
+      if (smaut_state_7 == 1) {
+        smaut_tokenkind_7 = DAISHO_TOK_WS;
         smaut_munch_size_7 = iidx + 1;
       }
     }
 
-    // Transition SLCOM State Machine
+    // Transition MLCOM State Machine
     if (smaut_state_8 != -1) {
       all_dead = 0;
 
@@ -1176,38 +1185,50 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
           smaut_state_8 = 1;
       }
       else if ((smaut_state_8 == 1) &
-         (c == 47)) {
+         (c == 42)) {
           smaut_state_8 = 2;
       }
       else if ((smaut_state_8 == 2) &
-         (!(c == 10))) {
-          smaut_state_8 = 2;
-      }
-      else if ((smaut_state_8 == 2) &
-         (c == 10)) {
+         (c == 42)) {
           smaut_state_8 = 3;
+      }
+      else if ((smaut_state_8 == 2) &
+         (1)) {
+          smaut_state_8 = 2;
+      }
+      else if ((smaut_state_8 == 3) &
+         (c == 42)) {
+          smaut_state_8 = 3;
+      }
+      else if ((smaut_state_8 == 3) &
+         (c == 47)) {
+          smaut_state_8 = 4;
+      }
+      else if ((smaut_state_8 == 3) &
+         (1)) {
+          smaut_state_8 = 2;
       }
       else {
         smaut_state_8 = -1;
       }
 
       // Check accept
-      if ((smaut_state_8 == 2) | (smaut_state_8 == 3)) {
-        smaut_tokenkind_8 = DAISHO_TOK_SLCOM;
+      if (smaut_state_8 == 4) {
+        smaut_tokenkind_8 = DAISHO_TOK_MLCOM;
         smaut_munch_size_8 = iidx + 1;
       }
     }
 
-    // Transition SHEBANG State Machine
+    // Transition SLCOM State Machine
     if (smaut_state_9 != -1) {
       all_dead = 0;
 
       if ((smaut_state_9 == 0) &
-         (c == 35)) {
+         (c == 47)) {
           smaut_state_9 = 1;
       }
       else if ((smaut_state_9 == 1) &
-         (c == 33)) {
+         (c == 47)) {
           smaut_state_9 = 2;
       }
       else if ((smaut_state_9 == 2) &
@@ -1223,9 +1244,40 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       }
 
       // Check accept
-      if (smaut_state_9 == 3) {
-        smaut_tokenkind_9 = DAISHO_TOK_SHEBANG;
+      if ((smaut_state_9 == 2) | (smaut_state_9 == 3)) {
+        smaut_tokenkind_9 = DAISHO_TOK_SLCOM;
         smaut_munch_size_9 = iidx + 1;
+      }
+    }
+
+    // Transition SHEBANG State Machine
+    if (smaut_state_10 != -1) {
+      all_dead = 0;
+
+      if ((smaut_state_10 == 0) &
+         (c == 35)) {
+          smaut_state_10 = 1;
+      }
+      else if ((smaut_state_10 == 1) &
+         (c == 33)) {
+          smaut_state_10 = 2;
+      }
+      else if ((smaut_state_10 == 2) &
+         (!(c == 10))) {
+          smaut_state_10 = 2;
+      }
+      else if ((smaut_state_10 == 2) &
+         (c == 10)) {
+          smaut_state_10 = 3;
+      }
+      else {
+        smaut_state_10 = -1;
+      }
+
+      // Check accept
+      if (smaut_state_10 == 3) {
+        smaut_tokenkind_10 = DAISHO_TOK_SHEBANG;
+        smaut_munch_size_10 = iidx + 1;
       }
     }
 
@@ -1236,32 +1288,36 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   // Determine what token was accepted, if any.
   daisho_token_kind kind = DAISHO_TOK_STREAMEND;
   size_t max_munch = 0;
-  if (smaut_munch_size_9 >= max_munch) {
+  if (smaut_munch_size_10 >= max_munch) {
     kind = DAISHO_TOK_SHEBANG;
+    max_munch = smaut_munch_size_10;
+  }
+  if (smaut_munch_size_9 >= max_munch) {
+    kind = DAISHO_TOK_SLCOM;
     max_munch = smaut_munch_size_9;
   }
   if (smaut_munch_size_8 >= max_munch) {
-    kind = DAISHO_TOK_SLCOM;
+    kind = DAISHO_TOK_MLCOM;
     max_munch = smaut_munch_size_8;
   }
   if (smaut_munch_size_7 >= max_munch) {
-    kind = DAISHO_TOK_MLCOM;
+    kind = DAISHO_TOK_WS;
     max_munch = smaut_munch_size_7;
   }
   if (smaut_munch_size_6 >= max_munch) {
-    kind = DAISHO_TOK_WS;
+    kind = DAISHO_TOK_STRLIT;
     max_munch = smaut_munch_size_6;
   }
   if (smaut_munch_size_5 >= max_munch) {
-    kind = DAISHO_TOK_STRLIT;
+    kind = DAISHO_TOK_NUM;
     max_munch = smaut_munch_size_5;
   }
   if (smaut_munch_size_4 >= max_munch) {
-    kind = DAISHO_TOK_NUM;
+    kind = DAISHO_TOK_IDENT;
     max_munch = smaut_munch_size_4;
   }
   if (smaut_munch_size_3 >= max_munch) {
-    kind = DAISHO_TOK_IDENT;
+    kind = DAISHO_TOK_REDEF;
     max_munch = smaut_munch_size_3;
   }
   if (smaut_munch_size_2 >= max_munch) {
