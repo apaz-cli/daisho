@@ -6,7 +6,7 @@
 /* Configuration Variables */
 /***************************/
 #define __DAI_PAGESIZE 4096
-#define __DAI_IDEAL_NUM_THREADS 4
+#define __DAI_IDEAL_NUM_THREADS 8
 
 /**********************/
 /* Supported Features */
