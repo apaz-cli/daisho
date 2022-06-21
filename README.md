@@ -1,8 +1,18 @@
 # What is Daisho?
 
-If <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a> and <a href="https://github.com/python/cpython">Python <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width=15></a> are swords, Daisho is their combination.
+The goal of this project is to create a language that's basically
+<a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
+but way nicer to work with, and focused on trait metaprogramming. It transpiles to
+<a href="https://en.wikipedia.org/wiki/POSIX">POSIX</a>
+<a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
+but provides a way to pave over the sharp edges that come with writing C directly.
 
-The goal of this project is to create a language that's as nice to work with as Java or Rust, but transpiles to <a href="https://en.wikipedia.org/wiki/POSIX">POSIX</a> <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>. It should also allow you to write both <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a> and <a href="https://github.com/python/cpython">Python <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width=15></a> code inline with your Daisho code. Interop should be seamless, yet Daisho should leave no performance on the table.
+Interop between
+<a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
+<a href="https://github.com/apaz-cli/daisho/">"Daisho</a>,
+and
+<a href="https://github.com/python/cpython">Python <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width=15></a>
+code should be seamless, and no performance shall be left on the table.
 
 
 ## Status
