@@ -1,6 +1,8 @@
 # What is Daisho?
 
-<img src="https://media.discordapp.net/attachments/886799296819765279/968529592891629588/Daisho_App_Icon-01.png" width=400>
+<p align="center">
+<img src="https://media.discordapp.net/attachments/886799296819765279/968529592891629588/Daisho_App_Icon-01.png" width=300>
+</p>
 
 The goal of this project is to create a language that's basically
 <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
