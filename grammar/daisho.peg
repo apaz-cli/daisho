@@ -8,7 +8,7 @@
 
 expr       <- e:commaexpr { $$ = e; }
 
-/* , = += ?: */
+/* then also = += ?: */
 commaexpr  <- eq:eqexpr     (com:COMMA ex:expr)?              { $$ = com ? node(com, eq, ex)   : eq; }
 eqexpr     <- te:ternexpr   (eq:EQ ex:expr)?                  { $$ = eq  ? node(eq, te, ex)    : te; }
 ternexpr   <- le:logorexpr  (q:QUEST _e:expr? COLON ex:expr)? { $$ = q   ? node(q, le, _e, ex) : le; }
@@ -23,8 +23,8 @@ binxorexpr <- ba:binandexpr (xor:XOR ex:expr)?                { $$ = xor ? node(
 binandexpr <- de:deqexpr    (and:AND ex:expr)?                { $$ = and ? node(and, de, ex)   : de; }
 
 /* == != */
-deqexpr    <- ne:neqexpr    (neq:NEQ ex:expr)?                { $$ = neq ? node(neq, ne, ex)   : ne; }
-neqexpr    <-
+deqexpr    <- ne:neqexpr    (deq:DEQ ex:expr)?                { $$ = deq ? node(deq, ne, ex)   : ne; }
+neqexpr    <- le:leexpr     (neq:NEQ ex:expr)?                { $$ = neq ? node(neq, le, ex)   : le; }
 
 /* < > <= >= */
 leexpr     <-

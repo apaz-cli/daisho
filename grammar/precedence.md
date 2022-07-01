@@ -1,6 +1,6 @@
 # Precedence
 
-## Highest to Lowest
+## Lowest to Highest (Order of visitation, opposite of the order the resolve.)
 
 * ,
 * =
@@ -19,15 +19,13 @@
 * + -
 * Unary Prefix
   * (Cast)
-  * &
-  * $
-  * #
-  * *
+  * $ # ~ !
   * ++
   * --
   * ~
   * !
 * Unary Suffix
+  * $ # ~ !
   * . [] ->
   * ++ --
 * ()
