@@ -1,4 +1,4 @@
-#include <daisho/Daisho.h>
+#include <Daisho.h>
 
 #include "Argparse.h"
 #include "Declarations/Declarations.h"
