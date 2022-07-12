@@ -1,4 +1,12 @@
+/**************************/
+/* TOP LEVEL DECLARATIONS */
+/**************************/
 
+
+
+/****************************/
+/* CONTROL FLOW EXPRESSIONS */
+/****************************/
 
 
 
@@ -6,25 +14,25 @@
 /* EXPRESSIONS */
 /***************/
 
-expr       <- e:commaexpr { $$ = e; }
+expr       <- e:commaexpr {node=e}
 
 /* then also = += ?: */
-commaexpr  <- eq:eqexpr     (com:COMMA ex:expr)?              { $$ = com ? node(com, eq, ex)   : eq; }
-eqexpr     <- te:ternexpr   (eq:EQ ex:expr)?                  { $$ = eq  ? node(eq, te, ex)    : te; }
-ternexpr   <- le:logorexpr  (q:QUEST _e:expr? COLON ex:expr)? { $$ = q   ? node(q, le, _e, ex) : le; }
+commaexpr  <- eq:eqexpr     (com:COMMA ex:expr)?              { node = com ? node(com, eq, ex)   : eq; }
+eqexpr     <- te:ternexpr   (eq:EQ ex:expr)?                  { node = eq  ? node(eq, te, ex)    : te; }
+ternexpr   <- le:logorexpr  (q:QUEST _e:expr? COLON ex:expr)? { node = q   ? node(q, le, _e, ex) : le; }
 
 /* Lambda expression */
 
 /* || && | ^ & */
-logorexpr  <- la:logandexpr (lo:LOGOR ex:expr)?               { $$ = lo  ? node(lo, la, ex)    : la; }
-logandexpr <- bo:binorexpr  (an:LOGAND ex:expr)?              { $$ = an  ? node(an, bo, ex)    : bo; }
-binorexpr  <- bx:binxorexpr (or:OR ex:expr)?                  { $$ = or  ? node(or, bx, ex)    : bx; }
-binxorexpr <- ba:binandexpr (xor:XOR ex:expr)?                { $$ = xor ? node(xor, ba, ex)   : ba; }
-binandexpr <- de:deqexpr    (and:AND ex:expr)?                { $$ = and ? node(and, de, ex)   : de; }
+logorexpr  <- la:logandexpr (lo:LOGOR ex:expr)?               { node = lo  ? node(lo, la, ex)    : la; }
+logandexpr <- bo:binorexpr  (an:LOGAND ex:expr)?              { node = an  ? node(an, bo, ex)    : bo; }
+binorexpr  <- bx:binxorexpr (or:OR ex:expr)?                  { node = or  ? node(or, bx, ex)    : bx; }
+binxorexpr <- ba:binandexpr (xor:XOR ex:expr)?                { node = xor ? node(xor, ba, ex)   : ba; }
+binandexpr <- de:deqexpr    (and:AND ex:expr)?                { node = and ? node(and, de, ex)   : de; }
 
 /* == != */
-deqexpr    <- ne:neqexpr    (deq:DEQ ex:expr)?                { $$ = deq ? node(deq, ne, ex)   : ne; }
-neqexpr    <- le:leexpr     (neq:NEQ ex:expr)?                { $$ = neq ? node(neq, le, ex)   : le; }
+deqexpr    <- ne:neqexpr    (deq:DEQ ex:expr)?                { node = deq ? node(deq, ne, ex)   : ne; }
+neqexpr    <- le:leexpr     (neq:NEQ ex:expr)?                { node = neq ? node(neq, le, ex)   : le; }
 
 /* < > <= >= */
 leexpr     <-
@@ -46,7 +54,7 @@ addexpr    <-
 subexpr    <-
 
 /* (Cast) */
-castexpr   <- o:OPEN t:type CLOSE e:expr { $$ = nodxe(o, t, e); } / re:refexpr { $$ = re; }
+castexpr   <- o:OPEN t:type CLOSE e:expr { node = nodxe(o, t, e); } / re:refexpr { node = re; }
 
 /* & * */
 refexpr    <-

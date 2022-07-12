@@ -2,11 +2,18 @@
 
 ## Lowest to Highest (Order of visitation, opposite of the order the resolve.)
 
-* then
+* Struct Declaration
+* Impl declaration
+* Function Declaration
+* Control Flow
+  * for (expr; expr; expr)
+  * for (ident in iterable)
+  * if (cond) expr
+  * while(cond) expr
+* then also
 * = += *= %= <<= // etc
-* Ternary
- * ? : and ?:
-* (arg_list) -> eqexpr
+* cond ? expr : expr // Ternary
+*  ?: // Null coalesce
 * Binary Operators
   * ||
   * &&
@@ -26,11 +33,15 @@
   * +
   * -
   * ~
-  * . [] () // Access, Call
+  * . // Selector
+  * [] // Access
+  * () // Call
+* (arg_list) -> expr // Lambda Expression
 * (expr) // Paren expr
 * [expr for ident in iterable] // list comprehension
 * [item, item] // list literal
 * literal
+  * self
   * strlit
   * num
   * {initializer_list}
