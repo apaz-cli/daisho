@@ -1,10 +1,13 @@
 # Precedence
 
 ## Lowest to Highest (Order of visitation, opposite of the order the resolve.)
-
-* Struct Declaration
-* Impl declaration
-* Function Declaration
+* Scope Expression
+  * {}, implicit per file.
+* Type Definitions
+  * Struct Declaration
+  * Trait Declaration
+  * Impl Declaration
+  * Function Declaration
 * Control Flow
   * for (expr; expr; expr)
   * for (ident in iterable)
@@ -27,15 +30,17 @@
   * + -
 * Unary Suffix
   * (Cast)
-  * $ # ~ !
+  * (Call)
+  * [Access]
+  * @ $
+  * #
+  * ~ !
   * ++
   * --
   * +
   * -
   * ~
   * . // Selector
-  * [] // Access
-  * () // Call
 * (arg_list) -> expr // Lambda Expression
 * (expr) // Paren expr
 * [expr for ident in iterable] // list comprehension
