@@ -63,9 +63,9 @@ cmpexpr    <-
 shfexpr   <-
 
 /* * / % */
-%node
-%node
-%node 
+%node MULEXPR
+%node DIVEXPR
+%node MODEXPR
 mulexpr    <-
 divexpr    <-
 modexpr    <-
