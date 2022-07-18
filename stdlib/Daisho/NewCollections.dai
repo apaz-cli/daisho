@@ -16,7 +16,7 @@ trait Stream<T> {
   Stream<K> map(Mapper<T, K> mapper);
   Stream<K> flatMap(Mapper<T, Stream<K>> mapper);
   Stream<T> filter(Predicate<T> predicate);
-  Stream<T> skip(Size_t num); 
+  Stream<T> skip(Size_t num);
 };
 
 trait Iterator<T> impl Stream<T>, Assignable<T>?, RandomIterable<T>?  {
