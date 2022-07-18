@@ -181,6 +181,13 @@ static inline int UTF8_decode(char *str, size_t len, codepoint_t **retcps,
 /* END OF UTF8 LIBRARY */
 
 
+#ifndef PGEN_DEBUG
+#define PGEN_DEBUG 0
+
+#define PGEN_ALLOCATOR_DEBUG 0
+
+#endif /* PGEN_DEBUG */
+
 #ifndef DAISHO_TOKENIZER_INCLUDE
 #define DAISHO_TOKENIZER_INCLUDE
 
@@ -222,9 +229,9 @@ typedef enum {
   DAISHO_TOK_BSLEQ,
   DAISHO_TOK_INCR,
   DAISHO_TOK_DECR,
-  DAISHO_TOK_ELVIS,
   DAISHO_TOK_QUEST,
   DAISHO_TOK_COLON,
+  DAISHO_TOK_NCOLL,
   DAISHO_TOK_IF,
   DAISHO_TOK_ELSE,
   DAISHO_TOK_WHILE,
@@ -235,11 +242,16 @@ typedef enum {
   DAISHO_TOK_TRAIT,
   DAISHO_TOK_DYN,
   DAISHO_TOK_CTYPE,
+  DAISHO_TOK_CFUNC,
   DAISHO_TOK_SEMI,
   DAISHO_TOK_DOT,
   DAISHO_TOK_COMMA,
   DAISHO_TOK_OPEN,
   DAISHO_TOK_CLOSE,
+  DAISHO_TOK_LCBRACK,
+  DAISHO_TOK_RCBRACK,
+  DAISHO_TOK_LSBRACK,
+  DAISHO_TOK_RSBRACK,
   DAISHO_TOK_HASH,
   DAISHO_TOK_DOLLAR,
   DAISHO_TOK_AT,
@@ -248,8 +260,10 @@ typedef enum {
   DAISHO_TOK_IMPL,
   DAISHO_TOK_OP,
   DAISHO_TOK_REDEF,
-  DAISHO_TOK_IDENT,
-  DAISHO_TOK_NUM,
+  DAISHO_TOK_TIDENT,
+  DAISHO_TOK_VIDENT,
+  DAISHO_TOK_CIDENT,
+  DAISHO_TOK_NUMLIT,
   DAISHO_TOK_STRLIT,
   DAISHO_TOK_WS,
   DAISHO_TOK_MLCOM,
@@ -258,10 +272,10 @@ typedef enum {
 } daisho_token_kind;
 
 // The 0th token is end of stream.
-// Tokens 1 through 65 are the ones you defined.
-// This totals 66 kinds of tokens.
-static size_t daisho_num_tokens = 66;
-static const char* daisho_kind_name[] = {
+// Tokens 1 through 72 are the ones you defined.
+// This totals 73 kinds of tokens.
+#define DAISHO_NUM_TOKENKINDS 73
+static const char* daisho_tokenkind_name[DAISHO_NUM_TOKENKINDS] = {
   "DAISHO_TOK_STREAMEND",
   "DAISHO_TOK_PLUS",
   "DAISHO_TOK_MINUS",
@@ -295,9 +309,9 @@ static const char* daisho_kind_name[] = {
   "DAISHO_TOK_BSLEQ",
   "DAISHO_TOK_INCR",
   "DAISHO_TOK_DECR",
-  "DAISHO_TOK_ELVIS",
   "DAISHO_TOK_QUEST",
   "DAISHO_TOK_COLON",
+  "DAISHO_TOK_NCOLL",
   "DAISHO_TOK_IF",
   "DAISHO_TOK_ELSE",
   "DAISHO_TOK_WHILE",
@@ -308,11 +322,16 @@ static const char* daisho_kind_name[] = {
   "DAISHO_TOK_TRAIT",
   "DAISHO_TOK_DYN",
   "DAISHO_TOK_CTYPE",
+  "DAISHO_TOK_CFUNC",
   "DAISHO_TOK_SEMI",
   "DAISHO_TOK_DOT",
   "DAISHO_TOK_COMMA",
   "DAISHO_TOK_OPEN",
   "DAISHO_TOK_CLOSE",
+  "DAISHO_TOK_LCBRACK",
+  "DAISHO_TOK_RCBRACK",
+  "DAISHO_TOK_LSBRACK",
+  "DAISHO_TOK_RSBRACK",
   "DAISHO_TOK_HASH",
   "DAISHO_TOK_DOLLAR",
   "DAISHO_TOK_AT",
@@ -321,8 +340,10 @@ static const char* daisho_kind_name[] = {
   "DAISHO_TOK_IMPL",
   "DAISHO_TOK_OP",
   "DAISHO_TOK_REDEF",
-  "DAISHO_TOK_IDENT",
-  "DAISHO_TOK_NUM",
+  "DAISHO_TOK_TIDENT",
+  "DAISHO_TOK_VIDENT",
+  "DAISHO_TOK_CIDENT",
+  "DAISHO_TOK_NUMLIT",
   "DAISHO_TOK_STRLIT",
   "DAISHO_TOK_WS",
   "DAISHO_TOK_MLCOM",
@@ -332,12 +353,15 @@ static const char* daisho_kind_name[] = {
 
 typedef struct {
   daisho_token_kind kind;
-  size_t start; // The token begins at tokenizer->start[token->start]. 
+  size_t start; // The token begins at tokenizer->start[token->start].
   size_t len;   // It goes until tokenizer->start[token->start + token->len] (non-inclusive).
 #if DAISHO_TOKENIZER_SOURCEINFO
   size_t line;
   size_t col;
   char* sourceFile;
+#endif
+#ifdef DAISHO_TOKEN_EXTRA
+  DAISHO_TOKEN_EXTRA
 #endif
 } daisho_token;
 
@@ -381,6 +405,8 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   int smaut_state_8 = 0;
   int smaut_state_9 = 0;
   int smaut_state_10 = 0;
+  int smaut_state_11 = 0;
+  int smaut_state_12 = 0;
   size_t trie_munch_size = 0;
   size_t smaut_munch_size_0 = 0;
   size_t smaut_munch_size_1 = 0;
@@ -393,19 +419,9 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   size_t smaut_munch_size_8 = 0;
   size_t smaut_munch_size_9 = 0;
   size_t smaut_munch_size_10 = 0;
+  size_t smaut_munch_size_11 = 0;
+  size_t smaut_munch_size_12 = 0;
   daisho_token_kind trie_tokenkind = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_0 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_1 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_2 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_3 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_4 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_5 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_6 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_7 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_8 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_9 = DAISHO_TOK_STREAMEND;
-  daisho_token_kind smaut_tokenkind_10 = DAISHO_TOK_STREAMEND;
-
 
   for (size_t iidx = 0; iidx < remaining; iidx++) {
     codepoint_t c = current[iidx];
@@ -416,27 +432,29 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       all_dead = 0;
       if (trie_state == 0) {
         if (c == 33 /*'!'*/) trie_state = 9;
-        else if (c == 35 /*'#'*/) trie_state = 79;
-        else if (c == 36 /*'$'*/) trie_state = 80;
+        else if (c == 35 /*'#'*/) trie_state = 87;
+        else if (c == 36 /*'$'*/) trie_state = 88;
         else if (c == 37 /*'%'*/) trie_state = 5;
         else if (c == 38 /*'&'*/) trie_state = 6;
-        else if (c == 40 /*'('*/) trie_state = 77;
-        else if (c == 41 /*')'*/) trie_state = 78;
+        else if (c == 40 /*'('*/) trie_state = 81;
+        else if (c == 41 /*')'*/) trie_state = 82;
         else if (c == 42 /*'*'*/) trie_state = 3;
         else if (c == 43 /*'+'*/) trie_state = 1;
-        else if (c == 44 /*','*/) trie_state = 76;
+        else if (c == 44 /*','*/) trie_state = 80;
         else if (c == 45 /*'-'*/) trie_state = 2;
-        else if (c == 46 /*'.'*/) trie_state = 75;
+        else if (c == 46 /*'.'*/) trie_state = 79;
         else if (c == 47 /*'/'*/) trie_state = 4;
-        else if (c == 58 /*':'*/) trie_state = 37;
-        else if (c == 59 /*';'*/) trie_state = 74;
+        else if (c == 58 /*':'*/) trie_state = 36;
+        else if (c == 59 /*';'*/) trie_state = 78;
         else if (c == 60 /*'<'*/) trie_state = 16;
         else if (c == 61 /*'='*/) trie_state = 13;
         else if (c == 62 /*'>'*/) trie_state = 18;
         else if (c == 63 /*'?'*/) trie_state = 35;
-        else if (c == 64 /*'@'*/) trie_state = 81;
+        else if (c == 64 /*'@'*/) trie_state = 89;
+        else if (c == 91 /*'['*/) trie_state = 85;
+        else if (c == 93 /*']'*/) trie_state = 86;
         else if (c == 94 /*'^'*/) trie_state = 8;
-        else if (c == 96 /*'`'*/) trie_state = 82;
+        else if (c == 96 /*'`'*/) trie_state = 90;
         else if (c == 97 /*'a'*/) trie_state = 55;
         else if (c == 99 /*'c'*/) trie_state = 59;
         else if (c == 100 /*'d'*/) trie_state = 49;
@@ -444,7 +462,9 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
         else if (c == 105 /*'i'*/) trie_state = 38;
         else if (c == 116 /*'t'*/) trie_state = 51;
         else if (c == 119 /*'w'*/) trie_state = 44;
+        else if (c == 123 /*'{'*/) trie_state = 83;
         else if (c == 124 /*'|'*/) trie_state = 7;
+        else if (c == 125 /*'}'*/) trie_state = 84;
         else if (c == 126 /*'~'*/) trie_state = 10;
         else trie_state = -1;
       }
@@ -515,7 +535,7 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
         else trie_state = -1;
       }
       else if (trie_state == 35) {
-        if (c == 58 /*':'*/) trie_state = 36;
+        if (c == 58 /*':'*/) trie_state = 37;
         else trie_state = -1;
       }
       else if (trie_state == 38) {
@@ -581,7 +601,8 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
         else trie_state = -1;
       }
       else if (trie_state == 59) {
-        if (c == 108 /*'l'*/) trie_state = 60;
+        if (c == 102 /*'f'*/) trie_state = 74;
+        else if (c == 108 /*'l'*/) trie_state = 60;
         else if (c == 116 /*'t'*/) trie_state = 70;
         else trie_state = -1;
       }
@@ -623,6 +644,18 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       }
       else if (trie_state == 72) {
         if (c == 101 /*'e'*/) trie_state = 73;
+        else trie_state = -1;
+      }
+      else if (trie_state == 74) {
+        if (c == 117 /*'u'*/) trie_state = 75;
+        else trie_state = -1;
+      }
+      else if (trie_state == 75) {
+        if (c == 110 /*'n'*/) trie_state = 76;
+        else trie_state = -1;
+      }
+      else if (trie_state == 76) {
+        if (c == 99 /*'c'*/) trie_state = 77;
         else trie_state = -1;
       }
       else {
@@ -758,16 +791,16 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
         trie_tokenkind =  DAISHO_TOK_DECR;
         trie_munch_size = iidx + 1;
       }
-      else if (trie_state == 36) {
-        trie_tokenkind =  DAISHO_TOK_ELVIS;
-        trie_munch_size = iidx + 1;
-      }
       else if (trie_state == 35) {
         trie_tokenkind =  DAISHO_TOK_QUEST;
         trie_munch_size = iidx + 1;
       }
-      else if (trie_state == 37) {
+      else if (trie_state == 36) {
         trie_tokenkind =  DAISHO_TOK_COLON;
+        trie_munch_size = iidx + 1;
+      }
+      else if (trie_state == 37) {
+        trie_tokenkind =  DAISHO_TOK_NCOLL;
         trie_munch_size = iidx + 1;
       }
       else if (trie_state == 39) {
@@ -810,39 +843,59 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
         trie_tokenkind =  DAISHO_TOK_CTYPE;
         trie_munch_size = iidx + 1;
       }
-      else if (trie_state == 74) {
-        trie_tokenkind =  DAISHO_TOK_SEMI;
-        trie_munch_size = iidx + 1;
-      }
-      else if (trie_state == 75) {
-        trie_tokenkind =  DAISHO_TOK_DOT;
-        trie_munch_size = iidx + 1;
-      }
-      else if (trie_state == 76) {
-        trie_tokenkind =  DAISHO_TOK_COMMA;
-        trie_munch_size = iidx + 1;
-      }
       else if (trie_state == 77) {
-        trie_tokenkind =  DAISHO_TOK_OPEN;
+        trie_tokenkind =  DAISHO_TOK_CFUNC;
         trie_munch_size = iidx + 1;
       }
       else if (trie_state == 78) {
-        trie_tokenkind =  DAISHO_TOK_CLOSE;
+        trie_tokenkind =  DAISHO_TOK_SEMI;
         trie_munch_size = iidx + 1;
       }
       else if (trie_state == 79) {
-        trie_tokenkind =  DAISHO_TOK_HASH;
+        trie_tokenkind =  DAISHO_TOK_DOT;
         trie_munch_size = iidx + 1;
       }
       else if (trie_state == 80) {
-        trie_tokenkind =  DAISHO_TOK_DOLLAR;
+        trie_tokenkind =  DAISHO_TOK_COMMA;
         trie_munch_size = iidx + 1;
       }
       else if (trie_state == 81) {
-        trie_tokenkind =  DAISHO_TOK_AT;
+        trie_tokenkind =  DAISHO_TOK_OPEN;
         trie_munch_size = iidx + 1;
       }
       else if (trie_state == 82) {
+        trie_tokenkind =  DAISHO_TOK_CLOSE;
+        trie_munch_size = iidx + 1;
+      }
+      else if (trie_state == 83) {
+        trie_tokenkind =  DAISHO_TOK_LCBRACK;
+        trie_munch_size = iidx + 1;
+      }
+      else if (trie_state == 84) {
+        trie_tokenkind =  DAISHO_TOK_RCBRACK;
+        trie_munch_size = iidx + 1;
+      }
+      else if (trie_state == 85) {
+        trie_tokenkind =  DAISHO_TOK_LSBRACK;
+        trie_munch_size = iidx + 1;
+      }
+      else if (trie_state == 86) {
+        trie_tokenkind =  DAISHO_TOK_RSBRACK;
+        trie_munch_size = iidx + 1;
+      }
+      else if (trie_state == 87) {
+        trie_tokenkind =  DAISHO_TOK_HASH;
+        trie_munch_size = iidx + 1;
+      }
+      else if (trie_state == 88) {
+        trie_tokenkind =  DAISHO_TOK_DOLLAR;
+        trie_munch_size = iidx + 1;
+      }
+      else if (trie_state == 89) {
+        trie_tokenkind =  DAISHO_TOK_AT;
+        trie_munch_size = iidx + 1;
+      }
+      else if (trie_state == 90) {
         trie_tokenkind =  DAISHO_TOK_GRAVE;
         trie_munch_size = iidx + 1;
       }
@@ -882,7 +935,6 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
 
       // Check accept
       if ((smaut_state_0 == 3) | (smaut_state_0 == 6)) {
-        smaut_tokenkind_0 = DAISHO_TOK_RET;
         smaut_munch_size_0 = iidx + 1;
       }
     }
@@ -941,7 +993,6 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
 
       // Check accept
       if ((smaut_state_1 == 4) | (smaut_state_1 == 10)) {
-        smaut_tokenkind_1 = DAISHO_TOK_IMPL;
         smaut_munch_size_1 = iidx + 1;
       }
     }
@@ -988,7 +1039,6 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
 
       // Check accept
       if ((smaut_state_2 == 2) | (smaut_state_2 == 8)) {
-        smaut_tokenkind_2 = DAISHO_TOK_OP;
         smaut_munch_size_2 = iidx + 1;
       }
     }
@@ -1035,17 +1085,16 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
 
       // Check accept
       if ((smaut_state_3 == 5) | (smaut_state_3 == 8)) {
-        smaut_tokenkind_3 = DAISHO_TOK_REDEF;
         smaut_munch_size_3 = iidx + 1;
       }
     }
 
-    // Transition IDENT State Machine
+    // Transition TIDENT State Machine
     if (smaut_state_4 != -1) {
       all_dead = 0;
 
       if ((smaut_state_4 == 0) &
-         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)))) {
+         (((c >= 65) & (c <= 90)))) {
           smaut_state_4 = 1;
       }
       else if (((smaut_state_4 == 1) | (smaut_state_4 == 2)) &
@@ -1058,21 +1107,20 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
 
       // Check accept
       if ((smaut_state_4 == 1) | (smaut_state_4 == 2)) {
-        smaut_tokenkind_4 = DAISHO_TOK_IDENT;
         smaut_munch_size_4 = iidx + 1;
       }
     }
 
-    // Transition NUM State Machine
+    // Transition VIDENT State Machine
     if (smaut_state_5 != -1) {
       all_dead = 0;
 
       if ((smaut_state_5 == 0) &
-         ((c == 45) | (c == 43))) {
+         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)))) {
           smaut_state_5 = 1;
       }
-      else if (((smaut_state_5 == 0) | (smaut_state_5 == 1) | (smaut_state_5 == 2)) &
-         (((c >= 48) & (c <= 57)))) {
+      else if (((smaut_state_5 == 1) | (smaut_state_5 == 2)) &
+         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)) | ((c >= 48) & (c <= 57)))) {
           smaut_state_5 = 2;
       }
       else {
@@ -1080,204 +1128,250 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       }
 
       // Check accept
-      if (smaut_state_5 == 2) {
-        smaut_tokenkind_5 = DAISHO_TOK_NUM;
+      if ((smaut_state_5 == 1) | (smaut_state_5 == 2)) {
         smaut_munch_size_5 = iidx + 1;
       }
     }
 
-    // Transition STRLIT State Machine
+    // Transition CIDENT State Machine
     if (smaut_state_6 != -1) {
       all_dead = 0;
 
       if ((smaut_state_6 == 0) &
-         (c == 34)) {
+         ((c == 95) | ((c >= 97) & (c <= 122)))) {
           smaut_state_6 = 1;
       }
-      else if ((smaut_state_6 == 1) &
-         (c == 34)) {
+      else if (((smaut_state_6 == 1) | (smaut_state_6 == 2)) &
+         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 48) & (c <= 57)))) {
           smaut_state_6 = 2;
-      }
-      else if ((smaut_state_6 == 1) &
-         (c == 10)) {
-          smaut_state_6 = 9;
-      }
-      else if ((smaut_state_6 == 1) &
-         (c == 92)) {
-          smaut_state_6 = 3;
-      }
-      else if ((smaut_state_6 == 1) &
-         (1)) {
-          smaut_state_6 = 1;
-      }
-      else if ((smaut_state_6 == 3) &
-         (c == 110)) {
-          smaut_state_6 = 1;
-      }
-      else if ((smaut_state_6 == 3) &
-         (c == 102)) {
-          smaut_state_6 = 1;
-      }
-      else if ((smaut_state_6 == 3) &
-         (c == 98)) {
-          smaut_state_6 = 1;
-      }
-      else if ((smaut_state_6 == 3) &
-         (c == 114)) {
-          smaut_state_6 = 1;
-      }
-      else if ((smaut_state_6 == 3) &
-         (c == 116)) {
-          smaut_state_6 = 1;
-      }
-      else if ((smaut_state_6 == 3) &
-         (c == 101)) {
-          smaut_state_6 = 1;
-      }
-      else if ((smaut_state_6 == 3) &
-         (c == 92)) {
-          smaut_state_6 = 1;
-      }
-      else if ((smaut_state_6 == 3) &
-         (c == 39)) {
-          smaut_state_6 = 1;
-      }
-      else if ((smaut_state_6 == 3) &
-         (c == 34)) {
-          smaut_state_6 = 1;
       }
       else {
         smaut_state_6 = -1;
       }
 
       // Check accept
-      if (smaut_state_6 == 2) {
-        smaut_tokenkind_6 = DAISHO_TOK_STRLIT;
+      if ((smaut_state_6 == 1) | (smaut_state_6 == 2)) {
         smaut_munch_size_6 = iidx + 1;
       }
     }
 
-    // Transition WS State Machine
+    // Transition NUMLIT State Machine
     if (smaut_state_7 != -1) {
       all_dead = 0;
 
-      if (((smaut_state_7 == 0) | (smaut_state_7 == 1)) &
-         ((c == 32) | (c == 10) | (c == 13) | (c == 9))) {
+      if ((smaut_state_7 == 0) &
+         ((c == 45) | (c == 43))) {
           smaut_state_7 = 1;
+      }
+      else if (((smaut_state_7 == 0) | (smaut_state_7 == 1) | (smaut_state_7 == 2)) &
+         (((c >= 48) & (c <= 57)))) {
+          smaut_state_7 = 2;
+      }
+      else if ((smaut_state_7 == 2) &
+         (c == 46)) {
+          smaut_state_7 = 3;
+      }
+      else if ((smaut_state_7 == 3) &
+         (((c >= 48) & (c <= 57)))) {
+          smaut_state_7 = 3;
       }
       else {
         smaut_state_7 = -1;
       }
 
       // Check accept
-      if (smaut_state_7 == 1) {
-        smaut_tokenkind_7 = DAISHO_TOK_WS;
+      if ((smaut_state_7 == 2) | (smaut_state_7 == 3)) {
         smaut_munch_size_7 = iidx + 1;
       }
     }
 
-    // Transition MLCOM State Machine
+    // Transition STRLIT State Machine
     if (smaut_state_8 != -1) {
       all_dead = 0;
 
       if ((smaut_state_8 == 0) &
-         (c == 47)) {
+         (c == 34)) {
           smaut_state_8 = 1;
       }
       else if ((smaut_state_8 == 1) &
-         (c == 42)) {
+         (c == 34)) {
           smaut_state_8 = 2;
       }
-      else if ((smaut_state_8 == 2) &
-         (c == 42)) {
+      else if ((smaut_state_8 == 1) &
+         (c == 10)) {
+          smaut_state_8 = 9;
+      }
+      else if ((smaut_state_8 == 1) &
+         (c == 92)) {
           smaut_state_8 = 3;
       }
-      else if ((smaut_state_8 == 2) &
+      else if ((smaut_state_8 == 1) &
          (1)) {
-          smaut_state_8 = 2;
+          smaut_state_8 = 1;
       }
       else if ((smaut_state_8 == 3) &
-         (c == 42)) {
-          smaut_state_8 = 3;
+         (c == 110)) {
+          smaut_state_8 = 1;
       }
       else if ((smaut_state_8 == 3) &
-         (c == 47)) {
-          smaut_state_8 = 4;
+         (c == 102)) {
+          smaut_state_8 = 1;
       }
       else if ((smaut_state_8 == 3) &
-         (1)) {
-          smaut_state_8 = 2;
+         (c == 98)) {
+          smaut_state_8 = 1;
+      }
+      else if ((smaut_state_8 == 3) &
+         (c == 114)) {
+          smaut_state_8 = 1;
+      }
+      else if ((smaut_state_8 == 3) &
+         (c == 116)) {
+          smaut_state_8 = 1;
+      }
+      else if ((smaut_state_8 == 3) &
+         (c == 101)) {
+          smaut_state_8 = 1;
+      }
+      else if ((smaut_state_8 == 3) &
+         (c == 92)) {
+          smaut_state_8 = 1;
+      }
+      else if ((smaut_state_8 == 3) &
+         (c == 39)) {
+          smaut_state_8 = 1;
+      }
+      else if ((smaut_state_8 == 3) &
+         (c == 34)) {
+          smaut_state_8 = 1;
       }
       else {
         smaut_state_8 = -1;
       }
 
       // Check accept
-      if (smaut_state_8 == 4) {
-        smaut_tokenkind_8 = DAISHO_TOK_MLCOM;
+      if (smaut_state_8 == 2) {
         smaut_munch_size_8 = iidx + 1;
       }
     }
 
-    // Transition SLCOM State Machine
+    // Transition WS State Machine
     if (smaut_state_9 != -1) {
       all_dead = 0;
 
-      if ((smaut_state_9 == 0) &
-         (c == 47)) {
+      if (((smaut_state_9 == 0) | (smaut_state_9 == 1)) &
+         ((c == 32) | (c == 10) | (c == 13) | (c == 9))) {
           smaut_state_9 = 1;
-      }
-      else if ((smaut_state_9 == 1) &
-         (c == 47)) {
-          smaut_state_9 = 2;
-      }
-      else if ((smaut_state_9 == 2) &
-         (!(c == 10))) {
-          smaut_state_9 = 2;
-      }
-      else if ((smaut_state_9 == 2) &
-         (c == 10)) {
-          smaut_state_9 = 3;
       }
       else {
         smaut_state_9 = -1;
       }
 
       // Check accept
-      if ((smaut_state_9 == 2) | (smaut_state_9 == 3)) {
-        smaut_tokenkind_9 = DAISHO_TOK_SLCOM;
+      if (smaut_state_9 == 1) {
         smaut_munch_size_9 = iidx + 1;
       }
     }
 
-    // Transition SHEBANG State Machine
+    // Transition MLCOM State Machine
     if (smaut_state_10 != -1) {
       all_dead = 0;
 
       if ((smaut_state_10 == 0) &
-         (c == 35)) {
+         (c == 47)) {
           smaut_state_10 = 1;
       }
       else if ((smaut_state_10 == 1) &
-         (c == 33)) {
+         (c == 42)) {
           smaut_state_10 = 2;
       }
       else if ((smaut_state_10 == 2) &
-         (!(c == 10))) {
-          smaut_state_10 = 2;
-      }
-      else if ((smaut_state_10 == 2) &
-         (c == 10)) {
+         (c == 42)) {
           smaut_state_10 = 3;
+      }
+      else if ((smaut_state_10 == 2) &
+         (1)) {
+          smaut_state_10 = 2;
+      }
+      else if ((smaut_state_10 == 3) &
+         (c == 42)) {
+          smaut_state_10 = 3;
+      }
+      else if ((smaut_state_10 == 3) &
+         (c == 47)) {
+          smaut_state_10 = 4;
+      }
+      else if ((smaut_state_10 == 3) &
+         (1)) {
+          smaut_state_10 = 2;
       }
       else {
         smaut_state_10 = -1;
       }
 
       // Check accept
-      if (smaut_state_10 == 3) {
-        smaut_tokenkind_10 = DAISHO_TOK_SHEBANG;
+      if (smaut_state_10 == 4) {
         smaut_munch_size_10 = iidx + 1;
+      }
+    }
+
+    // Transition SLCOM State Machine
+    if (smaut_state_11 != -1) {
+      all_dead = 0;
+
+      if ((smaut_state_11 == 0) &
+         (c == 47)) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 1) &
+         (c == 47)) {
+          smaut_state_11 = 2;
+      }
+      else if ((smaut_state_11 == 2) &
+         (!(c == 10))) {
+          smaut_state_11 = 2;
+      }
+      else if ((smaut_state_11 == 2) &
+         (c == 10)) {
+          smaut_state_11 = 3;
+      }
+      else {
+        smaut_state_11 = -1;
+      }
+
+      // Check accept
+      if ((smaut_state_11 == 2) | (smaut_state_11 == 3)) {
+        smaut_munch_size_11 = iidx + 1;
+      }
+    }
+
+    // Transition SHEBANG State Machine
+    if (smaut_state_12 != -1) {
+      all_dead = 0;
+
+      if ((smaut_state_12 == 0) &
+         (c == 35)) {
+          smaut_state_12 = 1;
+      }
+      else if ((smaut_state_12 == 1) &
+         (c == 33)) {
+          smaut_state_12 = 2;
+      }
+      else if ((smaut_state_12 == 2) &
+         (!(c == 10))) {
+          smaut_state_12 = 2;
+      }
+      else if ((smaut_state_12 == 2) &
+         (c == 10)) {
+          smaut_state_12 = 3;
+      }
+      else {
+        smaut_state_12 = -1;
+      }
+
+      // Check accept
+      if (smaut_state_12 == 3) {
+        smaut_munch_size_12 = iidx + 1;
       }
     }
 
@@ -1288,32 +1382,40 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   // Determine what token was accepted, if any.
   daisho_token_kind kind = DAISHO_TOK_STREAMEND;
   size_t max_munch = 0;
-  if (smaut_munch_size_10 >= max_munch) {
+  if (smaut_munch_size_12 >= max_munch) {
     kind = DAISHO_TOK_SHEBANG;
+    max_munch = smaut_munch_size_12;
+  }
+  if (smaut_munch_size_11 >= max_munch) {
+    kind = DAISHO_TOK_SLCOM;
+    max_munch = smaut_munch_size_11;
+  }
+  if (smaut_munch_size_10 >= max_munch) {
+    kind = DAISHO_TOK_MLCOM;
     max_munch = smaut_munch_size_10;
   }
   if (smaut_munch_size_9 >= max_munch) {
-    kind = DAISHO_TOK_SLCOM;
+    kind = DAISHO_TOK_WS;
     max_munch = smaut_munch_size_9;
   }
   if (smaut_munch_size_8 >= max_munch) {
-    kind = DAISHO_TOK_MLCOM;
+    kind = DAISHO_TOK_STRLIT;
     max_munch = smaut_munch_size_8;
   }
   if (smaut_munch_size_7 >= max_munch) {
-    kind = DAISHO_TOK_WS;
+    kind = DAISHO_TOK_NUMLIT;
     max_munch = smaut_munch_size_7;
   }
   if (smaut_munch_size_6 >= max_munch) {
-    kind = DAISHO_TOK_STRLIT;
+    kind = DAISHO_TOK_CIDENT;
     max_munch = smaut_munch_size_6;
   }
   if (smaut_munch_size_5 >= max_munch) {
-    kind = DAISHO_TOK_NUM;
+    kind = DAISHO_TOK_VIDENT;
     max_munch = smaut_munch_size_5;
   }
   if (smaut_munch_size_4 >= max_munch) {
-    kind = DAISHO_TOK_IDENT;
+    kind = DAISHO_TOK_TIDENT;
     max_munch = smaut_munch_size_4;
   }
   if (smaut_munch_size_3 >= max_munch) {
@@ -1342,7 +1444,7 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   ret.start = tokenizer->pos;
   ret.len = max_munch;
 
-#if PL0_TOKENIZER_SOURCEINFO
+#if DAISHO_TOKENIZER_SOURCEINFO
   ret.line = tokenizer->pos_line;
   ret.col = tokenizer->pos_col;
   ret.sourceFile = tokenizer->pos_sourceFile;
@@ -1362,3 +1464,4 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
 }
 
 #endif /* DAISHO_TOKENIZER_INCLUDE */
+

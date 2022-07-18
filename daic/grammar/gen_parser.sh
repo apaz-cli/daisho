@@ -1,3 +1,3 @@
 
 # Requires pgen to be installed.
-pgen $@ -g daisho.tok daisho.peg -o daisho_tokenizer_parser.h
+pgen $@ daisho.tok -o daisho_tokenizer_parser.h
