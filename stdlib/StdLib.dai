@@ -1,0 +1,39 @@
+
+trait Boolable {
+  Bool to_bool();
+}
+
+template<T>
+type Optional<T> impl Boolable {
+    T t;
+    Bool present;
+    Bool to_bool() self.present;
+};
+
+template<T>
+trait Iterable<T> {
+    Optional<T> next();
+};
+
+template<T>
+trait Integer impl Boolable {
+    T operator +(T other);
+    T operator -(T other);
+    T operator ++(T other);
+    T operator --(T other);
+    T operator *(T other);
+    T operator /(T other);
+    T operator %(T other);
+    T operator <(T other);
+    T operator >(T other);
+    T operator <=(T other);
+    T operator >=(T other);
+    T operator ~(T other);
+    Bool operator !(T other) self.to_bool()`;
+    T operator ?:(T other) (self.to_bool() ? self : other);
+};
+
+template<T>
+trait Floating {
+    
+};

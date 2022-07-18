@@ -1,28 +1,33 @@
+%node PROG
+program    <- sh:SHEBANG? implicit:BLK
+
 /**************************/
 /* TOP LEVEL DECLARATIONS */
 /**************************/
 
-ctype      <- 
+ctype      <- CTYPE CIDENT STAR*
 
-cfunc      <- CFUNC 
+cfunc      <- CFUNC CIDENT
 
 traitdecl  <- TRAIT id:TIDENT (IMPL)?
               LCBRACK
               RCBRACK
-              
+
 impldecl   <- IMPL tt:TIDENT FOR ft:TIDENT
               LCBRACK
               RCBRACK
 
-fndecl     <- 
+tmpldecl   <-
+
+fndecl     <-
 
 fnproto    <-
 
 fnarglist  <-
 
-type       <- TIDENT
-            / TIDENT GRAVE
-            / type STAR
+type       <- TIDENT       // Type identifier
+            / TIDENT GRAVE // Trait object (+1 pointer, trait)
+            / type STAR    // Pointer type (+1 pointer)
 
 
 /****************************/
@@ -35,72 +40,106 @@ type       <- TIDENT
 /* EXPRESSIONS */
 /***************/
 
-expr       <- e:commaexpr {node=e}
+expr <- next
 
-/* then also = += ?: */
-taexpr     <- eq:eqexpr     (ta:(THEN / ALSO) ex:expr { rule = com ? node(com, eq, ex)   : eq; })*
-eqexpr     <- te:ternexpr   (eq:EQ ex:expr)?                  { rule = eq  ? node(eq, te, ex)    : te; }
-ternexpr   <- le:logorexpr  (q:QUEST _e:expr? COLON ex:expr)? { rule = q   ? node(q, le, _e, ex) : le; }
 
-/* Lambda expression */
+/********************/
+/* BINARY OPERATORS */
+/********************/
 
-/* || && | ^ & */
-logorexpr  <- la:logandexpr (lo:LOGOR ex:expr)?               { rule = lo  ? node(lo, la, ex)    : la; }
-logandexpr <- bo:binorexpr  (an:LOGAND ex:expr)?              { rule = an  ? node(an, bo, ex)    : bo; }
-binorexpr  <- bx:binxorexpr (or:OR ex:expr)?                  { rule = or  ? node(or, bx, ex)    : bx; }
-binxorexpr <- ba:binandexpr (xor:XOR ex:expr)?                { rule = xor ? node(xor, ba, ex)   : ba; }
-binandexpr <- de:deqexpr    (and:AND ex:expr)?                { rule = and ? node(and, de, ex)   : de; }
+%rule LOGOR
+%rule LOG
+%rule OR
+%rule XOR
+%rule AND
+logorexpr  <- n:next {rule=n} (op:LOGOR  n:next {rule=node(LOGOR,  op, rule, n)})*
+logandexpr <- n:next {rule=n} (op:LOGAND n:next {rule=node(LOGAND, op, rule, n)})*
+binorexpr  <- n:next {rule=n} (op:OR     n:next {rule=node(OR,     op  rule, n)})*
+binxorexpr <- n:next {rule=n} (op:XOR    n:next {rule=node(XOR,    op, rule, n)})*
+binandexpr <- n:next {rule=n} (op:AND    n:next {rule=node(AND,    op, rule, n)})*
 
-/* == != */
-eneqexpr   <-
 
-/* < > <= >= */
-cmpexpr    <-
+%rule DEQ
+%rule NEQ
+%rule BEQ
+eneqexpr   <- n:next {rule=n}
+             (op:(DEQ / NEQ)
+              n:next {rule=node(BEQ, op, rule, n)})*
 
-/* << >> */
-%node LSHFEXPR
-%node RSHFEXPR
-shfexpr   <-
 
-/* * / % */
-%node MULEXPR
-%node DIVEXPR
-%node MODEXPR
-mulexpr    <-
-divexpr    <-
-modexpr    <-
+%rule LT
+%rule GT
+%rule LEQ
+%rule GEQ
+%rule CMP
+cmpexpr    <- n:next {rule=n}
+             (op:(LT / GT / LEQ / GEQ)
+              n:next {rule=node(CMP, op, rule, n)})*
 
-/* + - */
-addexpr    <-
-subexpr    <-
 
-/* (Cast) (Call)*/
-castexpr   <- o:OPEN t:type CLOSE e:expr { rule = node(o, t, e); } / re:refexpr { rule = re; }
+%node SHF
+shfexpr    <- n:next {rule=n}
+             (op:(lshf / rshf) // Tokenized as << and >>. See the rule.
+              n:next {rule=node(SHFEXPR, op, rule, n)})*
+
+
+%node FACTOR
+%node MUL
+%node DIV
+%node MOD
+multexpr   <- n:next {rule=n}
+             (op:(MUL / DIV / MOD)
+              n:next {rule=node(FACTOR, op, rule, n)})*
+
+
+%node SUM
+%node PLUS
+%node MINUS
+sumexpr    <- n:next {rule=n}
+             (op:(PLUS / MINUS)
+              n:next {rule=node(SUM, op, rule, n)})*
+
+/* (Cast) (Call) */
+castexpr   <- o:OPEN t:type CLOSE e:expr { rule = node(o, t, e); }
+            / re:refexpr { rule = re; }
 
 /* @ $ */
 refexpr    <- d:derefexpr a:AT? { rule = a != SUCC ? node(REFEXPR, a, d) : d }
-derefexpr  <- 
+derefexpr  <-
 
-/* atoms */
-%node BLKEXPR
-atomexpr   <- blockexpr
-            / lambdaexpr
-            / listcomp
-            / VIDENT
+
+/*********/
+/* ATOMS */
+/*********/
+
+atomexpr   <- VIDENT
             / NUMLIT
             / STRLIT
+            / blockexpr
+            / castexpr
+            / lambdaexpr
+            / listcomp
+            / parenexpr
 
+
+%node BLK
 blockexpr  <- LCBRACK
-              {rule=list(BLKEXPR)}
+              {rule=list(BLK)}
               (e:expr {add(rule, e)})*
               RCBRACK
-lambdaexpr <- 
+
+
+%node LAMBDA
+lambdaexpr <-
 listcomp   <-
+
+parenexpr  <-
 
 /**********************/
 /* MISC GRAMMAR STUFF */
 /**********************/
 
-typelit <- TIDENT
-strlit  <- STRLIT
-numlit  <- NUM
+%node LSHF
+%node RSHF
+lshf    <- l1:LT l2:LT {rule=node(LSHF l1, l2)})}
+rshf    <- g1:GT g2:GT {rule=node(LSHF g1, g2)})}

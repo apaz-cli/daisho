@@ -5,30 +5,32 @@
 
 
 ## Lowest to Highest (Order of visitation, opposite of the order the resolve.)
-* Scope Expression
-  * {expr expr...}, implicit per file.
-* Type Definitions
+* Definitions
   * Struct Declaration
   * Trait Declaration
   * Impl Declaration
   * Function Declaration
+  * CType Declaration
+  * CFunc Declaration
+    * Arguments and return are daisho types, but should be verifiable at C level.
 * Control Flow
-  * for (expr; expr; expr)
-  * for (ident in iterable)
-  * if (cond) expr (else expr)?
+  * for (expr; expr; expr) expr
+  * for (idx, ident in iterable) expr
+  * if (cond) expr (else expr)? // Also acts as ternary
   * while(cond) expr
-* then also ; (; is then but doesn't carry value)
+* ;
+* then also
 * = += *= %= <<= // etc
 * cond ? expr : expr // Ternary
-*  ?: // Null coalesce
 * Binary Operators
+  * ?: // Null coalesce
   * ||
   * &&
   * |
   * ^
   * &
   * == !=
-  * << >>
+  * << >> // Tokenized '<' '<'
   * < > <= >=
   * * / %
   * + -
@@ -37,22 +39,23 @@
   * expr(Type)
   * expr(args..)
   * expr[expr]
-  * expr.return // .ret also works
-  * expr.bret
   * expr.member
-  * @ $
-  * # // .tostring().println()
-  * ~ !
   * ++
   * --
   * +
   * -
+  * @ $
+  * ~ !
+  * #
   * ~
+  * ` // return
+  * '
+  * " // .tostring().print()
 * Atoms
   * (expr) // Paren expr
   * [expr for ident in iterable] // list comprehension
   * [expr, expr, expr...] // list literal
-  * {expr; expr; expr...}
+  * {expr; expr; expr...} // Scope
   * self
   * literal
     * strlit
