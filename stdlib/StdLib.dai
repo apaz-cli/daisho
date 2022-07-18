@@ -1,6 +1,8 @@
 
 trait Boolable {
   Bool to_bool();
+  Bool operator !(T other) self.to_bool()`;
+  T operator ?:(T other) (self.to_bool() ? self : other);
 }
 
 template<T>
@@ -29,8 +31,6 @@ trait Integer impl Boolable {
     T operator <=(T other);
     T operator >=(T other);
     T operator ~(T other);
-    Bool operator !(T other) self.to_bool()`;
-    T operator ?:(T other) (self.to_bool() ? self : other);
 };
 
 template<T>
