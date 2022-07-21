@@ -77,10 +77,10 @@ cmpexpr    <- n:next {rule=n}
              (op:(LT / GT / LEQ / GEQ)
               n:next {rule=node(CMP, op, rule, n)})*
 
-
+%node SHIFT
 shfexpr    <- n:next {rule=n}
-             (op:(lshf r:{r=NULL} / rshf r:{r=SUCC}) // Tokenized as << and >>. See the rule.
-              n:next {rule=r ? node(LSHF, op, rule, n) : node(RSHF, op, rule, n)})*
+             (op:(lshf / rshf) // Tokenized as << and >>. See the rule.
+              n:next {rule=node(SHIFT, op, rule, n)})*
 
 
 %node FACTOR
@@ -145,7 +145,7 @@ parenexpr  <-
 %node LSHF
 %node RSHF
 lshf    <- l:LT lt:LT {rule=node(LSHF, l, lt)}
-rshf    <- g:GT gt:GT {rule=node(LSHF, g, gt)}
+rshf    <- g:GT gt:GT {rule=node(RSHF, g, gt)}
 
 
 /* TOKEN NODE KINDS */
