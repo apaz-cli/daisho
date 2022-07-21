@@ -1,5 +1,6 @@
 %node PROG
-program    <- sh:SHEBANG? implicit:BLK
+%node SHEBANG
+program    <- sh:SHEBANG?
 
 /**************************/
 /* TOP LEVEL DECLARATIONS */
@@ -9,11 +10,11 @@ ctype      <- CTYPE CIDENT STAR*
 
 cfunc      <- CFUNC CIDENT
 
-traitdecl  <- TRAIT id:TIDENT (IMPL)?
+traitdecl  <- TRAIT id:TYPEIDENT (IMPL)?
               LCBRACK
               RCBRACK
 
-impldecl   <- IMPL tt:TIDENT FOR ft:TIDENT
+impldecl   <- IMPL tt:TYPEIDENT FOR ft:TYPEIDENT
               LCBRACK
               RCBRACK
 
@@ -25,9 +26,9 @@ fnproto    <-
 
 fnarglist  <-
 
-type       <- TIDENT       // Type identifier
-            / TIDENT GRAVE // Trait object (+1 pointer, trait)
-            / type STAR    // Pointer type (+1 pointer)
+type       <- TYPEIDENT       // Type identifier
+            / TYPEIDENT GRAVE // Trait object (+1 pointer, trait)
+            / type STAR        // Pointer type (+1 pointer)
 
 
 /****************************/
@@ -47,48 +48,47 @@ expr <- next
 /* BINARY OPERATORS */
 /********************/
 
-%rule LOGOR
-%rule LOG
-%rule OR
-%rule XOR
-%rule AND
+%node LOGOR
+%node LOGAND
+%node OR
+%node XOR
+%node AND
 logorexpr  <- n:next {rule=n} (op:LOGOR  n:next {rule=node(LOGOR,  op, rule, n)})*
 logandexpr <- n:next {rule=n} (op:LOGAND n:next {rule=node(LOGAND, op, rule, n)})*
-binorexpr  <- n:next {rule=n} (op:OR     n:next {rule=node(OR,     op  rule, n)})*
+binorexpr  <- n:next {rule=n} (op:OR     n:next {rule=node(OR,     op, rule, n)})*
 binxorexpr <- n:next {rule=n} (op:XOR    n:next {rule=node(XOR,    op, rule, n)})*
 binandexpr <- n:next {rule=n} (op:AND    n:next {rule=node(AND,    op, rule, n)})*
 
 
-%rule DEQ
-%rule NEQ
-%rule BEQ
+%node DEQ
+%node NEQ
+%node BEQ
 eneqexpr   <- n:next {rule=n}
              (op:(DEQ / NEQ)
               n:next {rule=node(BEQ, op, rule, n)})*
 
 
-%rule LT
-%rule GT
-%rule LEQ
-%rule GEQ
-%rule CMP
+%node LT
+%node GT
+%node LEQ
+%node GEQ
+%node CMP
 cmpexpr    <- n:next {rule=n}
              (op:(LT / GT / LEQ / GEQ)
               n:next {rule=node(CMP, op, rule, n)})*
 
 
-%node SHF
 shfexpr    <- n:next {rule=n}
-             (op:(lshf / rshf) // Tokenized as << and >>. See the rule.
-              n:next {rule=node(SHFEXPR, op, rule, n)})*
+             (op:(lshf r:{r=NULL} / rshf r:{r=SUCC}) // Tokenized as << and >>. See the rule.
+              n:next {rule=r ? node(LSHF, op, rule, n) : node(RSHF, op, rule, n)})*
 
 
 %node FACTOR
-%node MUL
+%node STAR
 %node DIV
 %node MOD
 multexpr   <- n:next {rule=n}
-             (op:(MUL / DIV / MOD)
+             (op:(STAR / DIV / MOD)
               n:next {rule=node(FACTOR, op, rule, n)})*
 
 
@@ -100,11 +100,14 @@ sumexpr    <- n:next {rule=n}
               n:next {rule=node(SUM, op, rule, n)})*
 
 /* (Cast) (Call) */
-castexpr   <- o:OPEN t:type CLOSE e:expr { rule = node(o, t, e); }
+%node CAST
+castexpr   <- o:OPEN t:type CLOSE e:expr { rule = node(CAST, o, t, e); }
             / re:refexpr { rule = re; }
 
 /* @ $ */
-refexpr    <- d:derefexpr a:AT? { rule = a != SUCC ? node(REFEXPR, a, d) : d }
+%node REF
+%node DEREF
+refexpr    <- d:derefexpr a:REF? { rule = a != SUCC ? node(REF, a, d) : d }
 derefexpr  <-
 
 
@@ -112,7 +115,7 @@ derefexpr  <-
 /* ATOMS */
 /*********/
 
-atomexpr   <- VIDENT
+atomexpr   <- VARIDENT
             / NUMLIT
             / STRLIT
             / blockexpr
@@ -141,5 +144,16 @@ parenexpr  <-
 
 %node LSHF
 %node RSHF
-lshf    <- l1:LT l2:LT {rule=node(LSHF l1, l2)})}
-rshf    <- g1:GT g2:GT {rule=node(LSHF g1, g2)})}
+lshf    <- l:LT lt:LT {rule=node(LSHF, l, lt)}
+rshf    <- g:GT gt:GT {rule=node(LSHF, g, gt)}
+
+
+/* TOKEN NODE KINDS */
+
+%node OPEN
+%node CLOSE
+%node VIDENT
+%node NUMLIT
+%node STRLIT
+%node TYPEIDENT
+%node VARIDENT

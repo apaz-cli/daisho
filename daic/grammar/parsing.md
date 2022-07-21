@@ -1,6 +1,8 @@
 # Tokenization
 
-A tokenizer is created for and consumes each source file, each returning a list of tokens. For definitions of tokens, see `daisho.tok`.
+A tokenizer is created for and consumes each source file, each returning a list of tokens.
+
+For definitions of tokens, see `daisho.tok`.
 
 # Parsing
 
@@ -13,7 +15,7 @@ For the implementation grammar, see `daisho.peg`.
   * Impl Declaration
   * Function Declaration
   * CType Declaration
-    * Binds a C type to a Daisho type. Only supports normal type names and pointers, not full C typing, for example function pointers.
+    * Binds a C type to a Daisho type. Only supports normal type names and pointers, not full C typing.
   * CFunc Declaration
     * Arguments and return are daisho types, but should be verifiable against their C types manually. This might be a further extension. Perhaps clangd can help?
 * Control Flow
@@ -79,9 +81,10 @@ There is no iterative refinement of types, only:
 
 # The Algorithm:
   * Tokenize, Parse
-    * These steps are handled by pgen. The output is an abstract syntax tree with tokens in it.
+    * These steps are handled by pgen. The output is an abstract syntax tree with tokens in it. The fact that it has tokens in it is not important, except for the language server implementation.
 
   * Resolve Self
+    * Traverse the tree, keeping track of what Self is supposed to be (the last type definition encountered in a parent node). Replace all instances of that token with what it's supposed to be.
 
   * Monomorphize
     * Traverse the tree, and make another tree of all the template definitions and replacement sites.
