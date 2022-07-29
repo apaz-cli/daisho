@@ -3,6 +3,8 @@
 #include "../PreStart/PreStart.h"
 #include "String.h"
 
+// TODO: Replace this implementation with a fixed one.
+
 /****************/
 /* File Reading */
 /****************/

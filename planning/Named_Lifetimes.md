@@ -11,7 +11,7 @@
 Despite the existence of alternative memory management strategies {Cite a bunch of them including Rust}, most
 programming languages in common use today (with the notable exception of Rust) {Cite PYPL} do memory management in
 one of two ways. They are either garbage collected (like Java/Go/JS/Python), or manual (like C/C++). There are many
-ways to implement a garbage collector, the most popular being "mark and sweep" {Cite} and reference counting {Cite}.
+ways to implement garbage collection, the most popular being "mark and sweep" {Cite} and reference counting {Cite}.
 Each strategy has its tradeoffs. Different garbage collectors have different performance tradeoffs, and garbage
 collectors are generally a lot slower than manual management. However, without a garbage collector and language
 features designed around it, the cognitive overhead on the programmer is much greater. Memory management strategy
