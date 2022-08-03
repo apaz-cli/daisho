@@ -68,6 +68,7 @@ CTYPE: "ctype";
 CFUNC: "cfunc";
 SELFTYPE: "Self";
 SELFVAR: "self";
+VOIDTYPE: "Void";
 
 /////////////////
 // Misc Syntax //

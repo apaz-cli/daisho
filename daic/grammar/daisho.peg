@@ -10,7 +10,14 @@ ctype      <- CTYPE CIDENT STAR*
 
 cfunc      <- CFUNC CIDENT
 
-traitdecl  <- TRAIT id:TYPEIDENT (IMPL)?
+
+classdecl  <- CLASS id:TYPEIDENT
+              impl:(IMPL type (COMMA type)*)?
+              LCBRACK
+              RCBRACK
+
+traitdecl  <- TRAIT id:TYPEIDENT
+              impl:(IMPL type (COMMA type)*)?
               LCBRACK
               RCBRACK
 
@@ -26,9 +33,14 @@ fnproto    <-
 
 fnarglist  <-
 
-type       <- TYPEIDENT       // Type identifier
-            / TYPEIDENT GRAVE // Trait object (+1 pointer, trait)
-            / type STAR        // Pointer type (+1 pointer)
+type       <- VOIDTYPE !STAR        // Void type (Void* means anything, Void means nothing.)
+            / traittype STAR*       // Trait object (+1 pointer, trait)
+            / classtype STAR*       // Type identifier
+            / VOIDTYPE
+
+traittype  <- TYPEIDENT GRAVE*
+
+classtype  <- TYPEIDENT
 
 
 /****************************/
@@ -150,6 +162,7 @@ rshf    <- g:GT gt:GT {rule=node(RSHF, g, gt)}
 
 /* TOKEN NODE KINDS */
 
+%node VOIDTYPE
 %node OPEN
 %node CLOSE
 %node VIDENT
