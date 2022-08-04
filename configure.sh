@@ -50,7 +50,6 @@ test_compatibility() {
 	rm assertions.cfg 2>/dev/null
 
 	# endianness
-	# TODO echo not POSIX?
 	echo -n I | od -to2 | awk 'FNR==0{ print substr($2,6,1)}' && msg "ENDIANNESS" "PASSED" || \
 		warn "Daisho is not supported on Big-Endian or Unknown-Endianness machines."
 
@@ -188,9 +187,9 @@ write_config() {
 set_colors
 write_config
 
-
+cp "$WRITE_TO" "$COPY_TO"
 cat << _end_of_status
 ${MAGENTA}
 Wrote config file to:
-${NORMAL}${WRITE_TO}
+${NORMAL}${COPY_TO}
 _end_of_status
