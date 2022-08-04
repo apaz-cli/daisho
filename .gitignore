@@ -4,7 +4,7 @@ bin/**
 .cache/**
 tests/bin/*
 compile_commands.json
-stdlib/Native/Configs/GeneratedConfig.h
+**/GeneratedConfig.h
 
 # Tokenizer reference materials
 **/Maximal-munch tokenization in linear time.pdf
