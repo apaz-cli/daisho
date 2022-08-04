@@ -6,10 +6,14 @@
 # GLOBALS AND CONSTANTS #
 #########################
 # Generates a config file by appending to this variable.
-WRITE_TO="stdlib/Native/Configs/GeneratedConfig.h"
+WRITE_TO="/tmp/GeneratedConfig.h"
+COPY_TO="stdlib/Native/Configs/GeneratedConfig.h"
 COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
 [ $COLS -gt 90 ] && COLS=57
 IN_CMT="// __DAI_STDLIB_GENERATEDCONFIG"
+
+rm "$WRITE_TO" 2>/dev/null
+touch "$WRITE_TO"
 
 msg() { printf "${GREEN}%-20s:${NORMAL} ${YELLOW}%${COLS}s${NORMAL}\n" "$1" "$2"; }
 warn() { printf "${YELLOW}%-20s: %${COLS}s${NORMAL}\n" "$1" "$2"; exit 1; }

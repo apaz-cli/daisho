@@ -24,10 +24,10 @@ __Dai_strerror(char* errstr) {
     return errstr;
 }
 
-
 __DAI_FN __DAI_NORETURN void
-__Dai_initialization_failure(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
-    char errstr[32];
+__Dai_initialization_failure(int check_sanity, char* msg, __DAI_SRC_INFO_ARGS) {
+    char errstr[__DAI_ERRSTR_LEN];
+    __Dai_strerror(errstr);
     const char succ[] = "Success";
     const char descerr[] = "Could not get error description.";
     const char* sanities[] = {"insane", "sane", "pedantic"};
@@ -41,9 +41,7 @@ __Dai_initialization_failure(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
         "  SANITY: %i, (%i required for check)\n"
         "  MESSAGE: %s\n";
 
-    /* Runs on asingle thread, strerror() is okay. */
-    fprintf(stderr, fmt, file, line, func, errno, errno ? strerror(errno) : succ,
-            __DAI_SANITY_CHECK, sanity, msg);
+    fprintf(stderr, fmt, file, line, func, errno, errstr, __DAI_SANITY_CHECK, check_sanity, msg);
     exit(1);
 }
 
@@ -99,12 +97,44 @@ __Dai_error(int sanity, char* msg, __DAI_SRC_INFO_ARGS) {
 /**********/
 
 /* Assert always. */
-#define __DAI_ASSERT(cond, msg)           do { if (!(cond))                     __Dai_error(0, (char*)(msg), __DAI_SRC_INFO); } while (0)
+#define __DAI_ASSERT(cond, msg)                                    \
+    do {                                                           \
+        if (!(cond)) __Dai_error(0, (char*)(msg), __DAI_SRC_INFO); \
+    } while (0)
 
 /* Assert when not in "insane" mode. */
-#define __DAI_SANE_ASSERT(cond, msg)      do {  if ((!(cond)) & __DAI_SANE)     __Dai_error(1, (char*)(msg), __DAI_SRC_INFO); } while (0)
+#define __DAI_SANE_ASSERT(cond, msg)                                              \
+    do {                                                                          \
+        if ((!(cond)) & __DAI_SANE) __Dai_error(1, (char*)(msg), __DAI_SRC_INFO); \
+    } while (0)
 
 /* Assert only in "pedantic" mode. */
-#define __DAI_PEDANTIC_ASSERT(cond, msg)      do {  if ((!(cond)) & __DAI_PEDANTIC)     __Dai_error(2, (char*)(msg), __DAI_SRC_INFO); } while (0)
+#define __DAI_PEDANTIC_ASSERT(cond, msg)                                              \
+    do {                                                                              \
+        if ((!(cond)) & __DAI_PEDANTIC) __Dai_error(2, (char*)(msg), __DAI_SRC_INFO); \
+    } while (0)
+
+/**************************/
+/* Initializaation Assert */
+/**************************/
+
+/* Assert always. */
+#define __DAI_INIT_ASSERT(cond, msg)                                                \
+    do {                                                                            \
+        if (!(cond)) __Dai_initialization_failure(0, (char*)(msg), __DAI_SRC_INFO); \
+    } while (0)
+
+/* Assert when not in "insane" mode. */
+#define __DAI_INIT_SANE_ASSERT(cond, msg)                                                          \
+    do {                                                                                           \
+        if ((!(cond)) & __DAI_SANE) __Dai_initialization_failure(1, (char*)(msg), __DAI_SRC_INFO); \
+    } while (0)
+
+/* Assert only in "pedantic" mode. */
+#define __DAI_INIT_PEDANTIC_ASSERT(cond, msg)                              \
+    do {                                                                   \
+        if ((!(cond)) & __DAI_PEDANTIC)                                    \
+            __Dai_initialization_failure(2, (char*)(msg), __DAI_SRC_INFO); \
+    } while (0)
 
 #endif /* __DAI_STDLIB_ERROR */

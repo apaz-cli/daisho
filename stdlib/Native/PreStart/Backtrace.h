@@ -128,13 +128,16 @@ __Dai_low_mem_backtrace(void) {
     int num_addrs;
     void* symbol_arr[__DAI_BT_MAX_FRAMES];
     num_addrs = backtrace(symbol_arr, __DAI_BT_MAX_FRAMES);
-    backtrace_symbols_fd(symbol_arr, num_addrs, STDOUT_FILENO);
-    write(STDOUT_FILENO, &nl, 1);
+    backtrace_symbols_fd(symbol_arr, num_addrs, STDERR_FILENO);
+    write(STDERR_FILENO, &nl, 1);
 }
 
 __DAI_FN void
 __Dai_bt_sighandler(int sig, siginfo_t* siginfo, void* ucontext) {
     ucontext_t ctx = *(ucontext_t*)ucontext;
+    fprintf(stderr, "Handled backtrace signal: %s\n", strsignal(sig));
+    __Dai_low_mem_backtrace();
+    _exit(0);
 }
 
 __DAI_FN void
@@ -164,9 +167,9 @@ __Dai_init_backtraces(void) {
     sigset_t set;
     const char seteerr[] = "Could not empty the sigset.";
     const char seterr[] = "Could not add a signal to the set.";
-    __DAI_SANE_ASSERT(sigemptyset(&set), seteerr);
+    __DAI_INIT_SANE_ASSERT(sigemptyset(&set) == 0, seterr);
     for (size_t i = 0; i < num_sigs; i++) {
-        __DAI_SANE_ASSERT(sigaddset(&set, sigs[i]), seterr);
+        __DAI_INIT_SANE_ASSERT(sigaddset(&set, sigs[i]) == 0, seterr);
     }
 
     /* Install Handlers */
@@ -176,7 +179,7 @@ __Dai_init_backtraces(void) {
         action.sa_sigaction = __Dai_bt_sighandler;
         action.sa_flags = SA_SIGINFO;
         action.sa_mask = set;
-        __DAI_SANE_ASSERT(!sigaction(sigs[i], &action, NULL), sseterr);
+        __DAI_INIT_SANE_ASSERT(!sigaction(sigs[i], &action, NULL), sseterr);
     }
 }
 
@@ -189,6 +192,14 @@ __Dai_raise_test_backtrace_signal(void) {
      */
     int sigs[] = {__DAI_BACKTRACE_SIGNALS + 0};
     size_t num_sigs = sizeof(sigs) / sizeof(int);
+    const char nserr[] =
+        "Daisho has been misconfigured.\n"
+        "In Daisho/stdlib/Native/config.h, the list\n"
+        "of signals that trigger a backtrace cannot be empty.\n"
+        "If you want to disable backtraces, #define __DAI_BACKTRACES_SUPPORTED to 0.\n"
+        "Also, call __Dai_init_backtraces before this function.";
+    __DAI_ASSERT(sigs[0] != 0, nserr);
+
     raise(sigs[0]);
 }
 

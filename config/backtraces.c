@@ -8,22 +8,21 @@
 void
 sighandler(int sig, siginfo_t* info, void* ucontext) {
     ucontext_t ctx = *(ucontext_t*)ucontext;
-    puts("In signal handler.");
+    fprintf(stderr, "In signal handler.");
 }
 
 int
 main() {
     // Test backtrace functions
     void* arr[50];
+    char** strings;
     if (!backtrace(arr, 50)) return 1;
-    if (!backtrace_symbols(arr, 50)) return 1;
+    if (!(strings = backtrace_symbols(arr, 50))) return 1;
+    free(strings);
 
-    // Install signal handlers
-    __Dai_install_backtrace_signals();
+    // Test builtin
+    __Dai_init_backtraces();
+    __Dai_raise_test_backtrace_signal();
 
-    // Throw signal
-    raise(SIGSEGV);
-
-
-    puts("Got here.");
+    return 1;
 }
