@@ -13,10 +13,10 @@
 /**********************/
 #define __DAI_HAS_PYTHON 1
 #define __DAI_PYTHON_EXECUTABLE "/usr/bin/python3"
-#define __DAI_PYTHON_VERSION "3.9.2"
+#define __DAI_PYTHON_VERSION "3.10.5"
 #define __DAI_PYTHON_MAJOR_VERSION 3
-#define __DAI_PYTHON_MINOR_VERSION 9
-#define __DAI_PYTHON_SUBMINOR_VERSION 2
+#define __DAI_PYTHON_MINOR_VERSION 10
+#define __DAI_PYTHON_SUBMINOR_VERSION 5
 
 #define __DAI_HAS_ANSI_COLORS 1
 
