@@ -11,7 +11,7 @@ ctype      <- CTYPE CIDENT STAR*
 cfunc      <- CFUNC CIDENT
 
 
-classdecl  <- CLASS id:TYPEIDENT
+structdecl <- STRUCT id:TYPEIDENT
               impl:(IMPL type (COMMA type)*)?
               LCBRACK
               RCBRACK
@@ -21,9 +21,16 @@ traitdecl  <- TRAIT id:TYPEIDENT
               LCBRACK
               RCBRACK
 
+uniondecl  <- UNION id:TYPEIDENT
+              impl:(IMPL type (COMMA type)*)?
+              LCBRACK
+              RCBRACK
+
+
 impldecl   <- IMPL tt:TYPEIDENT FOR ft:TYPEIDENT
               LCBRACK
               RCBRACK
+
 
 tmpldecl   <-
 
@@ -46,6 +53,15 @@ classtype  <- TYPEIDENT
 /****************************/
 /* CONTROL FLOW EXPRESSIONS */
 /****************************/
+
+%node QUESTION
+ifexpr     <- next QUESTION next (COLON next)?
+
+%node FOR
+forexpr    <- FOR OPEN ident (COLON/IN) expr CLOSE expr
+            / FOR OPEN expr SEMI expr SEMI expr CLOSE expr
+
+whileexpr  <- WHILE OPEN expr CLOSE expr
 
 
 
@@ -143,6 +159,9 @@ blockexpr  <- LCBRACK
               (e:expr {add(rule, e)})*
               RCBRACK
 
+/***********************/
+/* SPECIAL EXPRESSIONS */
+/***********************/
 
 %node LAMBDA
 lambdaexpr <-
