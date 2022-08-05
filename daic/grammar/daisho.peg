@@ -54,11 +54,12 @@ classtype  <- TYPEIDENT
 /* CONTROL FLOW EXPRESSIONS */
 /****************************/
 
-%node QUESTION
-ifexpr     <- next QUESTION next (COLON next)?
+%node QUEST
+%node COLON
+ifexpr     <- next QUEST next (COLON next)?
 
 %node FOR
-forexpr    <- FOR OPEN ident (COLON/IN) expr CLOSE expr
+forexpr    <- FOR OPEN expr (COLON/IN) expr CLOSE expr
             / FOR OPEN expr SEMI expr SEMI expr CLOSE expr
 
 whileexpr  <- WHILE OPEN expr CLOSE expr
