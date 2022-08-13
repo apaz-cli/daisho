@@ -36,8 +36,8 @@ For the implementation grammar, see `daisho.peg`.
   * ^
   * &
   * == !=
-  * << >> // Tokenized as `<``<`/`>``>`
-  * < > <= >=
+  * << >> // Tokenized as `<` `<` / `>` `>`
+  * < > <= >=s
   * * / %
   * + -
 * Unary Suffix
@@ -64,6 +64,8 @@ For the implementation grammar, see `daisho.peg`.
   * Type expr // Bind vident type (Like a variable declaration)
   * literal
     * strlit
+      * fstrlit (format strings)
+      * bstrlit (cstrings)
     * num
     * varname
     * initializer list
