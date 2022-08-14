@@ -191,6 +191,7 @@ preretexpr <- RET e:expr {rule=node(RET, e)}
 %node PROG
 %node SHEBANG
 %node NAMESPACE
+%node TEMPLATE
 
 %node QUEST
 %node COLON
