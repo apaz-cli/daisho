@@ -37,8 +37,8 @@ For the implementation grammar, see `daisho.peg`.
   * &
   * == !=
   * << >> // Tokenized as `<` `<` / `>` `>`
-  * < > <= >=s
-  * **
+  * < > <= >=
+  * ** // exponent
   * * / %
   * + -
 * Unary Suffix
@@ -87,7 +87,7 @@ There is no iterative refinement of types, only:
     * These steps are handled by pgen. The output is an abstract syntax tree with tokens in it. The fact that it has tokens in it is not important, except for the language server implementation.
 
   * Resolve Self
-    * Traverse the tree, keeping track of what Self is supposed to be (the last type definition encountered in a parent node). Replace all instances of that token with what it's supposed to be.
+    * Traverse the tree, keeping track of what Self is supposed to be (the last type definition encountered in a parent node). Replace all instances of that token with the pre-monomorphized type.
 
   * Monomorphize
     * Traverse the tree, and make another tree of all the template definitions and replacement sites.

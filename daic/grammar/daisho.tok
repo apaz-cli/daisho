@@ -7,8 +7,9 @@
 // This is helpful for parsing templates.
 PLUS:   "+";
 MINUS:  "-";
-STAR:    "*";
+STAR:   "*";
 DIV:    "/";
+POW:    "**";
 MOD:    "%";
 AND:    "&";
 OR:     "|";
