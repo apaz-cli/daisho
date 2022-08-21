@@ -38,6 +38,7 @@ For the implementation grammar, see `daisho.peg`.
   * == !=
   * << >> // Tokenized as `<` `<` / `>` `>`
   * < > <= >=s
+  * **
   * * / %
   * + -
 * Unary Suffix
