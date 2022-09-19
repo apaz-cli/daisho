@@ -2675,6 +2675,14 @@ static inline void daisho_parser_rewind(daisho_parser_ctx *ctx, pgen_parser_rewi
   ctx->pos = rew.prew;
 }
 
+static inline daisho_astnode_t* daisho_astnode_repr(daisho_astnode_t* node, daisho_astnode_t* t) {
+#if DAISHO_SOURCEINFO
+  node->tok_repr = t->tok_repr;
+  node->len_or_toknum = t->len_or_toknum;
+#endif
+  return node;
+}
+
 #define rec(label)               pgen_parser_rewind_t _rew_##label = (pgen_parser_rewind_t){ctx->alloc->rew, ctx->pos};
 #define rew(label)               daisho_parser_rewind(ctx, _rew_##label)
 #define node(kind, ...)          PGEN_CAT(daisho_astnode_fixed_, PGEN_NARG(__VA_ARGS__))(ctx->alloc, DAISHO_NODE_##kind, __VA_ARGS__)
@@ -2682,7 +2690,7 @@ static inline void daisho_parser_rewind(daisho_parser_ctx *ctx, pgen_parser_rewi
 #define list(kind)               daisho_astnode_list(ctx->alloc, DAISHO_NODE_##kind, 16)
 #define leaf(kind)               daisho_astnode_leaf(ctx->alloc, DAISHO_NODE_##kind)
 #define add(list, node)          daisho_astnode_add(ctx->alloc, list, node)
-#define repr(node, t)            ((DAISHO_SOURCEINFO ? ((node->tok_repr = t->tok_repr), (node->len_or_toknum = t->len_or_toknum)) : 0), node)
+#define repr(node, t)            daisho_astnode_repr(node, t)
 #define SUCC                     ((daisho_astnode_t*)(void*)(uintptr_t)_Alignof(daisho_astnode_t))
 
 static inline int daisho_node_print_content(daisho_astnode_t* node, daisho_token* tokens) {
@@ -2703,7 +2711,6 @@ static inline int daisho_node_print_content(daisho_astnode_t* node, daisho_token
     int success = UTF8_encode(node->tok_repr, node->len_or_toknum, &utf8, &utf8len);
     if (success) return fwrite(utf8, utf8len, 1, stdout), 1;
   }
-  printf(";%p,%zu\n", node->tok_repr, node->len_or_toknum);
 #endif
   return 0;
 }

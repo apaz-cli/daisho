@@ -9,8 +9,7 @@ Token: ()) {.kind=DAISHO_TOK_CLOSE, .len=1, .line=0, .col=10}
 -
 -{
   "kind": "MINUS",
-  "content": ";(nil),0
-",
+  "content": "-",
   "num_children": 2,
   "children": [
     {
@@ -21,8 +20,7 @@ Token: ()) {.kind=DAISHO_TOK_CLOSE, .len=1, .line=0, .col=10}
     },
     {
       "kind": "MINUS",
-      "content": ";(nil),0
-",
+      "content": "-",
       "num_children": 2,
       "children": [
         {
