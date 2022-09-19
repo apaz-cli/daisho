@@ -8,8 +8,6 @@ main(void) {
             fprintf(stderr, "Could not set locale to utf8.\n");
             return 1;
         }
-        return 0;
-    } else {
-        return 0;
     }
+    return 0;
 }

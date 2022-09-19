@@ -1,6 +1,9 @@
 %include <assert.h>
-%extra void* extra;
-%extra void* type;
+%extra     void* extra;
+%extra     void* symtab;
+%extrainit node->extra = NULL;
+%extrainit node->symtab = NULL;
+%postinclude "../asthelpers.h"
 
 file      <- sh:SHEBANG? topdecl (SEMI topdecl)*
 
@@ -11,33 +14,32 @@ file      <- sh:SHEBANG? topdecl (SEMI topdecl)*
 topdecl    <- structdecl / uniondecl / traitdecl / fndecl / impldecl / nsdecl
 
 
-structdecl <- s:STRUCT id:STRUCTIDENT tmpl:tmpldecl?
+structdecl <- STRUCT id:STRUCTIDENT tmpl:tmpldecl?
               impl:(IMPL type (COMMA type)*)?
               LCBRACK
               members:{ret=list(MEMBERLIST)}
              (m:typemember {add(members, m)})*
               RCBRACK
-              n:{n = node(STRUCT, s, id, members);
-              rule = tmpl != SUCC ? rule=node(TMPLSTRUCT, tmpl, n) : n}
+              n:{n = node(STRUCT, id, members);
+              rule = (tmpl != SUCC) ? node(TMPLSTRUCT, tmpl, n) : n}
 
-uniondecl  <- u:UNION id:STRUCTIDENT tmpl:tmplexpand?
+uniondecl  <- UNION id:STRUCTIDENT tmpl:tmplexpand?
               impl:(IMPL type (COMMA type)*)?
               LCBRACK
               members:{ret=list(MEMBERLIST)}
              (m:typemember {add(members, m)})*
               RCBRACK
-              n:{n = node(STRUCT, u, id, members);
-              rule = tmpl != SUCC ? rule=node(TMPLSTRUCT, tmpl, n) : n}
-              
+              n:{n = node(UNION, id, members);
+              rule = (tmpl != SUCC) ? node(TMPLUNION, tmpl, n) : n}
 
-traitdecl  <- t:TRAIT id:STRUCTIDENT tmpl:tmplexpand?
+traitdecl  <- TRAIT id:STRUCTIDENT tmpl:tmplexpand?
               impl:(IMPL type (COMMA type)*)?
               LCBRACK
               members:{ret=list(MEMBERLIST)}
              (m:fnmember {add(members, m)})*
               RCBRACK
-              n:{n = node(STRUCT, t, id, members);
-              rule = tmpl != SUCC ? rule=node(TMPLSTRUCT, tmpl, n) : n}
+              n:{n = node(TRAIT, id, members);
+              rule = (tmpl != SUCC) ? node(TMPLTRAIT, tmpl, n) : n}
 
 fndecl     <- FN fnproto tmplexpand? expr
 
@@ -48,7 +50,7 @@ impldecl   <- IMPL tt:STRUCTIDENT tmplexpand?
              (m:fnmember {add(members, m)})*
               RCBRACK
 
-nsdecl     <- NAMESPACE t:STRUCTIDENT {rule=node(NAMESPACE, t)}
+nsdecl     <- ns:NAMESPACE t:STRUCTIDENT {rule=node(NAMESPACE, t)}
 
 typemember <- t:type v:VARIDENT SEMI {rule=node(TYPEMEMBER, t, v)}
 
@@ -59,36 +61,42 @@ fnmember   <- r:(fndecl / fnproto) SEMI {rule=r}
 /* TYPES */
 /*********/
 
-%node TYPE
-%node TMPLTYPE
-%node TRAITTYPE
-%node STRUCTTYPE
-type<size_t depth = 0>
-           <- v:VOIDTYPE   !STAR              {rule=node(TYPE, v)} // Void means nothing.
-            / v:VOIDTYPE   (STAR {depth++})+  {rule=node(TYPE, v)} // Void* means anything.
-            / s:SELFTYPE   (STAR {depth++})*  {rule=node(TYPE, s)} // Self refers to the type of the first arg, or the current type.
-            / t:traittype  (STAR {depth++})*  {rule=node(TYPE, t)} // Trait object (+1 pointer, trait)
-            / s:structtype (STAR {depth++})*  {rule=node(TYPE, t)} // Type identifier
-            / f:fntype     (STAR {depth++})*  {rule=node(TYPE, f)} // Fn<From -> To> is To(*fptr)(From).
-            
-            
-traittype  <- i:TRAITIDENT t:tmplexpand?
+type<uint8_t depth = 0>
+           <- v:VOIDTYPE     !STAR              {rule=node(TYPE, v)} // Void means nothing.
+            / v:voidptr      (STAR {depth++})*  {rule=node(TYPE, v)} // Void* means anything.
+            / s:SELFTYPE     (STAR {depth++})*  {rule=node(TYPE, s)} // Self refers to the type of the first arg, or the current type.
+            / t:traittype    (STAR {depth++})*  {rule=node(TYPE, t)} // Trait object (+1 pointer, trait)
+            / s:structtype   (STAR {depth++})*  {rule=node(TYPE, t)} // Type identifier
+            / f:fntype       (STAR {depth++})*  {rule=node(TYPE, f)} // Fn<From -> To> is To(*fptr)(From).
+            / c:ctypedecl                       {rule=node(TYPE, c)} // TODO figure out syntax
+
+voidptr    <- v:VOIDPTR         {rule=v}
+            / v:VOIDTYPE s:STAR {rule=leaf(VOIDPTR)}
+
+traittype  <- i:STRUCTIDENT t:tmplexpand?
               {ret = t ? node(TMPLTYPE, t, i) : node(TYPE, i)}
 
 structtype <- s:STRUCTIDENT t:tmplexpand?
               {ret = t ? node(TMPLTYPE, t, s) : node(TYPE, s)}
 
-%node ARGTYPES
-fntype     <- fn:FNTYPE
+ctypedecl  <- CTYPE CIDENT
+
+fntype     <- FNTYPE
               LT
-              argtypes:{ret=list(ARGTYPES)}
+              argtypes:{ret=list(ARGLIST)}
               (      t:type {add(argtypes, t)})?
               (COMMA t:type {add(argtypes, t)})*
-              ARROW
-              rettype:type
+              {if (!argtypes->num_children) add(argtypes, node(TYPE, leaf(VOIDTYPE)))}
+              (arrow:ARROW rettype:type)?
               GT
-              {rule=node(FNTYPE, argtypes, rettype)}
-              / FN tmp:{rule=node(FNTYPE, (tmp=list(ARGTYPES), add(tmp, leaf(VOIDTYPE)), tmp), leaf(VOIDTYPE))}
+              {rule=node(FNTYPE,
+                         argtypes,
+                         ((rettype==SUCC) | (rettype==NULL)) ? node(TYPE, leaf(VOIDTYPE)) : rettype)}
+              /
+              FNTYPE
+              tmp:{rule=node(FNTYPE,
+                            (tmp=list(ARGLIST), add(tmp, node(TYPE, leaf(VOIDTYPE))), tmp),
+                             node(TYPE, leaf(VOIDTYPE)))}
 
 
 /***********************/
@@ -97,7 +105,7 @@ fntype     <- fn:FNTYPE
 
 tmpldecl   <- TEMPLATE
 
-tmplspec   <- 
+tmplspec   <-
 
 tmplexpand <- LT tmplmember? (COMMA tmplmember)* GT
 
@@ -114,25 +122,23 @@ fnbody     <- expr
 /* CONTROL FLOW EXPRESSIONS */
 /****************************/
 
-expr       <- cfexpr / binop
+expr       <- next
 
-cfexpr     <- forexpr / whileexpr / ternexpr
+forexpr    <- FOR OPEN? n:next ((COLON / IN) / (SEMI sn:next SEMI))  n:next CLOSE? n:next
+            / n:next {rule=n}
 
-forexpr    <- FOR OPEN? expr (COLON / IN)   expr CLOSE? expr
-            / FOR OPEN? expr SEMI expr SEMI expr CLOSE? expr
+whileexpr  <- WHILE o:OPEN? n:next c:CLOSE? {ret=o==c?SUCC:NULL} expr
+            / n:next {rule=n}
 
-whileexpr  <- WHILE OPEN? expr CLOSE? expr
-
-%node TERN
-%node IFEXP
 ternexpr   <- n:next (q:QUEST qe:expr (c:COLON ce:expr)?)?
-              {rule = (qe==SUCC) ? n
-                    : (ce==SUCC) ? node(IFEXP, q, n, qe)
-                    :              node(TERN, q, c, n, qe, ce)}
+              {rule = !qe ? n
+                    : !ce ? node(IF, q, n, qe)
+                    :       node(TERN, q, c, n, qe, ce)}
 
-thenexpr   <- n:next (THEN expr)?
+thenexpr   <- n:next {rule=n} (o:THEN nn:next {rule=repr(node(THEN, rule, nn), o)})*
 
-alsoexpr   <- n:next (ALSO expr)?
+alsoexpr   <- n:next {rule=n} (o:ALSO nn:next {rule=repr(node(ALSO, rule, nn), o)})*
+
 
 /********************/
 /* BINARY OPERATORS */
@@ -144,18 +150,18 @@ eqexpr     <- n:next {rule=n}
              (op:(EQ / PLEQ / MINEQ / MULEQ / DIVEQ / MODEQ / ANDEQ / OREQ / XOREQ / BNEQ / BSREQ / BSLEQ)
               t:next
               // Requires information about what the next expression is
-              { 
-                if (op->kind == kind(EQ))         rule=node(EQ, op, rule, t);
-                else if (op->kind == kind(PLEQ))  rule=node(EQ, op, rule, node(PLUS,  op, rule, t));
-                else if (op->kind == kind(MINEQ)) rule=node(EQ, op, rule, node(MINUS, op, rule, t));
-                else if (op->kind == kind(MULEQ)) rule=node(EQ, op, rule, node(MUL,   op, rule, t));
-                else if (op->kind == kind(DIVEQ)) rule=node(EQ, op, rule, node(DIV,   op, rule, t));
-                else if (op->kind == kind(MODEQ)) rule=node(EQ, op, rule, node(MOD,   op, rule, t));
-                else if (op->kind == kind(ANDEQ)) rule=node(EQ, op, rule, node(AND,   op, rule, t));
-                else if (op->kind == kind(OREQ))  rule=node(EQ, op, rule, node(OR,    op, rule, t));
-                else if (op->kind == kind(XOREQ)) rule=node(EQ, op, rule, node(BNEQ,  op, rule, t));
-                else if (op->kind == kind(BSREQ)) rule=node(EQ, op, rule, node(BSR,   op, rule, t));
-                else if (op->kind == kind(BSLEQ)) rule=node(EQ, op, rule, node(BSL,   op, rule, t));
+              {
+                if      (op->kind == kind(EQ))    rule=node(EQ, rule,                       t );
+                else if (op->kind == kind(PLEQ))  rule=node(EQ, rule, node(PLUS,  rule, t));
+                else if (op->kind == kind(MINEQ)) rule=node(EQ, rule, node(MINUS, rule, t));
+                else if (op->kind == kind(MULEQ)) rule=node(EQ, rule, node(MUL,   rule, t));
+                else if (op->kind == kind(DIVEQ)) rule=node(EQ, rule, node(DIV,   rule, t));
+                else if (op->kind == kind(MODEQ)) rule=node(EQ, rule, node(MOD,   rule, t));
+                else if (op->kind == kind(ANDEQ)) rule=node(EQ, rule, node(AND,   rule, t));
+                else if (op->kind == kind(OREQ))  rule=node(EQ, rule, node(OR,    rule, t));
+                else if (op->kind == kind(XOREQ)) rule=node(EQ, rule, node(BNEQ,  rule, t));
+                else if (op->kind == kind(BSREQ)) rule=node(EQ, rule, node(BSR,   rule, t));
+                else if (op->kind == kind(BSLEQ)) rule=node(EQ, rule, node(BSL,   rule, t));
                 else
                   #if defined(__DAI_UNREACHABLE)
                     __DAI_UNREACHABLE()
@@ -164,48 +170,50 @@ eqexpr     <- n:next {rule=n}
                   #endif
               })*
 
-logorexpr  <- n:next {rule=n} (op:LOGOR  n:next {rule=node(LOGOR,  op, rule, n)})*
-logandexpr <- n:next {rule=n} (op:LOGAND n:next {rule=node(LOGAND, op, rule, n)})*
-binorexpr  <- n:next {rule=n} (op:OR     n:next {rule=node(OR,     op, rule, n)})*
-binxorexpr <- n:next {rule=n} (op:XOR    n:next {rule=node(XOR,    op, rule, n)})*
-binandexpr <- n:next {rule=n} (op:AND    n:next {rule=node(AND,    op, rule, n)})*
+logorexpr  <- n:next {rule=n} (o:LOGOR  n:next {rule=repr(node(LOGOR,  rule, n), o)})*
+logandexpr <- n:next {rule=n} (o:LOGAND n:next {rule=repr(node(LOGAND, rule, n), o)})*
+binorexpr  <- n:next {rule=n} (o:OR     n:next {rule=repr(node(OR,     rule, n), o)})*
+binxorexpr <- n:next {rule=n} (o:XOR    n:next {rule=repr(node(XOR,    rule, n), o)})*
+binandexpr <- n:next {rule=n} (o:AND    n:next {rule=repr(node(AND,    rule, n), o)})*
 
 deneqexpr  <- n:next {rule=n}
-             (op:DEQ n:next {rule=node(DEQ, op, rule, n)}
-             /op:NEQ n:next {rule=node(NEQ, op, rule, n)})*
+             (o:DEQ n:next {rule=repr(node(DEQ, rule, n), o)}
+             /o:NEQ n:next {rule=repr(node(NEQ, rule, n), o)})*
 
 cmpexpr    <- n:next {rule=n}
-             (op:LT  n:next {rule=node(LT,  op, rule, n)}
-             /op:GT  n:next {rule=node(GT,  op, rule, n)}
-             /op:LEQ n:next {rule=node(LEQ, op, rule, n)}
-             /op:GEQ n:next {rule=node(GEQ, op, rule, n)})*
+             (o:LT  n:next {rule=repr(node(LT,  rule, n), o)}
+             /o:GT  n:next {rule=repr(node(GT,  rule, n), o)}
+             /o:LEQ n:next {rule=repr(node(LEQ, rule, n), o)}
+             /o:GEQ n:next {rule=repr(node(GEQ, rule, n), o)})*
 
 shfexpr    <- n:next {rule=n} // Tokenized as << and >>.
              (l:LT lt:LT n:next {rule=node(BSL, l, lt, rule, n)}
              /g:GT gt:GT n:next {rule=node(BSR, g, gt, rule, n)})*
 
-powexpr    <- n:next {rule=n} (op:POW {rule=node(POW, op, rule, n)})*
+powexpr    <- n:next {rule=n} (p:POW {rule=repr(node(POW, rule, n), p)})*
 
 multexpr   <- n:next {rule=n}
-             (op:STAR n:next {rule=node(STAR, op, rule, n)}
-             /op:DIV  n:next {rule=node(DIV,  op, rule, n)}
-             /op:MOD  n:next {rule=node(MOD,  op, rule, n)})*
+             (o:STAR n:next {rule=repr(node(STAR, rule, n), o)}
+             /o:DIV  n:next {rule=repr(node(DIV,  rule, n), o)}
+             /o:MOD  n:next {rule=repr(node(MOD,  rule, n), o)})*
 
 sumexpr    <- n:next {rule=n}
-             (op:PLUS  n:next {rule=node(PLUS, op, rule, n)}
-             /op:MINUS n:next {rule=node(MINUS, op, rule, n)})*
+             (o:PLUS  n:next {rule=repr(node(PLUS,  rule, n), o)}
+             /o:MINUS n:next {rule=repr(node(MINUS, rule, n), o)} 
+             
+             {puts("");daisho_node_print_content(o, ctx->tokens)})*
 
 callexpr   <- VARIDENT t:tmplexpand? OPEN CLOSE
             / n:next {rule=n}
 
-castexpr   <- n:next o:OPEN t:type CLOSE {rule=node(CAST, o, t, n)}
-            / re:refexpr {rule = re}
+castexpr   <- n:next (OPEN t:type CLOSE)? {rule = t ? node(CAST, t, n) : n}
 
 refexpr    <- n:next r:REF?    {rule=(r != SUCC) ? node(REF, r, n) : n}
 
 derefexpr  <- n:next d:DEREF?  {rule=(d != SUCC) ? node(REF, d, n) : n}
 
 postretexpr <- n:next g:GRAVE? {rule=(g != SUCC) ? node(RET, g, n) : n}
+
 
 /*********************************/
 /* ATOMS AND SPECIAL EXPRESSIONS */
@@ -216,19 +224,18 @@ atomexpr   <- blockexpr
             / listcomp
             / listlit
             / parenexpr
-            / ctypeexpr
             / cfuncexpr
             / preretexpr
             / VARIDENT
-            / NUMLIT
-            / STRLIT
+            / numlit
+            / strlit
 
 blockexpr  <- LCBRACK
               {rule=list(BLK)}
               (e:expr {add(rule, e)})*
               RCBRACK
 
-lambdaexpr <- OPEN CLOSE
+lambdaexpr <- (LSBRACK expr? (COMMA expr)* RSBRACK)? ((OPEN CLOSE) / (VARIDENT)) ARROW expr
 
 listcomp   <- LSBRACK
               (cnt:VARIDENT COMMA)? expr   // Optional count
@@ -241,20 +248,23 @@ listlit    <- LSBRACK expr? (COMMA expr)* COMMA? RSBRACK
 
 parenexpr  <- OPEN e:expr CLOSE {rule=e}
 
-ctypeexpr  <- CTYPE CIDENT STAR*
-
 cfuncexpr  <- CFUNC CIDENT
 
 preretexpr <- r:RET e:expr {rule=node(RET, r, e)}
 
+numlit     <- pm:(PLUS / MINUS)? nl:NUMLIT {rule = nl}
 
-/********************/
-/* TOKEN NODE KINDS */
-/********************/
+strlit     <- STRLIT // todo: adapt for fstrings
+
+
+/**************/
+/* NODE KINDS */
+/**************/
 
 %node PROG
 %node SHEBANG
 %node NAMESPACE
+%node GLOBALSCOPE
 
 %node TEMPLATE
 %node MEMBERLIST
@@ -264,7 +274,11 @@ preretexpr <- r:RET e:expr {rule=node(RET, r, e)}
 %node TMPLUNION
 %node TRAIT
 %node TMPLTRAIT
-
+%node TYPE
+%node TMPLTYPE
+%node TRAITTYPE
+%node STRUCTTYPE
+%node VOIDPTR
 
 %node QUEST
 %node COLON
@@ -276,6 +290,8 @@ preretexpr <- r:RET e:expr {rule=node(RET, r, e)}
 %node REF
 %node DEREF
 %node BLK
+%node ARGLIST
+%node ARROW
 %node LAMBDA
 
 %node EQ
@@ -290,6 +306,11 @@ preretexpr <- r:RET e:expr {rule=node(RET, r, e)}
 %node BNEQ
 %node BSREQ
 %node BSLEQ
+
+%node TERN
+%node IF
+%node THEN
+%node ALSO
 
 %node LOGOR
 %node LOGAND
@@ -332,8 +353,5 @@ preretexpr <- r:RET e:expr {rule=node(RET, r, e)}
 %node STRLIT
 %node TYPEMEMBER
 %node STRUCTIDENT
-%node TRAITIDENT
+%node DTRAITIDENT
 %node VARIDENT
-
-
-

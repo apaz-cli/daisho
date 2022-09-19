@@ -4,18 +4,21 @@ A tokenizer is created for and consumes each source file, each returning a list 
 
 For definitions of tokens, see `daisho.tok`.
 
+
 # Parsing
 
 For the implementation grammar, see `daisho.peg`.
 
+
 ## Precedence (Lowest to Highest)
-* Definitions
+* Declarations
   * Struct Declaration
   * Trait Declaration
   * Impl Declaration
   * Function Declaration
   * CType Declaration
     * Binds a C type to a Daisho type. Only supports normal type names and pointers, not full C typing.
+    * Can be used as that type.
   * CFunc Declaration
     * Arguments and return are daisho types, but should be verifiable against their C types manually. This might be a further extension. Perhaps clangd can help?
 * Control Flow
@@ -74,7 +77,11 @@ For the implementation grammar, see `daisho.peg`.
 
 # Monomorphization, Unification, and Symtab Generation
 
-Type unification is bidirectional, and happens post-template replacement (monomorphization, henceforth). Generally, type information travels from the bottom of the AST (the leaves) upwards. As it travels, (post-mono) types are chosen. When types hit constraints, they are checked against the constraint. Then either the type is coerced, or an error is thrown.
+Type unification is bidirectional, and happens post-template and static trait replacement
+(henceforth monomorphization). Generally, type information travels from the bottom of the
+AST (the leaves) upwards. As it travels, (post-mono) types are chosen. When types hit
+constraints, they are checked against the constraint. Then either the type is coerced,
+or an error is thrown.
 
 There is no iterative refinement of types, only:
   * Literals that don't yet have a post-mono type
@@ -84,25 +91,42 @@ There is no iterative refinement of types, only:
 
 # The Algorithm:
   * Tokenize, Parse
-    * These steps are handled by pgen. The output is an abstract syntax tree with tokens in it. The fact that it has tokens in it is not important, except for the language server implementation.
+    * These steps are handled by pgen. The output is an abstract syntax tree. The AST
+      also contains source information for the LSP implementation.
+    * `%extra` has been defined with a pointer to extra and a pointer to symtab.
+    * With source info, it also has `src_begin` and `src_end` (or whatever I name it).
 
   * Resolve Self
-    * Traverse the tree, keeping track of what Self is supposed to be (the last type definition encountered in a parent node). Replace all instances of that token with the pre-monomorphized type.
+    * Traverse the tree, keeping track of what Self is supposed to be (the last type
+      definition encountered in a parent node). Replace all instances of that token
+      with the pre-monomorphized type.
 
   * Monomorphize
-    * Traverse the tree, and make another tree of all the template definitions and replacement sites.
+    * Traverse the tree, and make another tree of all the template definitions and
+      replacement sites.
 
-  * Create a tree of symbol tables out of each scope.
-    * Each scope is implied to contain the symbols belonging to its parents, but not its parents' children.
+  * Create symbol tables for each scope in the AST.
+    * Symbol tables are a simple map of Post-Mono-Identifier -> Info.
+    * Each scope is implied to contain the symbols belonging to its parents, but not its
+      parents' children.
+    * The nodes that contain symbol tables are:
+      * `{}`
+      * `Struct`, `Union`, `Trait`
+      * `fn` (args, not the body), `->` (args, captures)
+      * `Module`
 
   * Preorder traverse the abstract syntax tree.
-    * Pull out all of the type definitions. Stick their names and the constraints on them into a table in the the scope they came out of.
-    * Pull out all of the trait definitions. Stick their names and their signatures into a table in the scope they came out of.
-    * Pull out all the function definitions. Stick their names and what they're implemented on into a table in the scope they came out of.
+    * Pull out all of the type definitions. Stick their names and the constraints on them
+      into a table in the the scope they came out of.
+    * Pull out all of the trait definitions. Stick their names and their signatures
+      into a table in the scope they came out of.
+    * Pull out all the function definitions. Stick their names and what they're
+      implemented on into a table in the scope they came out of.
     * List the type erased traits that each type says it implements.
 
   * Postorder traverse the abstract syntax tree.
     * 
+
   * 
 
 

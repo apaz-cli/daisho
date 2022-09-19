@@ -119,10 +119,12 @@ CFUNC: (4, 5, 6) { // cfn|cfun|cfunc
   (4, 'c') -> 5;
   (2, 'n') -> 6;
 };
+NAMESPACE: "namespace";
 SELFTYPE: "Self";
 SELFVAR: "self";
 VOIDTYPE: "Void";
-NAMESPACE: "namespace";
+VOIDPTR: "VoidPtr";
+
 
 /////////////////
 // Misc Syntax //
@@ -195,7 +197,7 @@ STRUCTIDENT: (1, 2) {
 };
 
 // Starts with capital, ends with '
-TRAITIDENT: 3 {
+DTRAITIDENT: 3 {
   (0, [A-Z]) -> 1;
   ((1, 2), [_a-zA-Zα-ωΑ-Ω0-9]) -> 2;
   ((1, 2), [']) -> 3;
@@ -212,12 +214,11 @@ CIDENT: (1, 2) {
   ((1, 2), [_a-zA-Z0-9]) -> 2;
 };
 
-// [-+]?[0-9]+(\.[0-9]+)?
-NUMLIT: (2, 3) {
-  (0, [-+]) -> 1;
-  ((0, 1, 2), [0-9]) -> 2;
-  (2, '.') -> 3;
-  (3, [0-9]) -> 3;
+// [0-9]+(\.[0-9]+)?
+NUMLIT: (1, 2) {
+  (0, [0-9]) -> 1;
+  ((0, 1), '.') -> 2;
+  (2, [0-9]) -> 2;
 };
 
 // ["]([^"\n\\]|\\[nfbrte\\'"])*["]
