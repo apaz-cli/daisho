@@ -135,9 +135,9 @@ ternexpr   <- n:next (q:QUEST qe:expr (c:COLON ce:expr)?)?
                     : !ce ? node(IF, q, n, qe)
                     :       node(TERN, q, c, n, qe, ce)}
 
-thenexpr   <- n:next {rule=n} (o:THEN nn:next {rule=repr(node(THEN, rule, nn), o)})*
+thenexpr   <- n:next {rule=n} (o:THEN nn:next {rule=srepr(node(THEN, rule, nn), "then")})*
 
-alsoexpr   <- n:next {rule=n} (o:ALSO nn:next {rule=repr(node(ALSO, rule, nn), o)})*
+alsoexpr   <- n:next {rule=n} (o:ALSO nn:next {rule=srepr(node(ALSO, rule, nn), "also")})*
 
 
 /********************/
@@ -170,49 +170,49 @@ eqexpr     <- n:next {rule=n}
                   #endif
               })*
 
-logorexpr  <- n:next {rule=n} (o:LOGOR  n:next {rule=repr(node(LOGOR,  rule, n), o)})*
-logandexpr <- n:next {rule=n} (o:LOGAND n:next {rule=repr(node(LOGAND, rule, n), o)})*
-binorexpr  <- n:next {rule=n} (o:OR     n:next {rule=repr(node(OR,     rule, n), o)})*
-binxorexpr <- n:next {rule=n} (o:XOR    n:next {rule=repr(node(XOR,    rule, n), o)})*
-binandexpr <- n:next {rule=n} (o:AND    n:next {rule=repr(node(AND,    rule, n), o)})*
+logorexpr  <- n:next {rule=n} (LOGOR  n:next {rule=srepr(node(LOGOR,  rule, n), "||")})*
+logandexpr <- n:next {rule=n} (LOGAND n:next {rule=srepr(node(LOGAND, rule, n), "&&")})*
+binorexpr  <- n:next {rule=n} (OR     n:next {rule=srepr(node(OR,     rule, n), "|")})*
+binxorexpr <- n:next {rule=n} (XOR    n:next {rule=srepr(node(XOR,    rule, n), "^")})*
+binandexpr <- n:next {rule=n} (AND    n:next {rule=srepr(node(AND,    rule, n), "&")})*
 
 deneqexpr  <- n:next {rule=n}
-             (o:DEQ n:next {rule=repr(node(DEQ, rule, n), o)}
-             /o:NEQ n:next {rule=repr(node(NEQ, rule, n), o)})*
+             (DEQ n:next {rule=srepr(node(DEQ, rule, n), "==")}
+             /NEQ n:next {rule=srepr(node(NEQ, rule, n), "!=")})*
 
 cmpexpr    <- n:next {rule=n}
-             (o:LT  n:next {rule=repr(node(LT,  rule, n), o)}
-             /o:GT  n:next {rule=repr(node(GT,  rule, n), o)}
-             /o:LEQ n:next {rule=repr(node(LEQ, rule, n), o)}
-             /o:GEQ n:next {rule=repr(node(GEQ, rule, n), o)})*
+             (LT  n:next {rule=srepr(node(LT,  rule, n), "<")}
+             /GT  n:next {rule=srepr(node(GT,  rule, n), ">")}
+             /LEQ n:next {rule=srepr(node(LEQ, rule, n), "<=")}
+             /GEQ n:next {rule=srepr(node(GEQ, rule, n), ">=")})*
 
 shfexpr    <- n:next {rule=n} // Tokenized as << and >>.
-             (l:LT lt:LT n:next {rule=node(BSL, l, lt, rule, n)}
-             /g:GT gt:GT n:next {rule=node(BSR, g, gt, rule, n)})*
+             (LT LT n:next {rule=srepr(node(BSL, rule, n), "<<")}
+             /GT GT n:next {rule=srepr(node(BSR, rule, n), ">>")})*
 
-powexpr    <- n:next {rule=n} (p:POW {rule=repr(node(POW, rule, n), p)})*
+powexpr    <- n:next {rule=n} (POW {rule=srepr(node(POW, rule, n), "**")})*
 
 multexpr   <- n:next {rule=n}
-             (o:STAR n:next {rule=repr(node(STAR, rule, n), o)}
-             /o:DIV  n:next {rule=repr(node(DIV,  rule, n), o)}
-             /o:MOD  n:next {rule=repr(node(MOD,  rule, n), o)})*
+             (STAR n:next {rule=srepr(node(STAR, rule, n), "*")}
+             /DIV  n:next {rule=srepr(node(DIV,  rule, n), "/")}
+             /MOD  n:next {rule=srepr(node(MOD,  rule, n), "%")})*
 
 sumexpr    <- n:next {rule=n}
-             (o:PLUS  n:next {rule=repr(node(PLUS,  rule, n), o)}
-             /o:MINUS n:next {rule=repr(node(MINUS, rule, n), o)} 
-             
-             {puts("");daisho_node_print_content(o, ctx->tokens)})*
+             (PLUS  n:next {rule=srepr(node(PLUS,  rule, n), "+")}
+             /MINUS n:next {rule=srepr(node(MINUS, rule, n), "-")})*
 
-callexpr   <- VARIDENT t:tmplexpand? OPEN CLOSE
-            / n:next {rule=n}
+%node CALL
+%node TMPLCALL
+// TODO tmplexpand, args, recurse
+callexpr   <- n:next {rule=n} t:tmplexpand? (OPEN CLOSE {rule=node(CALL, n); if (t) rule=node(TMPLCALL, rule, t)})*
 
-castexpr   <- n:next (OPEN t:type CLOSE)? {rule = t ? node(CAST, t, n) : n}
+castexpr   <- n:next {rule=n} (OPEN t:type CLOSE {rule = srepr(node(CAST, rule, t), "cast")})* 
 
-refexpr    <- n:next r:REF?    {rule=(r != SUCC) ? node(REF, r, n) : n}
+refexpr    <- n:next r:REF?    {rule=(r != SUCC) ? srepr(node(REF, r, n), "@") : n}
 
-derefexpr  <- n:next d:DEREF?  {rule=(d != SUCC) ? node(REF, d, n) : n}
+derefexpr  <- n:next d:DEREF?  {rule=(d != SUCC) ? srepr(node(REF, d, n), "$") : n}
 
-postretexpr <- n:next g:GRAVE? {rule=(g != SUCC) ? node(RET, g, n) : n}
+postretexpr <- n:next g:GRAVE? {rule=(g != SUCC) ? srepr(node(RET, g, n), "return") : n}
 
 
 /*********************************/
