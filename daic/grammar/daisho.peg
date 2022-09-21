@@ -23,7 +23,7 @@ structdecl <- STRUCT id:STRUCTIDENT tmpl:tmpldecl?
              (m:typemember {add(members, m)})*
               RCBRACK
               n:{n = node(STRUCT, id, members);
-              rule = (tmpl != SUCC) ? node(TMPLSTRUCT, tmpl, n) : n}
+              rule = has(tmpl) ? node(TMPLSTRUCT, tmpl, n) : n}
 
 uniondecl  <- UNION id:STRUCTIDENT tmpl:tmplexpand?
               impl:(IMPL type (COMMA type)*)?
@@ -32,7 +32,7 @@ uniondecl  <- UNION id:STRUCTIDENT tmpl:tmplexpand?
              (m:typemember {add(members, m)})*
               RCBRACK
               n:{n = node(UNION, id, members);
-              rule = (tmpl != SUCC) ? node(TMPLUNION, tmpl, n) : n}
+              rule = has(tmpl) ? node(TMPLUNION, tmpl, n) : n}
 
 traitdecl  <- TRAIT id:STRUCTIDENT tmpl:tmplexpand?
               impl:(IMPL type (COMMA type)*)?
@@ -41,7 +41,7 @@ traitdecl  <- TRAIT id:STRUCTIDENT tmpl:tmplexpand?
              (m:fnmember {add(members, m)})*
               RCBRACK
               n:{n = node(TRAIT, id, members);
-              rule = (tmpl != SUCC) ? node(TMPLTRAIT, tmpl, n) : n}
+              rule = has(tmpl) ? node(TMPLTRAIT, tmpl, n) : n}
 
 fndecl     <- FN fnproto tmplexpand? expr
 
@@ -69,7 +69,7 @@ type<uint8_t depth = 0>
             / v:voidptr      (STAR {depth++})*  {rule=node(TYPE, v)} // Void* means anything.
             / s:SELFTYPE     (STAR {depth++})*  {rule=node(TYPE, s)} // Self refers to the type of the first arg, or the current type.
             / t:traittype    (STAR {depth++})*  {rule=node(TYPE, t)} // Trait object (+1 pointer, trait)
-            / s:structtype   (STAR {depth++})*  {rule=node(TYPE, t)} // Type identifier
+            / s:structtype   (STAR {depth++})*  {rule=node(TYPE, s)} // Type identifier
             / f:fntype       (STAR {depth++})*  {rule=node(TYPE, f)} // Fn<From -> To> is To(*fptr)(From).
             / c:ctypedecl                       {rule=node(TYPE, c)} // TODO figure out syntax
 
@@ -77,10 +77,10 @@ voidptr    <- v:VOIDPTR         {rule=v}
             / v:VOIDTYPE s:STAR {rule=leaf(VOIDPTR)}
 
 traittype  <- i:STRUCTIDENT t:tmplexpand?
-              {ret = t ? node(TMPLTYPE, t, i) : node(TYPE, i)}
+              {rule = has(t) ? node(TMPLTYPE, t, i) : node(TYPE, i)}
 
 structtype <- s:STRUCTIDENT t:tmplexpand?
-              {ret = t ? node(TMPLTYPE, t, s) : node(TYPE, s)}
+              {rule = has(t) ? node(TMPLTYPE, t, s) : node(TYPE, s)}
 
 ctypedecl  <- CTYPE CIDENT
 
@@ -94,7 +94,7 @@ fntype     <- FNTYPE
               GT
               {rule=node(FNTYPE,
                          argtypes,
-                         ((rettype==SUCC) | (rettype==NULL)) ? node(TYPE, leaf(VOIDTYPE)) : rettype)}
+                         !has(rettype) ? node(TYPE, leaf(VOIDTYPE)) : rettype)}
               /
               FNTYPE
               tmp:{rule=node(FNTYPE,
@@ -130,7 +130,7 @@ expr       <- next
 %node IF
 %node IFELSE
 ifeexpr    <- IF cond:ternexpr ex:expr (ELSE eex:expr)?
-              {rule= !eex ? srepr(node(IF, cond, ex), "if") : srepr(node(IFELSE, cond, ex, eex), "if-else")}
+              {rule= !has(eex) ? srepr(node(IF, cond, ex), "if") : srepr(node(IFELSE, cond, ex, eex), "if-else")}
             / n:next {rule=n}
 
 forexpr    <- FOR OPEN? n:next ((COLON / IN) / (SEMI sn:next SEMI))  n:next CLOSE? n:next
@@ -140,9 +140,9 @@ whileexpr  <- WHILE o:OPEN? n:next c:CLOSE? {ret=o==c?SUCC:NULL} expr
             / n:next {rule=n}
 
 ternexpr   <- n:next (q:QUEST qe:expr (c:COLON ce:expr)?)?
-              {rule = !qe ? n
-                    : !ce ? node(ELVIS, q, n, qe)
-                    :       node(TERN, q, c, n, qe, ce)}
+              {rule = !has(qe) ? n
+                    : !has(ce) ? node(ELVIS, q, n, qe)
+                    :            node(TERN, q, c, n, qe, ce)}
 
 thenexpr   <- n:next {rule=n} (o:THEN nn:next {rule=srepr(node(THEN, rule, nn), "then")})*
 
@@ -211,28 +211,25 @@ shfexpr    <- n:next {rule=n} // Tokenized as << and >>.
              (LT LT n:next {rule=srepr(node(BSL, rule, n), "<<")}
              /GT GT n:next {rule=srepr(node(BSR, rule, n), ">>")})*
 
-%node CALL
-%node TMPLCALL
 callexpr   <- vi:VARIDENT t:tmplexpand?
               (args:fncallargs
-              {rule=node(CALL, vi, args); if (t!=SUCC) {rule=node(TMPLCALL, rule, t);t=NULL;}})*
-              {ret=((uintptr_t)rule <= (uintptr_t)SUCC)?NULL:SUCC}
+              {rule=node(CALL, vi, args); if (has(t)) {rule=node(TMPLCALL, rule, t);t=NULL;}})*
+              {ret=!has(rule)?NULL:SUCC}
               /
               n:castexpr {rule=n}
               (args:fncallargs {rule=node(CALL, rule, args)})*
-                            
-%node FNARGLIST
+
 fncallargs <- OPEN l:{ret=rule=list(FNARGLIST)}
-              e:expr? {if (e!=SUCC) add(l, e)} (COMMA e:expr {add(l, e)})* COMMA?
+              e:expr? {if (has(e)) add(l, e)} (COMMA e:expr {add(l, e)})* COMMA?
               CLOSE
 
 castexpr   <- n:next {rule=n} (OPEN t:type CLOSE {rule = srepr(node(CAST, rule, t), "cast")})* 
 
-refexpr    <- n:next r:REF?    {rule=(r != SUCC) ? srepr(node(REF, n), "@") : n}
+refexpr    <- n:next r:REF?    {rule=has(r) ? srepr(node(REF, n), "@") : n}
 
-derefexpr  <- n:next d:DEREF?  {rule=(d != SUCC) ? srepr(node(REF, n), "$") : n}
+derefexpr  <- n:next d:DEREF?  {rule=has(d) ? srepr(node(REF, n), "$") : n}
 
-postretexpr <- n:next g:GRAVE? {rule=(g != SUCC) ? srepr(node(RET, n), "return") : n}
+postretexpr <- n:next g:GRAVE? {rule=has(g) ? srepr(node(RET, n), "return") : n}
 
 
 /*********************************/
@@ -255,7 +252,7 @@ blockexpr  <- LCBRACK
               (e:expr {add(rule, e)})*
               RCBRACK
 
-lambdaexpr <- (LSBRACK expr? (COMMA expr)* RSBRACK)? ((OPEN CLOSE) / (VARIDENT)) ARROW expr
+lambdaexpr <- (LSBRACK expr? (COMMA expr)* RSBRACK)? ((OPEN VARIDENT? (COMMA VARIDENT)* CLOSE) / (VARIDENT)) ARROW expr
 
 listcomp   <- LSBRACK
               (cnt:VARIDENT COMMA)? expr   // Optional count
@@ -361,6 +358,10 @@ strlit     <- STRLIT // todo: adapt for fstrings
 
 %node RET
 %node GRAVE
+
+%node CALL
+%node TMPLCALL
+%node FNARGLIST
 
 %node SELF
 %node SELFTYPE
