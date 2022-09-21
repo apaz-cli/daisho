@@ -98,7 +98,10 @@ main(void) {
     daisho_astnode_t* ast = daisho_parse_expr(&parser);
 
     // Print AST
-    daisho_astnode_print_json(tokens, ast);
+    if (ast)
+        daisho_astnode_print_json(tokens, ast);
+    else
+        puts("null");
 
     free(cps);
     List_daisho_token_destroy(tokens);

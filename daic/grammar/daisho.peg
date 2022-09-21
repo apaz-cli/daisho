@@ -1,8 +1,10 @@
 %include <assert.h>
 %extra     void* extra;
 %extra     void* symtab;
+%extra     void* type;
 %extrainit node->extra = NULL;
 %extrainit node->symtab = NULL;
+%extrainit node->type = NULL;
 %postinclude "../asthelpers.h"
 
 file      <- sh:SHEBANG? topdecl (SEMI topdecl)*
@@ -61,6 +63,7 @@ fnmember   <- r:(fndecl / fnproto) SEMI {rule=r}
 /* TYPES */
 /*********/
 
+// a type, not a type definition
 type<uint8_t depth = 0>
            <- v:VOIDTYPE     !STAR              {rule=node(TYPE, v)} // Void means nothing.
             / v:voidptr      (STAR {depth++})*  {rule=node(TYPE, v)} // Void* means anything.
@@ -124,6 +127,12 @@ fnbody     <- expr
 
 expr       <- next
 
+%node IF
+%node IFELSE
+ifeexpr    <- IF cond:ternexpr ex:expr (ELSE eex:expr)?
+              {rule= !eex ? srepr(node(IF, cond, ex), "if") : srepr(node(IFELSE, cond, ex, eex), "if-else")}
+            / n:next {rule=n}
+
 forexpr    <- FOR OPEN? n:next ((COLON / IN) / (SEMI sn:next SEMI))  n:next CLOSE? n:next
             / n:next {rule=n}
 
@@ -132,7 +141,7 @@ whileexpr  <- WHILE o:OPEN? n:next c:CLOSE? {ret=o==c?SUCC:NULL} expr
 
 ternexpr   <- n:next (q:QUEST qe:expr (c:COLON ce:expr)?)?
               {rule = !qe ? n
-                    : !ce ? node(IF, q, n, qe)
+                    : !ce ? node(ELVIS, q, n, qe)
                     :       node(TERN, q, c, n, qe, ce)}
 
 thenexpr   <- n:next {rule=n} (o:THEN nn:next {rule=srepr(node(THEN, rule, nn), "then")})*
@@ -186,33 +195,44 @@ cmpexpr    <- n:next {rule=n}
              /LEQ n:next {rule=srepr(node(LEQ, rule, n), "<=")}
              /GEQ n:next {rule=srepr(node(GEQ, rule, n), ">=")})*
 
-shfexpr    <- n:next {rule=n} // Tokenized as << and >>.
-             (LT LT n:next {rule=srepr(node(BSL, rule, n), "<<")}
-             /GT GT n:next {rule=srepr(node(BSR, rule, n), ">>")})*
-
-powexpr    <- n:next {rule=n} (POW {rule=srepr(node(POW, rule, n), "**")})*
+sumexpr    <- n:next {rule=n}
+             (PLUS  n:next {rule=srepr(node(PLUS,  rule, n), "+")}
+             /MINUS n:next {rule=srepr(node(MINUS, rule, n), "-")})*
 
 multexpr   <- n:next {rule=n}
              (STAR n:next {rule=srepr(node(STAR, rule, n), "*")}
              /DIV  n:next {rule=srepr(node(DIV,  rule, n), "/")}
              /MOD  n:next {rule=srepr(node(MOD,  rule, n), "%")})*
 
-sumexpr    <- n:next {rule=n}
-             (PLUS  n:next {rule=srepr(node(PLUS,  rule, n), "+")}
-             /MINUS n:next {rule=srepr(node(MINUS, rule, n), "-")})*
+powexpr    <- n:next {rule=n} (POW {rule=srepr(node(POW, rule, n), "**")})*
+
+
+shfexpr    <- n:next {rule=n} // Tokenized as << and >>.
+             (LT LT n:next {rule=srepr(node(BSL, rule, n), "<<")}
+             /GT GT n:next {rule=srepr(node(BSR, rule, n), ">>")})*
 
 %node CALL
 %node TMPLCALL
-// TODO tmplexpand, args, recurse
-callexpr   <- n:next {rule=n} t:tmplexpand? (OPEN CLOSE {rule=node(CALL, n); if (t) rule=node(TMPLCALL, rule, t)})*
+callexpr   <- vi:VARIDENT t:tmplexpand?
+              (args:fncallargs
+              {rule=node(CALL, vi, args); if (t!=SUCC) {rule=node(TMPLCALL, rule, t);t=NULL;}})*
+              {ret=((uintptr_t)rule <= (uintptr_t)SUCC)?NULL:SUCC}
+              /
+              n:castexpr {rule=n}
+              (args:fncallargs {rule=node(CALL, rule, args)})*
+                            
+%node FNARGLIST
+fncallargs <- OPEN l:{ret=rule=list(FNARGLIST)}
+              e:expr? {if (e!=SUCC) add(l, e)} (COMMA e:expr {add(l, e)})* COMMA?
+              CLOSE
 
 castexpr   <- n:next {rule=n} (OPEN t:type CLOSE {rule = srepr(node(CAST, rule, t), "cast")})* 
 
-refexpr    <- n:next r:REF?    {rule=(r != SUCC) ? srepr(node(REF, r, n), "@") : n}
+refexpr    <- n:next r:REF?    {rule=(r != SUCC) ? srepr(node(REF, n), "@") : n}
 
-derefexpr  <- n:next d:DEREF?  {rule=(d != SUCC) ? srepr(node(REF, d, n), "$") : n}
+derefexpr  <- n:next d:DEREF?  {rule=(d != SUCC) ? srepr(node(REF, n), "$") : n}
 
-postretexpr <- n:next g:GRAVE? {rule=(g != SUCC) ? srepr(node(RET, g, n), "return") : n}
+postretexpr <- n:next g:GRAVE? {rule=(g != SUCC) ? srepr(node(RET, n), "return") : n}
 
 
 /*********************************/
@@ -308,7 +328,7 @@ strlit     <- STRLIT // todo: adapt for fstrings
 %node BSLEQ
 
 %node TERN
-%node IF
+%node ELVIS
 %node THEN
 %node ALSO
 

@@ -1,13 +1,4 @@
-Token: (5) {.kind=DAISHO_TOK_NUMLIT, .len=1, .line=0, .col=0}
-Token: (-) {.kind=DAISHO_TOK_MINUS, .len=1, .line=0, .col=2}
-Token: (() {.kind=DAISHO_TOK_OPEN, .len=1, .line=0, .col=4}
-Token: (3) {.kind=DAISHO_TOK_NUMLIT, .len=1, .line=0, .col=5}
-Token: (-) {.kind=DAISHO_TOK_MINUS, .len=1, .line=0, .col=7}
-Token: (1) {.kind=DAISHO_TOK_NUMLIT, .len=1, .line=0, .col=9}
-Token: ()) {.kind=DAISHO_TOK_CLOSE, .len=1, .line=0, .col=10}
-
--
--{
+{
   "kind": "MINUS",
   "content": "-",
   "num_children": 2,
