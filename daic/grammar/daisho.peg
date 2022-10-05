@@ -5,14 +5,15 @@
 %extrainit node->type = NULL;
 %postinclude "../asthelpers.h"
 
-file      <- sh:SHEBANG? (expr / decl) (SEMI (expr / decl))*
+file      <- sh:SHEBANG? edecl (SEMI edecl)* SEMI
 
 /****************/
 /* DECLARATIONS */
 /****************/
 
-decl       <- nsdecl / structdecl / uniondecl / traitdecl / impldecl / ctypedecl / aliasdecl / fndecl
+edecl      <- decl / expr
 
+decl       <- nsdecl / structdecl / uniondecl / traitdecl / impldecl / ctypedecl / aliasdecl / fndecl
 
 nsdecl     <- NAMESPACE t:TYPEIDENT {rule=node(NAMESPACEDECL, t)}
 
@@ -65,8 +66,6 @@ fndecl     <- FN rt:type t:VARIDENT t:tmplexpand? OPEN CLOSE e:expr {rule=srepr(
 cfndecl    <- CFN rt:type t:VARIDENT t:tmplexpand? OPEN CLOSE e:expr {rule=srepr(node(CFNDECL, rt, t, e), "cfndecl")}
 
 
-
-
 /*************/
 /* TEMPLATES */
 /*************/
@@ -109,12 +108,12 @@ fntype     <- FNTYPE
               (      t:type {add(argtypes, t)})?
               (COMMA t:type {add(argtypes, t)})*
               {if (!argtypes->num_children) add(argtypes, leaf(VOIDTYPE))}
-              ((ARROW / SEMI / EQ GT) rettype:type)?
+              ((DARROW / SEMI / EQ GT) rettype:type)?
               GT
               {rule=node(FNTYPE, argtypes, !has(rettype) ? leaf(VOIDTYPE) : rettype)}
               /
               FNTYPE
-              l:{l=list(ARGLIST);add(l, leaf(VOIDTYPE))}
+              l:{ret=list(ARGLIST);add(ret, leaf(VOIDTYPE));}
               {rule=node(FNTYPE, l, leaf(VOIDTYPE))}
 
 
@@ -126,8 +125,6 @@ fntype     <- FNTYPE
 fnproto    <- type OPEN fnarg? (COMMA fnarg)* CLOSE
 
 fnarg      <- type (VARIDENT tmplexpand?)?
-
-fnbody     <- expr
 
 
 /****************************/
@@ -237,7 +234,7 @@ castexpr   <- n:next {rule=n} (OPEN t:type CLOSE {rule = srepr(node(CAST, rule, 
 
 refexpr    <- n:next r:REF?    {rule=has(r) ? srepr(node(REF, n), "@") : n}
 
-derefexpr  <- n:next d:DEREF?  {rule=has(d) ? srepr(node(REF, n), "$") : n}
+derefexpr  <- n:next d:DEREF?  {rule=has(d) ? srepr(node(DEREF, n), "$") : n}
 
 postretexpr <- n:next g:GRAVE? {rule=has(g) ? srepr(node(RET, n), "return") : n}
 
@@ -254,21 +251,20 @@ atomexpr   <- blockexpr
             / preretexpr
             / VARIDENT
             / numlit
-            / strlit
+            / strlits
 
 blockexpr  <- LCBRACK
               {rule=list(BLK)}
               (e:expr {add(rule, e)})*
               RCBRACK
 
-%node CAPLIST
-// Captures, Arguments, Expression
-lambdaexpr <- (LSBRACK v:VARIDENT? caps:{ret=list(ARGLIST);if (has(v)) add(ret, v)}
+lambdaexpr <- (LSBRACK v:VARIDENT?
+              caps:{ret=list(ARGLIST);if (has(v)) add(ret, v)}
               (COMMA v:VARIDENT {add(caps, v)})* RSBRACK)?
-              args:{ret=list(ARGLIST)}
-              (({ret=(!caps || !caps->num_children)?SUCC:NULL} v:VARIDENT {add(args, v)}) /
-              (OPEN v:VARIDENT? {add(args, v)} (COMMA v:VARIDENT {add(args, v)})* CLOSE))
-              ARROW e:expr {rule=node(LAMBDA, caps, args, e)}
+              (v:VARIDENT args:{ret=list(ARGLIST);add(ret, v)} /
+              (OPEN v:VARIDENT? {if (has(v)) {args=list(ARGLIST); add(args, v);}}
+              (COMMA v:VARIDENT {if (!args)  {args=list(ARGLIST);}add(args, v) })* CLOSE))
+              ARROW e:expr {rule=node(LAMBDA, caps ? caps : leaf(ARGLIST), args ? args : leaf(ARGLIST), e)}
 
 listcomp   <- LSBRACK
               (cnt:VARIDENT COMMA)? expr   // Optional count
@@ -285,7 +281,9 @@ preretexpr <- r:RET e:expr {rule=node(RET, r, e)}
 
 numlit     <- pm:(PLUS / MINUS)? nl:NUMLIT {rule = nl}
 
-strlit     <- STRLIT / FSTRLIT
+%node STRLITS
+strlits    <- s:STRLIT l:{ret=list(STRLITS);add(ret, s)}
+             (s:STRLIT {add(l, s)})* {rule=l}
 
 
 /**************/
@@ -397,7 +395,6 @@ strlit     <- STRLIT / FSTRLIT
 %node CLOSE
 %node NUMLIT
 %node STRLIT
-%node FSTRLIT
 %node TYPEMEMBER
 %node TYPEIDENT
 %node TRAITIDENT

@@ -2,20 +2,18 @@
 ctype Bool bool;
 
 trait Boolable {
-  Bool to_bool();
-  Bool !(Self other) self.to_bool()!`;
-  Self ?:(Self other) (self.to_bool() ? self : other)`;
+  Bool();
 };
 
-template<T>
-type Optional impl Boolable {
+class Optional<T> {
     T t;
     Bool present;
-    Bool to_bool() self.present`;
+};
+impl Boolable for Optional<T> {
+    Bool to_bool() self.present;
 };
 
-template<T>
-trait Iterable<T> {
+trait Iterable<T> impl Boolable {
     Optional<T> next();
 };
 
@@ -27,10 +25,10 @@ trait Integer impl Boolable {
     Self  %(Self other);
     Self  <(Self other);
     Self  >(Self other);
-    Self <=(Self other);
-    Self >=(Self other);
     Self  ~(Self other);
-
+    Self  and(Self other);
+    Self  or(Self other);
+    Self  xor(Self other);
     Self ++() self` also self$ = self$ + 1;
     Self --() self` also self$ = self$ - 1;
 };

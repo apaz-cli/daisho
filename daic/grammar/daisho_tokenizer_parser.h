@@ -182,7 +182,7 @@ static inline int UTF8_decode(char *str, size_t len, codepoint_t **retcps,
 
 
 #ifndef PGEN_DEBUG
-#define PGEN_DEBUG 1
+#define PGEN_DEBUG 0
 
 #define PGEN_ALLOCATOR_DEBUG 0
 
@@ -670,7 +670,6 @@ typedef enum {
   DAISHO_TOK_TRAITIDENT,
   DAISHO_TOK_VARIDENT,
   DAISHO_TOK_CIDENT,
-  DAISHO_TOK_FNIDENT,
   DAISHO_TOK_NUMLIT,
   DAISHO_TOK_STRLIT,
   DAISHO_TOK_FSTRLIT,
@@ -682,9 +681,9 @@ typedef enum {
 
 // The 0th token is beginning of stream.
 // The 1st token isend of stream.
-// Tokens 1 through 90 are the ones you defined.
-// This totals 92 kinds of tokens.
-#define DAISHO_NUM_TOKENKINDS 92
+// Tokens 1 through 89 are the ones you defined.
+// This totals 91 kinds of tokens.
+#define DAISHO_NUM_TOKENKINDS 91
 static const char* daisho_tokenkind_name[DAISHO_NUM_TOKENKINDS] = {
   "DAISHO_TOK_STREAMBEGIN",
   "DAISHO_TOK_STREAMEND",
@@ -770,7 +769,6 @@ static const char* daisho_tokenkind_name[DAISHO_NUM_TOKENKINDS] = {
   "DAISHO_TOK_TRAITIDENT",
   "DAISHO_TOK_VARIDENT",
   "DAISHO_TOK_CIDENT",
-  "DAISHO_TOK_FNIDENT",
   "DAISHO_TOK_NUMLIT",
   "DAISHO_TOK_STRLIT",
   "DAISHO_TOK_FSTRLIT",
@@ -835,7 +833,6 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   int smaut_state_14 = 0;
   int smaut_state_15 = 0;
   int smaut_state_16 = 0;
-  int smaut_state_17 = 0;
   size_t trie_munch_size = 0;
   size_t smaut_munch_size_0 = 0;
   size_t smaut_munch_size_1 = 0;
@@ -854,7 +851,6 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   size_t smaut_munch_size_14 = 0;
   size_t smaut_munch_size_15 = 0;
   size_t smaut_munch_size_16 = 0;
-  size_t smaut_munch_size_17 = 0;
   daisho_token_kind trie_tokenkind = DAISHO_TOK_STREAMEND;
 
   for (size_t iidx = 0; iidx < remaining; iidx++) {
@@ -1883,297 +1879,233 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       }
     }
 
-    // Transition FNIDENT State Machine
+    // Transition NUMLIT State Machine
     if (smaut_state_10 != -1) {
       all_dead = 0;
 
-      if ((smaut_state_10 == 0) &
-         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)))) {
+      if (((smaut_state_10 == 0) | (smaut_state_10 == 1)) &
+         (((c >= 48) & (c <= 57)))) {
           smaut_state_10 = 1;
       }
-      else if (((smaut_state_10 == 1) | (smaut_state_10 == 2)) &
-         ((c == 95) | ((c >= 97) & (c <= 122)) | ((c >= 65) & (c <= 90)) | ((c >= 945) & (c <= 969)) | ((c >= 913) & (c <= 937)) | ((c >= 48) & (c <= 57)))) {
+      else if ((smaut_state_10 == 0) &
+         (c == 46)) {
           smaut_state_10 = 2;
       }
-      else if ((smaut_state_10 == 0) &
-         (c == 43)) {
+      else if ((smaut_state_10 == 1) &
+         (c == 46)) {
           smaut_state_10 = 3;
       }
-      else if ((smaut_state_10 == 0) &
-         (c == 45)) {
+      else if (((smaut_state_10 == 2) | (smaut_state_10 == 3)) &
+         (((c >= 48) & (c <= 57)))) {
           smaut_state_10 = 3;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 47)) {
-          smaut_state_10 = 3;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 37)) {
-          smaut_state_10 = 3;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 42)) {
-          smaut_state_10 = 4;
-      }
-      else if ((smaut_state_10 == 4) &
-         (c == 42)) {
-          smaut_state_10 = 5;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 60)) {
-          smaut_state_10 = 6;
-      }
-      else if ((smaut_state_10 == 6) &
-         (c == 60)) {
-          smaut_state_10 = 7;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 62)) {
-          smaut_state_10 = 8;
-      }
-      else if ((smaut_state_10 == 8) &
-         (c == 62)) {
-          smaut_state_10 = 9;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 91)) {
-          smaut_state_10 = 10;
-      }
-      else if ((smaut_state_10 == 10) &
-         (c == 93)) {
-          smaut_state_10 = 11;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 40)) {
-          smaut_state_10 = 12;
-      }
-      else if ((smaut_state_10 == 12) &
-         (c == 41)) {
-          smaut_state_10 = 13;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 35)) {
-          smaut_state_10 = 14;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 126)) {
-          smaut_state_10 = 15;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 33)) {
-          smaut_state_10 = 16;
-      }
-      else if ((smaut_state_10 == 0) &
-         (c == 61)) {
-          smaut_state_10 = 17;
-      }
-      else if (((smaut_state_10 == 16) | (smaut_state_10 == 17)) &
-         (c == 61)) {
-          smaut_state_10 = 18;
       }
       else {
         smaut_state_10 = -1;
       }
 
       // Check accept
-      if ((smaut_state_10 == 1) | (smaut_state_10 == 2) | (smaut_state_10 == 3) | (smaut_state_10 == 4) | (smaut_state_10 == 5) | (smaut_state_10 == 6) | (smaut_state_10 == 7) | (smaut_state_10 == 8) | (smaut_state_10 == 9) | (smaut_state_10 == 11)) {
+      if ((smaut_state_10 == 1) | (smaut_state_10 == 3)) {
         smaut_munch_size_10 = iidx + 1;
       }
     }
 
-    // Transition NUMLIT State Machine
+    // Transition STRLIT State Machine
     if (smaut_state_11 != -1) {
       all_dead = 0;
 
-      if (((smaut_state_11 == 0) | (smaut_state_11 == 1)) &
-         (((c >= 48) & (c <= 57)))) {
+      if ((smaut_state_11 == 0) &
+         (c == 34)) {
           smaut_state_11 = 1;
       }
-      else if ((smaut_state_11 == 0) &
-         (c == 46)) {
+      else if ((smaut_state_11 == 1) &
+         (c == 34)) {
           smaut_state_11 = 2;
       }
       else if ((smaut_state_11 == 1) &
-         (c == 46)) {
+         (c == 92)) {
           smaut_state_11 = 3;
       }
-      else if (((smaut_state_11 == 2) | (smaut_state_11 == 3)) &
-         (((c >= 48) & (c <= 57)))) {
-          smaut_state_11 = 3;
+      else if ((smaut_state_11 == 1) &
+         (!(c == 10))) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 3) &
+         (c == 110)) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 3) &
+         (c == 102)) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 3) &
+         (c == 98)) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 3) &
+         (c == 114)) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 3) &
+         (c == 116)) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 3) &
+         (c == 101)) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 3) &
+         (c == 92)) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 3) &
+         (c == 39)) {
+          smaut_state_11 = 1;
+      }
+      else if ((smaut_state_11 == 3) &
+         (c == 34)) {
+          smaut_state_11 = 1;
       }
       else {
         smaut_state_11 = -1;
       }
 
       // Check accept
-      if ((smaut_state_11 == 1) | (smaut_state_11 == 3)) {
+      if (smaut_state_11 == 2) {
         smaut_munch_size_11 = iidx + 1;
       }
     }
 
-    // Transition STRLIT State Machine
+    // Transition FSTRLIT State Machine
     if (smaut_state_12 != -1) {
       all_dead = 0;
 
       if ((smaut_state_12 == 0) &
-         (c == 34)) {
+         (c == 102)) {
           smaut_state_12 = 1;
       }
       else if ((smaut_state_12 == 1) &
          (c == 34)) {
           smaut_state_12 = 2;
       }
-      else if ((smaut_state_12 == 1) &
-         (c == 10)) {
-          smaut_state_12 = 9;
+      else if ((smaut_state_12 == 2) &
+         (c == 34)) {
+          smaut_state_12 = 4;
       }
       else if ((smaut_state_12 == 1) &
          (c == 92)) {
           smaut_state_12 = 3;
       }
       else if ((smaut_state_12 == 1) &
-         (1)) {
-          smaut_state_12 = 1;
+         (!(c == 10))) {
+          smaut_state_12 = 2;
       }
       else if ((smaut_state_12 == 3) &
          (c == 110)) {
-          smaut_state_12 = 1;
+          smaut_state_12 = 2;
       }
       else if ((smaut_state_12 == 3) &
          (c == 102)) {
-          smaut_state_12 = 1;
+          smaut_state_12 = 2;
       }
       else if ((smaut_state_12 == 3) &
          (c == 98)) {
-          smaut_state_12 = 1;
+          smaut_state_12 = 2;
       }
       else if ((smaut_state_12 == 3) &
          (c == 114)) {
-          smaut_state_12 = 1;
+          smaut_state_12 = 2;
       }
       else if ((smaut_state_12 == 3) &
          (c == 116)) {
-          smaut_state_12 = 1;
+          smaut_state_12 = 2;
       }
       else if ((smaut_state_12 == 3) &
          (c == 101)) {
-          smaut_state_12 = 1;
+          smaut_state_12 = 2;
       }
       else if ((smaut_state_12 == 3) &
          (c == 92)) {
-          smaut_state_12 = 1;
+          smaut_state_12 = 2;
       }
       else if ((smaut_state_12 == 3) &
          (c == 39)) {
-          smaut_state_12 = 1;
+          smaut_state_12 = 2;
       }
       else if ((smaut_state_12 == 3) &
          (c == 34)) {
-          smaut_state_12 = 1;
+          smaut_state_12 = 2;
       }
       else {
         smaut_state_12 = -1;
       }
 
       // Check accept
-      if (smaut_state_12 == 2) {
+      if (smaut_state_12 == 4) {
         smaut_munch_size_12 = iidx + 1;
       }
     }
 
-    // Transition FSTRLIT State Machine
+    // Transition WS State Machine
     if (smaut_state_13 != -1) {
       all_dead = 0;
 
-      if ((smaut_state_13 == 0) &
-         (c == 102)) {
+      if (((smaut_state_13 == 0) | (smaut_state_13 == 1)) &
+         ((c == 32) | (c == 10) | (c == 13) | (c == 9))) {
           smaut_state_13 = 1;
-      }
-      else if ((smaut_state_13 == 1) &
-         (c == 34)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 2) &
-         (c == 34)) {
-          smaut_state_13 = 4;
-      }
-      else if ((smaut_state_13 == 1) &
-         (c == 10)) {
-          smaut_state_13 = 9;
-      }
-      else if ((smaut_state_13 == 1) &
-         (c == 92)) {
-          smaut_state_13 = 3;
-      }
-      else if ((smaut_state_13 == 1) &
-         (1)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 3) &
-         (c == 110)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 3) &
-         (c == 102)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 3) &
-         (c == 98)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 3) &
-         (c == 114)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 3) &
-         (c == 116)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 3) &
-         (c == 101)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 3) &
-         (c == 92)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 3) &
-         (c == 39)) {
-          smaut_state_13 = 2;
-      }
-      else if ((smaut_state_13 == 3) &
-         (c == 34)) {
-          smaut_state_13 = 2;
       }
       else {
         smaut_state_13 = -1;
       }
 
       // Check accept
-      if (smaut_state_13 == 2) {
+      if (smaut_state_13 == 1) {
         smaut_munch_size_13 = iidx + 1;
       }
     }
 
-    // Transition WS State Machine
+    // Transition MLCOM State Machine
     if (smaut_state_14 != -1) {
       all_dead = 0;
 
-      if (((smaut_state_14 == 0) | (smaut_state_14 == 1)) &
-         ((c == 32) | (c == 10) | (c == 13) | (c == 9))) {
+      if ((smaut_state_14 == 0) &
+         (c == 47)) {
           smaut_state_14 = 1;
+      }
+      else if ((smaut_state_14 == 1) &
+         (c == 42)) {
+          smaut_state_14 = 2;
+      }
+      else if ((smaut_state_14 == 2) &
+         (c == 42)) {
+          smaut_state_14 = 3;
+      }
+      else if ((smaut_state_14 == 2) &
+         (1)) {
+          smaut_state_14 = 2;
+      }
+      else if ((smaut_state_14 == 3) &
+         (c == 42)) {
+          smaut_state_14 = 3;
+      }
+      else if ((smaut_state_14 == 3) &
+         (c == 47)) {
+          smaut_state_14 = 4;
+      }
+      else if ((smaut_state_14 == 3) &
+         (1)) {
+          smaut_state_14 = 2;
       }
       else {
         smaut_state_14 = -1;
       }
 
       // Check accept
-      if (smaut_state_14 == 1) {
+      if (smaut_state_14 == 4) {
         smaut_munch_size_14 = iidx + 1;
       }
     }
 
-    // Transition MLCOM State Machine
+    // Transition SLCOM State Machine
     if (smaut_state_15 != -1) {
       all_dead = 0;
 
@@ -2182,49 +2114,37 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
           smaut_state_15 = 1;
       }
       else if ((smaut_state_15 == 1) &
-         (c == 42)) {
-          smaut_state_15 = 2;
-      }
-      else if ((smaut_state_15 == 2) &
-         (c == 42)) {
-          smaut_state_15 = 3;
-      }
-      else if ((smaut_state_15 == 2) &
-         (1)) {
-          smaut_state_15 = 2;
-      }
-      else if ((smaut_state_15 == 3) &
-         (c == 42)) {
-          smaut_state_15 = 3;
-      }
-      else if ((smaut_state_15 == 3) &
          (c == 47)) {
-          smaut_state_15 = 4;
-      }
-      else if ((smaut_state_15 == 3) &
-         (1)) {
           smaut_state_15 = 2;
+      }
+      else if ((smaut_state_15 == 2) &
+         (!(c == 10))) {
+          smaut_state_15 = 2;
+      }
+      else if ((smaut_state_15 == 2) &
+         (c == 10)) {
+          smaut_state_15 = 3;
       }
       else {
         smaut_state_15 = -1;
       }
 
       // Check accept
-      if (smaut_state_15 == 4) {
+      if ((smaut_state_15 == 2) | (smaut_state_15 == 3)) {
         smaut_munch_size_15 = iidx + 1;
       }
     }
 
-    // Transition SLCOM State Machine
+    // Transition SHEBANG State Machine
     if (smaut_state_16 != -1) {
       all_dead = 0;
 
       if ((smaut_state_16 == 0) &
-         (c == 47)) {
+         (c == 35)) {
           smaut_state_16 = 1;
       }
       else if ((smaut_state_16 == 1) &
-         (c == 47)) {
+         (c == 33)) {
           smaut_state_16 = 2;
       }
       else if ((smaut_state_16 == 2) &
@@ -2240,38 +2160,8 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
       }
 
       // Check accept
-      if ((smaut_state_16 == 2) | (smaut_state_16 == 3)) {
+      if (smaut_state_16 == 3) {
         smaut_munch_size_16 = iidx + 1;
-      }
-    }
-
-    // Transition SHEBANG State Machine
-    if (smaut_state_17 != -1) {
-      all_dead = 0;
-
-      if ((smaut_state_17 == 0) &
-         (c == 35)) {
-          smaut_state_17 = 1;
-      }
-      else if ((smaut_state_17 == 1) &
-         (c == 33)) {
-          smaut_state_17 = 2;
-      }
-      else if ((smaut_state_17 == 2) &
-         (!(c == 10))) {
-          smaut_state_17 = 2;
-      }
-      else if ((smaut_state_17 == 2) &
-         (c == 10)) {
-          smaut_state_17 = 3;
-      }
-      else {
-        smaut_state_17 = -1;
-      }
-
-      // Check accept
-      if (smaut_state_17 == 3) {
-        smaut_munch_size_17 = iidx + 1;
       }
     }
 
@@ -2282,36 +2172,32 @@ static inline daisho_token daisho_nextToken(daisho_tokenizer* tokenizer) {
   // Determine what token was accepted, if any.
   daisho_token_kind kind = DAISHO_TOK_STREAMEND;
   size_t max_munch = 0;
-  if (smaut_munch_size_17 >= max_munch) {
-    kind = DAISHO_TOK_SHEBANG;
-    max_munch = smaut_munch_size_17;
-  }
   if (smaut_munch_size_16 >= max_munch) {
-    kind = DAISHO_TOK_SLCOM;
+    kind = DAISHO_TOK_SHEBANG;
     max_munch = smaut_munch_size_16;
   }
   if (smaut_munch_size_15 >= max_munch) {
-    kind = DAISHO_TOK_MLCOM;
+    kind = DAISHO_TOK_SLCOM;
     max_munch = smaut_munch_size_15;
   }
   if (smaut_munch_size_14 >= max_munch) {
-    kind = DAISHO_TOK_WS;
+    kind = DAISHO_TOK_MLCOM;
     max_munch = smaut_munch_size_14;
   }
   if (smaut_munch_size_13 >= max_munch) {
-    kind = DAISHO_TOK_FSTRLIT;
+    kind = DAISHO_TOK_WS;
     max_munch = smaut_munch_size_13;
   }
   if (smaut_munch_size_12 >= max_munch) {
-    kind = DAISHO_TOK_STRLIT;
+    kind = DAISHO_TOK_FSTRLIT;
     max_munch = smaut_munch_size_12;
   }
   if (smaut_munch_size_11 >= max_munch) {
-    kind = DAISHO_TOK_NUMLIT;
+    kind = DAISHO_TOK_STRLIT;
     max_munch = smaut_munch_size_11;
   }
   if (smaut_munch_size_10 >= max_munch) {
-    kind = DAISHO_TOK_FNIDENT;
+    kind = DAISHO_TOK_NUMLIT;
     max_munch = smaut_munch_size_10;
   }
   if (smaut_munch_size_9 >= max_munch) {
@@ -2409,7 +2295,7 @@ typedef enum {
   DAISHO_NODE_TMPLDECL,
   DAISHO_NODE_IF,
   DAISHO_NODE_IFELSE,
-  DAISHO_NODE_CAPLIST,
+  DAISHO_NODE_STRLITS,
   DAISHO_NODE_PROG,
   DAISHO_NODE_SHEBANG,
   DAISHO_NODE_NAMESPACE,
@@ -2496,14 +2382,13 @@ typedef enum {
   DAISHO_NODE_CLOSE,
   DAISHO_NODE_NUMLIT,
   DAISHO_NODE_STRLIT,
-  DAISHO_NODE_FSTRLIT,
   DAISHO_NODE_TYPEMEMBER,
   DAISHO_NODE_TYPEIDENT,
   DAISHO_NODE_TRAITIDENT,
   DAISHO_NODE_VARIDENT,
 } daisho_astnode_kind;
 
-#define DAISHO_NUM_NODEKINDS 98
+#define DAISHO_NUM_NODEKINDS 97
 static const char* daisho_nodekind_name[DAISHO_NUM_NODEKINDS] = {
   "DAISHO_NODE_EMPTY",
   "DAISHO_NODE_CIDENT",
@@ -2511,7 +2396,7 @@ static const char* daisho_nodekind_name[DAISHO_NUM_NODEKINDS] = {
   "DAISHO_NODE_TMPLDECL",
   "DAISHO_NODE_IF",
   "DAISHO_NODE_IFELSE",
-  "DAISHO_NODE_CAPLIST",
+  "DAISHO_NODE_STRLITS",
   "DAISHO_NODE_PROG",
   "DAISHO_NODE_SHEBANG",
   "DAISHO_NODE_NAMESPACE",
@@ -2598,7 +2483,6 @@ static const char* daisho_nodekind_name[DAISHO_NUM_NODEKINDS] = {
   "DAISHO_NODE_CLOSE",
   "DAISHO_NODE_NUMLIT",
   "DAISHO_NODE_STRLIT",
-  "DAISHO_NODE_FSTRLIT",
   "DAISHO_NODE_TYPEMEMBER",
   "DAISHO_NODE_TYPEIDENT",
   "DAISHO_NODE_TRAITIDENT",
@@ -2703,9 +2587,6 @@ static inline daisho_astnode_t* daisho_astnode_fixed_1(
                              pgen_allocator* alloc,
                              daisho_astnode_kind kind,
                              daisho_astnode_t* PGEN_RESTRICT n0) {
-daisho_astnode_t const * const SUCC = ((daisho_astnode_t*)(void*)(uintptr_t)_Alignof(daisho_astnode_t));
-  if ((!n0) | (n0 == SUCC))
-    fprintf(stderr, "Invalid arguments: node(%s, %p)\n", daisho_nodekind_name[kind], (void*)n0);
   char* ret = pgen_alloc(alloc,
                          sizeof(daisho_astnode_t) +
                          sizeof(daisho_astnode_t *) * 1,
@@ -2731,9 +2612,6 @@ static inline daisho_astnode_t* daisho_astnode_fixed_2(
                              daisho_astnode_kind kind,
                              daisho_astnode_t* PGEN_RESTRICT n0,
                              daisho_astnode_t* PGEN_RESTRICT n1) {
-daisho_astnode_t const * const SUCC = ((daisho_astnode_t*)(void*)(uintptr_t)_Alignof(daisho_astnode_t));
-  if ((!n0) | (!n1) | (n0 == SUCC) | (n1 == SUCC))
-    fprintf(stderr, "Invalid arguments: node(%s, %p, %p)\n", daisho_nodekind_name[kind], (void*)n0, (void*)n1);
   char* ret = pgen_alloc(alloc,
                          sizeof(daisho_astnode_t) +
                          sizeof(daisho_astnode_t *) * 2,
@@ -2762,9 +2640,6 @@ static inline daisho_astnode_t* daisho_astnode_fixed_3(
                              daisho_astnode_t* PGEN_RESTRICT n0,
                              daisho_astnode_t* PGEN_RESTRICT n1,
                              daisho_astnode_t* PGEN_RESTRICT n2) {
-daisho_astnode_t const * const SUCC = ((daisho_astnode_t*)(void*)(uintptr_t)_Alignof(daisho_astnode_t));
-  if ((!n0) | (!n1) | (!n2) | (n0 == SUCC) | (n1 == SUCC) | (n2 == SUCC))
-    fprintf(stderr, "Invalid arguments: node(%s, %p, %p, %p)\n", daisho_nodekind_name[kind], (void*)n0, (void*)n1, (void*)n2);
   char* ret = pgen_alloc(alloc,
                          sizeof(daisho_astnode_t) +
                          sizeof(daisho_astnode_t *) * 3,
@@ -2796,9 +2671,6 @@ static inline daisho_astnode_t* daisho_astnode_fixed_4(
                              daisho_astnode_t* PGEN_RESTRICT n1,
                              daisho_astnode_t* PGEN_RESTRICT n2,
                              daisho_astnode_t* PGEN_RESTRICT n3) {
-daisho_astnode_t const * const SUCC = ((daisho_astnode_t*)(void*)(uintptr_t)_Alignof(daisho_astnode_t));
-  if ((!n0) | (!n1) | (!n2) | (!n3) | (n0 == SUCC) | (n1 == SUCC) | (n2 == SUCC) | (n3 == SUCC))
-    fprintf(stderr, "Invalid arguments: node(%s, %p, %p, %p, %p)\n", daisho_nodekind_name[kind], (void*)n0, (void*)n1, (void*)n2, (void*)n3);
   char* ret = pgen_alloc(alloc,
                          sizeof(daisho_astnode_t) +
                          sizeof(daisho_astnode_t *) * 4,
@@ -2833,9 +2705,6 @@ static inline daisho_astnode_t* daisho_astnode_fixed_5(
                              daisho_astnode_t* PGEN_RESTRICT n2,
                              daisho_astnode_t* PGEN_RESTRICT n3,
                              daisho_astnode_t* PGEN_RESTRICT n4) {
-daisho_astnode_t const * const SUCC = ((daisho_astnode_t*)(void*)(uintptr_t)_Alignof(daisho_astnode_t));
-  if ((!n0) | (!n1) | (!n2) | (!n3) | (!n4) | (n0 == SUCC) | (n1 == SUCC) | (n2 == SUCC) | (n3 == SUCC) | (n4 == SUCC))
-    fprintf(stderr, "Invalid arguments: node(%s, %p, %p, %p, %p, %p)\n", daisho_nodekind_name[kind], (void*)n0, (void*)n1, (void*)n2, (void*)n3, (void*)n4);
   char* ret = pgen_alloc(alloc,
                          sizeof(daisho_astnode_t) +
                          sizeof(daisho_astnode_t *) * 5,
@@ -2960,7 +2829,7 @@ static inline int daisho_astnode_print_h(daisho_token* tokens, daisho_astnode_t 
   #endif
   size_t cnum = node->num_children;
   if (cnum) {
-    indent(); printf("\"num_children\": %zu,\n", cnum);
+    // indent(); printf("\"num_children\": %zu,\n", cnum);
     indent(); printf("\"children\": [");
     putchar('\n');
     for (size_t i = 0; i < cnum; i++)
@@ -2981,107 +2850,8 @@ static inline void daisho_astnode_print_json(daisho_token* tokens, daisho_astnod
 #include "../asthelpers.h"
 
 
-#if PGEN_DEBUG
-#define PGEN_DEBUG_WIDTH 14
-typedef struct {
-  const char* rule_name;
-  size_t pos;
-} dbg_entry;
-
-static struct {
-  dbg_entry rules[500];
-  size_t size;
-  int status;
-  int first;
-} dbg_stack;
-
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <string.h>
-static inline void dbg_display(daisho_parser_ctx* ctx, const char* last) {
-  if (!dbg_stack.first) dbg_stack.first = 1;
-  else getchar();
-
-  struct winsize w;
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-  size_t width = w.ws_col;
-  size_t leftwidth = (width - (1 + 3 + 1)) / 2;
-  size_t rightwidth = leftwidth + (leftwidth % 2);
-  size_t height = w.ws_row - 4;
-
-// Clear screen, cursor to top left
-  printf("\x1b[2J\x1b[H");
-
-  // Write first line in color.
-  if (dbg_stack.status == -1) {
-    printf("\x1b[31m"); // Red
-    printf("Failed: %s\n", last);
-  } else if (dbg_stack.status == 0) {
-    printf("\x1b[34m"); // Blue
-    printf("Entering: %s\n", last);
-  } else if (dbg_stack.status == 1) {
-    printf("\x1b[32m"); // Green
-    printf("Accepted: %s\n", last);
-  } else {
-    printf("\x1b[33m"); // Green
-    printf("SUCCED: %s\n", last), exit(1);
-  }
-  printf("\x1b[0m"); // Clear Formatting
-
-  // Write labels and line.
-  for (size_t i = 0; i < width; i++) putchar('-');  // Write following lines
-  for (size_t i = height; i --> 0;) {
-    putchar(' ');
-
-    // Print rule stack
-    if (i < dbg_stack.size) {
-      printf("%-14s", dbg_stack.rules[i].rule_name);
-    } else {
-      for (size_t sp = 0; sp < 14; sp++) putchar(' ');
-    }
-
-    printf(" | "); // 3 Separator chars
-
-    // Print tokens
-    size_t remaining_tokens = ctx->len - ctx->pos;
-    if (i < remaining_tokens) {
-      const char* name = daisho_tokenkind_name[ctx->tokens[ctx->pos + i].kind];
-      size_t ns = strlen(name);
-      size_t remaining = rightwidth - ns;
-      printf("%s", name);
-      for (size_t sp = 0; sp < remaining; sp++) putchar(' ');
-    }
-
-    putchar(' ');
-    putchar('\n');
-  }
-}
-
-static inline void dbg_enter(daisho_parser_ctx* ctx, const char* name, size_t pos) {
-  dbg_stack.rules[dbg_stack.size++] = (dbg_entry){name, pos};
-  dbg_stack.status = 0;
-  dbg_display(ctx, name);
-}
-
-static inline void dbg_accept(daisho_parser_ctx* ctx, const char* accpeting) {
-  dbg_stack.size--;
-  dbg_stack.status = 1;
-  dbg_display(ctx, accpeting);
-}
-
-static inline void dbg_reject(daisho_parser_ctx* ctx, const char* rejecting) {
-  dbg_stack.size--;
-  dbg_stack.status = -1;
-  dbg_display(ctx, rejecting);
-}
-static inline void dbg_succ(daisho_parser_ctx* ctx, const char* succing) {
-  dbg_stack.size--;
-  dbg_stack.status = 2;
-  dbg_display(ctx, succing);
-}
-#endif /* PGEN_DEBUG */
-
 static inline daisho_astnode_t* daisho_parse_file(daisho_parser_ctx* ctx);
+static inline daisho_astnode_t* daisho_parse_edecl(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_decl(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_nsdecl(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_structdecl(daisho_parser_ctx* ctx);
@@ -3104,7 +2874,6 @@ static inline daisho_astnode_t* daisho_parse_ttexpand(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_fntype(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_fnproto(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_fnarg(daisho_parser_ctx* ctx);
-static inline daisho_astnode_t* daisho_parse_fnbody(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_expr(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_ifeexpr(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_forexpr(daisho_parser_ctx* ctx);
@@ -3139,7 +2908,7 @@ static inline daisho_astnode_t* daisho_parse_listlit(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_parenexpr(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_preretexpr(daisho_parser_ctx* ctx);
 static inline daisho_astnode_t* daisho_parse_numlit(daisho_parser_ctx* ctx);
-static inline daisho_astnode_t* daisho_parse_strlit(daisho_parser_ctx* ctx);
+static inline daisho_astnode_t* daisho_parse_strlits(daisho_parser_ctx* ctx);
 
 
 static inline daisho_astnode_t* daisho_parse_file(daisho_parser_ctx* ctx) {
@@ -3148,13 +2917,11 @@ static inline daisho_astnode_t* daisho_parse_file(daisho_parser_ctx* ctx) {
 
   daisho_astnode_t* expr_ret_1 = NULL;
   daisho_astnode_t* expr_ret_0 = NULL;
-  dbg_enter(ctx, "file", ctx->pos);
   daisho_astnode_t* expr_ret_2 = NULL;
   rec(mod_2);
   // ModExprList 0
   {
     daisho_astnode_t* expr_ret_3 = NULL;
-    dbg_enter(ctx, "SHEBANG", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SHEBANG) {
       // Capturing SHEBANG.
       expr_ret_3 = leaf(SHEBANG);
@@ -3167,7 +2934,6 @@ static inline daisho_astnode_t* daisho_parse_file(daisho_parser_ctx* ctx) {
       expr_ret_3 = NULL;
     }
 
-    if (expr_ret_3) dbg_accept(ctx, "SHEBANG"); else dbg_reject(ctx, "SHEBANG");
     // optional
     if (!expr_ret_3)
       expr_ret_3 = SUCC;
@@ -3178,107 +2944,56 @@ static inline daisho_astnode_t* daisho_parse_file(daisho_parser_ctx* ctx) {
   // ModExprList 1
   if (expr_ret_2)
   {
-    daisho_astnode_t* expr_ret_4 = NULL;
-
-    rec(slash_4);
-
-    // SlashExpr 0
-    if (!expr_ret_4)
-    {
-      daisho_astnode_t* expr_ret_5 = NULL;
-      rec(mod_5);
-      // ModExprList Forwarding
-      expr_ret_5 = daisho_parse_expr(ctx);
-      // ModExprList end
-      if (!expr_ret_5) rew(mod_5);
-      expr_ret_4 = expr_ret_5;
-    }
-
-    // SlashExpr 1
-    if (!expr_ret_4)
-    {
-      daisho_astnode_t* expr_ret_6 = NULL;
-      rec(mod_6);
-      // ModExprList Forwarding
-      expr_ret_6 = daisho_parse_decl(ctx);
-      // ModExprList end
-      if (!expr_ret_6) rew(mod_6);
-      expr_ret_4 = expr_ret_6;
-    }
-
-    // SlashExpr end
-    if (!expr_ret_4) rew(slash_4);
-    expr_ret_2 = expr_ret_4;
-
+    expr_ret_2 = daisho_parse_edecl(ctx);
   }
 
   // ModExprList 2
   if (expr_ret_2)
   {
-    daisho_astnode_t* expr_ret_7 = NULL;
-    expr_ret_7 = SUCC;
-    while (expr_ret_7)
+    daisho_astnode_t* expr_ret_4 = NULL;
+    expr_ret_4 = SUCC;
+    while (expr_ret_4)
     {
-      daisho_astnode_t* expr_ret_8 = NULL;
-      rec(mod_8);
+      daisho_astnode_t* expr_ret_5 = NULL;
+      rec(mod_5);
       // ModExprList 0
       {
-        dbg_enter(ctx, "SEMI", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SEMI) {
           // Not capturing SEMI.
-          expr_ret_8 = SUCC;
+          expr_ret_5 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_8 = NULL;
+          expr_ret_5 = NULL;
         }
 
-        if (expr_ret_8) dbg_accept(ctx, "SEMI"); else dbg_reject(ctx, "SEMI");
       }
 
       // ModExprList 1
-      if (expr_ret_8)
+      if (expr_ret_5)
       {
-        daisho_astnode_t* expr_ret_9 = NULL;
-
-        rec(slash_9);
-
-        // SlashExpr 0
-        if (!expr_ret_9)
-        {
-          daisho_astnode_t* expr_ret_10 = NULL;
-          rec(mod_10);
-          // ModExprList Forwarding
-          expr_ret_10 = daisho_parse_expr(ctx);
-          // ModExprList end
-          if (!expr_ret_10) rew(mod_10);
-          expr_ret_9 = expr_ret_10;
-        }
-
-        // SlashExpr 1
-        if (!expr_ret_9)
-        {
-          daisho_astnode_t* expr_ret_11 = NULL;
-          rec(mod_11);
-          // ModExprList Forwarding
-          expr_ret_11 = daisho_parse_decl(ctx);
-          // ModExprList end
-          if (!expr_ret_11) rew(mod_11);
-          expr_ret_9 = expr_ret_11;
-        }
-
-        // SlashExpr end
-        if (!expr_ret_9) rew(slash_9);
-        expr_ret_8 = expr_ret_9;
-
+        expr_ret_5 = daisho_parse_edecl(ctx);
       }
 
       // ModExprList end
-      if (!expr_ret_8) rew(mod_8);
-      expr_ret_7 = expr_ret_8 ? SUCC : NULL;
+      if (!expr_ret_5) rew(mod_5);
+      expr_ret_4 = expr_ret_5 ? SUCC : NULL;
     }
 
-    expr_ret_7 = SUCC;
-    expr_ret_2 = expr_ret_7;
+    expr_ret_4 = SUCC;
+    expr_ret_2 = expr_ret_4;
+  }
+
+  // ModExprList 3
+  if (expr_ret_2)
+  {
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SEMI) {
+      // Not capturing SEMI.
+      expr_ret_2 = SUCC;
+      ctx->pos++;
+    } else {
+      expr_ret_2 = NULL;
+    }
+
   }
 
   // ModExprList end
@@ -3287,201 +3002,228 @@ static inline daisho_astnode_t* daisho_parse_file(daisho_parser_ctx* ctx) {
   if (!rule) rule = expr_ret_1;
   if (!expr_ret_1) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "file");
-  else if (rule) dbg_accept(ctx, "file");
-  else dbg_reject(ctx, "file");
+  return rule;
+  #undef rule
+}
+
+static inline daisho_astnode_t* daisho_parse_edecl(daisho_parser_ctx* ctx) {
+  #define rule expr_ret_6
+
+  daisho_astnode_t* expr_ret_7 = NULL;
+  daisho_astnode_t* expr_ret_6 = NULL;
+  daisho_astnode_t* expr_ret_8 = NULL;
+
+  rec(slash_8);
+
+  // SlashExpr 0
+  if (!expr_ret_8)
+  {
+    daisho_astnode_t* expr_ret_9 = NULL;
+    rec(mod_9);
+    // ModExprList Forwarding
+    expr_ret_9 = daisho_parse_decl(ctx);
+    // ModExprList end
+    if (!expr_ret_9) rew(mod_9);
+    expr_ret_8 = expr_ret_9;
+  }
+
+  // SlashExpr 1
+  if (!expr_ret_8)
+  {
+    daisho_astnode_t* expr_ret_10 = NULL;
+    rec(mod_10);
+    // ModExprList Forwarding
+    expr_ret_10 = daisho_parse_expr(ctx);
+    // ModExprList end
+    if (!expr_ret_10) rew(mod_10);
+    expr_ret_8 = expr_ret_10;
+  }
+
+  // SlashExpr end
+  if (!expr_ret_8) rew(slash_8);
+  expr_ret_7 = expr_ret_8;
+
+  if (!rule) rule = expr_ret_7;
+  if (!expr_ret_7) rule = NULL;
+  rule_end:;
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_decl(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_12
+  #define rule expr_ret_11
 
-  daisho_astnode_t* expr_ret_13 = NULL;
   daisho_astnode_t* expr_ret_12 = NULL;
-  dbg_enter(ctx, "decl", ctx->pos);
-  daisho_astnode_t* expr_ret_14 = NULL;
+  daisho_astnode_t* expr_ret_11 = NULL;
+  daisho_astnode_t* expr_ret_13 = NULL;
 
-  rec(slash_14);
+  rec(slash_13);
 
   // SlashExpr 0
-  if (!expr_ret_14)
+  if (!expr_ret_13)
+  {
+    daisho_astnode_t* expr_ret_14 = NULL;
+    rec(mod_14);
+    // ModExprList Forwarding
+    expr_ret_14 = daisho_parse_nsdecl(ctx);
+    // ModExprList end
+    if (!expr_ret_14) rew(mod_14);
+    expr_ret_13 = expr_ret_14;
+  }
+
+  // SlashExpr 1
+  if (!expr_ret_13)
   {
     daisho_astnode_t* expr_ret_15 = NULL;
     rec(mod_15);
     // ModExprList Forwarding
-    expr_ret_15 = daisho_parse_nsdecl(ctx);
+    expr_ret_15 = daisho_parse_structdecl(ctx);
     // ModExprList end
     if (!expr_ret_15) rew(mod_15);
-    expr_ret_14 = expr_ret_15;
+    expr_ret_13 = expr_ret_15;
   }
 
-  // SlashExpr 1
-  if (!expr_ret_14)
+  // SlashExpr 2
+  if (!expr_ret_13)
   {
     daisho_astnode_t* expr_ret_16 = NULL;
     rec(mod_16);
     // ModExprList Forwarding
-    expr_ret_16 = daisho_parse_structdecl(ctx);
+    expr_ret_16 = daisho_parse_uniondecl(ctx);
     // ModExprList end
     if (!expr_ret_16) rew(mod_16);
-    expr_ret_14 = expr_ret_16;
+    expr_ret_13 = expr_ret_16;
   }
 
-  // SlashExpr 2
-  if (!expr_ret_14)
+  // SlashExpr 3
+  if (!expr_ret_13)
   {
     daisho_astnode_t* expr_ret_17 = NULL;
     rec(mod_17);
     // ModExprList Forwarding
-    expr_ret_17 = daisho_parse_uniondecl(ctx);
+    expr_ret_17 = daisho_parse_traitdecl(ctx);
     // ModExprList end
     if (!expr_ret_17) rew(mod_17);
-    expr_ret_14 = expr_ret_17;
+    expr_ret_13 = expr_ret_17;
   }
 
-  // SlashExpr 3
-  if (!expr_ret_14)
+  // SlashExpr 4
+  if (!expr_ret_13)
   {
     daisho_astnode_t* expr_ret_18 = NULL;
     rec(mod_18);
     // ModExprList Forwarding
-    expr_ret_18 = daisho_parse_traitdecl(ctx);
+    expr_ret_18 = daisho_parse_impldecl(ctx);
     // ModExprList end
     if (!expr_ret_18) rew(mod_18);
-    expr_ret_14 = expr_ret_18;
+    expr_ret_13 = expr_ret_18;
   }
 
-  // SlashExpr 4
-  if (!expr_ret_14)
+  // SlashExpr 5
+  if (!expr_ret_13)
   {
     daisho_astnode_t* expr_ret_19 = NULL;
     rec(mod_19);
     // ModExprList Forwarding
-    expr_ret_19 = daisho_parse_impldecl(ctx);
+    expr_ret_19 = daisho_parse_ctypedecl(ctx);
     // ModExprList end
     if (!expr_ret_19) rew(mod_19);
-    expr_ret_14 = expr_ret_19;
+    expr_ret_13 = expr_ret_19;
   }
 
-  // SlashExpr 5
-  if (!expr_ret_14)
+  // SlashExpr 6
+  if (!expr_ret_13)
   {
     daisho_astnode_t* expr_ret_20 = NULL;
     rec(mod_20);
     // ModExprList Forwarding
-    expr_ret_20 = daisho_parse_ctypedecl(ctx);
+    expr_ret_20 = daisho_parse_aliasdecl(ctx);
     // ModExprList end
     if (!expr_ret_20) rew(mod_20);
-    expr_ret_14 = expr_ret_20;
+    expr_ret_13 = expr_ret_20;
   }
 
-  // SlashExpr 6
-  if (!expr_ret_14)
+  // SlashExpr 7
+  if (!expr_ret_13)
   {
     daisho_astnode_t* expr_ret_21 = NULL;
     rec(mod_21);
     // ModExprList Forwarding
-    expr_ret_21 = daisho_parse_aliasdecl(ctx);
+    expr_ret_21 = daisho_parse_fndecl(ctx);
     // ModExprList end
     if (!expr_ret_21) rew(mod_21);
-    expr_ret_14 = expr_ret_21;
-  }
-
-  // SlashExpr 7
-  if (!expr_ret_14)
-  {
-    daisho_astnode_t* expr_ret_22 = NULL;
-    rec(mod_22);
-    // ModExprList Forwarding
-    expr_ret_22 = daisho_parse_fndecl(ctx);
-    // ModExprList end
-    if (!expr_ret_22) rew(mod_22);
-    expr_ret_14 = expr_ret_22;
+    expr_ret_13 = expr_ret_21;
   }
 
   // SlashExpr end
-  if (!expr_ret_14) rew(slash_14);
-  expr_ret_13 = expr_ret_14;
+  if (!expr_ret_13) rew(slash_13);
+  expr_ret_12 = expr_ret_13;
 
-  if (!rule) rule = expr_ret_13;
-  if (!expr_ret_13) rule = NULL;
+  if (!rule) rule = expr_ret_12;
+  if (!expr_ret_12) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "decl");
-  else if (rule) dbg_accept(ctx, "decl");
-  else dbg_reject(ctx, "decl");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_nsdecl(daisho_parser_ctx* ctx) {
   daisho_astnode_t* t = NULL;
-  #define rule expr_ret_23
+  #define rule expr_ret_22
 
-  daisho_astnode_t* expr_ret_24 = NULL;
   daisho_astnode_t* expr_ret_23 = NULL;
-  dbg_enter(ctx, "nsdecl", ctx->pos);
-  daisho_astnode_t* expr_ret_25 = NULL;
-  rec(mod_25);
+  daisho_astnode_t* expr_ret_22 = NULL;
+  daisho_astnode_t* expr_ret_24 = NULL;
+  rec(mod_24);
   // ModExprList 0
   {
-    dbg_enter(ctx, "NAMESPACE", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_NAMESPACE) {
       // Not capturing NAMESPACE.
-      expr_ret_25 = SUCC;
+      expr_ret_24 = SUCC;
+      ctx->pos++;
+    } else {
+      expr_ret_24 = NULL;
+    }
+
+  }
+
+  // ModExprList 1
+  if (expr_ret_24)
+  {
+    daisho_astnode_t* expr_ret_25 = NULL;
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
+      // Capturing TYPEIDENT.
+      expr_ret_25 = leaf(TYPEIDENT);
+      #if DAISHO_SOURCEINFO
+      expr_ret_25->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_25->len_or_toknum = ctx->tokens[ctx->pos].len;
+      #endif
       ctx->pos++;
     } else {
       expr_ret_25 = NULL;
     }
 
-    if (expr_ret_25) dbg_accept(ctx, "NAMESPACE"); else dbg_reject(ctx, "NAMESPACE");
-  }
-
-  // ModExprList 1
-  if (expr_ret_25)
-  {
-    daisho_astnode_t* expr_ret_26 = NULL;
-    dbg_enter(ctx, "TYPEIDENT", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
-      // Capturing TYPEIDENT.
-      expr_ret_26 = leaf(TYPEIDENT);
-      #if DAISHO_SOURCEINFO
-      expr_ret_26->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_26->len_or_toknum = ctx->tokens[ctx->pos].len;
-      #endif
-      ctx->pos++;
-    } else {
-      expr_ret_26 = NULL;
-    }
-
-    if (expr_ret_26) dbg_accept(ctx, "TYPEIDENT"); else dbg_reject(ctx, "TYPEIDENT");
-    expr_ret_25 = expr_ret_26;
-    t = expr_ret_26;
+    expr_ret_24 = expr_ret_25;
+    t = expr_ret_25;
   }
 
   // ModExprList 2
-  if (expr_ret_25)
+  if (expr_ret_24)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_25
+    #define ret expr_ret_24
     ret = SUCC;
 
     rule=node(NAMESPACEDECL, t);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_25) rew(mod_25);
-  expr_ret_24 = expr_ret_25 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_24;
-  if (!expr_ret_24) rule = NULL;
+  if (!expr_ret_24) rew(mod_24);
+  expr_ret_23 = expr_ret_24 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_23;
+  if (!expr_ret_23) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "nsdecl");
-  else if (rule) dbg_accept(ctx, "nsdecl");
-  else dbg_reject(ctx, "nsdecl");
   return rule;
   #undef rule
 }
@@ -3493,249 +3235,227 @@ static inline daisho_astnode_t* daisho_parse_structdecl(daisho_parser_ctx* ctx) 
   daisho_astnode_t* members = NULL;
   daisho_astnode_t* m = NULL;
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_27
+  #define rule expr_ret_26
 
-  daisho_astnode_t* expr_ret_28 = NULL;
   daisho_astnode_t* expr_ret_27 = NULL;
-  dbg_enter(ctx, "structdecl", ctx->pos);
-  daisho_astnode_t* expr_ret_29 = NULL;
-  rec(mod_29);
+  daisho_astnode_t* expr_ret_26 = NULL;
+  daisho_astnode_t* expr_ret_28 = NULL;
+  rec(mod_28);
   // ModExprList 0
   {
-    dbg_enter(ctx, "STRUCT", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STRUCT) {
       // Not capturing STRUCT.
-      expr_ret_29 = SUCC;
+      expr_ret_28 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_29 = NULL;
+      expr_ret_28 = NULL;
     }
 
-    if (expr_ret_29) dbg_accept(ctx, "STRUCT"); else dbg_reject(ctx, "STRUCT");
   }
 
   // ModExprList 1
-  if (expr_ret_29)
+  if (expr_ret_28)
   {
-    daisho_astnode_t* expr_ret_30 = NULL;
-    dbg_enter(ctx, "TYPEIDENT", ctx->pos);
+    daisho_astnode_t* expr_ret_29 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
       // Capturing TYPEIDENT.
-      expr_ret_30 = leaf(TYPEIDENT);
+      expr_ret_29 = leaf(TYPEIDENT);
       #if DAISHO_SOURCEINFO
-      expr_ret_30->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_30->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_29->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_29->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
-      ctx->pos++;
-    } else {
-      expr_ret_30 = NULL;
-    }
-
-    if (expr_ret_30) dbg_accept(ctx, "TYPEIDENT"); else dbg_reject(ctx, "TYPEIDENT");
-    expr_ret_29 = expr_ret_30;
-    id = expr_ret_30;
-  }
-
-  // ModExprList 2
-  if (expr_ret_29)
-  {
-    daisho_astnode_t* expr_ret_31 = NULL;
-    expr_ret_31 = daisho_parse_tmpldecl(ctx);
-    // optional
-    if (!expr_ret_31)
-      expr_ret_31 = SUCC;
-    expr_ret_29 = expr_ret_31;
-    tmpl = expr_ret_31;
-  }
-
-  // ModExprList 3
-  if (expr_ret_29)
-  {
-    daisho_astnode_t* expr_ret_32 = NULL;
-    daisho_astnode_t* expr_ret_33 = NULL;
-    rec(mod_33);
-    // ModExprList 0
-    {
-      dbg_enter(ctx, "IMPL", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IMPL) {
-        // Not capturing IMPL.
-        expr_ret_33 = SUCC;
-        ctx->pos++;
-      } else {
-        expr_ret_33 = NULL;
-      }
-
-      if (expr_ret_33) dbg_accept(ctx, "IMPL"); else dbg_reject(ctx, "IMPL");
-    }
-
-    // ModExprList 1
-    if (expr_ret_33)
-    {
-      expr_ret_33 = daisho_parse_type(ctx);
-    }
-
-    // ModExprList 2
-    if (expr_ret_33)
-    {
-      daisho_astnode_t* expr_ret_34 = NULL;
-      expr_ret_34 = SUCC;
-      while (expr_ret_34)
-      {
-        daisho_astnode_t* expr_ret_35 = NULL;
-        rec(mod_35);
-        // ModExprList 0
-        {
-          dbg_enter(ctx, "COMMA", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
-            // Not capturing COMMA.
-            expr_ret_35 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_35 = NULL;
-          }
-
-          if (expr_ret_35) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
-        }
-
-        // ModExprList 1
-        if (expr_ret_35)
-        {
-          expr_ret_35 = daisho_parse_type(ctx);
-        }
-
-        // ModExprList end
-        if (!expr_ret_35) rew(mod_35);
-        expr_ret_34 = expr_ret_35 ? SUCC : NULL;
-      }
-
-      expr_ret_34 = SUCC;
-      expr_ret_33 = expr_ret_34;
-    }
-
-    // ModExprList end
-    if (!expr_ret_33) rew(mod_33);
-    expr_ret_32 = expr_ret_33 ? SUCC : NULL;
-    // optional
-    if (!expr_ret_32)
-      expr_ret_32 = SUCC;
-    expr_ret_29 = expr_ret_32;
-    impl = expr_ret_32;
-  }
-
-  // ModExprList 4
-  if (expr_ret_29)
-  {
-    dbg_enter(ctx, "LCBRACK", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LCBRACK) {
-      // Not capturing LCBRACK.
-      expr_ret_29 = SUCC;
       ctx->pos++;
     } else {
       expr_ret_29 = NULL;
     }
 
-    if (expr_ret_29) dbg_accept(ctx, "LCBRACK"); else dbg_reject(ctx, "LCBRACK");
+    expr_ret_28 = expr_ret_29;
+    id = expr_ret_29;
+  }
+
+  // ModExprList 2
+  if (expr_ret_28)
+  {
+    daisho_astnode_t* expr_ret_30 = NULL;
+    expr_ret_30 = daisho_parse_tmpldecl(ctx);
+    // optional
+    if (!expr_ret_30)
+      expr_ret_30 = SUCC;
+    expr_ret_28 = expr_ret_30;
+    tmpl = expr_ret_30;
+  }
+
+  // ModExprList 3
+  if (expr_ret_28)
+  {
+    daisho_astnode_t* expr_ret_31 = NULL;
+    daisho_astnode_t* expr_ret_32 = NULL;
+    rec(mod_32);
+    // ModExprList 0
+    {
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IMPL) {
+        // Not capturing IMPL.
+        expr_ret_32 = SUCC;
+        ctx->pos++;
+      } else {
+        expr_ret_32 = NULL;
+      }
+
+    }
+
+    // ModExprList 1
+    if (expr_ret_32)
+    {
+      expr_ret_32 = daisho_parse_type(ctx);
+    }
+
+    // ModExprList 2
+    if (expr_ret_32)
+    {
+      daisho_astnode_t* expr_ret_33 = NULL;
+      expr_ret_33 = SUCC;
+      while (expr_ret_33)
+      {
+        daisho_astnode_t* expr_ret_34 = NULL;
+        rec(mod_34);
+        // ModExprList 0
+        {
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
+            // Not capturing COMMA.
+            expr_ret_34 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_34 = NULL;
+          }
+
+        }
+
+        // ModExprList 1
+        if (expr_ret_34)
+        {
+          expr_ret_34 = daisho_parse_type(ctx);
+        }
+
+        // ModExprList end
+        if (!expr_ret_34) rew(mod_34);
+        expr_ret_33 = expr_ret_34 ? SUCC : NULL;
+      }
+
+      expr_ret_33 = SUCC;
+      expr_ret_32 = expr_ret_33;
+    }
+
+    // ModExprList end
+    if (!expr_ret_32) rew(mod_32);
+    expr_ret_31 = expr_ret_32 ? SUCC : NULL;
+    // optional
+    if (!expr_ret_31)
+      expr_ret_31 = SUCC;
+    expr_ret_28 = expr_ret_31;
+    impl = expr_ret_31;
+  }
+
+  // ModExprList 4
+  if (expr_ret_28)
+  {
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LCBRACK) {
+      // Not capturing LCBRACK.
+      expr_ret_28 = SUCC;
+      ctx->pos++;
+    } else {
+      expr_ret_28 = NULL;
+    }
+
   }
 
   // ModExprList 5
-  if (expr_ret_29)
+  if (expr_ret_28)
   {
-    daisho_astnode_t* expr_ret_36 = NULL;
+    daisho_astnode_t* expr_ret_35 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_36
+    #define ret expr_ret_35
     ret = SUCC;
 
     ret=list(MEMBERLIST);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_29 = expr_ret_36;
-    members = expr_ret_36;
+    expr_ret_28 = expr_ret_35;
+    members = expr_ret_35;
   }
 
   // ModExprList 6
-  if (expr_ret_29)
+  if (expr_ret_28)
   {
-    daisho_astnode_t* expr_ret_37 = NULL;
-    expr_ret_37 = SUCC;
-    while (expr_ret_37)
+    daisho_astnode_t* expr_ret_36 = NULL;
+    expr_ret_36 = SUCC;
+    while (expr_ret_36)
     {
-      daisho_astnode_t* expr_ret_38 = NULL;
-      rec(mod_38);
+      daisho_astnode_t* expr_ret_37 = NULL;
+      rec(mod_37);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_39 = NULL;
-        expr_ret_39 = daisho_parse_typemember(ctx);
-        expr_ret_38 = expr_ret_39;
-        m = expr_ret_39;
+        daisho_astnode_t* expr_ret_38 = NULL;
+        expr_ret_38 = daisho_parse_typemember(ctx);
+        expr_ret_37 = expr_ret_38;
+        m = expr_ret_38;
       }
 
       // ModExprList 1
-      if (expr_ret_38)
+      if (expr_ret_37)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_38
+        #define ret expr_ret_37
         ret = SUCC;
 
         add(members, m);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_38) rew(mod_38);
-      expr_ret_37 = expr_ret_38 ? SUCC : NULL;
+      if (!expr_ret_37) rew(mod_37);
+      expr_ret_36 = expr_ret_37 ? SUCC : NULL;
     }
 
-    expr_ret_37 = SUCC;
-    expr_ret_29 = expr_ret_37;
+    expr_ret_36 = SUCC;
+    expr_ret_28 = expr_ret_36;
   }
 
   // ModExprList 7
-  if (expr_ret_29)
+  if (expr_ret_28)
   {
-    dbg_enter(ctx, "RCBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_RCBRACK) {
       // Not capturing RCBRACK.
-      expr_ret_29 = SUCC;
+      expr_ret_28 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_29 = NULL;
+      expr_ret_28 = NULL;
     }
 
-    if (expr_ret_29) dbg_accept(ctx, "RCBRACK"); else dbg_reject(ctx, "RCBRACK");
   }
 
   // ModExprList 8
-  if (expr_ret_29)
+  if (expr_ret_28)
   {
-    daisho_astnode_t* expr_ret_40 = NULL;
+    daisho_astnode_t* expr_ret_39 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_40
+    #define ret expr_ret_39
     ret = SUCC;
 
     n = node(STRUCTDECL, id, members);
               rule = has(tmpl) ? node(TMPLSTRUCT, tmpl, n) : n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_29 = expr_ret_40;
-    n = expr_ret_40;
+    expr_ret_28 = expr_ret_39;
+    n = expr_ret_39;
   }
 
   // ModExprList end
-  if (!expr_ret_29) rew(mod_29);
-  expr_ret_28 = expr_ret_29 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_28;
-  if (!expr_ret_28) rule = NULL;
+  if (!expr_ret_28) rew(mod_28);
+  expr_ret_27 = expr_ret_28 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_27;
+  if (!expr_ret_27) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "structdecl");
-  else if (rule) dbg_accept(ctx, "structdecl");
-  else dbg_reject(ctx, "structdecl");
   return rule;
   #undef rule
 }
@@ -3747,249 +3467,227 @@ static inline daisho_astnode_t* daisho_parse_uniondecl(daisho_parser_ctx* ctx) {
   daisho_astnode_t* members = NULL;
   daisho_astnode_t* m = NULL;
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_41
+  #define rule expr_ret_40
 
-  daisho_astnode_t* expr_ret_42 = NULL;
   daisho_astnode_t* expr_ret_41 = NULL;
-  dbg_enter(ctx, "uniondecl", ctx->pos);
-  daisho_astnode_t* expr_ret_43 = NULL;
-  rec(mod_43);
+  daisho_astnode_t* expr_ret_40 = NULL;
+  daisho_astnode_t* expr_ret_42 = NULL;
+  rec(mod_42);
   // ModExprList 0
   {
-    dbg_enter(ctx, "UNION", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_UNION) {
       // Not capturing UNION.
-      expr_ret_43 = SUCC;
+      expr_ret_42 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_43 = NULL;
+      expr_ret_42 = NULL;
     }
 
-    if (expr_ret_43) dbg_accept(ctx, "UNION"); else dbg_reject(ctx, "UNION");
   }
 
   // ModExprList 1
-  if (expr_ret_43)
+  if (expr_ret_42)
   {
-    daisho_astnode_t* expr_ret_44 = NULL;
-    dbg_enter(ctx, "TYPEIDENT", ctx->pos);
+    daisho_astnode_t* expr_ret_43 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
       // Capturing TYPEIDENT.
-      expr_ret_44 = leaf(TYPEIDENT);
+      expr_ret_43 = leaf(TYPEIDENT);
       #if DAISHO_SOURCEINFO
-      expr_ret_44->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_44->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_43->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_43->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
-      ctx->pos++;
-    } else {
-      expr_ret_44 = NULL;
-    }
-
-    if (expr_ret_44) dbg_accept(ctx, "TYPEIDENT"); else dbg_reject(ctx, "TYPEIDENT");
-    expr_ret_43 = expr_ret_44;
-    id = expr_ret_44;
-  }
-
-  // ModExprList 2
-  if (expr_ret_43)
-  {
-    daisho_astnode_t* expr_ret_45 = NULL;
-    expr_ret_45 = daisho_parse_tmplexpand(ctx);
-    // optional
-    if (!expr_ret_45)
-      expr_ret_45 = SUCC;
-    expr_ret_43 = expr_ret_45;
-    tmpl = expr_ret_45;
-  }
-
-  // ModExprList 3
-  if (expr_ret_43)
-  {
-    daisho_astnode_t* expr_ret_46 = NULL;
-    daisho_astnode_t* expr_ret_47 = NULL;
-    rec(mod_47);
-    // ModExprList 0
-    {
-      dbg_enter(ctx, "IMPL", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IMPL) {
-        // Not capturing IMPL.
-        expr_ret_47 = SUCC;
-        ctx->pos++;
-      } else {
-        expr_ret_47 = NULL;
-      }
-
-      if (expr_ret_47) dbg_accept(ctx, "IMPL"); else dbg_reject(ctx, "IMPL");
-    }
-
-    // ModExprList 1
-    if (expr_ret_47)
-    {
-      expr_ret_47 = daisho_parse_type(ctx);
-    }
-
-    // ModExprList 2
-    if (expr_ret_47)
-    {
-      daisho_astnode_t* expr_ret_48 = NULL;
-      expr_ret_48 = SUCC;
-      while (expr_ret_48)
-      {
-        daisho_astnode_t* expr_ret_49 = NULL;
-        rec(mod_49);
-        // ModExprList 0
-        {
-          dbg_enter(ctx, "COMMA", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
-            // Not capturing COMMA.
-            expr_ret_49 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_49 = NULL;
-          }
-
-          if (expr_ret_49) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
-        }
-
-        // ModExprList 1
-        if (expr_ret_49)
-        {
-          expr_ret_49 = daisho_parse_type(ctx);
-        }
-
-        // ModExprList end
-        if (!expr_ret_49) rew(mod_49);
-        expr_ret_48 = expr_ret_49 ? SUCC : NULL;
-      }
-
-      expr_ret_48 = SUCC;
-      expr_ret_47 = expr_ret_48;
-    }
-
-    // ModExprList end
-    if (!expr_ret_47) rew(mod_47);
-    expr_ret_46 = expr_ret_47 ? SUCC : NULL;
-    // optional
-    if (!expr_ret_46)
-      expr_ret_46 = SUCC;
-    expr_ret_43 = expr_ret_46;
-    impl = expr_ret_46;
-  }
-
-  // ModExprList 4
-  if (expr_ret_43)
-  {
-    dbg_enter(ctx, "LCBRACK", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LCBRACK) {
-      // Not capturing LCBRACK.
-      expr_ret_43 = SUCC;
       ctx->pos++;
     } else {
       expr_ret_43 = NULL;
     }
 
-    if (expr_ret_43) dbg_accept(ctx, "LCBRACK"); else dbg_reject(ctx, "LCBRACK");
+    expr_ret_42 = expr_ret_43;
+    id = expr_ret_43;
+  }
+
+  // ModExprList 2
+  if (expr_ret_42)
+  {
+    daisho_astnode_t* expr_ret_44 = NULL;
+    expr_ret_44 = daisho_parse_tmplexpand(ctx);
+    // optional
+    if (!expr_ret_44)
+      expr_ret_44 = SUCC;
+    expr_ret_42 = expr_ret_44;
+    tmpl = expr_ret_44;
+  }
+
+  // ModExprList 3
+  if (expr_ret_42)
+  {
+    daisho_astnode_t* expr_ret_45 = NULL;
+    daisho_astnode_t* expr_ret_46 = NULL;
+    rec(mod_46);
+    // ModExprList 0
+    {
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IMPL) {
+        // Not capturing IMPL.
+        expr_ret_46 = SUCC;
+        ctx->pos++;
+      } else {
+        expr_ret_46 = NULL;
+      }
+
+    }
+
+    // ModExprList 1
+    if (expr_ret_46)
+    {
+      expr_ret_46 = daisho_parse_type(ctx);
+    }
+
+    // ModExprList 2
+    if (expr_ret_46)
+    {
+      daisho_astnode_t* expr_ret_47 = NULL;
+      expr_ret_47 = SUCC;
+      while (expr_ret_47)
+      {
+        daisho_astnode_t* expr_ret_48 = NULL;
+        rec(mod_48);
+        // ModExprList 0
+        {
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
+            // Not capturing COMMA.
+            expr_ret_48 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_48 = NULL;
+          }
+
+        }
+
+        // ModExprList 1
+        if (expr_ret_48)
+        {
+          expr_ret_48 = daisho_parse_type(ctx);
+        }
+
+        // ModExprList end
+        if (!expr_ret_48) rew(mod_48);
+        expr_ret_47 = expr_ret_48 ? SUCC : NULL;
+      }
+
+      expr_ret_47 = SUCC;
+      expr_ret_46 = expr_ret_47;
+    }
+
+    // ModExprList end
+    if (!expr_ret_46) rew(mod_46);
+    expr_ret_45 = expr_ret_46 ? SUCC : NULL;
+    // optional
+    if (!expr_ret_45)
+      expr_ret_45 = SUCC;
+    expr_ret_42 = expr_ret_45;
+    impl = expr_ret_45;
+  }
+
+  // ModExprList 4
+  if (expr_ret_42)
+  {
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LCBRACK) {
+      // Not capturing LCBRACK.
+      expr_ret_42 = SUCC;
+      ctx->pos++;
+    } else {
+      expr_ret_42 = NULL;
+    }
+
   }
 
   // ModExprList 5
-  if (expr_ret_43)
+  if (expr_ret_42)
   {
-    daisho_astnode_t* expr_ret_50 = NULL;
+    daisho_astnode_t* expr_ret_49 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_50
+    #define ret expr_ret_49
     ret = SUCC;
 
     ret=list(MEMBERLIST);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_43 = expr_ret_50;
-    members = expr_ret_50;
+    expr_ret_42 = expr_ret_49;
+    members = expr_ret_49;
   }
 
   // ModExprList 6
-  if (expr_ret_43)
+  if (expr_ret_42)
   {
-    daisho_astnode_t* expr_ret_51 = NULL;
-    expr_ret_51 = SUCC;
-    while (expr_ret_51)
+    daisho_astnode_t* expr_ret_50 = NULL;
+    expr_ret_50 = SUCC;
+    while (expr_ret_50)
     {
-      daisho_astnode_t* expr_ret_52 = NULL;
-      rec(mod_52);
+      daisho_astnode_t* expr_ret_51 = NULL;
+      rec(mod_51);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_53 = NULL;
-        expr_ret_53 = daisho_parse_typemember(ctx);
-        expr_ret_52 = expr_ret_53;
-        m = expr_ret_53;
+        daisho_astnode_t* expr_ret_52 = NULL;
+        expr_ret_52 = daisho_parse_typemember(ctx);
+        expr_ret_51 = expr_ret_52;
+        m = expr_ret_52;
       }
 
       // ModExprList 1
-      if (expr_ret_52)
+      if (expr_ret_51)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_52
+        #define ret expr_ret_51
         ret = SUCC;
 
         add(members, m);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_52) rew(mod_52);
-      expr_ret_51 = expr_ret_52 ? SUCC : NULL;
+      if (!expr_ret_51) rew(mod_51);
+      expr_ret_50 = expr_ret_51 ? SUCC : NULL;
     }
 
-    expr_ret_51 = SUCC;
-    expr_ret_43 = expr_ret_51;
+    expr_ret_50 = SUCC;
+    expr_ret_42 = expr_ret_50;
   }
 
   // ModExprList 7
-  if (expr_ret_43)
+  if (expr_ret_42)
   {
-    dbg_enter(ctx, "RCBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_RCBRACK) {
       // Not capturing RCBRACK.
-      expr_ret_43 = SUCC;
+      expr_ret_42 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_43 = NULL;
+      expr_ret_42 = NULL;
     }
 
-    if (expr_ret_43) dbg_accept(ctx, "RCBRACK"); else dbg_reject(ctx, "RCBRACK");
   }
 
   // ModExprList 8
-  if (expr_ret_43)
+  if (expr_ret_42)
   {
-    daisho_astnode_t* expr_ret_54 = NULL;
+    daisho_astnode_t* expr_ret_53 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_54
+    #define ret expr_ret_53
     ret = SUCC;
 
     n = node(UNIONDECL, id, members);
               rule = has(tmpl) ? node(TMPLUNION, tmpl, n) : n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_43 = expr_ret_54;
-    n = expr_ret_54;
+    expr_ret_42 = expr_ret_53;
+    n = expr_ret_53;
   }
 
   // ModExprList end
-  if (!expr_ret_43) rew(mod_43);
-  expr_ret_42 = expr_ret_43 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_42;
-  if (!expr_ret_42) rule = NULL;
+  if (!expr_ret_42) rew(mod_42);
+  expr_ret_41 = expr_ret_42 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_41;
+  if (!expr_ret_41) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "uniondecl");
-  else if (rule) dbg_accept(ctx, "uniondecl");
-  else dbg_reject(ctx, "uniondecl");
   return rule;
   #undef rule
 }
@@ -4001,249 +3699,227 @@ static inline daisho_astnode_t* daisho_parse_traitdecl(daisho_parser_ctx* ctx) {
   daisho_astnode_t* members = NULL;
   daisho_astnode_t* m = NULL;
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_55
+  #define rule expr_ret_54
 
-  daisho_astnode_t* expr_ret_56 = NULL;
   daisho_astnode_t* expr_ret_55 = NULL;
-  dbg_enter(ctx, "traitdecl", ctx->pos);
-  daisho_astnode_t* expr_ret_57 = NULL;
-  rec(mod_57);
+  daisho_astnode_t* expr_ret_54 = NULL;
+  daisho_astnode_t* expr_ret_56 = NULL;
+  rec(mod_56);
   // ModExprList 0
   {
-    dbg_enter(ctx, "TRAIT", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TRAIT) {
       // Not capturing TRAIT.
-      expr_ret_57 = SUCC;
+      expr_ret_56 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_57 = NULL;
+      expr_ret_56 = NULL;
     }
 
-    if (expr_ret_57) dbg_accept(ctx, "TRAIT"); else dbg_reject(ctx, "TRAIT");
   }
 
   // ModExprList 1
-  if (expr_ret_57)
+  if (expr_ret_56)
   {
-    daisho_astnode_t* expr_ret_58 = NULL;
-    dbg_enter(ctx, "TYPEIDENT", ctx->pos);
+    daisho_astnode_t* expr_ret_57 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
       // Capturing TYPEIDENT.
-      expr_ret_58 = leaf(TYPEIDENT);
+      expr_ret_57 = leaf(TYPEIDENT);
       #if DAISHO_SOURCEINFO
-      expr_ret_58->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_58->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_57->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_57->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
-      ctx->pos++;
-    } else {
-      expr_ret_58 = NULL;
-    }
-
-    if (expr_ret_58) dbg_accept(ctx, "TYPEIDENT"); else dbg_reject(ctx, "TYPEIDENT");
-    expr_ret_57 = expr_ret_58;
-    id = expr_ret_58;
-  }
-
-  // ModExprList 2
-  if (expr_ret_57)
-  {
-    daisho_astnode_t* expr_ret_59 = NULL;
-    expr_ret_59 = daisho_parse_tmplexpand(ctx);
-    // optional
-    if (!expr_ret_59)
-      expr_ret_59 = SUCC;
-    expr_ret_57 = expr_ret_59;
-    tmpl = expr_ret_59;
-  }
-
-  // ModExprList 3
-  if (expr_ret_57)
-  {
-    daisho_astnode_t* expr_ret_60 = NULL;
-    daisho_astnode_t* expr_ret_61 = NULL;
-    rec(mod_61);
-    // ModExprList 0
-    {
-      dbg_enter(ctx, "IMPL", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IMPL) {
-        // Not capturing IMPL.
-        expr_ret_61 = SUCC;
-        ctx->pos++;
-      } else {
-        expr_ret_61 = NULL;
-      }
-
-      if (expr_ret_61) dbg_accept(ctx, "IMPL"); else dbg_reject(ctx, "IMPL");
-    }
-
-    // ModExprList 1
-    if (expr_ret_61)
-    {
-      expr_ret_61 = daisho_parse_type(ctx);
-    }
-
-    // ModExprList 2
-    if (expr_ret_61)
-    {
-      daisho_astnode_t* expr_ret_62 = NULL;
-      expr_ret_62 = SUCC;
-      while (expr_ret_62)
-      {
-        daisho_astnode_t* expr_ret_63 = NULL;
-        rec(mod_63);
-        // ModExprList 0
-        {
-          dbg_enter(ctx, "COMMA", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
-            // Not capturing COMMA.
-            expr_ret_63 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_63 = NULL;
-          }
-
-          if (expr_ret_63) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
-        }
-
-        // ModExprList 1
-        if (expr_ret_63)
-        {
-          expr_ret_63 = daisho_parse_type(ctx);
-        }
-
-        // ModExprList end
-        if (!expr_ret_63) rew(mod_63);
-        expr_ret_62 = expr_ret_63 ? SUCC : NULL;
-      }
-
-      expr_ret_62 = SUCC;
-      expr_ret_61 = expr_ret_62;
-    }
-
-    // ModExprList end
-    if (!expr_ret_61) rew(mod_61);
-    expr_ret_60 = expr_ret_61 ? SUCC : NULL;
-    // optional
-    if (!expr_ret_60)
-      expr_ret_60 = SUCC;
-    expr_ret_57 = expr_ret_60;
-    impl = expr_ret_60;
-  }
-
-  // ModExprList 4
-  if (expr_ret_57)
-  {
-    dbg_enter(ctx, "LCBRACK", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LCBRACK) {
-      // Not capturing LCBRACK.
-      expr_ret_57 = SUCC;
       ctx->pos++;
     } else {
       expr_ret_57 = NULL;
     }
 
-    if (expr_ret_57) dbg_accept(ctx, "LCBRACK"); else dbg_reject(ctx, "LCBRACK");
+    expr_ret_56 = expr_ret_57;
+    id = expr_ret_57;
+  }
+
+  // ModExprList 2
+  if (expr_ret_56)
+  {
+    daisho_astnode_t* expr_ret_58 = NULL;
+    expr_ret_58 = daisho_parse_tmplexpand(ctx);
+    // optional
+    if (!expr_ret_58)
+      expr_ret_58 = SUCC;
+    expr_ret_56 = expr_ret_58;
+    tmpl = expr_ret_58;
+  }
+
+  // ModExprList 3
+  if (expr_ret_56)
+  {
+    daisho_astnode_t* expr_ret_59 = NULL;
+    daisho_astnode_t* expr_ret_60 = NULL;
+    rec(mod_60);
+    // ModExprList 0
+    {
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IMPL) {
+        // Not capturing IMPL.
+        expr_ret_60 = SUCC;
+        ctx->pos++;
+      } else {
+        expr_ret_60 = NULL;
+      }
+
+    }
+
+    // ModExprList 1
+    if (expr_ret_60)
+    {
+      expr_ret_60 = daisho_parse_type(ctx);
+    }
+
+    // ModExprList 2
+    if (expr_ret_60)
+    {
+      daisho_astnode_t* expr_ret_61 = NULL;
+      expr_ret_61 = SUCC;
+      while (expr_ret_61)
+      {
+        daisho_astnode_t* expr_ret_62 = NULL;
+        rec(mod_62);
+        // ModExprList 0
+        {
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
+            // Not capturing COMMA.
+            expr_ret_62 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_62 = NULL;
+          }
+
+        }
+
+        // ModExprList 1
+        if (expr_ret_62)
+        {
+          expr_ret_62 = daisho_parse_type(ctx);
+        }
+
+        // ModExprList end
+        if (!expr_ret_62) rew(mod_62);
+        expr_ret_61 = expr_ret_62 ? SUCC : NULL;
+      }
+
+      expr_ret_61 = SUCC;
+      expr_ret_60 = expr_ret_61;
+    }
+
+    // ModExprList end
+    if (!expr_ret_60) rew(mod_60);
+    expr_ret_59 = expr_ret_60 ? SUCC : NULL;
+    // optional
+    if (!expr_ret_59)
+      expr_ret_59 = SUCC;
+    expr_ret_56 = expr_ret_59;
+    impl = expr_ret_59;
+  }
+
+  // ModExprList 4
+  if (expr_ret_56)
+  {
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LCBRACK) {
+      // Not capturing LCBRACK.
+      expr_ret_56 = SUCC;
+      ctx->pos++;
+    } else {
+      expr_ret_56 = NULL;
+    }
+
   }
 
   // ModExprList 5
-  if (expr_ret_57)
+  if (expr_ret_56)
   {
-    daisho_astnode_t* expr_ret_64 = NULL;
+    daisho_astnode_t* expr_ret_63 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_64
+    #define ret expr_ret_63
     ret = SUCC;
 
     ret=list(MEMBERLIST);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_57 = expr_ret_64;
-    members = expr_ret_64;
+    expr_ret_56 = expr_ret_63;
+    members = expr_ret_63;
   }
 
   // ModExprList 6
-  if (expr_ret_57)
+  if (expr_ret_56)
   {
-    daisho_astnode_t* expr_ret_65 = NULL;
-    expr_ret_65 = SUCC;
-    while (expr_ret_65)
+    daisho_astnode_t* expr_ret_64 = NULL;
+    expr_ret_64 = SUCC;
+    while (expr_ret_64)
     {
-      daisho_astnode_t* expr_ret_66 = NULL;
-      rec(mod_66);
+      daisho_astnode_t* expr_ret_65 = NULL;
+      rec(mod_65);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_67 = NULL;
-        expr_ret_67 = daisho_parse_fnmember(ctx);
-        expr_ret_66 = expr_ret_67;
-        m = expr_ret_67;
+        daisho_astnode_t* expr_ret_66 = NULL;
+        expr_ret_66 = daisho_parse_fnmember(ctx);
+        expr_ret_65 = expr_ret_66;
+        m = expr_ret_66;
       }
 
       // ModExprList 1
-      if (expr_ret_66)
+      if (expr_ret_65)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_66
+        #define ret expr_ret_65
         ret = SUCC;
 
         add(members, m);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_66) rew(mod_66);
-      expr_ret_65 = expr_ret_66 ? SUCC : NULL;
+      if (!expr_ret_65) rew(mod_65);
+      expr_ret_64 = expr_ret_65 ? SUCC : NULL;
     }
 
-    expr_ret_65 = SUCC;
-    expr_ret_57 = expr_ret_65;
+    expr_ret_64 = SUCC;
+    expr_ret_56 = expr_ret_64;
   }
 
   // ModExprList 7
-  if (expr_ret_57)
+  if (expr_ret_56)
   {
-    dbg_enter(ctx, "RCBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_RCBRACK) {
       // Not capturing RCBRACK.
-      expr_ret_57 = SUCC;
+      expr_ret_56 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_57 = NULL;
+      expr_ret_56 = NULL;
     }
 
-    if (expr_ret_57) dbg_accept(ctx, "RCBRACK"); else dbg_reject(ctx, "RCBRACK");
   }
 
   // ModExprList 8
-  if (expr_ret_57)
+  if (expr_ret_56)
   {
-    daisho_astnode_t* expr_ret_68 = NULL;
+    daisho_astnode_t* expr_ret_67 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_68
+    #define ret expr_ret_67
     ret = SUCC;
 
     n = node(TRAITDECL, id, members);
               rule = has(tmpl) ? node(TMPLTRAIT, tmpl, n) : n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_57 = expr_ret_68;
-    n = expr_ret_68;
+    expr_ret_56 = expr_ret_67;
+    n = expr_ret_67;
   }
 
   // ModExprList end
-  if (!expr_ret_57) rew(mod_57);
-  expr_ret_56 = expr_ret_57 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_56;
-  if (!expr_ret_56) rule = NULL;
+  if (!expr_ret_56) rew(mod_56);
+  expr_ret_55 = expr_ret_56 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_55;
+  if (!expr_ret_55) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "traitdecl");
-  else if (rule) dbg_accept(ctx, "traitdecl");
-  else dbg_reject(ctx, "traitdecl");
   return rule;
   #undef rule
 }
@@ -4253,180 +3929,162 @@ static inline daisho_astnode_t* daisho_parse_impldecl(daisho_parser_ctx* ctx) {
   daisho_astnode_t* ft = NULL;
   daisho_astnode_t* members = NULL;
   daisho_astnode_t* m = NULL;
-  #define rule expr_ret_69
+  #define rule expr_ret_68
 
-  daisho_astnode_t* expr_ret_70 = NULL;
   daisho_astnode_t* expr_ret_69 = NULL;
-  dbg_enter(ctx, "impldecl", ctx->pos);
-  daisho_astnode_t* expr_ret_71 = NULL;
-  rec(mod_71);
+  daisho_astnode_t* expr_ret_68 = NULL;
+  daisho_astnode_t* expr_ret_70 = NULL;
+  rec(mod_70);
   // ModExprList 0
   {
-    dbg_enter(ctx, "IMPL", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IMPL) {
       // Not capturing IMPL.
-      expr_ret_71 = SUCC;
+      expr_ret_70 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_71 = NULL;
+      expr_ret_70 = NULL;
     }
 
-    if (expr_ret_71) dbg_accept(ctx, "IMPL"); else dbg_reject(ctx, "IMPL");
   }
 
   // ModExprList 1
-  if (expr_ret_71)
+  if (expr_ret_70)
   {
-    daisho_astnode_t* expr_ret_72 = NULL;
-    dbg_enter(ctx, "TYPEIDENT", ctx->pos);
+    daisho_astnode_t* expr_ret_71 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
       // Capturing TYPEIDENT.
-      expr_ret_72 = leaf(TYPEIDENT);
+      expr_ret_71 = leaf(TYPEIDENT);
       #if DAISHO_SOURCEINFO
-      expr_ret_72->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_72->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_71->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_71->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_72 = NULL;
+      expr_ret_71 = NULL;
     }
 
-    if (expr_ret_72) dbg_accept(ctx, "TYPEIDENT"); else dbg_reject(ctx, "TYPEIDENT");
-    expr_ret_71 = expr_ret_72;
-    tt = expr_ret_72;
+    expr_ret_70 = expr_ret_71;
+    tt = expr_ret_71;
   }
 
   // ModExprList 2
-  if (expr_ret_71)
+  if (expr_ret_70)
   {
-    daisho_astnode_t* expr_ret_73 = NULL;
-    expr_ret_73 = daisho_parse_tmplexpand(ctx);
+    daisho_astnode_t* expr_ret_72 = NULL;
+    expr_ret_72 = daisho_parse_tmplexpand(ctx);
     // optional
-    if (!expr_ret_73)
-      expr_ret_73 = SUCC;
-    expr_ret_71 = expr_ret_73;
+    if (!expr_ret_72)
+      expr_ret_72 = SUCC;
+    expr_ret_70 = expr_ret_72;
   }
 
   // ModExprList 3
-  if (expr_ret_71)
+  if (expr_ret_70)
   {
-    dbg_enter(ctx, "FOR", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_FOR) {
       // Not capturing FOR.
-      expr_ret_71 = SUCC;
+      expr_ret_70 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_71 = NULL;
+      expr_ret_70 = NULL;
     }
 
-    if (expr_ret_71) dbg_accept(ctx, "FOR"); else dbg_reject(ctx, "FOR");
   }
 
   // ModExprList 4
-  if (expr_ret_71)
+  if (expr_ret_70)
   {
-    daisho_astnode_t* expr_ret_74 = NULL;
-    expr_ret_74 = daisho_parse_type(ctx);
-    expr_ret_71 = expr_ret_74;
-    ft = expr_ret_74;
+    daisho_astnode_t* expr_ret_73 = NULL;
+    expr_ret_73 = daisho_parse_type(ctx);
+    expr_ret_70 = expr_ret_73;
+    ft = expr_ret_73;
   }
 
   // ModExprList 5
-  if (expr_ret_71)
+  if (expr_ret_70)
   {
-    dbg_enter(ctx, "LCBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LCBRACK) {
       // Not capturing LCBRACK.
-      expr_ret_71 = SUCC;
+      expr_ret_70 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_71 = NULL;
+      expr_ret_70 = NULL;
     }
 
-    if (expr_ret_71) dbg_accept(ctx, "LCBRACK"); else dbg_reject(ctx, "LCBRACK");
   }
 
   // ModExprList 6
-  if (expr_ret_71)
+  if (expr_ret_70)
   {
-    daisho_astnode_t* expr_ret_75 = NULL;
+    daisho_astnode_t* expr_ret_74 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_75
+    #define ret expr_ret_74
     ret = SUCC;
 
     ret=list(MEMBERLIST);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_71 = expr_ret_75;
-    members = expr_ret_75;
+    expr_ret_70 = expr_ret_74;
+    members = expr_ret_74;
   }
 
   // ModExprList 7
-  if (expr_ret_71)
+  if (expr_ret_70)
   {
-    daisho_astnode_t* expr_ret_76 = NULL;
-    expr_ret_76 = SUCC;
-    while (expr_ret_76)
+    daisho_astnode_t* expr_ret_75 = NULL;
+    expr_ret_75 = SUCC;
+    while (expr_ret_75)
     {
-      daisho_astnode_t* expr_ret_77 = NULL;
-      rec(mod_77);
+      daisho_astnode_t* expr_ret_76 = NULL;
+      rec(mod_76);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_78 = NULL;
-        expr_ret_78 = daisho_parse_fnmember(ctx);
-        expr_ret_77 = expr_ret_78;
-        m = expr_ret_78;
+        daisho_astnode_t* expr_ret_77 = NULL;
+        expr_ret_77 = daisho_parse_fnmember(ctx);
+        expr_ret_76 = expr_ret_77;
+        m = expr_ret_77;
       }
 
       // ModExprList 1
-      if (expr_ret_77)
+      if (expr_ret_76)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_77
+        #define ret expr_ret_76
         ret = SUCC;
 
         add(members, m);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_77) rew(mod_77);
-      expr_ret_76 = expr_ret_77 ? SUCC : NULL;
+      if (!expr_ret_76) rew(mod_76);
+      expr_ret_75 = expr_ret_76 ? SUCC : NULL;
     }
 
-    expr_ret_76 = SUCC;
-    expr_ret_71 = expr_ret_76;
+    expr_ret_75 = SUCC;
+    expr_ret_70 = expr_ret_75;
   }
 
   // ModExprList 8
-  if (expr_ret_71)
+  if (expr_ret_70)
   {
-    dbg_enter(ctx, "RCBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_RCBRACK) {
       // Not capturing RCBRACK.
-      expr_ret_71 = SUCC;
+      expr_ret_70 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_71 = NULL;
+      expr_ret_70 = NULL;
     }
 
-    if (expr_ret_71) dbg_accept(ctx, "RCBRACK"); else dbg_reject(ctx, "RCBRACK");
   }
 
   // ModExprList end
-  if (!expr_ret_71) rew(mod_71);
-  expr_ret_70 = expr_ret_71 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_70;
-  if (!expr_ret_70) rule = NULL;
+  if (!expr_ret_70) rew(mod_70);
+  expr_ret_69 = expr_ret_70 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_69;
+  if (!expr_ret_69) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "impldecl");
-  else if (rule) dbg_accept(ctx, "impldecl");
-  else dbg_reject(ctx, "impldecl");
   return rule;
   #undef rule
 }
@@ -4434,183 +4092,165 @@ static inline daisho_astnode_t* daisho_parse_impldecl(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_typemember(daisho_parser_ctx* ctx) {
   daisho_astnode_t* t = NULL;
   daisho_astnode_t* v = NULL;
-  #define rule expr_ret_79
+  #define rule expr_ret_78
 
-  daisho_astnode_t* expr_ret_80 = NULL;
   daisho_astnode_t* expr_ret_79 = NULL;
-  dbg_enter(ctx, "typemember", ctx->pos);
-  daisho_astnode_t* expr_ret_81 = NULL;
-  rec(mod_81);
+  daisho_astnode_t* expr_ret_78 = NULL;
+  daisho_astnode_t* expr_ret_80 = NULL;
+  rec(mod_80);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_82 = NULL;
-    expr_ret_82 = daisho_parse_type(ctx);
-    expr_ret_81 = expr_ret_82;
-    t = expr_ret_82;
+    daisho_astnode_t* expr_ret_81 = NULL;
+    expr_ret_81 = daisho_parse_type(ctx);
+    expr_ret_80 = expr_ret_81;
+    t = expr_ret_81;
   }
 
   // ModExprList 1
-  if (expr_ret_81)
+  if (expr_ret_80)
   {
-    daisho_astnode_t* expr_ret_83 = NULL;
-    dbg_enter(ctx, "VARIDENT", ctx->pos);
+    daisho_astnode_t* expr_ret_82 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
       // Capturing VARIDENT.
-      expr_ret_83 = leaf(VARIDENT);
+      expr_ret_82 = leaf(VARIDENT);
       #if DAISHO_SOURCEINFO
-      expr_ret_83->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_83->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_82->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_82->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_83 = NULL;
+      expr_ret_82 = NULL;
     }
 
-    if (expr_ret_83) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-    expr_ret_81 = expr_ret_83;
-    v = expr_ret_83;
+    expr_ret_80 = expr_ret_82;
+    v = expr_ret_82;
   }
 
   // ModExprList 2
-  if (expr_ret_81)
+  if (expr_ret_80)
   {
-    dbg_enter(ctx, "SEMI", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SEMI) {
       // Not capturing SEMI.
-      expr_ret_81 = SUCC;
+      expr_ret_80 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_81 = NULL;
+      expr_ret_80 = NULL;
     }
 
-    if (expr_ret_81) dbg_accept(ctx, "SEMI"); else dbg_reject(ctx, "SEMI");
   }
 
   // ModExprList 3
-  if (expr_ret_81)
+  if (expr_ret_80)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_81
+    #define ret expr_ret_80
     ret = SUCC;
 
     rule=node(TYPEMEMBER, t, v);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_81) rew(mod_81);
-  expr_ret_80 = expr_ret_81 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_80;
-  if (!expr_ret_80) rule = NULL;
+  if (!expr_ret_80) rew(mod_80);
+  expr_ret_79 = expr_ret_80 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_79;
+  if (!expr_ret_79) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "typemember");
-  else if (rule) dbg_accept(ctx, "typemember");
-  else dbg_reject(ctx, "typemember");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_fnmember(daisho_parser_ctx* ctx) {
   daisho_astnode_t* r = NULL;
-  #define rule expr_ret_84
+  #define rule expr_ret_83
 
-  daisho_astnode_t* expr_ret_85 = NULL;
   daisho_astnode_t* expr_ret_84 = NULL;
-  dbg_enter(ctx, "fnmember", ctx->pos);
-  daisho_astnode_t* expr_ret_86 = NULL;
-  rec(mod_86);
+  daisho_astnode_t* expr_ret_83 = NULL;
+  daisho_astnode_t* expr_ret_85 = NULL;
+  rec(mod_85);
   // ModExprList 0
   {
+    daisho_astnode_t* expr_ret_86 = NULL;
     daisho_astnode_t* expr_ret_87 = NULL;
-    daisho_astnode_t* expr_ret_88 = NULL;
 
-    rec(slash_88);
+    rec(slash_87);
 
     // SlashExpr 0
-    if (!expr_ret_88)
+    if (!expr_ret_87)
+    {
+      daisho_astnode_t* expr_ret_88 = NULL;
+      rec(mod_88);
+      // ModExprList Forwarding
+      expr_ret_88 = daisho_parse_fndecl(ctx);
+      // ModExprList end
+      if (!expr_ret_88) rew(mod_88);
+      expr_ret_87 = expr_ret_88;
+    }
+
+    // SlashExpr 1
+    if (!expr_ret_87)
     {
       daisho_astnode_t* expr_ret_89 = NULL;
       rec(mod_89);
       // ModExprList Forwarding
-      expr_ret_89 = daisho_parse_fndecl(ctx);
+      expr_ret_89 = daisho_parse_cfndecl(ctx);
       // ModExprList end
       if (!expr_ret_89) rew(mod_89);
-      expr_ret_88 = expr_ret_89;
+      expr_ret_87 = expr_ret_89;
     }
 
-    // SlashExpr 1
-    if (!expr_ret_88)
+    // SlashExpr 2
+    if (!expr_ret_87)
     {
       daisho_astnode_t* expr_ret_90 = NULL;
       rec(mod_90);
       // ModExprList Forwarding
-      expr_ret_90 = daisho_parse_cfndecl(ctx);
+      expr_ret_90 = daisho_parse_fnproto(ctx);
       // ModExprList end
       if (!expr_ret_90) rew(mod_90);
-      expr_ret_88 = expr_ret_90;
-    }
-
-    // SlashExpr 2
-    if (!expr_ret_88)
-    {
-      daisho_astnode_t* expr_ret_91 = NULL;
-      rec(mod_91);
-      // ModExprList Forwarding
-      expr_ret_91 = daisho_parse_fnproto(ctx);
-      // ModExprList end
-      if (!expr_ret_91) rew(mod_91);
-      expr_ret_88 = expr_ret_91;
+      expr_ret_87 = expr_ret_90;
     }
 
     // SlashExpr end
-    if (!expr_ret_88) rew(slash_88);
-    expr_ret_87 = expr_ret_88;
-
+    if (!expr_ret_87) rew(slash_87);
     expr_ret_86 = expr_ret_87;
-    r = expr_ret_87;
+
+    expr_ret_85 = expr_ret_86;
+    r = expr_ret_86;
   }
 
   // ModExprList 1
-  if (expr_ret_86)
+  if (expr_ret_85)
   {
-    dbg_enter(ctx, "SEMI", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SEMI) {
       // Not capturing SEMI.
-      expr_ret_86 = SUCC;
+      expr_ret_85 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_86 = NULL;
+      expr_ret_85 = NULL;
     }
 
-    if (expr_ret_86) dbg_accept(ctx, "SEMI"); else dbg_reject(ctx, "SEMI");
   }
 
   // ModExprList 2
-  if (expr_ret_86)
+  if (expr_ret_85)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_86
+    #define ret expr_ret_85
     ret = SUCC;
 
     rule=r;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_86) rew(mod_86);
-  expr_ret_85 = expr_ret_86 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_85;
-  if (!expr_ret_85) rule = NULL;
+  if (!expr_ret_85) rew(mod_85);
+  expr_ret_84 = expr_ret_85 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_84;
+  if (!expr_ret_84) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "fnmember");
-  else if (rule) dbg_accept(ctx, "fnmember");
-  else dbg_reject(ctx, "fnmember");
   return rule;
   #undef rule
 }
@@ -4618,35 +4258,51 @@ static inline daisho_astnode_t* daisho_parse_fnmember(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_ctypedecl(daisho_parser_ctx* ctx) {
   daisho_astnode_t* t = NULL;
   daisho_astnode_t* c = NULL;
-  #define rule expr_ret_92
+  #define rule expr_ret_91
 
-  daisho_astnode_t* expr_ret_93 = NULL;
   daisho_astnode_t* expr_ret_92 = NULL;
-  dbg_enter(ctx, "ctypedecl", ctx->pos);
-  daisho_astnode_t* expr_ret_94 = NULL;
-  rec(mod_94);
+  daisho_astnode_t* expr_ret_91 = NULL;
+  daisho_astnode_t* expr_ret_93 = NULL;
+  rec(mod_93);
   // ModExprList 0
   {
-    dbg_enter(ctx, "CTYPE", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CTYPE) {
       // Not capturing CTYPE.
-      expr_ret_94 = SUCC;
+      expr_ret_93 = SUCC;
+      ctx->pos++;
+    } else {
+      expr_ret_93 = NULL;
+    }
+
+  }
+
+  // ModExprList 1
+  if (expr_ret_93)
+  {
+    daisho_astnode_t* expr_ret_94 = NULL;
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
+      // Capturing TYPEIDENT.
+      expr_ret_94 = leaf(TYPEIDENT);
+      #if DAISHO_SOURCEINFO
+      expr_ret_94->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_94->len_or_toknum = ctx->tokens[ctx->pos].len;
+      #endif
       ctx->pos++;
     } else {
       expr_ret_94 = NULL;
     }
 
-    if (expr_ret_94) dbg_accept(ctx, "CTYPE"); else dbg_reject(ctx, "CTYPE");
+    expr_ret_93 = expr_ret_94;
+    t = expr_ret_94;
   }
 
-  // ModExprList 1
-  if (expr_ret_94)
+  // ModExprList 2
+  if (expr_ret_93)
   {
     daisho_astnode_t* expr_ret_95 = NULL;
-    dbg_enter(ctx, "TYPEIDENT", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
-      // Capturing TYPEIDENT.
-      expr_ret_95 = leaf(TYPEIDENT);
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CIDENT) {
+      // Capturing CIDENT.
+      expr_ret_95 = leaf(CIDENT);
       #if DAISHO_SOURCEINFO
       expr_ret_95->tok_repr = ctx->tokens[ctx->pos].content;
       expr_ret_95->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -4656,56 +4312,28 @@ static inline daisho_astnode_t* daisho_parse_ctypedecl(daisho_parser_ctx* ctx) {
       expr_ret_95 = NULL;
     }
 
-    if (expr_ret_95) dbg_accept(ctx, "TYPEIDENT"); else dbg_reject(ctx, "TYPEIDENT");
-    expr_ret_94 = expr_ret_95;
-    t = expr_ret_95;
-  }
-
-  // ModExprList 2
-  if (expr_ret_94)
-  {
-    daisho_astnode_t* expr_ret_96 = NULL;
-    dbg_enter(ctx, "CIDENT", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CIDENT) {
-      // Capturing CIDENT.
-      expr_ret_96 = leaf(CIDENT);
-      #if DAISHO_SOURCEINFO
-      expr_ret_96->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_96->len_or_toknum = ctx->tokens[ctx->pos].len;
-      #endif
-      ctx->pos++;
-    } else {
-      expr_ret_96 = NULL;
-    }
-
-    if (expr_ret_96) dbg_accept(ctx, "CIDENT"); else dbg_reject(ctx, "CIDENT");
-    expr_ret_94 = expr_ret_96;
-    c = expr_ret_96;
+    expr_ret_93 = expr_ret_95;
+    c = expr_ret_95;
   }
 
   // ModExprList 3
-  if (expr_ret_94)
+  if (expr_ret_93)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_94
+    #define ret expr_ret_93
     ret = SUCC;
 
     rule=srepr(node(CTYPEDECL, t, c), "ctypedecl");
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_94) rew(mod_94);
-  expr_ret_93 = expr_ret_94 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_93;
-  if (!expr_ret_93) rule = NULL;
+  if (!expr_ret_93) rew(mod_93);
+  expr_ret_92 = expr_ret_93 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_92;
+  if (!expr_ret_92) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "ctypedecl");
-  else if (rule) dbg_accept(ctx, "ctypedecl");
-  else dbg_reject(ctx, "ctypedecl");
   return rule;
   #undef rule
 }
@@ -4713,81 +4341,71 @@ static inline daisho_astnode_t* daisho_parse_ctypedecl(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_aliasdecl(daisho_parser_ctx* ctx) {
   daisho_astnode_t* t = NULL;
   daisho_astnode_t* f = NULL;
-  #define rule expr_ret_97
+  #define rule expr_ret_96
 
-  daisho_astnode_t* expr_ret_98 = NULL;
   daisho_astnode_t* expr_ret_97 = NULL;
-  dbg_enter(ctx, "aliasdecl", ctx->pos);
-  daisho_astnode_t* expr_ret_99 = NULL;
-  rec(mod_99);
+  daisho_astnode_t* expr_ret_96 = NULL;
+  daisho_astnode_t* expr_ret_98 = NULL;
+  rec(mod_98);
   // ModExprList 0
   {
-    dbg_enter(ctx, "ALIAS", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_ALIAS) {
       // Not capturing ALIAS.
-      expr_ret_99 = SUCC;
+      expr_ret_98 = SUCC;
+      ctx->pos++;
+    } else {
+      expr_ret_98 = NULL;
+    }
+
+  }
+
+  // ModExprList 1
+  if (expr_ret_98)
+  {
+    daisho_astnode_t* expr_ret_99 = NULL;
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
+      // Capturing TYPEIDENT.
+      expr_ret_99 = leaf(TYPEIDENT);
+      #if DAISHO_SOURCEINFO
+      expr_ret_99->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_99->len_or_toknum = ctx->tokens[ctx->pos].len;
+      #endif
       ctx->pos++;
     } else {
       expr_ret_99 = NULL;
     }
 
-    if (expr_ret_99) dbg_accept(ctx, "ALIAS"); else dbg_reject(ctx, "ALIAS");
-  }
-
-  // ModExprList 1
-  if (expr_ret_99)
-  {
-    daisho_astnode_t* expr_ret_100 = NULL;
-    dbg_enter(ctx, "TYPEIDENT", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
-      // Capturing TYPEIDENT.
-      expr_ret_100 = leaf(TYPEIDENT);
-      #if DAISHO_SOURCEINFO
-      expr_ret_100->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_100->len_or_toknum = ctx->tokens[ctx->pos].len;
-      #endif
-      ctx->pos++;
-    } else {
-      expr_ret_100 = NULL;
-    }
-
-    if (expr_ret_100) dbg_accept(ctx, "TYPEIDENT"); else dbg_reject(ctx, "TYPEIDENT");
-    expr_ret_99 = expr_ret_100;
-    t = expr_ret_100;
+    expr_ret_98 = expr_ret_99;
+    t = expr_ret_99;
   }
 
   // ModExprList 2
-  if (expr_ret_99)
+  if (expr_ret_98)
   {
-    daisho_astnode_t* expr_ret_101 = NULL;
-    expr_ret_101 = daisho_parse_type(ctx);
-    expr_ret_99 = expr_ret_101;
-    f = expr_ret_101;
+    daisho_astnode_t* expr_ret_100 = NULL;
+    expr_ret_100 = daisho_parse_type(ctx);
+    expr_ret_98 = expr_ret_100;
+    f = expr_ret_100;
   }
 
   // ModExprList 3
-  if (expr_ret_99)
+  if (expr_ret_98)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_99
+    #define ret expr_ret_98
     ret = SUCC;
 
     rule=srepr(node(ALIASDECL, t, f), "aliasdecl");
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_99) rew(mod_99);
-  expr_ret_98 = expr_ret_99 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_98;
-  if (!expr_ret_98) rule = NULL;
+  if (!expr_ret_98) rew(mod_98);
+  expr_ret_97 = expr_ret_98 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_97;
+  if (!expr_ret_97) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "aliasdecl");
-  else if (rule) dbg_accept(ctx, "aliasdecl");
-  else dbg_reject(ctx, "aliasdecl");
   return rule;
   #undef rule
 }
@@ -4796,132 +4414,118 @@ static inline daisho_astnode_t* daisho_parse_fndecl(daisho_parser_ctx* ctx) {
   daisho_astnode_t* rt = NULL;
   daisho_astnode_t* t = NULL;
   daisho_astnode_t* e = NULL;
-  #define rule expr_ret_102
+  #define rule expr_ret_101
 
-  daisho_astnode_t* expr_ret_103 = NULL;
   daisho_astnode_t* expr_ret_102 = NULL;
-  dbg_enter(ctx, "fndecl", ctx->pos);
-  daisho_astnode_t* expr_ret_104 = NULL;
-  rec(mod_104);
+  daisho_astnode_t* expr_ret_101 = NULL;
+  daisho_astnode_t* expr_ret_103 = NULL;
+  rec(mod_103);
   // ModExprList 0
   {
-    dbg_enter(ctx, "FN", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_FN) {
       // Not capturing FN.
-      expr_ret_104 = SUCC;
+      expr_ret_103 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_104 = NULL;
+      expr_ret_103 = NULL;
     }
 
-    if (expr_ret_104) dbg_accept(ctx, "FN"); else dbg_reject(ctx, "FN");
   }
 
   // ModExprList 1
-  if (expr_ret_104)
+  if (expr_ret_103)
   {
-    daisho_astnode_t* expr_ret_105 = NULL;
-    expr_ret_105 = daisho_parse_type(ctx);
-    expr_ret_104 = expr_ret_105;
-    rt = expr_ret_105;
+    daisho_astnode_t* expr_ret_104 = NULL;
+    expr_ret_104 = daisho_parse_type(ctx);
+    expr_ret_103 = expr_ret_104;
+    rt = expr_ret_104;
   }
 
   // ModExprList 2
-  if (expr_ret_104)
+  if (expr_ret_103)
   {
-    daisho_astnode_t* expr_ret_106 = NULL;
-    dbg_enter(ctx, "VARIDENT", ctx->pos);
+    daisho_astnode_t* expr_ret_105 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
       // Capturing VARIDENT.
-      expr_ret_106 = leaf(VARIDENT);
+      expr_ret_105 = leaf(VARIDENT);
       #if DAISHO_SOURCEINFO
-      expr_ret_106->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_106->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_105->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_105->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_106 = NULL;
+      expr_ret_105 = NULL;
     }
 
-    if (expr_ret_106) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-    expr_ret_104 = expr_ret_106;
-    t = expr_ret_106;
+    expr_ret_103 = expr_ret_105;
+    t = expr_ret_105;
   }
 
   // ModExprList 3
-  if (expr_ret_104)
+  if (expr_ret_103)
   {
-    daisho_astnode_t* expr_ret_107 = NULL;
-    expr_ret_107 = daisho_parse_tmplexpand(ctx);
+    daisho_astnode_t* expr_ret_106 = NULL;
+    expr_ret_106 = daisho_parse_tmplexpand(ctx);
     // optional
-    if (!expr_ret_107)
-      expr_ret_107 = SUCC;
-    expr_ret_104 = expr_ret_107;
-    t = expr_ret_107;
+    if (!expr_ret_106)
+      expr_ret_106 = SUCC;
+    expr_ret_103 = expr_ret_106;
+    t = expr_ret_106;
   }
 
   // ModExprList 4
-  if (expr_ret_104)
+  if (expr_ret_103)
   {
-    dbg_enter(ctx, "OPEN", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
       // Not capturing OPEN.
-      expr_ret_104 = SUCC;
+      expr_ret_103 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_104 = NULL;
+      expr_ret_103 = NULL;
     }
 
-    if (expr_ret_104) dbg_accept(ctx, "OPEN"); else dbg_reject(ctx, "OPEN");
   }
 
   // ModExprList 5
-  if (expr_ret_104)
+  if (expr_ret_103)
   {
-    dbg_enter(ctx, "CLOSE", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
       // Not capturing CLOSE.
-      expr_ret_104 = SUCC;
+      expr_ret_103 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_104 = NULL;
+      expr_ret_103 = NULL;
     }
 
-    if (expr_ret_104) dbg_accept(ctx, "CLOSE"); else dbg_reject(ctx, "CLOSE");
   }
 
   // ModExprList 6
-  if (expr_ret_104)
+  if (expr_ret_103)
   {
-    daisho_astnode_t* expr_ret_108 = NULL;
-    expr_ret_108 = daisho_parse_expr(ctx);
-    expr_ret_104 = expr_ret_108;
-    e = expr_ret_108;
+    daisho_astnode_t* expr_ret_107 = NULL;
+    expr_ret_107 = daisho_parse_expr(ctx);
+    expr_ret_103 = expr_ret_107;
+    e = expr_ret_107;
   }
 
   // ModExprList 7
-  if (expr_ret_104)
+  if (expr_ret_103)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_104
+    #define ret expr_ret_103
     ret = SUCC;
 
     rule=srepr(node(FNDECL, rt, t, e), "fndecl");
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_104) rew(mod_104);
-  expr_ret_103 = expr_ret_104 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_103;
-  if (!expr_ret_103) rule = NULL;
+  if (!expr_ret_103) rew(mod_103);
+  expr_ret_102 = expr_ret_103 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_102;
+  if (!expr_ret_102) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "fndecl");
-  else if (rule) dbg_accept(ctx, "fndecl");
-  else dbg_reject(ctx, "fndecl");
   return rule;
   #undef rule
 }
@@ -4930,132 +4534,118 @@ static inline daisho_astnode_t* daisho_parse_cfndecl(daisho_parser_ctx* ctx) {
   daisho_astnode_t* rt = NULL;
   daisho_astnode_t* t = NULL;
   daisho_astnode_t* e = NULL;
-  #define rule expr_ret_109
+  #define rule expr_ret_108
 
-  daisho_astnode_t* expr_ret_110 = NULL;
   daisho_astnode_t* expr_ret_109 = NULL;
-  dbg_enter(ctx, "cfndecl", ctx->pos);
-  daisho_astnode_t* expr_ret_111 = NULL;
-  rec(mod_111);
+  daisho_astnode_t* expr_ret_108 = NULL;
+  daisho_astnode_t* expr_ret_110 = NULL;
+  rec(mod_110);
   // ModExprList 0
   {
-    dbg_enter(ctx, "CFN", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CFN) {
       // Not capturing CFN.
-      expr_ret_111 = SUCC;
+      expr_ret_110 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_111 = NULL;
+      expr_ret_110 = NULL;
     }
 
-    if (expr_ret_111) dbg_accept(ctx, "CFN"); else dbg_reject(ctx, "CFN");
   }
 
   // ModExprList 1
-  if (expr_ret_111)
+  if (expr_ret_110)
   {
-    daisho_astnode_t* expr_ret_112 = NULL;
-    expr_ret_112 = daisho_parse_type(ctx);
-    expr_ret_111 = expr_ret_112;
-    rt = expr_ret_112;
+    daisho_astnode_t* expr_ret_111 = NULL;
+    expr_ret_111 = daisho_parse_type(ctx);
+    expr_ret_110 = expr_ret_111;
+    rt = expr_ret_111;
   }
 
   // ModExprList 2
-  if (expr_ret_111)
+  if (expr_ret_110)
   {
-    daisho_astnode_t* expr_ret_113 = NULL;
-    dbg_enter(ctx, "VARIDENT", ctx->pos);
+    daisho_astnode_t* expr_ret_112 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
       // Capturing VARIDENT.
-      expr_ret_113 = leaf(VARIDENT);
+      expr_ret_112 = leaf(VARIDENT);
       #if DAISHO_SOURCEINFO
-      expr_ret_113->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_113->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_112->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_112->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_113 = NULL;
+      expr_ret_112 = NULL;
     }
 
-    if (expr_ret_113) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-    expr_ret_111 = expr_ret_113;
-    t = expr_ret_113;
+    expr_ret_110 = expr_ret_112;
+    t = expr_ret_112;
   }
 
   // ModExprList 3
-  if (expr_ret_111)
+  if (expr_ret_110)
   {
-    daisho_astnode_t* expr_ret_114 = NULL;
-    expr_ret_114 = daisho_parse_tmplexpand(ctx);
+    daisho_astnode_t* expr_ret_113 = NULL;
+    expr_ret_113 = daisho_parse_tmplexpand(ctx);
     // optional
-    if (!expr_ret_114)
-      expr_ret_114 = SUCC;
-    expr_ret_111 = expr_ret_114;
-    t = expr_ret_114;
+    if (!expr_ret_113)
+      expr_ret_113 = SUCC;
+    expr_ret_110 = expr_ret_113;
+    t = expr_ret_113;
   }
 
   // ModExprList 4
-  if (expr_ret_111)
+  if (expr_ret_110)
   {
-    dbg_enter(ctx, "OPEN", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
       // Not capturing OPEN.
-      expr_ret_111 = SUCC;
+      expr_ret_110 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_111 = NULL;
+      expr_ret_110 = NULL;
     }
 
-    if (expr_ret_111) dbg_accept(ctx, "OPEN"); else dbg_reject(ctx, "OPEN");
   }
 
   // ModExprList 5
-  if (expr_ret_111)
+  if (expr_ret_110)
   {
-    dbg_enter(ctx, "CLOSE", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
       // Not capturing CLOSE.
-      expr_ret_111 = SUCC;
+      expr_ret_110 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_111 = NULL;
+      expr_ret_110 = NULL;
     }
 
-    if (expr_ret_111) dbg_accept(ctx, "CLOSE"); else dbg_reject(ctx, "CLOSE");
   }
 
   // ModExprList 6
-  if (expr_ret_111)
+  if (expr_ret_110)
   {
-    daisho_astnode_t* expr_ret_115 = NULL;
-    expr_ret_115 = daisho_parse_expr(ctx);
-    expr_ret_111 = expr_ret_115;
-    e = expr_ret_115;
+    daisho_astnode_t* expr_ret_114 = NULL;
+    expr_ret_114 = daisho_parse_expr(ctx);
+    expr_ret_110 = expr_ret_114;
+    e = expr_ret_114;
   }
 
   // ModExprList 7
-  if (expr_ret_111)
+  if (expr_ret_110)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_111
+    #define ret expr_ret_110
     ret = SUCC;
 
     rule=srepr(node(CFNDECL, rt, t, e), "cfndecl");
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_111) rew(mod_111);
-  expr_ret_110 = expr_ret_111 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_110;
-  if (!expr_ret_110) rule = NULL;
+  if (!expr_ret_110) rew(mod_110);
+  expr_ret_109 = expr_ret_110 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_109;
+  if (!expr_ret_109) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "cfndecl");
-  else if (rule) dbg_accept(ctx, "cfndecl");
-  else dbg_reject(ctx, "cfndecl");
   return rule;
   #undef rule
 }
@@ -5063,245 +4653,219 @@ static inline daisho_astnode_t* daisho_parse_cfndecl(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_tmpldecl(daisho_parser_ctx* ctx) {
   daisho_astnode_t* l = NULL;
   daisho_astnode_t* m = NULL;
-  #define rule expr_ret_116
+  #define rule expr_ret_115
 
-  daisho_astnode_t* expr_ret_117 = NULL;
   daisho_astnode_t* expr_ret_116 = NULL;
-  dbg_enter(ctx, "tmpldecl", ctx->pos);
-  daisho_astnode_t* expr_ret_118 = NULL;
-  rec(mod_118);
+  daisho_astnode_t* expr_ret_115 = NULL;
+  daisho_astnode_t* expr_ret_117 = NULL;
+  rec(mod_117);
   // ModExprList 0
   {
-    dbg_enter(ctx, "LT", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LT) {
       // Not capturing LT.
-      expr_ret_118 = SUCC;
+      expr_ret_117 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_118 = NULL;
+      expr_ret_117 = NULL;
     }
 
-    if (expr_ret_118) dbg_accept(ctx, "LT"); else dbg_reject(ctx, "LT");
   }
 
   // ModExprList 1
-  if (expr_ret_118)
+  if (expr_ret_117)
   {
-    daisho_astnode_t* expr_ret_119 = NULL;
+    daisho_astnode_t* expr_ret_118 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_119
+    #define ret expr_ret_118
     ret = SUCC;
 
     rule=ret=list(TMPLDECL);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_118 = expr_ret_119;
-    l = expr_ret_119;
+    expr_ret_117 = expr_ret_118;
+    l = expr_ret_118;
   }
 
   // ModExprList 2
-  if (expr_ret_118)
+  if (expr_ret_117)
   {
-    daisho_astnode_t* expr_ret_120 = NULL;
-    expr_ret_120 = daisho_parse_tmpldeclmember(ctx);
+    daisho_astnode_t* expr_ret_119 = NULL;
+    expr_ret_119 = daisho_parse_tmpldeclmember(ctx);
     // optional
-    if (!expr_ret_120)
-      expr_ret_120 = SUCC;
-    expr_ret_118 = expr_ret_120;
-    m = expr_ret_120;
+    if (!expr_ret_119)
+      expr_ret_119 = SUCC;
+    expr_ret_117 = expr_ret_119;
+    m = expr_ret_119;
   }
 
   // ModExprList 3
-  if (expr_ret_118)
+  if (expr_ret_117)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_118
+    #define ret expr_ret_117
     ret = SUCC;
 
     if (has(m)) add(l, m);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 4
-  if (expr_ret_118)
+  if (expr_ret_117)
   {
-    daisho_astnode_t* expr_ret_121 = NULL;
-    expr_ret_121 = SUCC;
-    while (expr_ret_121)
+    daisho_astnode_t* expr_ret_120 = NULL;
+    expr_ret_120 = SUCC;
+    while (expr_ret_120)
     {
-      daisho_astnode_t* expr_ret_122 = NULL;
-      rec(mod_122);
+      daisho_astnode_t* expr_ret_121 = NULL;
+      rec(mod_121);
       // ModExprList 0
       {
-        dbg_enter(ctx, "COMMA", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
           // Not capturing COMMA.
-          expr_ret_122 = SUCC;
+          expr_ret_121 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_122 = NULL;
+          expr_ret_121 = NULL;
         }
 
-        if (expr_ret_122) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
       }
 
       // ModExprList 1
-      if (expr_ret_122)
+      if (expr_ret_121)
       {
-        daisho_astnode_t* expr_ret_123 = NULL;
-        expr_ret_123 = daisho_parse_tmpldeclmember(ctx);
-        expr_ret_122 = expr_ret_123;
-        m = expr_ret_123;
+        daisho_astnode_t* expr_ret_122 = NULL;
+        expr_ret_122 = daisho_parse_tmpldeclmember(ctx);
+        expr_ret_121 = expr_ret_122;
+        m = expr_ret_122;
       }
 
       // ModExprList 2
-      if (expr_ret_122)
+      if (expr_ret_121)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_122
+        #define ret expr_ret_121
         ret = SUCC;
 
         add(l, m);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_122) rew(mod_122);
-      expr_ret_121 = expr_ret_122 ? SUCC : NULL;
+      if (!expr_ret_121) rew(mod_121);
+      expr_ret_120 = expr_ret_121 ? SUCC : NULL;
     }
 
-    expr_ret_121 = SUCC;
-    expr_ret_118 = expr_ret_121;
+    expr_ret_120 = SUCC;
+    expr_ret_117 = expr_ret_120;
   }
 
   // ModExprList 5
-  if (expr_ret_118)
+  if (expr_ret_117)
   {
-    daisho_astnode_t* expr_ret_124 = NULL;
-    dbg_enter(ctx, "COMMA", ctx->pos);
+    daisho_astnode_t* expr_ret_123 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
       // Not capturing COMMA.
-      expr_ret_124 = SUCC;
+      expr_ret_123 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_124 = NULL;
+      expr_ret_123 = NULL;
     }
 
-    if (expr_ret_124) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
     // optional
-    if (!expr_ret_124)
-      expr_ret_124 = SUCC;
-    expr_ret_118 = expr_ret_124;
+    if (!expr_ret_123)
+      expr_ret_123 = SUCC;
+    expr_ret_117 = expr_ret_123;
   }
 
   // ModExprList 6
-  if (expr_ret_118)
+  if (expr_ret_117)
   {
-    dbg_enter(ctx, "GT", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GT) {
       // Not capturing GT.
-      expr_ret_118 = SUCC;
+      expr_ret_117 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_118 = NULL;
+      expr_ret_117 = NULL;
     }
 
-    if (expr_ret_118) dbg_accept(ctx, "GT"); else dbg_reject(ctx, "GT");
   }
 
   // ModExprList end
-  if (!expr_ret_118) rew(mod_118);
-  expr_ret_117 = expr_ret_118 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_117;
-  if (!expr_ret_117) rule = NULL;
+  if (!expr_ret_117) rew(mod_117);
+  expr_ret_116 = expr_ret_117 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_116;
+  if (!expr_ret_116) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "tmpldecl");
-  else if (rule) dbg_accept(ctx, "tmpldecl");
-  else dbg_reject(ctx, "tmpldecl");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_tmpldeclmember(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_125
+  #define rule expr_ret_124
 
-  daisho_astnode_t* expr_ret_126 = NULL;
   daisho_astnode_t* expr_ret_125 = NULL;
-  dbg_enter(ctx, "tmpldeclmember", ctx->pos);
-  daisho_astnode_t* expr_ret_127 = NULL;
-  rec(mod_127);
+  daisho_astnode_t* expr_ret_124 = NULL;
+  daisho_astnode_t* expr_ret_126 = NULL;
+  rec(mod_126);
   // ModExprList 0
   {
-    expr_ret_127 = daisho_parse_type(ctx);
+    expr_ret_126 = daisho_parse_type(ctx);
   }
 
   // ModExprList 1
-  if (expr_ret_127)
+  if (expr_ret_126)
   {
-    dbg_enter(ctx, "TYPEIDENT", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
       // Not capturing TYPEIDENT.
-      expr_ret_127 = SUCC;
+      expr_ret_126 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_127 = NULL;
+      expr_ret_126 = NULL;
     }
 
-    if (expr_ret_127) dbg_accept(ctx, "TYPEIDENT"); else dbg_reject(ctx, "TYPEIDENT");
   }
 
   // ModExprList 2
-  if (expr_ret_127)
+  if (expr_ret_126)
   {
+    daisho_astnode_t* expr_ret_127 = NULL;
     daisho_astnode_t* expr_ret_128 = NULL;
-    daisho_astnode_t* expr_ret_129 = NULL;
-    rec(mod_129);
+    rec(mod_128);
     // ModExprList 0
     {
-      dbg_enter(ctx, "EQ", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_EQ) {
         // Not capturing EQ.
-        expr_ret_129 = SUCC;
+        expr_ret_128 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_129 = NULL;
+        expr_ret_128 = NULL;
       }
 
-      if (expr_ret_129) dbg_accept(ctx, "EQ"); else dbg_reject(ctx, "EQ");
     }
 
     // ModExprList 1
-    if (expr_ret_129)
+    if (expr_ret_128)
     {
-      expr_ret_129 = daisho_parse_type(ctx);
+      expr_ret_128 = daisho_parse_type(ctx);
     }
 
     // ModExprList end
-    if (!expr_ret_129) rew(mod_129);
-    expr_ret_128 = expr_ret_129 ? SUCC : NULL;
+    if (!expr_ret_128) rew(mod_128);
+    expr_ret_127 = expr_ret_128 ? SUCC : NULL;
     // optional
-    if (!expr_ret_128)
-      expr_ret_128 = SUCC;
-    expr_ret_127 = expr_ret_128;
+    if (!expr_ret_127)
+      expr_ret_127 = SUCC;
+    expr_ret_126 = expr_ret_127;
   }
 
   // ModExprList end
-  if (!expr_ret_127) rew(mod_127);
-  expr_ret_126 = expr_ret_127 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_126;
-  if (!expr_ret_126) rule = NULL;
+  if (!expr_ret_126) rew(mod_126);
+  expr_ret_125 = expr_ret_126 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_125;
+  if (!expr_ret_125) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "tmpldeclmember");
-  else if (rule) dbg_accept(ctx, "tmpldeclmember");
-  else dbg_reject(ctx, "tmpldeclmember");
   return rule;
   #undef rule
 }
@@ -5309,230 +4873,206 @@ static inline daisho_astnode_t* daisho_parse_tmpldeclmember(daisho_parser_ctx* c
 static inline daisho_astnode_t* daisho_parse_tmplexpand(daisho_parser_ctx* ctx) {
   daisho_astnode_t* l = NULL;
   daisho_astnode_t* m = NULL;
-  #define rule expr_ret_130
+  #define rule expr_ret_129
 
-  daisho_astnode_t* expr_ret_131 = NULL;
   daisho_astnode_t* expr_ret_130 = NULL;
-  dbg_enter(ctx, "tmplexpand", ctx->pos);
-  daisho_astnode_t* expr_ret_132 = NULL;
-  rec(mod_132);
+  daisho_astnode_t* expr_ret_129 = NULL;
+  daisho_astnode_t* expr_ret_131 = NULL;
+  rec(mod_131);
   // ModExprList 0
   {
-    dbg_enter(ctx, "LT", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LT) {
       // Not capturing LT.
-      expr_ret_132 = SUCC;
+      expr_ret_131 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_132 = NULL;
+      expr_ret_131 = NULL;
     }
 
-    if (expr_ret_132) dbg_accept(ctx, "LT"); else dbg_reject(ctx, "LT");
   }
 
   // ModExprList 1
-  if (expr_ret_132)
+  if (expr_ret_131)
   {
-    daisho_astnode_t* expr_ret_133 = NULL;
+    daisho_astnode_t* expr_ret_132 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_133
+    #define ret expr_ret_132
     ret = SUCC;
 
     rule=ret=list(TMPLEXPANDLIST);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_132 = expr_ret_133;
-    l = expr_ret_133;
+    expr_ret_131 = expr_ret_132;
+    l = expr_ret_132;
   }
 
   // ModExprList 2
-  if (expr_ret_132)
+  if (expr_ret_131)
   {
-    daisho_astnode_t* expr_ret_134 = NULL;
-    expr_ret_134 = daisho_parse_tmplex(ctx);
+    daisho_astnode_t* expr_ret_133 = NULL;
+    expr_ret_133 = daisho_parse_tmplex(ctx);
     // optional
-    if (!expr_ret_134)
-      expr_ret_134 = SUCC;
-    expr_ret_132 = expr_ret_134;
-    m = expr_ret_134;
+    if (!expr_ret_133)
+      expr_ret_133 = SUCC;
+    expr_ret_131 = expr_ret_133;
+    m = expr_ret_133;
   }
 
   // ModExprList 3
-  if (expr_ret_132)
+  if (expr_ret_131)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_132
+    #define ret expr_ret_131
     ret = SUCC;
 
     if (has(m)) add(l, m);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 4
-  if (expr_ret_132)
+  if (expr_ret_131)
   {
-    daisho_astnode_t* expr_ret_135 = NULL;
-    expr_ret_135 = SUCC;
-    while (expr_ret_135)
+    daisho_astnode_t* expr_ret_134 = NULL;
+    expr_ret_134 = SUCC;
+    while (expr_ret_134)
     {
-      daisho_astnode_t* expr_ret_136 = NULL;
-      rec(mod_136);
+      daisho_astnode_t* expr_ret_135 = NULL;
+      rec(mod_135);
       // ModExprList 0
       {
-        dbg_enter(ctx, "COMMA", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
           // Not capturing COMMA.
-          expr_ret_136 = SUCC;
+          expr_ret_135 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_136 = NULL;
+          expr_ret_135 = NULL;
         }
 
-        if (expr_ret_136) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
       }
 
       // ModExprList 1
-      if (expr_ret_136)
+      if (expr_ret_135)
       {
-        daisho_astnode_t* expr_ret_137 = NULL;
-        expr_ret_137 = daisho_parse_tmplex(ctx);
-        expr_ret_136 = expr_ret_137;
-        m = expr_ret_137;
+        daisho_astnode_t* expr_ret_136 = NULL;
+        expr_ret_136 = daisho_parse_tmplex(ctx);
+        expr_ret_135 = expr_ret_136;
+        m = expr_ret_136;
       }
 
       // ModExprList 2
-      if (expr_ret_136)
+      if (expr_ret_135)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_136
+        #define ret expr_ret_135
         ret = SUCC;
 
         add(l, m);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_136) rew(mod_136);
-      expr_ret_135 = expr_ret_136 ? SUCC : NULL;
+      if (!expr_ret_135) rew(mod_135);
+      expr_ret_134 = expr_ret_135 ? SUCC : NULL;
     }
 
-    expr_ret_135 = SUCC;
-    expr_ret_132 = expr_ret_135;
+    expr_ret_134 = SUCC;
+    expr_ret_131 = expr_ret_134;
   }
 
   // ModExprList 5
-  if (expr_ret_132)
+  if (expr_ret_131)
   {
-    daisho_astnode_t* expr_ret_138 = NULL;
-    dbg_enter(ctx, "COMMA", ctx->pos);
+    daisho_astnode_t* expr_ret_137 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
       // Not capturing COMMA.
-      expr_ret_138 = SUCC;
+      expr_ret_137 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_138 = NULL;
+      expr_ret_137 = NULL;
     }
 
-    if (expr_ret_138) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
     // optional
-    if (!expr_ret_138)
-      expr_ret_138 = SUCC;
-    expr_ret_132 = expr_ret_138;
+    if (!expr_ret_137)
+      expr_ret_137 = SUCC;
+    expr_ret_131 = expr_ret_137;
   }
 
   // ModExprList 6
-  if (expr_ret_132)
+  if (expr_ret_131)
   {
-    dbg_enter(ctx, "GT", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GT) {
       // Not capturing GT.
-      expr_ret_132 = SUCC;
+      expr_ret_131 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_132 = NULL;
+      expr_ret_131 = NULL;
     }
 
-    if (expr_ret_132) dbg_accept(ctx, "GT"); else dbg_reject(ctx, "GT");
   }
 
   // ModExprList end
-  if (!expr_ret_132) rew(mod_132);
-  expr_ret_131 = expr_ret_132 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_131;
-  if (!expr_ret_131) rule = NULL;
+  if (!expr_ret_131) rew(mod_131);
+  expr_ret_130 = expr_ret_131 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_130;
+  if (!expr_ret_130) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "tmplexpand");
-  else if (rule) dbg_accept(ctx, "tmplexpand");
-  else dbg_reject(ctx, "tmplexpand");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_tmplex(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_139
+  #define rule expr_ret_138
 
-  daisho_astnode_t* expr_ret_140 = NULL;
   daisho_astnode_t* expr_ret_139 = NULL;
-  dbg_enter(ctx, "tmplex", ctx->pos);
-  daisho_astnode_t* expr_ret_141 = NULL;
+  daisho_astnode_t* expr_ret_138 = NULL;
+  daisho_astnode_t* expr_ret_140 = NULL;
 
-  rec(slash_141);
+  rec(slash_140);
 
   // SlashExpr 0
-  if (!expr_ret_141)
+  if (!expr_ret_140)
+  {
+    daisho_astnode_t* expr_ret_141 = NULL;
+    rec(mod_141);
+    // ModExprList Forwarding
+    expr_ret_141 = daisho_parse_type(ctx);
+    // ModExprList end
+    if (!expr_ret_141) rew(mod_141);
+    expr_ret_140 = expr_ret_141;
+  }
+
+  // SlashExpr 1
+  if (!expr_ret_140)
   {
     daisho_astnode_t* expr_ret_142 = NULL;
     rec(mod_142);
     // ModExprList Forwarding
-    expr_ret_142 = daisho_parse_type(ctx);
-    // ModExprList end
-    if (!expr_ret_142) rew(mod_142);
-    expr_ret_141 = expr_ret_142;
-  }
-
-  // SlashExpr 1
-  if (!expr_ret_141)
-  {
-    daisho_astnode_t* expr_ret_143 = NULL;
-    rec(mod_143);
-    // ModExprList Forwarding
-    dbg_enter(ctx, "NUMLIT", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_NUMLIT) {
       // Capturing NUMLIT.
-      expr_ret_143 = leaf(NUMLIT);
+      expr_ret_142 = leaf(NUMLIT);
       #if DAISHO_SOURCEINFO
-      expr_ret_143->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_143->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_142->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_142->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_143 = NULL;
+      expr_ret_142 = NULL;
     }
 
-    if (expr_ret_143) dbg_accept(ctx, "NUMLIT"); else dbg_reject(ctx, "NUMLIT");
     // ModExprList end
-    if (!expr_ret_143) rew(mod_143);
-    expr_ret_141 = expr_ret_143;
+    if (!expr_ret_142) rew(mod_142);
+    expr_ret_140 = expr_ret_142;
   }
 
   // SlashExpr end
-  if (!expr_ret_141) rew(slash_141);
-  expr_ret_140 = expr_ret_141;
+  if (!expr_ret_140) rew(slash_140);
+  expr_ret_139 = expr_ret_140;
 
-  if (!rule) rule = expr_ret_140;
-  if (!expr_ret_140) rule = NULL;
+  if (!rule) rule = expr_ret_139;
+  if (!expr_ret_139) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "tmplex");
-  else if (rule) dbg_accept(ctx, "tmplex");
-  else dbg_reject(ctx, "tmplex");
   return rule;
   #undef rule
 }
@@ -5545,414 +5085,378 @@ static inline daisho_astnode_t* daisho_parse_type(daisho_parser_ctx* ctx) {
   daisho_astnode_t* s = NULL;
   daisho_astnode_t* f = NULL;
   daisho_astnode_t* t = NULL;
-  #define rule expr_ret_144
+  #define rule expr_ret_143
 
-  daisho_astnode_t* expr_ret_145 = NULL;
   daisho_astnode_t* expr_ret_144 = NULL;
-  dbg_enter(ctx, "type", ctx->pos);
-  daisho_astnode_t* expr_ret_146 = NULL;
+  daisho_astnode_t* expr_ret_143 = NULL;
+  daisho_astnode_t* expr_ret_145 = NULL;
 
-  rec(slash_146);
+  rec(slash_145);
 
   // SlashExpr 0
-  if (!expr_ret_146)
+  if (!expr_ret_145)
   {
-    daisho_astnode_t* expr_ret_147 = NULL;
-    rec(mod_147);
+    daisho_astnode_t* expr_ret_146 = NULL;
+    rec(mod_146);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_148 = NULL;
-      dbg_enter(ctx, "VOIDTYPE", ctx->pos);
+      daisho_astnode_t* expr_ret_147 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VOIDTYPE) {
         // Capturing VOIDTYPE.
-        expr_ret_148 = leaf(VOIDTYPE);
+        expr_ret_147 = leaf(VOIDTYPE);
         #if DAISHO_SOURCEINFO
-        expr_ret_148->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_148->len_or_toknum = ctx->tokens[ctx->pos].len;
+        expr_ret_147->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_147->len_or_toknum = ctx->tokens[ctx->pos].len;
         #endif
+        ctx->pos++;
+      } else {
+        expr_ret_147 = NULL;
+      }
+
+      expr_ret_146 = expr_ret_147;
+      v = expr_ret_147;
+    }
+
+    // ModExprList 1
+    if (expr_ret_146)
+    {
+      daisho_astnode_t* expr_ret_148 = NULL;
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
+        // Not capturing STAR.
+        expr_ret_148 = SUCC;
         ctx->pos++;
       } else {
         expr_ret_148 = NULL;
       }
 
-      if (expr_ret_148) dbg_accept(ctx, "VOIDTYPE"); else dbg_reject(ctx, "VOIDTYPE");
-      expr_ret_147 = expr_ret_148;
-      v = expr_ret_148;
-    }
-
-    // ModExprList 1
-    if (expr_ret_147)
-    {
-      daisho_astnode_t* expr_ret_149 = NULL;
-      dbg_enter(ctx, "STAR", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
-        // Not capturing STAR.
-        expr_ret_149 = SUCC;
-        ctx->pos++;
-      } else {
-        expr_ret_149 = NULL;
-      }
-
-      if (expr_ret_149) dbg_accept(ctx, "STAR"); else dbg_reject(ctx, "STAR");
       // invert
-      expr_ret_149 = expr_ret_149 ? NULL : SUCC;
-      expr_ret_147 = expr_ret_149;
+      expr_ret_148 = expr_ret_148 ? NULL : SUCC;
+      expr_ret_146 = expr_ret_148;
     }
 
     // ModExprList 2
-    if (expr_ret_147)
+    if (expr_ret_146)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_147
+      #define ret expr_ret_146
       ret = SUCC;
 
       rule=set_depth(v, 0);
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_147) rew(mod_147);
-    expr_ret_146 = expr_ret_147 ? SUCC : NULL;
+    if (!expr_ret_146) rew(mod_146);
+    expr_ret_145 = expr_ret_146 ? SUCC : NULL;
   }
 
   // SlashExpr 1
-  if (!expr_ret_146)
+  if (!expr_ret_145)
   {
-    daisho_astnode_t* expr_ret_150 = NULL;
-    rec(mod_150);
+    daisho_astnode_t* expr_ret_149 = NULL;
+    rec(mod_149);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_151 = NULL;
-      expr_ret_151 = daisho_parse_voidptr(ctx);
-      expr_ret_150 = expr_ret_151;
-      p = expr_ret_151;
+      daisho_astnode_t* expr_ret_150 = NULL;
+      expr_ret_150 = daisho_parse_voidptr(ctx);
+      expr_ret_149 = expr_ret_150;
+      p = expr_ret_150;
     }
 
     // ModExprList 1
-    if (expr_ret_150)
+    if (expr_ret_149)
     {
-      daisho_astnode_t* expr_ret_152 = NULL;
-      expr_ret_152 = SUCC;
-      while (expr_ret_152)
+      daisho_astnode_t* expr_ret_151 = NULL;
+      expr_ret_151 = SUCC;
+      while (expr_ret_151)
       {
-        daisho_astnode_t* expr_ret_153 = NULL;
-        rec(mod_153);
+        daisho_astnode_t* expr_ret_152 = NULL;
+        rec(mod_152);
         // ModExprList 0
         {
-          dbg_enter(ctx, "STAR", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
             // Not capturing STAR.
-            expr_ret_153 = SUCC;
+            expr_ret_152 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_153 = NULL;
+            expr_ret_152 = NULL;
           }
 
-          if (expr_ret_153) dbg_accept(ctx, "STAR"); else dbg_reject(ctx, "STAR");
         }
 
         // ModExprList 1
-        if (expr_ret_153)
+        if (expr_ret_152)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_153
+          #define ret expr_ret_152
           ret = SUCC;
 
           depth++;
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_153) rew(mod_153);
-        expr_ret_152 = expr_ret_153 ? SUCC : NULL;
+        if (!expr_ret_152) rew(mod_152);
+        expr_ret_151 = expr_ret_152 ? SUCC : NULL;
       }
 
-      expr_ret_152 = SUCC;
-      expr_ret_150 = expr_ret_152;
+      expr_ret_151 = SUCC;
+      expr_ret_149 = expr_ret_151;
     }
 
     // ModExprList 2
-    if (expr_ret_150)
+    if (expr_ret_149)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_150
+      #define ret expr_ret_149
       ret = SUCC;
 
       rule=set_depth(p, depth);
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_150) rew(mod_150);
-    expr_ret_146 = expr_ret_150 ? SUCC : NULL;
+    if (!expr_ret_149) rew(mod_149);
+    expr_ret_145 = expr_ret_149 ? SUCC : NULL;
   }
 
   // SlashExpr 2
-  if (!expr_ret_146)
+  if (!expr_ret_145)
   {
-    daisho_astnode_t* expr_ret_154 = NULL;
-    rec(mod_154);
+    daisho_astnode_t* expr_ret_153 = NULL;
+    rec(mod_153);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_155 = NULL;
-      dbg_enter(ctx, "SELFTYPE", ctx->pos);
+      daisho_astnode_t* expr_ret_154 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SELFTYPE) {
         // Capturing SELFTYPE.
-        expr_ret_155 = leaf(SELFTYPE);
+        expr_ret_154 = leaf(SELFTYPE);
         #if DAISHO_SOURCEINFO
-        expr_ret_155->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_155->len_or_toknum = ctx->tokens[ctx->pos].len;
+        expr_ret_154->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_154->len_or_toknum = ctx->tokens[ctx->pos].len;
         #endif
         ctx->pos++;
       } else {
-        expr_ret_155 = NULL;
+        expr_ret_154 = NULL;
       }
 
-      if (expr_ret_155) dbg_accept(ctx, "SELFTYPE"); else dbg_reject(ctx, "SELFTYPE");
-      expr_ret_154 = expr_ret_155;
-      s = expr_ret_155;
+      expr_ret_153 = expr_ret_154;
+      s = expr_ret_154;
     }
 
     // ModExprList 1
-    if (expr_ret_154)
+    if (expr_ret_153)
     {
-      daisho_astnode_t* expr_ret_156 = NULL;
-      expr_ret_156 = SUCC;
-      while (expr_ret_156)
+      daisho_astnode_t* expr_ret_155 = NULL;
+      expr_ret_155 = SUCC;
+      while (expr_ret_155)
       {
-        daisho_astnode_t* expr_ret_157 = NULL;
-        rec(mod_157);
+        daisho_astnode_t* expr_ret_156 = NULL;
+        rec(mod_156);
         // ModExprList 0
         {
-          dbg_enter(ctx, "STAR", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
             // Not capturing STAR.
-            expr_ret_157 = SUCC;
+            expr_ret_156 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_157 = NULL;
+            expr_ret_156 = NULL;
           }
 
-          if (expr_ret_157) dbg_accept(ctx, "STAR"); else dbg_reject(ctx, "STAR");
         }
 
         // ModExprList 1
-        if (expr_ret_157)
+        if (expr_ret_156)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_157
+          #define ret expr_ret_156
           ret = SUCC;
 
           depth++;
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_157) rew(mod_157);
-        expr_ret_156 = expr_ret_157 ? SUCC : NULL;
+        if (!expr_ret_156) rew(mod_156);
+        expr_ret_155 = expr_ret_156 ? SUCC : NULL;
       }
 
-      expr_ret_156 = SUCC;
-      expr_ret_154 = expr_ret_156;
+      expr_ret_155 = SUCC;
+      expr_ret_153 = expr_ret_155;
     }
 
     // ModExprList 2
-    if (expr_ret_154)
+    if (expr_ret_153)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_154
+      #define ret expr_ret_153
       ret = SUCC;
 
       rule=set_depth(s, depth);
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_154) rew(mod_154);
-    expr_ret_146 = expr_ret_154 ? SUCC : NULL;
+    if (!expr_ret_153) rew(mod_153);
+    expr_ret_145 = expr_ret_153 ? SUCC : NULL;
   }
 
   // SlashExpr 3
-  if (!expr_ret_146)
+  if (!expr_ret_145)
   {
-    daisho_astnode_t* expr_ret_158 = NULL;
-    rec(mod_158);
+    daisho_astnode_t* expr_ret_157 = NULL;
+    rec(mod_157);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_159 = NULL;
-      expr_ret_159 = daisho_parse_fntype(ctx);
-      expr_ret_158 = expr_ret_159;
-      f = expr_ret_159;
+      daisho_astnode_t* expr_ret_158 = NULL;
+      expr_ret_158 = daisho_parse_fntype(ctx);
+      expr_ret_157 = expr_ret_158;
+      f = expr_ret_158;
     }
 
     // ModExprList 1
-    if (expr_ret_158)
+    if (expr_ret_157)
     {
-      daisho_astnode_t* expr_ret_160 = NULL;
-      expr_ret_160 = SUCC;
-      while (expr_ret_160)
+      daisho_astnode_t* expr_ret_159 = NULL;
+      expr_ret_159 = SUCC;
+      while (expr_ret_159)
       {
-        daisho_astnode_t* expr_ret_161 = NULL;
-        rec(mod_161);
+        daisho_astnode_t* expr_ret_160 = NULL;
+        rec(mod_160);
         // ModExprList 0
         {
-          dbg_enter(ctx, "STAR", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
             // Not capturing STAR.
-            expr_ret_161 = SUCC;
+            expr_ret_160 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_161 = NULL;
+            expr_ret_160 = NULL;
           }
 
-          if (expr_ret_161) dbg_accept(ctx, "STAR"); else dbg_reject(ctx, "STAR");
         }
 
         // ModExprList 1
-        if (expr_ret_161)
+        if (expr_ret_160)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_161
+          #define ret expr_ret_160
           ret = SUCC;
 
           depth++;
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_161) rew(mod_161);
-        expr_ret_160 = expr_ret_161 ? SUCC : NULL;
+        if (!expr_ret_160) rew(mod_160);
+        expr_ret_159 = expr_ret_160 ? SUCC : NULL;
       }
 
-      expr_ret_160 = SUCC;
-      expr_ret_158 = expr_ret_160;
+      expr_ret_159 = SUCC;
+      expr_ret_157 = expr_ret_159;
     }
 
     // ModExprList 2
-    if (expr_ret_158)
+    if (expr_ret_157)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_158
+      #define ret expr_ret_157
       ret = SUCC;
 
       rule=set_depth(f, depth);
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_158) rew(mod_158);
-    expr_ret_146 = expr_ret_158 ? SUCC : NULL;
+    if (!expr_ret_157) rew(mod_157);
+    expr_ret_145 = expr_ret_157 ? SUCC : NULL;
   }
 
   // SlashExpr 4
-  if (!expr_ret_146)
+  if (!expr_ret_145)
   {
-    daisho_astnode_t* expr_ret_162 = NULL;
-    rec(mod_162);
+    daisho_astnode_t* expr_ret_161 = NULL;
+    rec(mod_161);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_163 = NULL;
-      expr_ret_163 = daisho_parse_ttexpand(ctx);
-      expr_ret_162 = expr_ret_163;
-      t = expr_ret_163;
+      daisho_astnode_t* expr_ret_162 = NULL;
+      expr_ret_162 = daisho_parse_ttexpand(ctx);
+      expr_ret_161 = expr_ret_162;
+      t = expr_ret_162;
     }
 
     // ModExprList 1
-    if (expr_ret_162)
+    if (expr_ret_161)
     {
-      daisho_astnode_t* expr_ret_164 = NULL;
-      expr_ret_164 = SUCC;
-      while (expr_ret_164)
+      daisho_astnode_t* expr_ret_163 = NULL;
+      expr_ret_163 = SUCC;
+      while (expr_ret_163)
       {
-        daisho_astnode_t* expr_ret_165 = NULL;
-        rec(mod_165);
+        daisho_astnode_t* expr_ret_164 = NULL;
+        rec(mod_164);
         // ModExprList 0
         {
-          dbg_enter(ctx, "STAR", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
             // Not capturing STAR.
-            expr_ret_165 = SUCC;
+            expr_ret_164 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_165 = NULL;
+            expr_ret_164 = NULL;
           }
 
-          if (expr_ret_165) dbg_accept(ctx, "STAR"); else dbg_reject(ctx, "STAR");
         }
 
         // ModExprList 1
-        if (expr_ret_165)
+        if (expr_ret_164)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_165
+          #define ret expr_ret_164
           ret = SUCC;
 
           depth++;
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_165) rew(mod_165);
-        expr_ret_164 = expr_ret_165 ? SUCC : NULL;
+        if (!expr_ret_164) rew(mod_164);
+        expr_ret_163 = expr_ret_164 ? SUCC : NULL;
       }
 
-      expr_ret_164 = SUCC;
-      expr_ret_162 = expr_ret_164;
+      expr_ret_163 = SUCC;
+      expr_ret_161 = expr_ret_163;
     }
 
     // ModExprList 2
-    if (expr_ret_162)
+    if (expr_ret_161)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_162
+      #define ret expr_ret_161
       ret = SUCC;
 
       rule=set_depth(t, depth);
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_162) rew(mod_162);
-    expr_ret_146 = expr_ret_162 ? SUCC : NULL;
+    if (!expr_ret_161) rew(mod_161);
+    expr_ret_145 = expr_ret_161 ? SUCC : NULL;
   }
 
   // SlashExpr end
-  if (!expr_ret_146) rew(slash_146);
-  expr_ret_145 = expr_ret_146;
+  if (!expr_ret_145) rew(slash_145);
+  expr_ret_144 = expr_ret_145;
 
-  if (!rule) rule = expr_ret_145;
-  if (!expr_ret_145) rule = NULL;
+  if (!rule) rule = expr_ret_144;
+  if (!expr_ret_144) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "type");
-  else if (rule) dbg_accept(ctx, "type");
-  else dbg_reject(ctx, "type");
   return rule;
   #undef rule
 }
@@ -5960,72 +5464,86 @@ static inline daisho_astnode_t* daisho_parse_type(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_voidptr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* v = NULL;
   daisho_astnode_t* s = NULL;
-  #define rule expr_ret_166
+  #define rule expr_ret_165
 
-  daisho_astnode_t* expr_ret_167 = NULL;
   daisho_astnode_t* expr_ret_166 = NULL;
-  dbg_enter(ctx, "voidptr", ctx->pos);
-  daisho_astnode_t* expr_ret_168 = NULL;
+  daisho_astnode_t* expr_ret_165 = NULL;
+  daisho_astnode_t* expr_ret_167 = NULL;
 
-  rec(slash_168);
+  rec(slash_167);
 
   // SlashExpr 0
-  if (!expr_ret_168)
+  if (!expr_ret_167)
   {
-    daisho_astnode_t* expr_ret_169 = NULL;
-    rec(mod_169);
+    daisho_astnode_t* expr_ret_168 = NULL;
+    rec(mod_168);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_170 = NULL;
-      dbg_enter(ctx, "VOIDPTR", ctx->pos);
+      daisho_astnode_t* expr_ret_169 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VOIDPTR) {
         // Capturing VOIDPTR.
-        expr_ret_170 = leaf(VOIDPTR);
+        expr_ret_169 = leaf(VOIDPTR);
         #if DAISHO_SOURCEINFO
-        expr_ret_170->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_170->len_or_toknum = ctx->tokens[ctx->pos].len;
+        expr_ret_169->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_169->len_or_toknum = ctx->tokens[ctx->pos].len;
         #endif
         ctx->pos++;
       } else {
-        expr_ret_170 = NULL;
+        expr_ret_169 = NULL;
       }
 
-      if (expr_ret_170) dbg_accept(ctx, "VOIDPTR"); else dbg_reject(ctx, "VOIDPTR");
-      expr_ret_169 = expr_ret_170;
-      v = expr_ret_170;
+      expr_ret_168 = expr_ret_169;
+      v = expr_ret_169;
     }
 
     // ModExprList 1
-    if (expr_ret_169)
+    if (expr_ret_168)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_169
+      #define ret expr_ret_168
       ret = SUCC;
 
       rule=v;
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_169) rew(mod_169);
-    expr_ret_168 = expr_ret_169 ? SUCC : NULL;
+    if (!expr_ret_168) rew(mod_168);
+    expr_ret_167 = expr_ret_168 ? SUCC : NULL;
   }
 
   // SlashExpr 1
-  if (!expr_ret_168)
+  if (!expr_ret_167)
   {
-    daisho_astnode_t* expr_ret_171 = NULL;
-    rec(mod_171);
+    daisho_astnode_t* expr_ret_170 = NULL;
+    rec(mod_170);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_172 = NULL;
-      dbg_enter(ctx, "VOIDTYPE", ctx->pos);
+      daisho_astnode_t* expr_ret_171 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VOIDTYPE) {
         // Capturing VOIDTYPE.
-        expr_ret_172 = leaf(VOIDTYPE);
+        expr_ret_171 = leaf(VOIDTYPE);
+        #if DAISHO_SOURCEINFO
+        expr_ret_171->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_171->len_or_toknum = ctx->tokens[ctx->pos].len;
+        #endif
+        ctx->pos++;
+      } else {
+        expr_ret_171 = NULL;
+      }
+
+      expr_ret_170 = expr_ret_171;
+      v = expr_ret_171;
+    }
+
+    // ModExprList 1
+    if (expr_ret_170)
+    {
+      daisho_astnode_t* expr_ret_172 = NULL;
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
+        // Capturing STAR.
+        expr_ret_172 = leaf(STAR);
         #if DAISHO_SOURCEINFO
         expr_ret_172->tok_repr = ctx->tokens[ctx->pos].content;
         expr_ret_172->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -6035,62 +5553,34 @@ static inline daisho_astnode_t* daisho_parse_voidptr(daisho_parser_ctx* ctx) {
         expr_ret_172 = NULL;
       }
 
-      if (expr_ret_172) dbg_accept(ctx, "VOIDTYPE"); else dbg_reject(ctx, "VOIDTYPE");
-      expr_ret_171 = expr_ret_172;
-      v = expr_ret_172;
-    }
-
-    // ModExprList 1
-    if (expr_ret_171)
-    {
-      daisho_astnode_t* expr_ret_173 = NULL;
-      dbg_enter(ctx, "STAR", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
-        // Capturing STAR.
-        expr_ret_173 = leaf(STAR);
-        #if DAISHO_SOURCEINFO
-        expr_ret_173->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_173->len_or_toknum = ctx->tokens[ctx->pos].len;
-        #endif
-        ctx->pos++;
-      } else {
-        expr_ret_173 = NULL;
-      }
-
-      if (expr_ret_173) dbg_accept(ctx, "STAR"); else dbg_reject(ctx, "STAR");
-      expr_ret_171 = expr_ret_173;
-      s = expr_ret_173;
+      expr_ret_170 = expr_ret_172;
+      s = expr_ret_172;
     }
 
     // ModExprList 2
-    if (expr_ret_171)
+    if (expr_ret_170)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_171
+      #define ret expr_ret_170
       ret = SUCC;
 
       rule=srepr(leaf(VOIDPTR), "VoidPtr");
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_171) rew(mod_171);
-    expr_ret_168 = expr_ret_171 ? SUCC : NULL;
+    if (!expr_ret_170) rew(mod_170);
+    expr_ret_167 = expr_ret_170 ? SUCC : NULL;
   }
 
   // SlashExpr end
-  if (!expr_ret_168) rew(slash_168);
-  expr_ret_167 = expr_ret_168;
+  if (!expr_ret_167) rew(slash_167);
+  expr_ret_166 = expr_ret_167;
 
-  if (!rule) rule = expr_ret_167;
-  if (!expr_ret_167) rule = NULL;
+  if (!rule) rule = expr_ret_166;
+  if (!expr_ret_166) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "voidptr");
-  else if (rule) dbg_accept(ctx, "voidptr");
-  else dbg_reject(ctx, "voidptr");
   return rule;
   #undef rule
 }
@@ -6098,30 +5588,51 @@ static inline daisho_astnode_t* daisho_parse_voidptr(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_ttexpand(daisho_parser_ctx* ctx) {
   daisho_astnode_t* i = NULL;
   daisho_astnode_t* t = NULL;
-  #define rule expr_ret_174
+  #define rule expr_ret_173
 
-  daisho_astnode_t* expr_ret_175 = NULL;
   daisho_astnode_t* expr_ret_174 = NULL;
-  dbg_enter(ctx, "ttexpand", ctx->pos);
-  daisho_astnode_t* expr_ret_176 = NULL;
-  rec(mod_176);
+  daisho_astnode_t* expr_ret_173 = NULL;
+  daisho_astnode_t* expr_ret_175 = NULL;
+  rec(mod_175);
   // ModExprList 0
   {
+    daisho_astnode_t* expr_ret_176 = NULL;
     daisho_astnode_t* expr_ret_177 = NULL;
-    daisho_astnode_t* expr_ret_178 = NULL;
 
-    rec(slash_178);
+    rec(slash_177);
 
     // SlashExpr 0
-    if (!expr_ret_178)
+    if (!expr_ret_177)
+    {
+      daisho_astnode_t* expr_ret_178 = NULL;
+      rec(mod_178);
+      // ModExprList Forwarding
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
+        // Capturing TYPEIDENT.
+        expr_ret_178 = leaf(TYPEIDENT);
+        #if DAISHO_SOURCEINFO
+        expr_ret_178->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_178->len_or_toknum = ctx->tokens[ctx->pos].len;
+        #endif
+        ctx->pos++;
+      } else {
+        expr_ret_178 = NULL;
+      }
+
+      // ModExprList end
+      if (!expr_ret_178) rew(mod_178);
+      expr_ret_177 = expr_ret_178;
+    }
+
+    // SlashExpr 1
+    if (!expr_ret_177)
     {
       daisho_astnode_t* expr_ret_179 = NULL;
       rec(mod_179);
       // ModExprList Forwarding
-      dbg_enter(ctx, "TYPEIDENT", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TYPEIDENT) {
-        // Capturing TYPEIDENT.
-        expr_ret_179 = leaf(TYPEIDENT);
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TRAITIDENT) {
+        // Capturing TRAITIDENT.
+        expr_ret_179 = leaf(TRAITIDENT);
         #if DAISHO_SOURCEINFO
         expr_ret_179->tok_repr = ctx->tokens[ctx->pos].content;
         expr_ret_179->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -6131,80 +5642,49 @@ static inline daisho_astnode_t* daisho_parse_ttexpand(daisho_parser_ctx* ctx) {
         expr_ret_179 = NULL;
       }
 
-      if (expr_ret_179) dbg_accept(ctx, "TYPEIDENT"); else dbg_reject(ctx, "TYPEIDENT");
       // ModExprList end
       if (!expr_ret_179) rew(mod_179);
-      expr_ret_178 = expr_ret_179;
-    }
-
-    // SlashExpr 1
-    if (!expr_ret_178)
-    {
-      daisho_astnode_t* expr_ret_180 = NULL;
-      rec(mod_180);
-      // ModExprList Forwarding
-      dbg_enter(ctx, "TRAITIDENT", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_TRAITIDENT) {
-        // Capturing TRAITIDENT.
-        expr_ret_180 = leaf(TRAITIDENT);
-        #if DAISHO_SOURCEINFO
-        expr_ret_180->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_180->len_or_toknum = ctx->tokens[ctx->pos].len;
-        #endif
-        ctx->pos++;
-      } else {
-        expr_ret_180 = NULL;
-      }
-
-      if (expr_ret_180) dbg_accept(ctx, "TRAITIDENT"); else dbg_reject(ctx, "TRAITIDENT");
-      // ModExprList end
-      if (!expr_ret_180) rew(mod_180);
-      expr_ret_178 = expr_ret_180;
+      expr_ret_177 = expr_ret_179;
     }
 
     // SlashExpr end
-    if (!expr_ret_178) rew(slash_178);
-    expr_ret_177 = expr_ret_178;
-
+    if (!expr_ret_177) rew(slash_177);
     expr_ret_176 = expr_ret_177;
-    i = expr_ret_177;
+
+    expr_ret_175 = expr_ret_176;
+    i = expr_ret_176;
   }
 
   // ModExprList 1
-  if (expr_ret_176)
+  if (expr_ret_175)
   {
-    daisho_astnode_t* expr_ret_181 = NULL;
-    expr_ret_181 = daisho_parse_tmplexpand(ctx);
+    daisho_astnode_t* expr_ret_180 = NULL;
+    expr_ret_180 = daisho_parse_tmplexpand(ctx);
     // optional
-    if (!expr_ret_181)
-      expr_ret_181 = SUCC;
-    expr_ret_176 = expr_ret_181;
-    t = expr_ret_181;
+    if (!expr_ret_180)
+      expr_ret_180 = SUCC;
+    expr_ret_175 = expr_ret_180;
+    t = expr_ret_180;
   }
 
   // ModExprList 2
-  if (expr_ret_176)
+  if (expr_ret_175)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_176
+    #define ret expr_ret_175
     ret = SUCC;
 
     rule = has(t) ? node(TMPLTYPE, t, i) : i;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_176) rew(mod_176);
-  expr_ret_175 = expr_ret_176 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_175;
-  if (!expr_ret_175) rule = NULL;
+  if (!expr_ret_175) rew(mod_175);
+  expr_ret_174 = expr_ret_175 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_174;
+  if (!expr_ret_174) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "ttexpand");
-  else if (rule) dbg_accept(ctx, "ttexpand");
-  else dbg_reject(ctx, "ttexpand");
   return rule;
   #undef rule
 }
@@ -6214,605 +5694,526 @@ static inline daisho_astnode_t* daisho_parse_fntype(daisho_parser_ctx* ctx) {
   daisho_astnode_t* t = NULL;
   daisho_astnode_t* rettype = NULL;
   daisho_astnode_t* l = NULL;
-  #define rule expr_ret_182
+  #define rule expr_ret_181
 
-  daisho_astnode_t* expr_ret_183 = NULL;
   daisho_astnode_t* expr_ret_182 = NULL;
-  dbg_enter(ctx, "fntype", ctx->pos);
-  daisho_astnode_t* expr_ret_184 = NULL;
+  daisho_astnode_t* expr_ret_181 = NULL;
+  daisho_astnode_t* expr_ret_183 = NULL;
 
-  rec(slash_184);
+  rec(slash_183);
 
   // SlashExpr 0
-  if (!expr_ret_184)
+  if (!expr_ret_183)
   {
-    daisho_astnode_t* expr_ret_185 = NULL;
-    rec(mod_185);
+    daisho_astnode_t* expr_ret_184 = NULL;
+    rec(mod_184);
     // ModExprList 0
     {
-      dbg_enter(ctx, "FNTYPE", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_FNTYPE) {
         // Not capturing FNTYPE.
-        expr_ret_185 = SUCC;
+        expr_ret_184 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_185 = NULL;
+        expr_ret_184 = NULL;
       }
 
-      if (expr_ret_185) dbg_accept(ctx, "FNTYPE"); else dbg_reject(ctx, "FNTYPE");
     }
 
     // ModExprList 1
-    if (expr_ret_185)
+    if (expr_ret_184)
     {
-      dbg_enter(ctx, "LT", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LT) {
         // Not capturing LT.
-        expr_ret_185 = SUCC;
+        expr_ret_184 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_185 = NULL;
+        expr_ret_184 = NULL;
       }
 
-      if (expr_ret_185) dbg_accept(ctx, "LT"); else dbg_reject(ctx, "LT");
     }
 
     // ModExprList 2
-    if (expr_ret_185)
+    if (expr_ret_184)
     {
-      daisho_astnode_t* expr_ret_186 = NULL;
+      daisho_astnode_t* expr_ret_185 = NULL;
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_186
+      #define ret expr_ret_185
       ret = SUCC;
 
       ret=list(ARGLIST);
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
-      expr_ret_185 = expr_ret_186;
-      argtypes = expr_ret_186;
+      expr_ret_184 = expr_ret_185;
+      argtypes = expr_ret_185;
     }
 
     // ModExprList 3
-    if (expr_ret_185)
+    if (expr_ret_184)
     {
+      daisho_astnode_t* expr_ret_186 = NULL;
       daisho_astnode_t* expr_ret_187 = NULL;
-      daisho_astnode_t* expr_ret_188 = NULL;
-      rec(mod_188);
+      rec(mod_187);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_189 = NULL;
-        expr_ret_189 = daisho_parse_type(ctx);
-        expr_ret_188 = expr_ret_189;
-        t = expr_ret_189;
+        daisho_astnode_t* expr_ret_188 = NULL;
+        expr_ret_188 = daisho_parse_type(ctx);
+        expr_ret_187 = expr_ret_188;
+        t = expr_ret_188;
       }
 
       // ModExprList 1
-      if (expr_ret_188)
+      if (expr_ret_187)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_188
+        #define ret expr_ret_187
         ret = SUCC;
 
         add(argtypes, t);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_188) rew(mod_188);
-      expr_ret_187 = expr_ret_188 ? SUCC : NULL;
+      if (!expr_ret_187) rew(mod_187);
+      expr_ret_186 = expr_ret_187 ? SUCC : NULL;
       // optional
-      if (!expr_ret_187)
-        expr_ret_187 = SUCC;
-      expr_ret_185 = expr_ret_187;
+      if (!expr_ret_186)
+        expr_ret_186 = SUCC;
+      expr_ret_184 = expr_ret_186;
     }
 
     // ModExprList 4
-    if (expr_ret_185)
+    if (expr_ret_184)
     {
-      daisho_astnode_t* expr_ret_190 = NULL;
-      expr_ret_190 = SUCC;
-      while (expr_ret_190)
+      daisho_astnode_t* expr_ret_189 = NULL;
+      expr_ret_189 = SUCC;
+      while (expr_ret_189)
       {
-        daisho_astnode_t* expr_ret_191 = NULL;
-        rec(mod_191);
+        daisho_astnode_t* expr_ret_190 = NULL;
+        rec(mod_190);
         // ModExprList 0
         {
-          dbg_enter(ctx, "COMMA", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
             // Not capturing COMMA.
-            expr_ret_191 = SUCC;
+            expr_ret_190 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_191 = NULL;
+            expr_ret_190 = NULL;
           }
 
-          if (expr_ret_191) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
         }
 
         // ModExprList 1
-        if (expr_ret_191)
+        if (expr_ret_190)
         {
-          daisho_astnode_t* expr_ret_192 = NULL;
-          expr_ret_192 = daisho_parse_type(ctx);
-          expr_ret_191 = expr_ret_192;
-          t = expr_ret_192;
+          daisho_astnode_t* expr_ret_191 = NULL;
+          expr_ret_191 = daisho_parse_type(ctx);
+          expr_ret_190 = expr_ret_191;
+          t = expr_ret_191;
         }
 
         // ModExprList 2
-        if (expr_ret_191)
+        if (expr_ret_190)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_191
+          #define ret expr_ret_190
           ret = SUCC;
 
           add(argtypes, t);
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_191) rew(mod_191);
-        expr_ret_190 = expr_ret_191 ? SUCC : NULL;
+        if (!expr_ret_190) rew(mod_190);
+        expr_ret_189 = expr_ret_190 ? SUCC : NULL;
       }
 
-      expr_ret_190 = SUCC;
-      expr_ret_185 = expr_ret_190;
+      expr_ret_189 = SUCC;
+      expr_ret_184 = expr_ret_189;
     }
 
     // ModExprList 5
-    if (expr_ret_185)
+    if (expr_ret_184)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_185
+      #define ret expr_ret_184
       ret = SUCC;
 
       if (!argtypes->num_children) add(argtypes, leaf(VOIDTYPE));
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList 6
-    if (expr_ret_185)
+    if (expr_ret_184)
     {
+      daisho_astnode_t* expr_ret_192 = NULL;
       daisho_astnode_t* expr_ret_193 = NULL;
-      daisho_astnode_t* expr_ret_194 = NULL;
-      rec(mod_194);
+      rec(mod_193);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_195 = NULL;
+        daisho_astnode_t* expr_ret_194 = NULL;
 
-        rec(slash_195);
+        rec(slash_194);
 
         // SlashExpr 0
-        if (!expr_ret_195)
+        if (!expr_ret_194)
+        {
+          daisho_astnode_t* expr_ret_195 = NULL;
+          rec(mod_195);
+          // ModExprList Forwarding
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_DARROW) {
+            // Not capturing DARROW.
+            expr_ret_195 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_195 = NULL;
+          }
+
+          // ModExprList end
+          if (!expr_ret_195) rew(mod_195);
+          expr_ret_194 = expr_ret_195;
+        }
+
+        // SlashExpr 1
+        if (!expr_ret_194)
         {
           daisho_astnode_t* expr_ret_196 = NULL;
           rec(mod_196);
           // ModExprList Forwarding
-          dbg_enter(ctx, "ARROW", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_ARROW) {
-            // Not capturing ARROW.
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SEMI) {
+            // Not capturing SEMI.
             expr_ret_196 = SUCC;
             ctx->pos++;
           } else {
             expr_ret_196 = NULL;
           }
 
-          if (expr_ret_196) dbg_accept(ctx, "ARROW"); else dbg_reject(ctx, "ARROW");
           // ModExprList end
           if (!expr_ret_196) rew(mod_196);
-          expr_ret_195 = expr_ret_196;
-        }
-
-        // SlashExpr 1
-        if (!expr_ret_195)
-        {
-          daisho_astnode_t* expr_ret_197 = NULL;
-          rec(mod_197);
-          // ModExprList Forwarding
-          dbg_enter(ctx, "SEMI", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SEMI) {
-            // Not capturing SEMI.
-            expr_ret_197 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_197 = NULL;
-          }
-
-          if (expr_ret_197) dbg_accept(ctx, "SEMI"); else dbg_reject(ctx, "SEMI");
-          // ModExprList end
-          if (!expr_ret_197) rew(mod_197);
-          expr_ret_195 = expr_ret_197;
+          expr_ret_194 = expr_ret_196;
         }
 
         // SlashExpr 2
-        if (!expr_ret_195)
+        if (!expr_ret_194)
         {
-          daisho_astnode_t* expr_ret_198 = NULL;
-          rec(mod_198);
+          daisho_astnode_t* expr_ret_197 = NULL;
+          rec(mod_197);
           // ModExprList 0
           {
-            dbg_enter(ctx, "EQ", ctx->pos);
             if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_EQ) {
               // Not capturing EQ.
-              expr_ret_198 = SUCC;
+              expr_ret_197 = SUCC;
               ctx->pos++;
             } else {
-              expr_ret_198 = NULL;
+              expr_ret_197 = NULL;
             }
 
-            if (expr_ret_198) dbg_accept(ctx, "EQ"); else dbg_reject(ctx, "EQ");
           }
 
           // ModExprList 1
-          if (expr_ret_198)
+          if (expr_ret_197)
           {
-            dbg_enter(ctx, "GT", ctx->pos);
             if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GT) {
               // Not capturing GT.
-              expr_ret_198 = SUCC;
+              expr_ret_197 = SUCC;
               ctx->pos++;
             } else {
-              expr_ret_198 = NULL;
+              expr_ret_197 = NULL;
             }
 
-            if (expr_ret_198) dbg_accept(ctx, "GT"); else dbg_reject(ctx, "GT");
           }
 
           // ModExprList end
-          if (!expr_ret_198) rew(mod_198);
-          expr_ret_195 = expr_ret_198 ? SUCC : NULL;
+          if (!expr_ret_197) rew(mod_197);
+          expr_ret_194 = expr_ret_197 ? SUCC : NULL;
         }
 
         // SlashExpr end
-        if (!expr_ret_195) rew(slash_195);
-        expr_ret_194 = expr_ret_195;
+        if (!expr_ret_194) rew(slash_194);
+        expr_ret_193 = expr_ret_194;
 
       }
 
       // ModExprList 1
-      if (expr_ret_194)
+      if (expr_ret_193)
       {
-        daisho_astnode_t* expr_ret_199 = NULL;
-        expr_ret_199 = daisho_parse_type(ctx);
-        expr_ret_194 = expr_ret_199;
-        rettype = expr_ret_199;
+        daisho_astnode_t* expr_ret_198 = NULL;
+        expr_ret_198 = daisho_parse_type(ctx);
+        expr_ret_193 = expr_ret_198;
+        rettype = expr_ret_198;
       }
 
       // ModExprList end
-      if (!expr_ret_194) rew(mod_194);
-      expr_ret_193 = expr_ret_194 ? SUCC : NULL;
+      if (!expr_ret_193) rew(mod_193);
+      expr_ret_192 = expr_ret_193 ? SUCC : NULL;
       // optional
-      if (!expr_ret_193)
-        expr_ret_193 = SUCC;
-      expr_ret_185 = expr_ret_193;
+      if (!expr_ret_192)
+        expr_ret_192 = SUCC;
+      expr_ret_184 = expr_ret_192;
     }
 
     // ModExprList 7
-    if (expr_ret_185)
+    if (expr_ret_184)
     {
-      dbg_enter(ctx, "GT", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GT) {
         // Not capturing GT.
-        expr_ret_185 = SUCC;
+        expr_ret_184 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_185 = NULL;
+        expr_ret_184 = NULL;
       }
 
-      if (expr_ret_185) dbg_accept(ctx, "GT"); else dbg_reject(ctx, "GT");
     }
 
     // ModExprList 8
-    if (expr_ret_185)
+    if (expr_ret_184)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_185
+      #define ret expr_ret_184
       ret = SUCC;
 
       rule=node(FNTYPE, argtypes, !has(rettype) ? leaf(VOIDTYPE) : rettype);
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_185) rew(mod_185);
-    expr_ret_184 = expr_ret_185 ? SUCC : NULL;
+    if (!expr_ret_184) rew(mod_184);
+    expr_ret_183 = expr_ret_184 ? SUCC : NULL;
   }
 
   // SlashExpr 1
-  if (!expr_ret_184)
+  if (!expr_ret_183)
   {
-    daisho_astnode_t* expr_ret_200 = NULL;
-    rec(mod_200);
+    daisho_astnode_t* expr_ret_199 = NULL;
+    rec(mod_199);
     // ModExprList 0
     {
-      dbg_enter(ctx, "FNTYPE", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_FNTYPE) {
         // Not capturing FNTYPE.
-        expr_ret_200 = SUCC;
+        expr_ret_199 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_200 = NULL;
+        expr_ret_199 = NULL;
       }
 
-      if (expr_ret_200) dbg_accept(ctx, "FNTYPE"); else dbg_reject(ctx, "FNTYPE");
     }
 
     // ModExprList 1
-    if (expr_ret_200)
+    if (expr_ret_199)
     {
-      daisho_astnode_t* expr_ret_201 = NULL;
+      daisho_astnode_t* expr_ret_200 = NULL;
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_201
+      #define ret expr_ret_200
       ret = SUCC;
 
-      l=list(ARGLIST);add(l, leaf(VOIDTYPE));
+      ret=list(ARGLIST);add(ret, leaf(VOIDTYPE));;
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
-      expr_ret_200 = expr_ret_201;
-      l = expr_ret_201;
+      expr_ret_199 = expr_ret_200;
+      l = expr_ret_200;
     }
 
     // ModExprList 2
-    if (expr_ret_200)
+    if (expr_ret_199)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_200
+      #define ret expr_ret_199
       ret = SUCC;
 
       rule=node(FNTYPE, l, leaf(VOIDTYPE));
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_200) rew(mod_200);
-    expr_ret_184 = expr_ret_200 ? SUCC : NULL;
+    if (!expr_ret_199) rew(mod_199);
+    expr_ret_183 = expr_ret_199 ? SUCC : NULL;
   }
 
   // SlashExpr end
-  if (!expr_ret_184) rew(slash_184);
-  expr_ret_183 = expr_ret_184;
+  if (!expr_ret_183) rew(slash_183);
+  expr_ret_182 = expr_ret_183;
 
-  if (!rule) rule = expr_ret_183;
-  if (!expr_ret_183) rule = NULL;
+  if (!rule) rule = expr_ret_182;
+  if (!expr_ret_182) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "fntype");
-  else if (rule) dbg_accept(ctx, "fntype");
-  else dbg_reject(ctx, "fntype");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_fnproto(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_202
+  #define rule expr_ret_201
 
-  daisho_astnode_t* expr_ret_203 = NULL;
   daisho_astnode_t* expr_ret_202 = NULL;
-  dbg_enter(ctx, "fnproto", ctx->pos);
-  daisho_astnode_t* expr_ret_204 = NULL;
-  rec(mod_204);
+  daisho_astnode_t* expr_ret_201 = NULL;
+  daisho_astnode_t* expr_ret_203 = NULL;
+  rec(mod_203);
   // ModExprList 0
   {
-    expr_ret_204 = daisho_parse_type(ctx);
+    expr_ret_203 = daisho_parse_type(ctx);
   }
 
   // ModExprList 1
-  if (expr_ret_204)
+  if (expr_ret_203)
   {
-    dbg_enter(ctx, "OPEN", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
       // Not capturing OPEN.
-      expr_ret_204 = SUCC;
+      expr_ret_203 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_204 = NULL;
+      expr_ret_203 = NULL;
     }
 
-    if (expr_ret_204) dbg_accept(ctx, "OPEN"); else dbg_reject(ctx, "OPEN");
   }
 
   // ModExprList 2
-  if (expr_ret_204)
+  if (expr_ret_203)
   {
-    daisho_astnode_t* expr_ret_205 = NULL;
-    expr_ret_205 = daisho_parse_fnarg(ctx);
+    daisho_astnode_t* expr_ret_204 = NULL;
+    expr_ret_204 = daisho_parse_fnarg(ctx);
     // optional
-    if (!expr_ret_205)
-      expr_ret_205 = SUCC;
-    expr_ret_204 = expr_ret_205;
+    if (!expr_ret_204)
+      expr_ret_204 = SUCC;
+    expr_ret_203 = expr_ret_204;
   }
 
   // ModExprList 3
-  if (expr_ret_204)
+  if (expr_ret_203)
   {
-    daisho_astnode_t* expr_ret_206 = NULL;
-    expr_ret_206 = SUCC;
-    while (expr_ret_206)
+    daisho_astnode_t* expr_ret_205 = NULL;
+    expr_ret_205 = SUCC;
+    while (expr_ret_205)
     {
-      daisho_astnode_t* expr_ret_207 = NULL;
-      rec(mod_207);
+      daisho_astnode_t* expr_ret_206 = NULL;
+      rec(mod_206);
       // ModExprList 0
       {
-        dbg_enter(ctx, "COMMA", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
           // Not capturing COMMA.
-          expr_ret_207 = SUCC;
+          expr_ret_206 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_207 = NULL;
+          expr_ret_206 = NULL;
         }
 
-        if (expr_ret_207) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
       }
 
       // ModExprList 1
-      if (expr_ret_207)
+      if (expr_ret_206)
       {
-        expr_ret_207 = daisho_parse_fnarg(ctx);
+        expr_ret_206 = daisho_parse_fnarg(ctx);
       }
 
       // ModExprList end
-      if (!expr_ret_207) rew(mod_207);
-      expr_ret_206 = expr_ret_207 ? SUCC : NULL;
+      if (!expr_ret_206) rew(mod_206);
+      expr_ret_205 = expr_ret_206 ? SUCC : NULL;
     }
 
-    expr_ret_206 = SUCC;
-    expr_ret_204 = expr_ret_206;
+    expr_ret_205 = SUCC;
+    expr_ret_203 = expr_ret_205;
   }
 
   // ModExprList 4
-  if (expr_ret_204)
+  if (expr_ret_203)
   {
-    dbg_enter(ctx, "CLOSE", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
       // Not capturing CLOSE.
-      expr_ret_204 = SUCC;
+      expr_ret_203 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_204 = NULL;
+      expr_ret_203 = NULL;
     }
 
-    if (expr_ret_204) dbg_accept(ctx, "CLOSE"); else dbg_reject(ctx, "CLOSE");
   }
 
   // ModExprList end
-  if (!expr_ret_204) rew(mod_204);
-  expr_ret_203 = expr_ret_204 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_203;
-  if (!expr_ret_203) rule = NULL;
+  if (!expr_ret_203) rew(mod_203);
+  expr_ret_202 = expr_ret_203 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_202;
+  if (!expr_ret_202) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "fnproto");
-  else if (rule) dbg_accept(ctx, "fnproto");
-  else dbg_reject(ctx, "fnproto");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_fnarg(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_208
+  #define rule expr_ret_207
 
-  daisho_astnode_t* expr_ret_209 = NULL;
   daisho_astnode_t* expr_ret_208 = NULL;
-  dbg_enter(ctx, "fnarg", ctx->pos);
-  daisho_astnode_t* expr_ret_210 = NULL;
-  rec(mod_210);
+  daisho_astnode_t* expr_ret_207 = NULL;
+  daisho_astnode_t* expr_ret_209 = NULL;
+  rec(mod_209);
   // ModExprList 0
   {
-    expr_ret_210 = daisho_parse_type(ctx);
+    expr_ret_209 = daisho_parse_type(ctx);
   }
 
   // ModExprList 1
-  if (expr_ret_210)
+  if (expr_ret_209)
   {
+    daisho_astnode_t* expr_ret_210 = NULL;
     daisho_astnode_t* expr_ret_211 = NULL;
-    daisho_astnode_t* expr_ret_212 = NULL;
-    rec(mod_212);
+    rec(mod_211);
     // ModExprList 0
     {
-      dbg_enter(ctx, "VARIDENT", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
         // Not capturing VARIDENT.
-        expr_ret_212 = SUCC;
+        expr_ret_211 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_212 = NULL;
+        expr_ret_211 = NULL;
       }
 
-      if (expr_ret_212) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
     }
 
     // ModExprList 1
-    if (expr_ret_212)
+    if (expr_ret_211)
     {
-      daisho_astnode_t* expr_ret_213 = NULL;
-      expr_ret_213 = daisho_parse_tmplexpand(ctx);
+      daisho_astnode_t* expr_ret_212 = NULL;
+      expr_ret_212 = daisho_parse_tmplexpand(ctx);
       // optional
-      if (!expr_ret_213)
-        expr_ret_213 = SUCC;
-      expr_ret_212 = expr_ret_213;
+      if (!expr_ret_212)
+        expr_ret_212 = SUCC;
+      expr_ret_211 = expr_ret_212;
     }
 
     // ModExprList end
-    if (!expr_ret_212) rew(mod_212);
-    expr_ret_211 = expr_ret_212 ? SUCC : NULL;
+    if (!expr_ret_211) rew(mod_211);
+    expr_ret_210 = expr_ret_211 ? SUCC : NULL;
     // optional
-    if (!expr_ret_211)
-      expr_ret_211 = SUCC;
-    expr_ret_210 = expr_ret_211;
+    if (!expr_ret_210)
+      expr_ret_210 = SUCC;
+    expr_ret_209 = expr_ret_210;
   }
 
   // ModExprList end
-  if (!expr_ret_210) rew(mod_210);
-  expr_ret_209 = expr_ret_210 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_209;
-  if (!expr_ret_209) rule = NULL;
+  if (!expr_ret_209) rew(mod_209);
+  expr_ret_208 = expr_ret_209 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_208;
+  if (!expr_ret_208) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "fnarg");
-  else if (rule) dbg_accept(ctx, "fnarg");
-  else dbg_reject(ctx, "fnarg");
-  return rule;
-  #undef rule
-}
-
-static inline daisho_astnode_t* daisho_parse_fnbody(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_214
-
-  daisho_astnode_t* expr_ret_215 = NULL;
-  daisho_astnode_t* expr_ret_214 = NULL;
-  dbg_enter(ctx, "fnbody", ctx->pos);
-  daisho_astnode_t* expr_ret_216 = NULL;
-  rec(mod_216);
-  // ModExprList Forwarding
-  expr_ret_216 = daisho_parse_expr(ctx);
-  // ModExprList end
-  if (!expr_ret_216) rew(mod_216);
-  expr_ret_215 = expr_ret_216;
-  if (!rule) rule = expr_ret_215;
-  if (!expr_ret_215) rule = NULL;
-  rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "fnbody");
-  else if (rule) dbg_accept(ctx, "fnbody");
-  else dbg_reject(ctx, "fnbody");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_expr(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_217
+  #define rule expr_ret_213
 
-  daisho_astnode_t* expr_ret_218 = NULL;
-  daisho_astnode_t* expr_ret_217 = NULL;
-  dbg_enter(ctx, "expr", ctx->pos);
-  daisho_astnode_t* expr_ret_219 = NULL;
-  rec(mod_219);
+  daisho_astnode_t* expr_ret_214 = NULL;
+  daisho_astnode_t* expr_ret_213 = NULL;
+  daisho_astnode_t* expr_ret_215 = NULL;
+  rec(mod_215);
   // ModExprList Forwarding
-  expr_ret_219 = daisho_parse_ifeexpr(ctx);
+  expr_ret_215 = daisho_parse_ifeexpr(ctx);
   // ModExprList end
-  if (!expr_ret_219) rew(mod_219);
-  expr_ret_218 = expr_ret_219;
-  if (!rule) rule = expr_ret_218;
-  if (!expr_ret_218) rule = NULL;
+  if (!expr_ret_215) rew(mod_215);
+  expr_ret_214 = expr_ret_215;
+  if (!rule) rule = expr_ret_214;
+  if (!expr_ret_214) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "expr");
-  else if (rule) dbg_accept(ctx, "expr");
-  else dbg_reject(ctx, "expr");
   return rule;
   #undef rule
 }
@@ -6822,151 +6223,139 @@ static inline daisho_astnode_t* daisho_parse_ifeexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* ex = NULL;
   daisho_astnode_t* eex = NULL;
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_220
+  #define rule expr_ret_216
 
-  daisho_astnode_t* expr_ret_221 = NULL;
-  daisho_astnode_t* expr_ret_220 = NULL;
-  dbg_enter(ctx, "ifeexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_222 = NULL;
+  daisho_astnode_t* expr_ret_217 = NULL;
+  daisho_astnode_t* expr_ret_216 = NULL;
+  daisho_astnode_t* expr_ret_218 = NULL;
 
-  rec(slash_222);
+  rec(slash_218);
 
   // SlashExpr 0
-  if (!expr_ret_222)
+  if (!expr_ret_218)
   {
-    daisho_astnode_t* expr_ret_223 = NULL;
-    rec(mod_223);
+    daisho_astnode_t* expr_ret_219 = NULL;
+    rec(mod_219);
     // ModExprList 0
     {
-      dbg_enter(ctx, "IF", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IF) {
         // Not capturing IF.
-        expr_ret_223 = SUCC;
+        expr_ret_219 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_223 = NULL;
+        expr_ret_219 = NULL;
       }
 
-      if (expr_ret_223) dbg_accept(ctx, "IF"); else dbg_reject(ctx, "IF");
     }
 
     // ModExprList 1
-    if (expr_ret_223)
+    if (expr_ret_219)
     {
-      daisho_astnode_t* expr_ret_224 = NULL;
-      expr_ret_224 = daisho_parse_ternexpr(ctx);
-      expr_ret_223 = expr_ret_224;
-      cond = expr_ret_224;
+      daisho_astnode_t* expr_ret_220 = NULL;
+      expr_ret_220 = daisho_parse_ternexpr(ctx);
+      expr_ret_219 = expr_ret_220;
+      cond = expr_ret_220;
     }
 
     // ModExprList 2
-    if (expr_ret_223)
+    if (expr_ret_219)
     {
-      daisho_astnode_t* expr_ret_225 = NULL;
-      expr_ret_225 = daisho_parse_expr(ctx);
-      expr_ret_223 = expr_ret_225;
-      ex = expr_ret_225;
+      daisho_astnode_t* expr_ret_221 = NULL;
+      expr_ret_221 = daisho_parse_expr(ctx);
+      expr_ret_219 = expr_ret_221;
+      ex = expr_ret_221;
     }
 
     // ModExprList 3
-    if (expr_ret_223)
+    if (expr_ret_219)
     {
-      daisho_astnode_t* expr_ret_226 = NULL;
-      daisho_astnode_t* expr_ret_227 = NULL;
-      rec(mod_227);
+      daisho_astnode_t* expr_ret_222 = NULL;
+      daisho_astnode_t* expr_ret_223 = NULL;
+      rec(mod_223);
       // ModExprList 0
       {
-        dbg_enter(ctx, "ELSE", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_ELSE) {
           // Not capturing ELSE.
-          expr_ret_227 = SUCC;
+          expr_ret_223 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_227 = NULL;
+          expr_ret_223 = NULL;
         }
 
-        if (expr_ret_227) dbg_accept(ctx, "ELSE"); else dbg_reject(ctx, "ELSE");
       }
 
       // ModExprList 1
-      if (expr_ret_227)
+      if (expr_ret_223)
       {
-        daisho_astnode_t* expr_ret_228 = NULL;
-        expr_ret_228 = daisho_parse_expr(ctx);
-        expr_ret_227 = expr_ret_228;
-        eex = expr_ret_228;
+        daisho_astnode_t* expr_ret_224 = NULL;
+        expr_ret_224 = daisho_parse_expr(ctx);
+        expr_ret_223 = expr_ret_224;
+        eex = expr_ret_224;
       }
 
       // ModExprList end
-      if (!expr_ret_227) rew(mod_227);
-      expr_ret_226 = expr_ret_227 ? SUCC : NULL;
+      if (!expr_ret_223) rew(mod_223);
+      expr_ret_222 = expr_ret_223 ? SUCC : NULL;
       // optional
-      if (!expr_ret_226)
-        expr_ret_226 = SUCC;
-      expr_ret_223 = expr_ret_226;
+      if (!expr_ret_222)
+        expr_ret_222 = SUCC;
+      expr_ret_219 = expr_ret_222;
     }
 
     // ModExprList 4
-    if (expr_ret_223)
+    if (expr_ret_219)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_223
+      #define ret expr_ret_219
       ret = SUCC;
 
       rule= !has(eex) ? srepr(node(IF, cond, ex), "if") : srepr(node(IFELSE, cond, ex, eex), "if-else");
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_223) rew(mod_223);
-    expr_ret_222 = expr_ret_223 ? SUCC : NULL;
+    if (!expr_ret_219) rew(mod_219);
+    expr_ret_218 = expr_ret_219 ? SUCC : NULL;
   }
 
   // SlashExpr 1
-  if (!expr_ret_222)
+  if (!expr_ret_218)
   {
-    daisho_astnode_t* expr_ret_229 = NULL;
-    rec(mod_229);
+    daisho_astnode_t* expr_ret_225 = NULL;
+    rec(mod_225);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_230 = NULL;
-      expr_ret_230 = daisho_parse_forexpr(ctx);
-      expr_ret_229 = expr_ret_230;
-      n = expr_ret_230;
+      daisho_astnode_t* expr_ret_226 = NULL;
+      expr_ret_226 = daisho_parse_forexpr(ctx);
+      expr_ret_225 = expr_ret_226;
+      n = expr_ret_226;
     }
 
     // ModExprList 1
-    if (expr_ret_229)
+    if (expr_ret_225)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_229
+      #define ret expr_ret_225
       ret = SUCC;
 
       rule=n;
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_229) rew(mod_229);
-    expr_ret_222 = expr_ret_229 ? SUCC : NULL;
+    if (!expr_ret_225) rew(mod_225);
+    expr_ret_218 = expr_ret_225 ? SUCC : NULL;
   }
 
   // SlashExpr end
-  if (!expr_ret_222) rew(slash_222);
-  expr_ret_221 = expr_ret_222;
+  if (!expr_ret_218) rew(slash_218);
+  expr_ret_217 = expr_ret_218;
 
-  if (!rule) rule = expr_ret_221;
-  if (!expr_ret_221) rule = NULL;
+  if (!rule) rule = expr_ret_217;
+  if (!expr_ret_217) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "ifeexpr");
-  else if (rule) dbg_accept(ctx, "ifeexpr");
-  else dbg_reject(ctx, "ifeexpr");
   return rule;
   #undef rule
 }
@@ -6974,276 +6363,256 @@ static inline daisho_astnode_t* daisho_parse_ifeexpr(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_forexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
   daisho_astnode_t* sn = NULL;
-  #define rule expr_ret_231
+  #define rule expr_ret_227
 
-  daisho_astnode_t* expr_ret_232 = NULL;
-  daisho_astnode_t* expr_ret_231 = NULL;
-  dbg_enter(ctx, "forexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_233 = NULL;
+  daisho_astnode_t* expr_ret_228 = NULL;
+  daisho_astnode_t* expr_ret_227 = NULL;
+  daisho_astnode_t* expr_ret_229 = NULL;
 
-  rec(slash_233);
+  rec(slash_229);
 
   // SlashExpr 0
-  if (!expr_ret_233)
+  if (!expr_ret_229)
   {
-    daisho_astnode_t* expr_ret_234 = NULL;
-    rec(mod_234);
+    daisho_astnode_t* expr_ret_230 = NULL;
+    rec(mod_230);
     // ModExprList 0
     {
-      dbg_enter(ctx, "FOR", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_FOR) {
         // Not capturing FOR.
-        expr_ret_234 = SUCC;
+        expr_ret_230 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_234 = NULL;
+        expr_ret_230 = NULL;
       }
 
-      if (expr_ret_234) dbg_accept(ctx, "FOR"); else dbg_reject(ctx, "FOR");
     }
 
     // ModExprList 1
-    if (expr_ret_234)
+    if (expr_ret_230)
     {
-      daisho_astnode_t* expr_ret_235 = NULL;
-      dbg_enter(ctx, "OPEN", ctx->pos);
+      daisho_astnode_t* expr_ret_231 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
         // Not capturing OPEN.
-        expr_ret_235 = SUCC;
+        expr_ret_231 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_235 = NULL;
+        expr_ret_231 = NULL;
       }
 
-      if (expr_ret_235) dbg_accept(ctx, "OPEN"); else dbg_reject(ctx, "OPEN");
       // optional
-      if (!expr_ret_235)
-        expr_ret_235 = SUCC;
-      expr_ret_234 = expr_ret_235;
+      if (!expr_ret_231)
+        expr_ret_231 = SUCC;
+      expr_ret_230 = expr_ret_231;
     }
 
     // ModExprList 2
-    if (expr_ret_234)
+    if (expr_ret_230)
     {
-      daisho_astnode_t* expr_ret_236 = NULL;
-      expr_ret_236 = daisho_parse_whileexpr(ctx);
-      expr_ret_234 = expr_ret_236;
-      n = expr_ret_236;
+      daisho_astnode_t* expr_ret_232 = NULL;
+      expr_ret_232 = daisho_parse_whileexpr(ctx);
+      expr_ret_230 = expr_ret_232;
+      n = expr_ret_232;
     }
 
     // ModExprList 3
-    if (expr_ret_234)
+    if (expr_ret_230)
     {
-      daisho_astnode_t* expr_ret_237 = NULL;
+      daisho_astnode_t* expr_ret_233 = NULL;
 
-      rec(slash_237);
+      rec(slash_233);
 
       // SlashExpr 0
-      if (!expr_ret_237)
+      if (!expr_ret_233)
+      {
+        daisho_astnode_t* expr_ret_234 = NULL;
+        rec(mod_234);
+        // ModExprList Forwarding
+        daisho_astnode_t* expr_ret_235 = NULL;
+
+        rec(slash_235);
+
+        // SlashExpr 0
+        if (!expr_ret_235)
+        {
+          daisho_astnode_t* expr_ret_236 = NULL;
+          rec(mod_236);
+          // ModExprList Forwarding
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COLON) {
+            // Not capturing COLON.
+            expr_ret_236 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_236 = NULL;
+          }
+
+          // ModExprList end
+          if (!expr_ret_236) rew(mod_236);
+          expr_ret_235 = expr_ret_236;
+        }
+
+        // SlashExpr 1
+        if (!expr_ret_235)
+        {
+          daisho_astnode_t* expr_ret_237 = NULL;
+          rec(mod_237);
+          // ModExprList Forwarding
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IN) {
+            // Not capturing IN.
+            expr_ret_237 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_237 = NULL;
+          }
+
+          // ModExprList end
+          if (!expr_ret_237) rew(mod_237);
+          expr_ret_235 = expr_ret_237;
+        }
+
+        // SlashExpr end
+        if (!expr_ret_235) rew(slash_235);
+        expr_ret_234 = expr_ret_235;
+
+        // ModExprList end
+        if (!expr_ret_234) rew(mod_234);
+        expr_ret_233 = expr_ret_234;
+      }
+
+      // SlashExpr 1
+      if (!expr_ret_233)
       {
         daisho_astnode_t* expr_ret_238 = NULL;
         rec(mod_238);
         // ModExprList Forwarding
         daisho_astnode_t* expr_ret_239 = NULL;
-
-        rec(slash_239);
-
-        // SlashExpr 0
-        if (!expr_ret_239)
-        {
-          daisho_astnode_t* expr_ret_240 = NULL;
-          rec(mod_240);
-          // ModExprList Forwarding
-          dbg_enter(ctx, "COLON", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COLON) {
-            // Not capturing COLON.
-            expr_ret_240 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_240 = NULL;
-          }
-
-          if (expr_ret_240) dbg_accept(ctx, "COLON"); else dbg_reject(ctx, "COLON");
-          // ModExprList end
-          if (!expr_ret_240) rew(mod_240);
-          expr_ret_239 = expr_ret_240;
-        }
-
-        // SlashExpr 1
-        if (!expr_ret_239)
-        {
-          daisho_astnode_t* expr_ret_241 = NULL;
-          rec(mod_241);
-          // ModExprList Forwarding
-          dbg_enter(ctx, "IN", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IN) {
-            // Not capturing IN.
-            expr_ret_241 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_241 = NULL;
-          }
-
-          if (expr_ret_241) dbg_accept(ctx, "IN"); else dbg_reject(ctx, "IN");
-          // ModExprList end
-          if (!expr_ret_241) rew(mod_241);
-          expr_ret_239 = expr_ret_241;
-        }
-
-        // SlashExpr end
-        if (!expr_ret_239) rew(slash_239);
-        expr_ret_238 = expr_ret_239;
-
-        // ModExprList end
-        if (!expr_ret_238) rew(mod_238);
-        expr_ret_237 = expr_ret_238;
-      }
-
-      // SlashExpr 1
-      if (!expr_ret_237)
-      {
-        daisho_astnode_t* expr_ret_242 = NULL;
-        rec(mod_242);
-        // ModExprList Forwarding
-        daisho_astnode_t* expr_ret_243 = NULL;
-        rec(mod_243);
+        rec(mod_239);
         // ModExprList 0
         {
-          dbg_enter(ctx, "SEMI", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SEMI) {
             // Not capturing SEMI.
-            expr_ret_243 = SUCC;
+            expr_ret_239 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_243 = NULL;
+            expr_ret_239 = NULL;
           }
 
-          if (expr_ret_243) dbg_accept(ctx, "SEMI"); else dbg_reject(ctx, "SEMI");
         }
 
         // ModExprList 1
-        if (expr_ret_243)
+        if (expr_ret_239)
         {
-          daisho_astnode_t* expr_ret_244 = NULL;
-          expr_ret_244 = daisho_parse_whileexpr(ctx);
-          expr_ret_243 = expr_ret_244;
-          sn = expr_ret_244;
+          daisho_astnode_t* expr_ret_240 = NULL;
+          expr_ret_240 = daisho_parse_whileexpr(ctx);
+          expr_ret_239 = expr_ret_240;
+          sn = expr_ret_240;
         }
 
         // ModExprList 2
-        if (expr_ret_243)
+        if (expr_ret_239)
         {
-          dbg_enter(ctx, "SEMI", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_SEMI) {
             // Not capturing SEMI.
-            expr_ret_243 = SUCC;
+            expr_ret_239 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_243 = NULL;
+            expr_ret_239 = NULL;
           }
 
-          if (expr_ret_243) dbg_accept(ctx, "SEMI"); else dbg_reject(ctx, "SEMI");
         }
 
         // ModExprList end
-        if (!expr_ret_243) rew(mod_243);
-        expr_ret_242 = expr_ret_243 ? SUCC : NULL;
+        if (!expr_ret_239) rew(mod_239);
+        expr_ret_238 = expr_ret_239 ? SUCC : NULL;
         // ModExprList end
-        if (!expr_ret_242) rew(mod_242);
-        expr_ret_237 = expr_ret_242;
+        if (!expr_ret_238) rew(mod_238);
+        expr_ret_233 = expr_ret_238;
       }
 
       // SlashExpr end
-      if (!expr_ret_237) rew(slash_237);
-      expr_ret_234 = expr_ret_237;
+      if (!expr_ret_233) rew(slash_233);
+      expr_ret_230 = expr_ret_233;
 
     }
 
     // ModExprList 4
-    if (expr_ret_234)
+    if (expr_ret_230)
     {
-      daisho_astnode_t* expr_ret_245 = NULL;
-      expr_ret_245 = daisho_parse_whileexpr(ctx);
-      expr_ret_234 = expr_ret_245;
-      n = expr_ret_245;
+      daisho_astnode_t* expr_ret_241 = NULL;
+      expr_ret_241 = daisho_parse_whileexpr(ctx);
+      expr_ret_230 = expr_ret_241;
+      n = expr_ret_241;
     }
 
     // ModExprList 5
-    if (expr_ret_234)
+    if (expr_ret_230)
     {
-      daisho_astnode_t* expr_ret_246 = NULL;
-      dbg_enter(ctx, "CLOSE", ctx->pos);
+      daisho_astnode_t* expr_ret_242 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
         // Not capturing CLOSE.
-        expr_ret_246 = SUCC;
+        expr_ret_242 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_246 = NULL;
+        expr_ret_242 = NULL;
       }
 
-      if (expr_ret_246) dbg_accept(ctx, "CLOSE"); else dbg_reject(ctx, "CLOSE");
       // optional
-      if (!expr_ret_246)
-        expr_ret_246 = SUCC;
-      expr_ret_234 = expr_ret_246;
+      if (!expr_ret_242)
+        expr_ret_242 = SUCC;
+      expr_ret_230 = expr_ret_242;
     }
 
     // ModExprList 6
-    if (expr_ret_234)
+    if (expr_ret_230)
     {
-      daisho_astnode_t* expr_ret_247 = NULL;
-      expr_ret_247 = daisho_parse_whileexpr(ctx);
-      expr_ret_234 = expr_ret_247;
-      n = expr_ret_247;
+      daisho_astnode_t* expr_ret_243 = NULL;
+      expr_ret_243 = daisho_parse_whileexpr(ctx);
+      expr_ret_230 = expr_ret_243;
+      n = expr_ret_243;
     }
 
     // ModExprList end
-    if (!expr_ret_234) rew(mod_234);
-    expr_ret_233 = expr_ret_234 ? SUCC : NULL;
+    if (!expr_ret_230) rew(mod_230);
+    expr_ret_229 = expr_ret_230 ? SUCC : NULL;
   }
 
   // SlashExpr 1
-  if (!expr_ret_233)
+  if (!expr_ret_229)
   {
-    daisho_astnode_t* expr_ret_248 = NULL;
-    rec(mod_248);
+    daisho_astnode_t* expr_ret_244 = NULL;
+    rec(mod_244);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_249 = NULL;
-      expr_ret_249 = daisho_parse_whileexpr(ctx);
-      expr_ret_248 = expr_ret_249;
-      n = expr_ret_249;
+      daisho_astnode_t* expr_ret_245 = NULL;
+      expr_ret_245 = daisho_parse_whileexpr(ctx);
+      expr_ret_244 = expr_ret_245;
+      n = expr_ret_245;
     }
 
     // ModExprList 1
-    if (expr_ret_248)
+    if (expr_ret_244)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_248
+      #define ret expr_ret_244
       ret = SUCC;
 
       rule=n;
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_248) rew(mod_248);
-    expr_ret_233 = expr_ret_248 ? SUCC : NULL;
+    if (!expr_ret_244) rew(mod_244);
+    expr_ret_229 = expr_ret_244 ? SUCC : NULL;
   }
 
   // SlashExpr end
-  if (!expr_ret_233) rew(slash_233);
-  expr_ret_232 = expr_ret_233;
+  if (!expr_ret_229) rew(slash_229);
+  expr_ret_228 = expr_ret_229;
 
-  if (!rule) rule = expr_ret_232;
-  if (!expr_ret_232) rule = NULL;
+  if (!rule) rule = expr_ret_228;
+  if (!expr_ret_228) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "forexpr");
-  else if (rule) dbg_accept(ctx, "forexpr");
-  else dbg_reject(ctx, "forexpr");
   return rule;
   #undef rule
 }
@@ -7252,160 +6621,146 @@ static inline daisho_astnode_t* daisho_parse_whileexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* o = NULL;
   daisho_astnode_t* n = NULL;
   daisho_astnode_t* c = NULL;
-  #define rule expr_ret_250
+  #define rule expr_ret_246
 
-  daisho_astnode_t* expr_ret_251 = NULL;
-  daisho_astnode_t* expr_ret_250 = NULL;
-  dbg_enter(ctx, "whileexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_252 = NULL;
+  daisho_astnode_t* expr_ret_247 = NULL;
+  daisho_astnode_t* expr_ret_246 = NULL;
+  daisho_astnode_t* expr_ret_248 = NULL;
 
-  rec(slash_252);
+  rec(slash_248);
 
   // SlashExpr 0
-  if (!expr_ret_252)
+  if (!expr_ret_248)
+  {
+    daisho_astnode_t* expr_ret_249 = NULL;
+    rec(mod_249);
+    // ModExprList 0
+    {
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_WHILE) {
+        // Not capturing WHILE.
+        expr_ret_249 = SUCC;
+        ctx->pos++;
+      } else {
+        expr_ret_249 = NULL;
+      }
+
+    }
+
+    // ModExprList 1
+    if (expr_ret_249)
+    {
+      daisho_astnode_t* expr_ret_250 = NULL;
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
+        // Capturing OPEN.
+        expr_ret_250 = leaf(OPEN);
+        #if DAISHO_SOURCEINFO
+        expr_ret_250->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_250->len_or_toknum = ctx->tokens[ctx->pos].len;
+        #endif
+        ctx->pos++;
+      } else {
+        expr_ret_250 = NULL;
+      }
+
+      // optional
+      if (!expr_ret_250)
+        expr_ret_250 = SUCC;
+      expr_ret_249 = expr_ret_250;
+      o = expr_ret_250;
+    }
+
+    // ModExprList 2
+    if (expr_ret_249)
+    {
+      daisho_astnode_t* expr_ret_251 = NULL;
+      expr_ret_251 = daisho_parse_ternexpr(ctx);
+      expr_ret_249 = expr_ret_251;
+      n = expr_ret_251;
+    }
+
+    // ModExprList 3
+    if (expr_ret_249)
+    {
+      daisho_astnode_t* expr_ret_252 = NULL;
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
+        // Capturing CLOSE.
+        expr_ret_252 = leaf(CLOSE);
+        #if DAISHO_SOURCEINFO
+        expr_ret_252->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_252->len_or_toknum = ctx->tokens[ctx->pos].len;
+        #endif
+        ctx->pos++;
+      } else {
+        expr_ret_252 = NULL;
+      }
+
+      // optional
+      if (!expr_ret_252)
+        expr_ret_252 = SUCC;
+      expr_ret_249 = expr_ret_252;
+      c = expr_ret_252;
+    }
+
+    // ModExprList 4
+    if (expr_ret_249)
+    {
+      // CodeExpr
+      #define ret expr_ret_249
+      ret = SUCC;
+
+      ret=o==c?SUCC:NULL;
+
+      #undef ret
+    }
+
+    // ModExprList 5
+    if (expr_ret_249)
+    {
+      expr_ret_249 = daisho_parse_expr(ctx);
+    }
+
+    // ModExprList end
+    if (!expr_ret_249) rew(mod_249);
+    expr_ret_248 = expr_ret_249 ? SUCC : NULL;
+  }
+
+  // SlashExpr 1
+  if (!expr_ret_248)
   {
     daisho_astnode_t* expr_ret_253 = NULL;
     rec(mod_253);
     // ModExprList 0
     {
-      dbg_enter(ctx, "WHILE", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_WHILE) {
-        // Not capturing WHILE.
-        expr_ret_253 = SUCC;
-        ctx->pos++;
-      } else {
-        expr_ret_253 = NULL;
-      }
-
-      if (expr_ret_253) dbg_accept(ctx, "WHILE"); else dbg_reject(ctx, "WHILE");
-    }
-
-    // ModExprList 1
-    if (expr_ret_253)
-    {
       daisho_astnode_t* expr_ret_254 = NULL;
-      dbg_enter(ctx, "OPEN", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
-        // Capturing OPEN.
-        expr_ret_254 = leaf(OPEN);
-        #if DAISHO_SOURCEINFO
-        expr_ret_254->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_254->len_or_toknum = ctx->tokens[ctx->pos].len;
-        #endif
-        ctx->pos++;
-      } else {
-        expr_ret_254 = NULL;
-      }
-
-      if (expr_ret_254) dbg_accept(ctx, "OPEN"); else dbg_reject(ctx, "OPEN");
-      // optional
-      if (!expr_ret_254)
-        expr_ret_254 = SUCC;
+      expr_ret_254 = daisho_parse_ternexpr(ctx);
       expr_ret_253 = expr_ret_254;
-      o = expr_ret_254;
-    }
-
-    // ModExprList 2
-    if (expr_ret_253)
-    {
-      daisho_astnode_t* expr_ret_255 = NULL;
-      expr_ret_255 = daisho_parse_ternexpr(ctx);
-      expr_ret_253 = expr_ret_255;
-      n = expr_ret_255;
-    }
-
-    // ModExprList 3
-    if (expr_ret_253)
-    {
-      daisho_astnode_t* expr_ret_256 = NULL;
-      dbg_enter(ctx, "CLOSE", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
-        // Capturing CLOSE.
-        expr_ret_256 = leaf(CLOSE);
-        #if DAISHO_SOURCEINFO
-        expr_ret_256->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_256->len_or_toknum = ctx->tokens[ctx->pos].len;
-        #endif
-        ctx->pos++;
-      } else {
-        expr_ret_256 = NULL;
-      }
-
-      if (expr_ret_256) dbg_accept(ctx, "CLOSE"); else dbg_reject(ctx, "CLOSE");
-      // optional
-      if (!expr_ret_256)
-        expr_ret_256 = SUCC;
-      expr_ret_253 = expr_ret_256;
-      c = expr_ret_256;
-    }
-
-    // ModExprList 4
-    if (expr_ret_253)
-    {
-      // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_253
-      ret = SUCC;
-
-      ret=o==c?SUCC:NULL;
-
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
-      #undef ret
-    }
-
-    // ModExprList 5
-    if (expr_ret_253)
-    {
-      expr_ret_253 = daisho_parse_expr(ctx);
-    }
-
-    // ModExprList end
-    if (!expr_ret_253) rew(mod_253);
-    expr_ret_252 = expr_ret_253 ? SUCC : NULL;
-  }
-
-  // SlashExpr 1
-  if (!expr_ret_252)
-  {
-    daisho_astnode_t* expr_ret_257 = NULL;
-    rec(mod_257);
-    // ModExprList 0
-    {
-      daisho_astnode_t* expr_ret_258 = NULL;
-      expr_ret_258 = daisho_parse_ternexpr(ctx);
-      expr_ret_257 = expr_ret_258;
-      n = expr_ret_258;
+      n = expr_ret_254;
     }
 
     // ModExprList 1
-    if (expr_ret_257)
+    if (expr_ret_253)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_257
+      #define ret expr_ret_253
       ret = SUCC;
 
       rule=n;
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_257) rew(mod_257);
-    expr_ret_252 = expr_ret_257 ? SUCC : NULL;
+    if (!expr_ret_253) rew(mod_253);
+    expr_ret_248 = expr_ret_253 ? SUCC : NULL;
   }
 
   // SlashExpr end
-  if (!expr_ret_252) rew(slash_252);
-  expr_ret_251 = expr_ret_252;
+  if (!expr_ret_248) rew(slash_248);
+  expr_ret_247 = expr_ret_248;
 
-  if (!rule) rule = expr_ret_251;
-  if (!expr_ret_251) rule = NULL;
+  if (!rule) rule = expr_ret_247;
+  if (!expr_ret_247) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "whileexpr");
-  else if (rule) dbg_accept(ctx, "whileexpr");
-  else dbg_reject(ctx, "whileexpr");
   return rule;
   #undef rule
 }
@@ -7416,136 +6771,126 @@ static inline daisho_astnode_t* daisho_parse_ternexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* qe = NULL;
   daisho_astnode_t* c = NULL;
   daisho_astnode_t* ce = NULL;
-  #define rule expr_ret_259
+  #define rule expr_ret_255
 
-  daisho_astnode_t* expr_ret_260 = NULL;
-  daisho_astnode_t* expr_ret_259 = NULL;
-  dbg_enter(ctx, "ternexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_261 = NULL;
-  rec(mod_261);
+  daisho_astnode_t* expr_ret_256 = NULL;
+  daisho_astnode_t* expr_ret_255 = NULL;
+  daisho_astnode_t* expr_ret_257 = NULL;
+  rec(mod_257);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_262 = NULL;
-    expr_ret_262 = daisho_parse_thenexpr(ctx);
-    expr_ret_261 = expr_ret_262;
-    n = expr_ret_262;
+    daisho_astnode_t* expr_ret_258 = NULL;
+    expr_ret_258 = daisho_parse_thenexpr(ctx);
+    expr_ret_257 = expr_ret_258;
+    n = expr_ret_258;
   }
 
   // ModExprList 1
-  if (expr_ret_261)
+  if (expr_ret_257)
   {
-    daisho_astnode_t* expr_ret_263 = NULL;
-    daisho_astnode_t* expr_ret_264 = NULL;
-    rec(mod_264);
+    daisho_astnode_t* expr_ret_259 = NULL;
+    daisho_astnode_t* expr_ret_260 = NULL;
+    rec(mod_260);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_265 = NULL;
-      dbg_enter(ctx, "QUEST", ctx->pos);
+      daisho_astnode_t* expr_ret_261 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_QUEST) {
         // Capturing QUEST.
-        expr_ret_265 = leaf(QUEST);
+        expr_ret_261 = leaf(QUEST);
         #if DAISHO_SOURCEINFO
-        expr_ret_265->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_265->len_or_toknum = ctx->tokens[ctx->pos].len;
+        expr_ret_261->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_261->len_or_toknum = ctx->tokens[ctx->pos].len;
         #endif
         ctx->pos++;
       } else {
-        expr_ret_265 = NULL;
+        expr_ret_261 = NULL;
       }
 
-      if (expr_ret_265) dbg_accept(ctx, "QUEST"); else dbg_reject(ctx, "QUEST");
-      expr_ret_264 = expr_ret_265;
-      q = expr_ret_265;
+      expr_ret_260 = expr_ret_261;
+      q = expr_ret_261;
     }
 
     // ModExprList 1
-    if (expr_ret_264)
+    if (expr_ret_260)
     {
-      daisho_astnode_t* expr_ret_266 = NULL;
-      expr_ret_266 = daisho_parse_expr(ctx);
-      expr_ret_264 = expr_ret_266;
-      qe = expr_ret_266;
+      daisho_astnode_t* expr_ret_262 = NULL;
+      expr_ret_262 = daisho_parse_expr(ctx);
+      expr_ret_260 = expr_ret_262;
+      qe = expr_ret_262;
     }
 
     // ModExprList 2
-    if (expr_ret_264)
+    if (expr_ret_260)
     {
-      daisho_astnode_t* expr_ret_267 = NULL;
-      daisho_astnode_t* expr_ret_268 = NULL;
-      rec(mod_268);
+      daisho_astnode_t* expr_ret_263 = NULL;
+      daisho_astnode_t* expr_ret_264 = NULL;
+      rec(mod_264);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_269 = NULL;
-        dbg_enter(ctx, "COLON", ctx->pos);
+        daisho_astnode_t* expr_ret_265 = NULL;
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COLON) {
           // Capturing COLON.
-          expr_ret_269 = leaf(COLON);
+          expr_ret_265 = leaf(COLON);
           #if DAISHO_SOURCEINFO
-          expr_ret_269->tok_repr = ctx->tokens[ctx->pos].content;
-          expr_ret_269->len_or_toknum = ctx->tokens[ctx->pos].len;
+          expr_ret_265->tok_repr = ctx->tokens[ctx->pos].content;
+          expr_ret_265->len_or_toknum = ctx->tokens[ctx->pos].len;
           #endif
           ctx->pos++;
         } else {
-          expr_ret_269 = NULL;
+          expr_ret_265 = NULL;
         }
 
-        if (expr_ret_269) dbg_accept(ctx, "COLON"); else dbg_reject(ctx, "COLON");
-        expr_ret_268 = expr_ret_269;
-        c = expr_ret_269;
+        expr_ret_264 = expr_ret_265;
+        c = expr_ret_265;
       }
 
       // ModExprList 1
-      if (expr_ret_268)
+      if (expr_ret_264)
       {
-        daisho_astnode_t* expr_ret_270 = NULL;
-        expr_ret_270 = daisho_parse_expr(ctx);
-        expr_ret_268 = expr_ret_270;
-        ce = expr_ret_270;
+        daisho_astnode_t* expr_ret_266 = NULL;
+        expr_ret_266 = daisho_parse_expr(ctx);
+        expr_ret_264 = expr_ret_266;
+        ce = expr_ret_266;
       }
 
       // ModExprList end
-      if (!expr_ret_268) rew(mod_268);
-      expr_ret_267 = expr_ret_268 ? SUCC : NULL;
+      if (!expr_ret_264) rew(mod_264);
+      expr_ret_263 = expr_ret_264 ? SUCC : NULL;
       // optional
-      if (!expr_ret_267)
-        expr_ret_267 = SUCC;
-      expr_ret_264 = expr_ret_267;
+      if (!expr_ret_263)
+        expr_ret_263 = SUCC;
+      expr_ret_260 = expr_ret_263;
     }
 
     // ModExprList end
-    if (!expr_ret_264) rew(mod_264);
-    expr_ret_263 = expr_ret_264 ? SUCC : NULL;
+    if (!expr_ret_260) rew(mod_260);
+    expr_ret_259 = expr_ret_260 ? SUCC : NULL;
     // optional
-    if (!expr_ret_263)
-      expr_ret_263 = SUCC;
-    expr_ret_261 = expr_ret_263;
+    if (!expr_ret_259)
+      expr_ret_259 = SUCC;
+    expr_ret_257 = expr_ret_259;
   }
 
   // ModExprList 2
-  if (expr_ret_261)
+  if (expr_ret_257)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_261
+    #define ret expr_ret_257
     ret = SUCC;
 
     rule = !has(qe) ? n
                     : !has(ce) ? node(ELVIS, q, n, qe)
                     :            node(TERN, q, c, n, qe, ce);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_261) rew(mod_261);
-  expr_ret_260 = expr_ret_261 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_260;
-  if (!expr_ret_260) rule = NULL;
+  if (!expr_ret_257) rew(mod_257);
+  expr_ret_256 = expr_ret_257 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_256;
+  if (!expr_ret_256) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "ternexpr");
-  else if (rule) dbg_accept(ctx, "ternexpr");
-  else dbg_reject(ctx, "ternexpr");
   return rule;
   #undef rule
 }
@@ -7554,106 +6899,96 @@ static inline daisho_astnode_t* daisho_parse_thenexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
   daisho_astnode_t* o = NULL;
   daisho_astnode_t* nn = NULL;
-  #define rule expr_ret_271
+  #define rule expr_ret_267
 
-  daisho_astnode_t* expr_ret_272 = NULL;
-  daisho_astnode_t* expr_ret_271 = NULL;
-  dbg_enter(ctx, "thenexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_273 = NULL;
-  rec(mod_273);
+  daisho_astnode_t* expr_ret_268 = NULL;
+  daisho_astnode_t* expr_ret_267 = NULL;
+  daisho_astnode_t* expr_ret_269 = NULL;
+  rec(mod_269);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_274 = NULL;
-    expr_ret_274 = daisho_parse_alsoexpr(ctx);
-    expr_ret_273 = expr_ret_274;
-    n = expr_ret_274;
+    daisho_astnode_t* expr_ret_270 = NULL;
+    expr_ret_270 = daisho_parse_alsoexpr(ctx);
+    expr_ret_269 = expr_ret_270;
+    n = expr_ret_270;
   }
 
   // ModExprList 1
-  if (expr_ret_273)
+  if (expr_ret_269)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_273
+    #define ret expr_ret_269
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_273)
+  if (expr_ret_269)
   {
-    daisho_astnode_t* expr_ret_275 = NULL;
-    expr_ret_275 = SUCC;
-    while (expr_ret_275)
+    daisho_astnode_t* expr_ret_271 = NULL;
+    expr_ret_271 = SUCC;
+    while (expr_ret_271)
     {
-      daisho_astnode_t* expr_ret_276 = NULL;
-      rec(mod_276);
+      daisho_astnode_t* expr_ret_272 = NULL;
+      rec(mod_272);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_277 = NULL;
-        dbg_enter(ctx, "THEN", ctx->pos);
+        daisho_astnode_t* expr_ret_273 = NULL;
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_THEN) {
           // Capturing THEN.
-          expr_ret_277 = leaf(THEN);
+          expr_ret_273 = leaf(THEN);
           #if DAISHO_SOURCEINFO
-          expr_ret_277->tok_repr = ctx->tokens[ctx->pos].content;
-          expr_ret_277->len_or_toknum = ctx->tokens[ctx->pos].len;
+          expr_ret_273->tok_repr = ctx->tokens[ctx->pos].content;
+          expr_ret_273->len_or_toknum = ctx->tokens[ctx->pos].len;
           #endif
           ctx->pos++;
         } else {
-          expr_ret_277 = NULL;
+          expr_ret_273 = NULL;
         }
 
-        if (expr_ret_277) dbg_accept(ctx, "THEN"); else dbg_reject(ctx, "THEN");
-        expr_ret_276 = expr_ret_277;
-        o = expr_ret_277;
+        expr_ret_272 = expr_ret_273;
+        o = expr_ret_273;
       }
 
       // ModExprList 1
-      if (expr_ret_276)
+      if (expr_ret_272)
       {
-        daisho_astnode_t* expr_ret_278 = NULL;
-        expr_ret_278 = daisho_parse_alsoexpr(ctx);
-        expr_ret_276 = expr_ret_278;
-        nn = expr_ret_278;
+        daisho_astnode_t* expr_ret_274 = NULL;
+        expr_ret_274 = daisho_parse_alsoexpr(ctx);
+        expr_ret_272 = expr_ret_274;
+        nn = expr_ret_274;
       }
 
       // ModExprList 2
-      if (expr_ret_276)
+      if (expr_ret_272)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_276
+        #define ret expr_ret_272
         ret = SUCC;
 
         rule=srepr(node(THEN, rule, nn), "then");
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_276) rew(mod_276);
-      expr_ret_275 = expr_ret_276 ? SUCC : NULL;
+      if (!expr_ret_272) rew(mod_272);
+      expr_ret_271 = expr_ret_272 ? SUCC : NULL;
     }
 
-    expr_ret_275 = SUCC;
-    expr_ret_273 = expr_ret_275;
+    expr_ret_271 = SUCC;
+    expr_ret_269 = expr_ret_271;
   }
 
   // ModExprList end
-  if (!expr_ret_273) rew(mod_273);
-  expr_ret_272 = expr_ret_273 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_272;
-  if (!expr_ret_272) rule = NULL;
+  if (!expr_ret_269) rew(mod_269);
+  expr_ret_268 = expr_ret_269 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_268;
+  if (!expr_ret_268) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "thenexpr");
-  else if (rule) dbg_accept(ctx, "thenexpr");
-  else dbg_reject(ctx, "thenexpr");
   return rule;
   #undef rule
 }
@@ -7662,129 +6997,115 @@ static inline daisho_astnode_t* daisho_parse_alsoexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
   daisho_astnode_t* o = NULL;
   daisho_astnode_t* nn = NULL;
-  #define rule expr_ret_279
+  #define rule expr_ret_275
 
-  daisho_astnode_t* expr_ret_280 = NULL;
-  daisho_astnode_t* expr_ret_279 = NULL;
-  dbg_enter(ctx, "alsoexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_281 = NULL;
-  rec(mod_281);
+  daisho_astnode_t* expr_ret_276 = NULL;
+  daisho_astnode_t* expr_ret_275 = NULL;
+  daisho_astnode_t* expr_ret_277 = NULL;
+  rec(mod_277);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_282 = NULL;
-    expr_ret_282 = daisho_parse_binop(ctx);
-    expr_ret_281 = expr_ret_282;
-    n = expr_ret_282;
+    daisho_astnode_t* expr_ret_278 = NULL;
+    expr_ret_278 = daisho_parse_binop(ctx);
+    expr_ret_277 = expr_ret_278;
+    n = expr_ret_278;
   }
 
   // ModExprList 1
-  if (expr_ret_281)
+  if (expr_ret_277)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_281
+    #define ret expr_ret_277
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_281)
+  if (expr_ret_277)
   {
-    daisho_astnode_t* expr_ret_283 = NULL;
-    expr_ret_283 = SUCC;
-    while (expr_ret_283)
+    daisho_astnode_t* expr_ret_279 = NULL;
+    expr_ret_279 = SUCC;
+    while (expr_ret_279)
     {
-      daisho_astnode_t* expr_ret_284 = NULL;
-      rec(mod_284);
+      daisho_astnode_t* expr_ret_280 = NULL;
+      rec(mod_280);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_285 = NULL;
-        dbg_enter(ctx, "ALSO", ctx->pos);
+        daisho_astnode_t* expr_ret_281 = NULL;
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_ALSO) {
           // Capturing ALSO.
-          expr_ret_285 = leaf(ALSO);
+          expr_ret_281 = leaf(ALSO);
           #if DAISHO_SOURCEINFO
-          expr_ret_285->tok_repr = ctx->tokens[ctx->pos].content;
-          expr_ret_285->len_or_toknum = ctx->tokens[ctx->pos].len;
+          expr_ret_281->tok_repr = ctx->tokens[ctx->pos].content;
+          expr_ret_281->len_or_toknum = ctx->tokens[ctx->pos].len;
           #endif
           ctx->pos++;
         } else {
-          expr_ret_285 = NULL;
+          expr_ret_281 = NULL;
         }
 
-        if (expr_ret_285) dbg_accept(ctx, "ALSO"); else dbg_reject(ctx, "ALSO");
-        expr_ret_284 = expr_ret_285;
-        o = expr_ret_285;
+        expr_ret_280 = expr_ret_281;
+        o = expr_ret_281;
       }
 
       // ModExprList 1
-      if (expr_ret_284)
+      if (expr_ret_280)
       {
-        daisho_astnode_t* expr_ret_286 = NULL;
-        expr_ret_286 = daisho_parse_binop(ctx);
-        expr_ret_284 = expr_ret_286;
-        nn = expr_ret_286;
+        daisho_astnode_t* expr_ret_282 = NULL;
+        expr_ret_282 = daisho_parse_binop(ctx);
+        expr_ret_280 = expr_ret_282;
+        nn = expr_ret_282;
       }
 
       // ModExprList 2
-      if (expr_ret_284)
+      if (expr_ret_280)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_284
+        #define ret expr_ret_280
         ret = SUCC;
 
         rule=srepr(node(ALSO, rule, nn), "also");
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_284) rew(mod_284);
-      expr_ret_283 = expr_ret_284 ? SUCC : NULL;
+      if (!expr_ret_280) rew(mod_280);
+      expr_ret_279 = expr_ret_280 ? SUCC : NULL;
     }
 
-    expr_ret_283 = SUCC;
-    expr_ret_281 = expr_ret_283;
+    expr_ret_279 = SUCC;
+    expr_ret_277 = expr_ret_279;
   }
 
   // ModExprList end
-  if (!expr_ret_281) rew(mod_281);
-  expr_ret_280 = expr_ret_281 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_280;
-  if (!expr_ret_280) rule = NULL;
+  if (!expr_ret_277) rew(mod_277);
+  expr_ret_276 = expr_ret_277 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_276;
+  if (!expr_ret_276) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "alsoexpr");
-  else if (rule) dbg_accept(ctx, "alsoexpr");
-  else dbg_reject(ctx, "alsoexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_binop(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_287
+  #define rule expr_ret_283
 
-  daisho_astnode_t* expr_ret_288 = NULL;
-  daisho_astnode_t* expr_ret_287 = NULL;
-  dbg_enter(ctx, "binop", ctx->pos);
-  daisho_astnode_t* expr_ret_289 = NULL;
-  rec(mod_289);
+  daisho_astnode_t* expr_ret_284 = NULL;
+  daisho_astnode_t* expr_ret_283 = NULL;
+  daisho_astnode_t* expr_ret_285 = NULL;
+  rec(mod_285);
   // ModExprList Forwarding
-  expr_ret_289 = daisho_parse_eqexpr(ctx);
+  expr_ret_285 = daisho_parse_eqexpr(ctx);
   // ModExprList end
-  if (!expr_ret_289) rew(mod_289);
-  expr_ret_288 = expr_ret_289;
-  if (!rule) rule = expr_ret_288;
-  if (!expr_ret_288) rule = NULL;
+  if (!expr_ret_285) rew(mod_285);
+  expr_ret_284 = expr_ret_285;
+  if (!rule) rule = expr_ret_284;
+  if (!expr_ret_284) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "binop");
-  else if (rule) dbg_accept(ctx, "binop");
-  else dbg_reject(ctx, "binop");
   return rule;
   #undef rule
 }
@@ -7793,61 +7114,149 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
   daisho_astnode_t* op = NULL;
   daisho_astnode_t* t = NULL;
-  #define rule expr_ret_290
+  #define rule expr_ret_286
 
-  daisho_astnode_t* expr_ret_291 = NULL;
-  daisho_astnode_t* expr_ret_290 = NULL;
-  dbg_enter(ctx, "eqexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_292 = NULL;
-  rec(mod_292);
+  daisho_astnode_t* expr_ret_287 = NULL;
+  daisho_astnode_t* expr_ret_286 = NULL;
+  daisho_astnode_t* expr_ret_288 = NULL;
+  rec(mod_288);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_293 = NULL;
-    expr_ret_293 = daisho_parse_logorexpr(ctx);
-    expr_ret_292 = expr_ret_293;
-    n = expr_ret_293;
+    daisho_astnode_t* expr_ret_289 = NULL;
+    expr_ret_289 = daisho_parse_logorexpr(ctx);
+    expr_ret_288 = expr_ret_289;
+    n = expr_ret_289;
   }
 
   // ModExprList 1
-  if (expr_ret_292)
+  if (expr_ret_288)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_292
+    #define ret expr_ret_288
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_292)
+  if (expr_ret_288)
   {
-    daisho_astnode_t* expr_ret_294 = NULL;
-    expr_ret_294 = SUCC;
-    while (expr_ret_294)
+    daisho_astnode_t* expr_ret_290 = NULL;
+    expr_ret_290 = SUCC;
+    while (expr_ret_290)
     {
-      daisho_astnode_t* expr_ret_295 = NULL;
-      rec(mod_295);
+      daisho_astnode_t* expr_ret_291 = NULL;
+      rec(mod_291);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_296 = NULL;
-        daisho_astnode_t* expr_ret_297 = NULL;
+        daisho_astnode_t* expr_ret_292 = NULL;
+        daisho_astnode_t* expr_ret_293 = NULL;
 
-        rec(slash_297);
+        rec(slash_293);
 
         // SlashExpr 0
-        if (!expr_ret_297)
+        if (!expr_ret_293)
+        {
+          daisho_astnode_t* expr_ret_294 = NULL;
+          rec(mod_294);
+          // ModExprList Forwarding
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_EQ) {
+            // Capturing EQ.
+            expr_ret_294 = leaf(EQ);
+            #if DAISHO_SOURCEINFO
+            expr_ret_294->tok_repr = ctx->tokens[ctx->pos].content;
+            expr_ret_294->len_or_toknum = ctx->tokens[ctx->pos].len;
+            #endif
+            ctx->pos++;
+          } else {
+            expr_ret_294 = NULL;
+          }
+
+          // ModExprList end
+          if (!expr_ret_294) rew(mod_294);
+          expr_ret_293 = expr_ret_294;
+        }
+
+        // SlashExpr 1
+        if (!expr_ret_293)
+        {
+          daisho_astnode_t* expr_ret_295 = NULL;
+          rec(mod_295);
+          // ModExprList Forwarding
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_PLEQ) {
+            // Capturing PLEQ.
+            expr_ret_295 = leaf(PLEQ);
+            #if DAISHO_SOURCEINFO
+            expr_ret_295->tok_repr = ctx->tokens[ctx->pos].content;
+            expr_ret_295->len_or_toknum = ctx->tokens[ctx->pos].len;
+            #endif
+            ctx->pos++;
+          } else {
+            expr_ret_295 = NULL;
+          }
+
+          // ModExprList end
+          if (!expr_ret_295) rew(mod_295);
+          expr_ret_293 = expr_ret_295;
+        }
+
+        // SlashExpr 2
+        if (!expr_ret_293)
+        {
+          daisho_astnode_t* expr_ret_296 = NULL;
+          rec(mod_296);
+          // ModExprList Forwarding
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MINEQ) {
+            // Capturing MINEQ.
+            expr_ret_296 = leaf(MINEQ);
+            #if DAISHO_SOURCEINFO
+            expr_ret_296->tok_repr = ctx->tokens[ctx->pos].content;
+            expr_ret_296->len_or_toknum = ctx->tokens[ctx->pos].len;
+            #endif
+            ctx->pos++;
+          } else {
+            expr_ret_296 = NULL;
+          }
+
+          // ModExprList end
+          if (!expr_ret_296) rew(mod_296);
+          expr_ret_293 = expr_ret_296;
+        }
+
+        // SlashExpr 3
+        if (!expr_ret_293)
+        {
+          daisho_astnode_t* expr_ret_297 = NULL;
+          rec(mod_297);
+          // ModExprList Forwarding
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MULEQ) {
+            // Capturing MULEQ.
+            expr_ret_297 = leaf(MULEQ);
+            #if DAISHO_SOURCEINFO
+            expr_ret_297->tok_repr = ctx->tokens[ctx->pos].content;
+            expr_ret_297->len_or_toknum = ctx->tokens[ctx->pos].len;
+            #endif
+            ctx->pos++;
+          } else {
+            expr_ret_297 = NULL;
+          }
+
+          // ModExprList end
+          if (!expr_ret_297) rew(mod_297);
+          expr_ret_293 = expr_ret_297;
+        }
+
+        // SlashExpr 4
+        if (!expr_ret_293)
         {
           daisho_astnode_t* expr_ret_298 = NULL;
           rec(mod_298);
           // ModExprList Forwarding
-          dbg_enter(ctx, "EQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_EQ) {
-            // Capturing EQ.
-            expr_ret_298 = leaf(EQ);
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_DIVEQ) {
+            // Capturing DIVEQ.
+            expr_ret_298 = leaf(DIVEQ);
             #if DAISHO_SOURCEINFO
             expr_ret_298->tok_repr = ctx->tokens[ctx->pos].content;
             expr_ret_298->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -7857,22 +7266,20 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
             expr_ret_298 = NULL;
           }
 
-          if (expr_ret_298) dbg_accept(ctx, "EQ"); else dbg_reject(ctx, "EQ");
           // ModExprList end
           if (!expr_ret_298) rew(mod_298);
-          expr_ret_297 = expr_ret_298;
+          expr_ret_293 = expr_ret_298;
         }
 
-        // SlashExpr 1
-        if (!expr_ret_297)
+        // SlashExpr 5
+        if (!expr_ret_293)
         {
           daisho_astnode_t* expr_ret_299 = NULL;
           rec(mod_299);
           // ModExprList Forwarding
-          dbg_enter(ctx, "PLEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_PLEQ) {
-            // Capturing PLEQ.
-            expr_ret_299 = leaf(PLEQ);
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MODEQ) {
+            // Capturing MODEQ.
+            expr_ret_299 = leaf(MODEQ);
             #if DAISHO_SOURCEINFO
             expr_ret_299->tok_repr = ctx->tokens[ctx->pos].content;
             expr_ret_299->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -7882,22 +7289,20 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
             expr_ret_299 = NULL;
           }
 
-          if (expr_ret_299) dbg_accept(ctx, "PLEQ"); else dbg_reject(ctx, "PLEQ");
           // ModExprList end
           if (!expr_ret_299) rew(mod_299);
-          expr_ret_297 = expr_ret_299;
+          expr_ret_293 = expr_ret_299;
         }
 
-        // SlashExpr 2
-        if (!expr_ret_297)
+        // SlashExpr 6
+        if (!expr_ret_293)
         {
           daisho_astnode_t* expr_ret_300 = NULL;
           rec(mod_300);
           // ModExprList Forwarding
-          dbg_enter(ctx, "MINEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MINEQ) {
-            // Capturing MINEQ.
-            expr_ret_300 = leaf(MINEQ);
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_ANDEQ) {
+            // Capturing ANDEQ.
+            expr_ret_300 = leaf(ANDEQ);
             #if DAISHO_SOURCEINFO
             expr_ret_300->tok_repr = ctx->tokens[ctx->pos].content;
             expr_ret_300->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -7907,22 +7312,20 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
             expr_ret_300 = NULL;
           }
 
-          if (expr_ret_300) dbg_accept(ctx, "MINEQ"); else dbg_reject(ctx, "MINEQ");
           // ModExprList end
           if (!expr_ret_300) rew(mod_300);
-          expr_ret_297 = expr_ret_300;
+          expr_ret_293 = expr_ret_300;
         }
 
-        // SlashExpr 3
-        if (!expr_ret_297)
+        // SlashExpr 7
+        if (!expr_ret_293)
         {
           daisho_astnode_t* expr_ret_301 = NULL;
           rec(mod_301);
           // ModExprList Forwarding
-          dbg_enter(ctx, "MULEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MULEQ) {
-            // Capturing MULEQ.
-            expr_ret_301 = leaf(MULEQ);
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OREQ) {
+            // Capturing OREQ.
+            expr_ret_301 = leaf(OREQ);
             #if DAISHO_SOURCEINFO
             expr_ret_301->tok_repr = ctx->tokens[ctx->pos].content;
             expr_ret_301->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -7932,22 +7335,20 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
             expr_ret_301 = NULL;
           }
 
-          if (expr_ret_301) dbg_accept(ctx, "MULEQ"); else dbg_reject(ctx, "MULEQ");
           // ModExprList end
           if (!expr_ret_301) rew(mod_301);
-          expr_ret_297 = expr_ret_301;
+          expr_ret_293 = expr_ret_301;
         }
 
-        // SlashExpr 4
-        if (!expr_ret_297)
+        // SlashExpr 8
+        if (!expr_ret_293)
         {
           daisho_astnode_t* expr_ret_302 = NULL;
           rec(mod_302);
           // ModExprList Forwarding
-          dbg_enter(ctx, "DIVEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_DIVEQ) {
-            // Capturing DIVEQ.
-            expr_ret_302 = leaf(DIVEQ);
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_XOREQ) {
+            // Capturing XOREQ.
+            expr_ret_302 = leaf(XOREQ);
             #if DAISHO_SOURCEINFO
             expr_ret_302->tok_repr = ctx->tokens[ctx->pos].content;
             expr_ret_302->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -7957,22 +7358,20 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
             expr_ret_302 = NULL;
           }
 
-          if (expr_ret_302) dbg_accept(ctx, "DIVEQ"); else dbg_reject(ctx, "DIVEQ");
           // ModExprList end
           if (!expr_ret_302) rew(mod_302);
-          expr_ret_297 = expr_ret_302;
+          expr_ret_293 = expr_ret_302;
         }
 
-        // SlashExpr 5
-        if (!expr_ret_297)
+        // SlashExpr 9
+        if (!expr_ret_293)
         {
           daisho_astnode_t* expr_ret_303 = NULL;
           rec(mod_303);
           // ModExprList Forwarding
-          dbg_enter(ctx, "MODEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MODEQ) {
-            // Capturing MODEQ.
-            expr_ret_303 = leaf(MODEQ);
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_BNEQ) {
+            // Capturing BNEQ.
+            expr_ret_303 = leaf(BNEQ);
             #if DAISHO_SOURCEINFO
             expr_ret_303->tok_repr = ctx->tokens[ctx->pos].content;
             expr_ret_303->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -7982,22 +7381,20 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
             expr_ret_303 = NULL;
           }
 
-          if (expr_ret_303) dbg_accept(ctx, "MODEQ"); else dbg_reject(ctx, "MODEQ");
           // ModExprList end
           if (!expr_ret_303) rew(mod_303);
-          expr_ret_297 = expr_ret_303;
+          expr_ret_293 = expr_ret_303;
         }
 
-        // SlashExpr 6
-        if (!expr_ret_297)
+        // SlashExpr 10
+        if (!expr_ret_293)
         {
           daisho_astnode_t* expr_ret_304 = NULL;
           rec(mod_304);
           // ModExprList Forwarding
-          dbg_enter(ctx, "ANDEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_ANDEQ) {
-            // Capturing ANDEQ.
-            expr_ret_304 = leaf(ANDEQ);
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_BSREQ) {
+            // Capturing BSREQ.
+            expr_ret_304 = leaf(BSREQ);
             #if DAISHO_SOURCEINFO
             expr_ret_304->tok_repr = ctx->tokens[ctx->pos].content;
             expr_ret_304->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -8007,22 +7404,20 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
             expr_ret_304 = NULL;
           }
 
-          if (expr_ret_304) dbg_accept(ctx, "ANDEQ"); else dbg_reject(ctx, "ANDEQ");
           // ModExprList end
           if (!expr_ret_304) rew(mod_304);
-          expr_ret_297 = expr_ret_304;
+          expr_ret_293 = expr_ret_304;
         }
 
-        // SlashExpr 7
-        if (!expr_ret_297)
+        // SlashExpr 11
+        if (!expr_ret_293)
         {
           daisho_astnode_t* expr_ret_305 = NULL;
           rec(mod_305);
           // ModExprList Forwarding
-          dbg_enter(ctx, "OREQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OREQ) {
-            // Capturing OREQ.
-            expr_ret_305 = leaf(OREQ);
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_BSLEQ) {
+            // Capturing BSLEQ.
+            expr_ret_305 = leaf(BSLEQ);
             #if DAISHO_SOURCEINFO
             expr_ret_305->tok_repr = ctx->tokens[ctx->pos].content;
             expr_ret_305->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -8032,135 +7427,33 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
             expr_ret_305 = NULL;
           }
 
-          if (expr_ret_305) dbg_accept(ctx, "OREQ"); else dbg_reject(ctx, "OREQ");
           // ModExprList end
           if (!expr_ret_305) rew(mod_305);
-          expr_ret_297 = expr_ret_305;
-        }
-
-        // SlashExpr 8
-        if (!expr_ret_297)
-        {
-          daisho_astnode_t* expr_ret_306 = NULL;
-          rec(mod_306);
-          // ModExprList Forwarding
-          dbg_enter(ctx, "XOREQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_XOREQ) {
-            // Capturing XOREQ.
-            expr_ret_306 = leaf(XOREQ);
-            #if DAISHO_SOURCEINFO
-            expr_ret_306->tok_repr = ctx->tokens[ctx->pos].content;
-            expr_ret_306->len_or_toknum = ctx->tokens[ctx->pos].len;
-            #endif
-            ctx->pos++;
-          } else {
-            expr_ret_306 = NULL;
-          }
-
-          if (expr_ret_306) dbg_accept(ctx, "XOREQ"); else dbg_reject(ctx, "XOREQ");
-          // ModExprList end
-          if (!expr_ret_306) rew(mod_306);
-          expr_ret_297 = expr_ret_306;
-        }
-
-        // SlashExpr 9
-        if (!expr_ret_297)
-        {
-          daisho_astnode_t* expr_ret_307 = NULL;
-          rec(mod_307);
-          // ModExprList Forwarding
-          dbg_enter(ctx, "BNEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_BNEQ) {
-            // Capturing BNEQ.
-            expr_ret_307 = leaf(BNEQ);
-            #if DAISHO_SOURCEINFO
-            expr_ret_307->tok_repr = ctx->tokens[ctx->pos].content;
-            expr_ret_307->len_or_toknum = ctx->tokens[ctx->pos].len;
-            #endif
-            ctx->pos++;
-          } else {
-            expr_ret_307 = NULL;
-          }
-
-          if (expr_ret_307) dbg_accept(ctx, "BNEQ"); else dbg_reject(ctx, "BNEQ");
-          // ModExprList end
-          if (!expr_ret_307) rew(mod_307);
-          expr_ret_297 = expr_ret_307;
-        }
-
-        // SlashExpr 10
-        if (!expr_ret_297)
-        {
-          daisho_astnode_t* expr_ret_308 = NULL;
-          rec(mod_308);
-          // ModExprList Forwarding
-          dbg_enter(ctx, "BSREQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_BSREQ) {
-            // Capturing BSREQ.
-            expr_ret_308 = leaf(BSREQ);
-            #if DAISHO_SOURCEINFO
-            expr_ret_308->tok_repr = ctx->tokens[ctx->pos].content;
-            expr_ret_308->len_or_toknum = ctx->tokens[ctx->pos].len;
-            #endif
-            ctx->pos++;
-          } else {
-            expr_ret_308 = NULL;
-          }
-
-          if (expr_ret_308) dbg_accept(ctx, "BSREQ"); else dbg_reject(ctx, "BSREQ");
-          // ModExprList end
-          if (!expr_ret_308) rew(mod_308);
-          expr_ret_297 = expr_ret_308;
-        }
-
-        // SlashExpr 11
-        if (!expr_ret_297)
-        {
-          daisho_astnode_t* expr_ret_309 = NULL;
-          rec(mod_309);
-          // ModExprList Forwarding
-          dbg_enter(ctx, "BSLEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_BSLEQ) {
-            // Capturing BSLEQ.
-            expr_ret_309 = leaf(BSLEQ);
-            #if DAISHO_SOURCEINFO
-            expr_ret_309->tok_repr = ctx->tokens[ctx->pos].content;
-            expr_ret_309->len_or_toknum = ctx->tokens[ctx->pos].len;
-            #endif
-            ctx->pos++;
-          } else {
-            expr_ret_309 = NULL;
-          }
-
-          if (expr_ret_309) dbg_accept(ctx, "BSLEQ"); else dbg_reject(ctx, "BSLEQ");
-          // ModExprList end
-          if (!expr_ret_309) rew(mod_309);
-          expr_ret_297 = expr_ret_309;
+          expr_ret_293 = expr_ret_305;
         }
 
         // SlashExpr end
-        if (!expr_ret_297) rew(slash_297);
-        expr_ret_296 = expr_ret_297;
+        if (!expr_ret_293) rew(slash_293);
+        expr_ret_292 = expr_ret_293;
 
-        expr_ret_295 = expr_ret_296;
-        op = expr_ret_296;
+        expr_ret_291 = expr_ret_292;
+        op = expr_ret_292;
       }
 
       // ModExprList 1
-      if (expr_ret_295)
+      if (expr_ret_291)
       {
-        daisho_astnode_t* expr_ret_310 = NULL;
-        expr_ret_310 = daisho_parse_logorexpr(ctx);
-        expr_ret_295 = expr_ret_310;
-        t = expr_ret_310;
+        daisho_astnode_t* expr_ret_306 = NULL;
+        expr_ret_306 = daisho_parse_logorexpr(ctx);
+        expr_ret_291 = expr_ret_306;
+        t = expr_ret_306;
       }
 
       // ModExprList 2
-      if (expr_ret_295)
+      if (expr_ret_291)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_295
+        #define ret expr_ret_291
         ret = SUCC;
 
         
@@ -8183,745 +7476,758 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
                   #endif
               ;
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_295) rew(mod_295);
-      expr_ret_294 = expr_ret_295 ? SUCC : NULL;
+      if (!expr_ret_291) rew(mod_291);
+      expr_ret_290 = expr_ret_291 ? SUCC : NULL;
     }
 
-    expr_ret_294 = SUCC;
-    expr_ret_292 = expr_ret_294;
+    expr_ret_290 = SUCC;
+    expr_ret_288 = expr_ret_290;
   }
 
   // ModExprList end
-  if (!expr_ret_292) rew(mod_292);
-  expr_ret_291 = expr_ret_292 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_291;
-  if (!expr_ret_291) rule = NULL;
+  if (!expr_ret_288) rew(mod_288);
+  expr_ret_287 = expr_ret_288 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_287;
+  if (!expr_ret_287) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "eqexpr");
-  else if (rule) dbg_accept(ctx, "eqexpr");
-  else dbg_reject(ctx, "eqexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_logorexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_311
+  #define rule expr_ret_307
 
-  daisho_astnode_t* expr_ret_312 = NULL;
-  daisho_astnode_t* expr_ret_311 = NULL;
-  dbg_enter(ctx, "logorexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_313 = NULL;
-  rec(mod_313);
+  daisho_astnode_t* expr_ret_308 = NULL;
+  daisho_astnode_t* expr_ret_307 = NULL;
+  daisho_astnode_t* expr_ret_309 = NULL;
+  rec(mod_309);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_314 = NULL;
-    expr_ret_314 = daisho_parse_logandexpr(ctx);
-    expr_ret_313 = expr_ret_314;
-    n = expr_ret_314;
+    daisho_astnode_t* expr_ret_310 = NULL;
+    expr_ret_310 = daisho_parse_logandexpr(ctx);
+    expr_ret_309 = expr_ret_310;
+    n = expr_ret_310;
   }
 
   // ModExprList 1
-  if (expr_ret_313)
+  if (expr_ret_309)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_313
+    #define ret expr_ret_309
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_313)
+  if (expr_ret_309)
   {
-    daisho_astnode_t* expr_ret_315 = NULL;
-    expr_ret_315 = SUCC;
-    while (expr_ret_315)
+    daisho_astnode_t* expr_ret_311 = NULL;
+    expr_ret_311 = SUCC;
+    while (expr_ret_311)
     {
-      daisho_astnode_t* expr_ret_316 = NULL;
-      rec(mod_316);
+      daisho_astnode_t* expr_ret_312 = NULL;
+      rec(mod_312);
       // ModExprList 0
       {
-        dbg_enter(ctx, "LOGOR", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LOGOR) {
           // Not capturing LOGOR.
-          expr_ret_316 = SUCC;
+          expr_ret_312 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_316 = NULL;
+          expr_ret_312 = NULL;
         }
 
-        if (expr_ret_316) dbg_accept(ctx, "LOGOR"); else dbg_reject(ctx, "LOGOR");
       }
 
       // ModExprList 1
-      if (expr_ret_316)
+      if (expr_ret_312)
       {
-        daisho_astnode_t* expr_ret_317 = NULL;
-        expr_ret_317 = daisho_parse_logandexpr(ctx);
-        expr_ret_316 = expr_ret_317;
-        n = expr_ret_317;
+        daisho_astnode_t* expr_ret_313 = NULL;
+        expr_ret_313 = daisho_parse_logandexpr(ctx);
+        expr_ret_312 = expr_ret_313;
+        n = expr_ret_313;
       }
 
       // ModExprList 2
-      if (expr_ret_316)
+      if (expr_ret_312)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_316
+        #define ret expr_ret_312
         ret = SUCC;
 
         rule=srepr(node(LOGOR,  rule, n), "||");
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_316) rew(mod_316);
-      expr_ret_315 = expr_ret_316 ? SUCC : NULL;
+      if (!expr_ret_312) rew(mod_312);
+      expr_ret_311 = expr_ret_312 ? SUCC : NULL;
     }
 
-    expr_ret_315 = SUCC;
-    expr_ret_313 = expr_ret_315;
+    expr_ret_311 = SUCC;
+    expr_ret_309 = expr_ret_311;
   }
 
   // ModExprList end
-  if (!expr_ret_313) rew(mod_313);
-  expr_ret_312 = expr_ret_313 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_312;
-  if (!expr_ret_312) rule = NULL;
+  if (!expr_ret_309) rew(mod_309);
+  expr_ret_308 = expr_ret_309 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_308;
+  if (!expr_ret_308) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "logorexpr");
-  else if (rule) dbg_accept(ctx, "logorexpr");
-  else dbg_reject(ctx, "logorexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_logandexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_318
+  #define rule expr_ret_314
 
-  daisho_astnode_t* expr_ret_319 = NULL;
-  daisho_astnode_t* expr_ret_318 = NULL;
-  dbg_enter(ctx, "logandexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_320 = NULL;
-  rec(mod_320);
+  daisho_astnode_t* expr_ret_315 = NULL;
+  daisho_astnode_t* expr_ret_314 = NULL;
+  daisho_astnode_t* expr_ret_316 = NULL;
+  rec(mod_316);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_321 = NULL;
-    expr_ret_321 = daisho_parse_binorexpr(ctx);
-    expr_ret_320 = expr_ret_321;
-    n = expr_ret_321;
+    daisho_astnode_t* expr_ret_317 = NULL;
+    expr_ret_317 = daisho_parse_binorexpr(ctx);
+    expr_ret_316 = expr_ret_317;
+    n = expr_ret_317;
   }
 
   // ModExprList 1
-  if (expr_ret_320)
+  if (expr_ret_316)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_320
+    #define ret expr_ret_316
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_320)
+  if (expr_ret_316)
   {
-    daisho_astnode_t* expr_ret_322 = NULL;
-    expr_ret_322 = SUCC;
-    while (expr_ret_322)
+    daisho_astnode_t* expr_ret_318 = NULL;
+    expr_ret_318 = SUCC;
+    while (expr_ret_318)
     {
-      daisho_astnode_t* expr_ret_323 = NULL;
-      rec(mod_323);
+      daisho_astnode_t* expr_ret_319 = NULL;
+      rec(mod_319);
       // ModExprList 0
       {
-        dbg_enter(ctx, "LOGAND", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LOGAND) {
           // Not capturing LOGAND.
-          expr_ret_323 = SUCC;
+          expr_ret_319 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_323 = NULL;
+          expr_ret_319 = NULL;
         }
 
-        if (expr_ret_323) dbg_accept(ctx, "LOGAND"); else dbg_reject(ctx, "LOGAND");
       }
 
       // ModExprList 1
-      if (expr_ret_323)
+      if (expr_ret_319)
       {
-        daisho_astnode_t* expr_ret_324 = NULL;
-        expr_ret_324 = daisho_parse_binorexpr(ctx);
-        expr_ret_323 = expr_ret_324;
-        n = expr_ret_324;
+        daisho_astnode_t* expr_ret_320 = NULL;
+        expr_ret_320 = daisho_parse_binorexpr(ctx);
+        expr_ret_319 = expr_ret_320;
+        n = expr_ret_320;
       }
 
       // ModExprList 2
-      if (expr_ret_323)
+      if (expr_ret_319)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_323
+        #define ret expr_ret_319
         ret = SUCC;
 
         rule=srepr(node(LOGAND, rule, n), "&&");
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_323) rew(mod_323);
-      expr_ret_322 = expr_ret_323 ? SUCC : NULL;
+      if (!expr_ret_319) rew(mod_319);
+      expr_ret_318 = expr_ret_319 ? SUCC : NULL;
     }
 
-    expr_ret_322 = SUCC;
-    expr_ret_320 = expr_ret_322;
+    expr_ret_318 = SUCC;
+    expr_ret_316 = expr_ret_318;
   }
 
   // ModExprList end
-  if (!expr_ret_320) rew(mod_320);
-  expr_ret_319 = expr_ret_320 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_319;
-  if (!expr_ret_319) rule = NULL;
+  if (!expr_ret_316) rew(mod_316);
+  expr_ret_315 = expr_ret_316 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_315;
+  if (!expr_ret_315) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "logandexpr");
-  else if (rule) dbg_accept(ctx, "logandexpr");
-  else dbg_reject(ctx, "logandexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_binorexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_325
+  #define rule expr_ret_321
 
-  daisho_astnode_t* expr_ret_326 = NULL;
-  daisho_astnode_t* expr_ret_325 = NULL;
-  dbg_enter(ctx, "binorexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_327 = NULL;
-  rec(mod_327);
+  daisho_astnode_t* expr_ret_322 = NULL;
+  daisho_astnode_t* expr_ret_321 = NULL;
+  daisho_astnode_t* expr_ret_323 = NULL;
+  rec(mod_323);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_328 = NULL;
-    expr_ret_328 = daisho_parse_binxorexpr(ctx);
-    expr_ret_327 = expr_ret_328;
-    n = expr_ret_328;
+    daisho_astnode_t* expr_ret_324 = NULL;
+    expr_ret_324 = daisho_parse_binxorexpr(ctx);
+    expr_ret_323 = expr_ret_324;
+    n = expr_ret_324;
   }
 
   // ModExprList 1
-  if (expr_ret_327)
+  if (expr_ret_323)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_327
+    #define ret expr_ret_323
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_327)
+  if (expr_ret_323)
   {
-    daisho_astnode_t* expr_ret_329 = NULL;
-    expr_ret_329 = SUCC;
-    while (expr_ret_329)
+    daisho_astnode_t* expr_ret_325 = NULL;
+    expr_ret_325 = SUCC;
+    while (expr_ret_325)
     {
-      daisho_astnode_t* expr_ret_330 = NULL;
-      rec(mod_330);
+      daisho_astnode_t* expr_ret_326 = NULL;
+      rec(mod_326);
       // ModExprList 0
       {
-        dbg_enter(ctx, "OR", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OR) {
           // Not capturing OR.
-          expr_ret_330 = SUCC;
+          expr_ret_326 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_330 = NULL;
+          expr_ret_326 = NULL;
         }
 
-        if (expr_ret_330) dbg_accept(ctx, "OR"); else dbg_reject(ctx, "OR");
       }
 
       // ModExprList 1
-      if (expr_ret_330)
+      if (expr_ret_326)
       {
-        daisho_astnode_t* expr_ret_331 = NULL;
-        expr_ret_331 = daisho_parse_binxorexpr(ctx);
-        expr_ret_330 = expr_ret_331;
-        n = expr_ret_331;
+        daisho_astnode_t* expr_ret_327 = NULL;
+        expr_ret_327 = daisho_parse_binxorexpr(ctx);
+        expr_ret_326 = expr_ret_327;
+        n = expr_ret_327;
       }
 
       // ModExprList 2
-      if (expr_ret_330)
+      if (expr_ret_326)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_330
+        #define ret expr_ret_326
         ret = SUCC;
 
         rule=srepr(node(OR,     rule, n), "|");
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_330) rew(mod_330);
-      expr_ret_329 = expr_ret_330 ? SUCC : NULL;
+      if (!expr_ret_326) rew(mod_326);
+      expr_ret_325 = expr_ret_326 ? SUCC : NULL;
     }
 
-    expr_ret_329 = SUCC;
-    expr_ret_327 = expr_ret_329;
+    expr_ret_325 = SUCC;
+    expr_ret_323 = expr_ret_325;
   }
 
   // ModExprList end
-  if (!expr_ret_327) rew(mod_327);
-  expr_ret_326 = expr_ret_327 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_326;
-  if (!expr_ret_326) rule = NULL;
+  if (!expr_ret_323) rew(mod_323);
+  expr_ret_322 = expr_ret_323 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_322;
+  if (!expr_ret_322) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "binorexpr");
-  else if (rule) dbg_accept(ctx, "binorexpr");
-  else dbg_reject(ctx, "binorexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_binxorexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_332
+  #define rule expr_ret_328
 
-  daisho_astnode_t* expr_ret_333 = NULL;
-  daisho_astnode_t* expr_ret_332 = NULL;
-  dbg_enter(ctx, "binxorexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_334 = NULL;
-  rec(mod_334);
+  daisho_astnode_t* expr_ret_329 = NULL;
+  daisho_astnode_t* expr_ret_328 = NULL;
+  daisho_astnode_t* expr_ret_330 = NULL;
+  rec(mod_330);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_335 = NULL;
-    expr_ret_335 = daisho_parse_binandexpr(ctx);
-    expr_ret_334 = expr_ret_335;
-    n = expr_ret_335;
+    daisho_astnode_t* expr_ret_331 = NULL;
+    expr_ret_331 = daisho_parse_binandexpr(ctx);
+    expr_ret_330 = expr_ret_331;
+    n = expr_ret_331;
   }
 
   // ModExprList 1
-  if (expr_ret_334)
+  if (expr_ret_330)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_334
+    #define ret expr_ret_330
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_334)
+  if (expr_ret_330)
   {
-    daisho_astnode_t* expr_ret_336 = NULL;
-    expr_ret_336 = SUCC;
-    while (expr_ret_336)
+    daisho_astnode_t* expr_ret_332 = NULL;
+    expr_ret_332 = SUCC;
+    while (expr_ret_332)
     {
-      daisho_astnode_t* expr_ret_337 = NULL;
-      rec(mod_337);
+      daisho_astnode_t* expr_ret_333 = NULL;
+      rec(mod_333);
       // ModExprList 0
       {
-        dbg_enter(ctx, "XOR", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_XOR) {
           // Not capturing XOR.
-          expr_ret_337 = SUCC;
+          expr_ret_333 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_337 = NULL;
+          expr_ret_333 = NULL;
         }
 
-        if (expr_ret_337) dbg_accept(ctx, "XOR"); else dbg_reject(ctx, "XOR");
       }
 
       // ModExprList 1
-      if (expr_ret_337)
+      if (expr_ret_333)
       {
-        daisho_astnode_t* expr_ret_338 = NULL;
-        expr_ret_338 = daisho_parse_binandexpr(ctx);
-        expr_ret_337 = expr_ret_338;
-        n = expr_ret_338;
+        daisho_astnode_t* expr_ret_334 = NULL;
+        expr_ret_334 = daisho_parse_binandexpr(ctx);
+        expr_ret_333 = expr_ret_334;
+        n = expr_ret_334;
       }
 
       // ModExprList 2
-      if (expr_ret_337)
+      if (expr_ret_333)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_337
+        #define ret expr_ret_333
         ret = SUCC;
 
         rule=srepr(node(XOR,    rule, n), "^");
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_337) rew(mod_337);
-      expr_ret_336 = expr_ret_337 ? SUCC : NULL;
+      if (!expr_ret_333) rew(mod_333);
+      expr_ret_332 = expr_ret_333 ? SUCC : NULL;
     }
 
-    expr_ret_336 = SUCC;
-    expr_ret_334 = expr_ret_336;
+    expr_ret_332 = SUCC;
+    expr_ret_330 = expr_ret_332;
   }
 
   // ModExprList end
-  if (!expr_ret_334) rew(mod_334);
-  expr_ret_333 = expr_ret_334 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_333;
-  if (!expr_ret_333) rule = NULL;
+  if (!expr_ret_330) rew(mod_330);
+  expr_ret_329 = expr_ret_330 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_329;
+  if (!expr_ret_329) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "binxorexpr");
-  else if (rule) dbg_accept(ctx, "binxorexpr");
-  else dbg_reject(ctx, "binxorexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_binandexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_339
+  #define rule expr_ret_335
 
-  daisho_astnode_t* expr_ret_340 = NULL;
-  daisho_astnode_t* expr_ret_339 = NULL;
-  dbg_enter(ctx, "binandexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_341 = NULL;
-  rec(mod_341);
+  daisho_astnode_t* expr_ret_336 = NULL;
+  daisho_astnode_t* expr_ret_335 = NULL;
+  daisho_astnode_t* expr_ret_337 = NULL;
+  rec(mod_337);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_342 = NULL;
-    expr_ret_342 = daisho_parse_deneqexpr(ctx);
-    expr_ret_341 = expr_ret_342;
-    n = expr_ret_342;
+    daisho_astnode_t* expr_ret_338 = NULL;
+    expr_ret_338 = daisho_parse_deneqexpr(ctx);
+    expr_ret_337 = expr_ret_338;
+    n = expr_ret_338;
   }
 
   // ModExprList 1
-  if (expr_ret_341)
+  if (expr_ret_337)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_341
+    #define ret expr_ret_337
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_341)
+  if (expr_ret_337)
   {
-    daisho_astnode_t* expr_ret_343 = NULL;
-    expr_ret_343 = SUCC;
-    while (expr_ret_343)
+    daisho_astnode_t* expr_ret_339 = NULL;
+    expr_ret_339 = SUCC;
+    while (expr_ret_339)
     {
-      daisho_astnode_t* expr_ret_344 = NULL;
-      rec(mod_344);
+      daisho_astnode_t* expr_ret_340 = NULL;
+      rec(mod_340);
       // ModExprList 0
       {
-        dbg_enter(ctx, "AND", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_AND) {
           // Not capturing AND.
-          expr_ret_344 = SUCC;
+          expr_ret_340 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_344 = NULL;
+          expr_ret_340 = NULL;
         }
 
-        if (expr_ret_344) dbg_accept(ctx, "AND"); else dbg_reject(ctx, "AND");
       }
 
       // ModExprList 1
-      if (expr_ret_344)
+      if (expr_ret_340)
       {
-        daisho_astnode_t* expr_ret_345 = NULL;
-        expr_ret_345 = daisho_parse_deneqexpr(ctx);
-        expr_ret_344 = expr_ret_345;
-        n = expr_ret_345;
+        daisho_astnode_t* expr_ret_341 = NULL;
+        expr_ret_341 = daisho_parse_deneqexpr(ctx);
+        expr_ret_340 = expr_ret_341;
+        n = expr_ret_341;
       }
 
       // ModExprList 2
-      if (expr_ret_344)
+      if (expr_ret_340)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_344
+        #define ret expr_ret_340
         ret = SUCC;
 
         rule=srepr(node(AND,    rule, n), "&");
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_344) rew(mod_344);
-      expr_ret_343 = expr_ret_344 ? SUCC : NULL;
+      if (!expr_ret_340) rew(mod_340);
+      expr_ret_339 = expr_ret_340 ? SUCC : NULL;
     }
 
-    expr_ret_343 = SUCC;
-    expr_ret_341 = expr_ret_343;
+    expr_ret_339 = SUCC;
+    expr_ret_337 = expr_ret_339;
   }
 
   // ModExprList end
-  if (!expr_ret_341) rew(mod_341);
-  expr_ret_340 = expr_ret_341 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_340;
-  if (!expr_ret_340) rule = NULL;
+  if (!expr_ret_337) rew(mod_337);
+  expr_ret_336 = expr_ret_337 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_336;
+  if (!expr_ret_336) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "binandexpr");
-  else if (rule) dbg_accept(ctx, "binandexpr");
-  else dbg_reject(ctx, "binandexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_deneqexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_346
+  #define rule expr_ret_342
 
-  daisho_astnode_t* expr_ret_347 = NULL;
-  daisho_astnode_t* expr_ret_346 = NULL;
-  dbg_enter(ctx, "deneqexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_348 = NULL;
-  rec(mod_348);
+  daisho_astnode_t* expr_ret_343 = NULL;
+  daisho_astnode_t* expr_ret_342 = NULL;
+  daisho_astnode_t* expr_ret_344 = NULL;
+  rec(mod_344);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_349 = NULL;
-    expr_ret_349 = daisho_parse_cmpexpr(ctx);
-    expr_ret_348 = expr_ret_349;
-    n = expr_ret_349;
+    daisho_astnode_t* expr_ret_345 = NULL;
+    expr_ret_345 = daisho_parse_cmpexpr(ctx);
+    expr_ret_344 = expr_ret_345;
+    n = expr_ret_345;
   }
 
   // ModExprList 1
-  if (expr_ret_348)
+  if (expr_ret_344)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_348
+    #define ret expr_ret_344
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_348)
+  if (expr_ret_344)
   {
-    daisho_astnode_t* expr_ret_350 = NULL;
-    expr_ret_350 = SUCC;
-    while (expr_ret_350)
+    daisho_astnode_t* expr_ret_346 = NULL;
+    expr_ret_346 = SUCC;
+    while (expr_ret_346)
     {
-      daisho_astnode_t* expr_ret_351 = NULL;
+      daisho_astnode_t* expr_ret_347 = NULL;
 
-      rec(slash_351);
+      rec(slash_347);
 
       // SlashExpr 0
-      if (!expr_ret_351)
+      if (!expr_ret_347)
       {
-        daisho_astnode_t* expr_ret_352 = NULL;
-        rec(mod_352);
+        daisho_astnode_t* expr_ret_348 = NULL;
+        rec(mod_348);
         // ModExprList 0
         {
-          dbg_enter(ctx, "DEQ", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_DEQ) {
             // Not capturing DEQ.
-            expr_ret_352 = SUCC;
+            expr_ret_348 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_352 = NULL;
+            expr_ret_348 = NULL;
           }
 
-          if (expr_ret_352) dbg_accept(ctx, "DEQ"); else dbg_reject(ctx, "DEQ");
         }
 
         // ModExprList 1
-        if (expr_ret_352)
+        if (expr_ret_348)
         {
-          daisho_astnode_t* expr_ret_353 = NULL;
-          expr_ret_353 = daisho_parse_cmpexpr(ctx);
-          expr_ret_352 = expr_ret_353;
-          n = expr_ret_353;
+          daisho_astnode_t* expr_ret_349 = NULL;
+          expr_ret_349 = daisho_parse_cmpexpr(ctx);
+          expr_ret_348 = expr_ret_349;
+          n = expr_ret_349;
         }
 
         // ModExprList 2
-        if (expr_ret_352)
+        if (expr_ret_348)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_352
+          #define ret expr_ret_348
           ret = SUCC;
 
           rule=srepr(node(DEQ, rule, n), "==");
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_352) rew(mod_352);
-        expr_ret_351 = expr_ret_352 ? SUCC : NULL;
+        if (!expr_ret_348) rew(mod_348);
+        expr_ret_347 = expr_ret_348 ? SUCC : NULL;
       }
 
       // SlashExpr 1
-      if (!expr_ret_351)
+      if (!expr_ret_347)
       {
-        daisho_astnode_t* expr_ret_354 = NULL;
-        rec(mod_354);
+        daisho_astnode_t* expr_ret_350 = NULL;
+        rec(mod_350);
         // ModExprList 0
         {
-          dbg_enter(ctx, "NEQ", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_NEQ) {
             // Not capturing NEQ.
-            expr_ret_354 = SUCC;
+            expr_ret_350 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_354 = NULL;
+            expr_ret_350 = NULL;
           }
 
-          if (expr_ret_354) dbg_accept(ctx, "NEQ"); else dbg_reject(ctx, "NEQ");
         }
 
         // ModExprList 1
-        if (expr_ret_354)
+        if (expr_ret_350)
         {
-          daisho_astnode_t* expr_ret_355 = NULL;
-          expr_ret_355 = daisho_parse_cmpexpr(ctx);
-          expr_ret_354 = expr_ret_355;
-          n = expr_ret_355;
+          daisho_astnode_t* expr_ret_351 = NULL;
+          expr_ret_351 = daisho_parse_cmpexpr(ctx);
+          expr_ret_350 = expr_ret_351;
+          n = expr_ret_351;
         }
 
         // ModExprList 2
-        if (expr_ret_354)
+        if (expr_ret_350)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_354
+          #define ret expr_ret_350
           ret = SUCC;
 
           rule=srepr(node(NEQ, rule, n), "!=");
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_354) rew(mod_354);
-        expr_ret_351 = expr_ret_354 ? SUCC : NULL;
+        if (!expr_ret_350) rew(mod_350);
+        expr_ret_347 = expr_ret_350 ? SUCC : NULL;
       }
 
       // SlashExpr end
-      if (!expr_ret_351) rew(slash_351);
-      expr_ret_350 = expr_ret_351;
+      if (!expr_ret_347) rew(slash_347);
+      expr_ret_346 = expr_ret_347;
 
     }
 
-    expr_ret_350 = SUCC;
-    expr_ret_348 = expr_ret_350;
+    expr_ret_346 = SUCC;
+    expr_ret_344 = expr_ret_346;
   }
 
   // ModExprList end
-  if (!expr_ret_348) rew(mod_348);
-  expr_ret_347 = expr_ret_348 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_347;
-  if (!expr_ret_347) rule = NULL;
+  if (!expr_ret_344) rew(mod_344);
+  expr_ret_343 = expr_ret_344 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_343;
+  if (!expr_ret_343) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "deneqexpr");
-  else if (rule) dbg_accept(ctx, "deneqexpr");
-  else dbg_reject(ctx, "deneqexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_cmpexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_356
+  #define rule expr_ret_352
 
-  daisho_astnode_t* expr_ret_357 = NULL;
-  daisho_astnode_t* expr_ret_356 = NULL;
-  dbg_enter(ctx, "cmpexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_358 = NULL;
-  rec(mod_358);
+  daisho_astnode_t* expr_ret_353 = NULL;
+  daisho_astnode_t* expr_ret_352 = NULL;
+  daisho_astnode_t* expr_ret_354 = NULL;
+  rec(mod_354);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_359 = NULL;
-    expr_ret_359 = daisho_parse_sumexpr(ctx);
-    expr_ret_358 = expr_ret_359;
-    n = expr_ret_359;
+    daisho_astnode_t* expr_ret_355 = NULL;
+    expr_ret_355 = daisho_parse_sumexpr(ctx);
+    expr_ret_354 = expr_ret_355;
+    n = expr_ret_355;
   }
 
   // ModExprList 1
-  if (expr_ret_358)
+  if (expr_ret_354)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_358
+    #define ret expr_ret_354
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_358)
+  if (expr_ret_354)
   {
-    daisho_astnode_t* expr_ret_360 = NULL;
-    expr_ret_360 = SUCC;
-    while (expr_ret_360)
+    daisho_astnode_t* expr_ret_356 = NULL;
+    expr_ret_356 = SUCC;
+    while (expr_ret_356)
     {
-      daisho_astnode_t* expr_ret_361 = NULL;
+      daisho_astnode_t* expr_ret_357 = NULL;
 
-      rec(slash_361);
+      rec(slash_357);
 
       // SlashExpr 0
-      if (!expr_ret_361)
+      if (!expr_ret_357)
+      {
+        daisho_astnode_t* expr_ret_358 = NULL;
+        rec(mod_358);
+        // ModExprList 0
+        {
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LT) {
+            // Not capturing LT.
+            expr_ret_358 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_358 = NULL;
+          }
+
+        }
+
+        // ModExprList 1
+        if (expr_ret_358)
+        {
+          daisho_astnode_t* expr_ret_359 = NULL;
+          expr_ret_359 = daisho_parse_sumexpr(ctx);
+          expr_ret_358 = expr_ret_359;
+          n = expr_ret_359;
+        }
+
+        // ModExprList 2
+        if (expr_ret_358)
+        {
+          // CodeExpr
+          #define ret expr_ret_358
+          ret = SUCC;
+
+          rule=srepr(node(LT,  rule, n), "<");
+
+          #undef ret
+        }
+
+        // ModExprList end
+        if (!expr_ret_358) rew(mod_358);
+        expr_ret_357 = expr_ret_358 ? SUCC : NULL;
+      }
+
+      // SlashExpr 1
+      if (!expr_ret_357)
+      {
+        daisho_astnode_t* expr_ret_360 = NULL;
+        rec(mod_360);
+        // ModExprList 0
+        {
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GT) {
+            // Not capturing GT.
+            expr_ret_360 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_360 = NULL;
+          }
+
+        }
+
+        // ModExprList 1
+        if (expr_ret_360)
+        {
+          daisho_astnode_t* expr_ret_361 = NULL;
+          expr_ret_361 = daisho_parse_sumexpr(ctx);
+          expr_ret_360 = expr_ret_361;
+          n = expr_ret_361;
+        }
+
+        // ModExprList 2
+        if (expr_ret_360)
+        {
+          // CodeExpr
+          #define ret expr_ret_360
+          ret = SUCC;
+
+          rule=srepr(node(GT,  rule, n), ">");
+
+          #undef ret
+        }
+
+        // ModExprList end
+        if (!expr_ret_360) rew(mod_360);
+        expr_ret_357 = expr_ret_360 ? SUCC : NULL;
+      }
+
+      // SlashExpr 2
+      if (!expr_ret_357)
       {
         daisho_astnode_t* expr_ret_362 = NULL;
         rec(mod_362);
         // ModExprList 0
         {
-          dbg_enter(ctx, "LT", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LT) {
-            // Not capturing LT.
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LEQ) {
+            // Not capturing LEQ.
             expr_ret_362 = SUCC;
             ctx->pos++;
           } else {
             expr_ret_362 = NULL;
           }
 
-          if (expr_ret_362) dbg_accept(ctx, "LT"); else dbg_reject(ctx, "LT");
         }
 
         // ModExprList 1
@@ -8937,38 +8243,34 @@ static inline daisho_astnode_t* daisho_parse_cmpexpr(daisho_parser_ctx* ctx) {
         if (expr_ret_362)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
           #define ret expr_ret_362
           ret = SUCC;
 
-          rule=srepr(node(LT,  rule, n), "<");
+          rule=srepr(node(LEQ, rule, n), "<=");
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
         if (!expr_ret_362) rew(mod_362);
-        expr_ret_361 = expr_ret_362 ? SUCC : NULL;
+        expr_ret_357 = expr_ret_362 ? SUCC : NULL;
       }
 
-      // SlashExpr 1
-      if (!expr_ret_361)
+      // SlashExpr 3
+      if (!expr_ret_357)
       {
         daisho_astnode_t* expr_ret_364 = NULL;
         rec(mod_364);
         // ModExprList 0
         {
-          dbg_enter(ctx, "GT", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GT) {
-            // Not capturing GT.
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GEQ) {
+            // Not capturing GEQ.
             expr_ret_364 = SUCC;
             ctx->pos++;
           } else {
             expr_ret_364 = NULL;
           }
 
-          if (expr_ret_364) dbg_accept(ctx, "GT"); else dbg_reject(ctx, "GT");
         }
 
         // ModExprList 1
@@ -8984,356 +8286,324 @@ static inline daisho_astnode_t* daisho_parse_cmpexpr(daisho_parser_ctx* ctx) {
         if (expr_ret_364)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
           #define ret expr_ret_364
           ret = SUCC;
 
-          rule=srepr(node(GT,  rule, n), ">");
+          rule=srepr(node(GEQ, rule, n), ">=");
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
         if (!expr_ret_364) rew(mod_364);
-        expr_ret_361 = expr_ret_364 ? SUCC : NULL;
-      }
-
-      // SlashExpr 2
-      if (!expr_ret_361)
-      {
-        daisho_astnode_t* expr_ret_366 = NULL;
-        rec(mod_366);
-        // ModExprList 0
-        {
-          dbg_enter(ctx, "LEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LEQ) {
-            // Not capturing LEQ.
-            expr_ret_366 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_366 = NULL;
-          }
-
-          if (expr_ret_366) dbg_accept(ctx, "LEQ"); else dbg_reject(ctx, "LEQ");
-        }
-
-        // ModExprList 1
-        if (expr_ret_366)
-        {
-          daisho_astnode_t* expr_ret_367 = NULL;
-          expr_ret_367 = daisho_parse_sumexpr(ctx);
-          expr_ret_366 = expr_ret_367;
-          n = expr_ret_367;
-        }
-
-        // ModExprList 2
-        if (expr_ret_366)
-        {
-          // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_366
-          ret = SUCC;
-
-          rule=srepr(node(LEQ, rule, n), "<=");
-
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
-          #undef ret
-        }
-
-        // ModExprList end
-        if (!expr_ret_366) rew(mod_366);
-        expr_ret_361 = expr_ret_366 ? SUCC : NULL;
-      }
-
-      // SlashExpr 3
-      if (!expr_ret_361)
-      {
-        daisho_astnode_t* expr_ret_368 = NULL;
-        rec(mod_368);
-        // ModExprList 0
-        {
-          dbg_enter(ctx, "GEQ", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GEQ) {
-            // Not capturing GEQ.
-            expr_ret_368 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_368 = NULL;
-          }
-
-          if (expr_ret_368) dbg_accept(ctx, "GEQ"); else dbg_reject(ctx, "GEQ");
-        }
-
-        // ModExprList 1
-        if (expr_ret_368)
-        {
-          daisho_astnode_t* expr_ret_369 = NULL;
-          expr_ret_369 = daisho_parse_sumexpr(ctx);
-          expr_ret_368 = expr_ret_369;
-          n = expr_ret_369;
-        }
-
-        // ModExprList 2
-        if (expr_ret_368)
-        {
-          // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_368
-          ret = SUCC;
-
-          rule=srepr(node(GEQ, rule, n), ">=");
-
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
-          #undef ret
-        }
-
-        // ModExprList end
-        if (!expr_ret_368) rew(mod_368);
-        expr_ret_361 = expr_ret_368 ? SUCC : NULL;
+        expr_ret_357 = expr_ret_364 ? SUCC : NULL;
       }
 
       // SlashExpr end
-      if (!expr_ret_361) rew(slash_361);
-      expr_ret_360 = expr_ret_361;
+      if (!expr_ret_357) rew(slash_357);
+      expr_ret_356 = expr_ret_357;
 
     }
 
-    expr_ret_360 = SUCC;
-    expr_ret_358 = expr_ret_360;
+    expr_ret_356 = SUCC;
+    expr_ret_354 = expr_ret_356;
   }
 
   // ModExprList end
-  if (!expr_ret_358) rew(mod_358);
-  expr_ret_357 = expr_ret_358 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_357;
-  if (!expr_ret_357) rule = NULL;
+  if (!expr_ret_354) rew(mod_354);
+  expr_ret_353 = expr_ret_354 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_353;
+  if (!expr_ret_353) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "cmpexpr");
-  else if (rule) dbg_accept(ctx, "cmpexpr");
-  else dbg_reject(ctx, "cmpexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_sumexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_370
+  #define rule expr_ret_366
 
-  daisho_astnode_t* expr_ret_371 = NULL;
-  daisho_astnode_t* expr_ret_370 = NULL;
-  dbg_enter(ctx, "sumexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_372 = NULL;
-  rec(mod_372);
+  daisho_astnode_t* expr_ret_367 = NULL;
+  daisho_astnode_t* expr_ret_366 = NULL;
+  daisho_astnode_t* expr_ret_368 = NULL;
+  rec(mod_368);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_373 = NULL;
-    expr_ret_373 = daisho_parse_multexpr(ctx);
-    expr_ret_372 = expr_ret_373;
-    n = expr_ret_373;
+    daisho_astnode_t* expr_ret_369 = NULL;
+    expr_ret_369 = daisho_parse_multexpr(ctx);
+    expr_ret_368 = expr_ret_369;
+    n = expr_ret_369;
   }
 
   // ModExprList 1
-  if (expr_ret_372)
+  if (expr_ret_368)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_372
+    #define ret expr_ret_368
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_372)
+  if (expr_ret_368)
   {
-    daisho_astnode_t* expr_ret_374 = NULL;
-    expr_ret_374 = SUCC;
-    while (expr_ret_374)
+    daisho_astnode_t* expr_ret_370 = NULL;
+    expr_ret_370 = SUCC;
+    while (expr_ret_370)
     {
-      daisho_astnode_t* expr_ret_375 = NULL;
+      daisho_astnode_t* expr_ret_371 = NULL;
 
-      rec(slash_375);
+      rec(slash_371);
 
       // SlashExpr 0
-      if (!expr_ret_375)
+      if (!expr_ret_371)
       {
-        daisho_astnode_t* expr_ret_376 = NULL;
-        rec(mod_376);
+        daisho_astnode_t* expr_ret_372 = NULL;
+        rec(mod_372);
         // ModExprList 0
         {
-          dbg_enter(ctx, "PLUS", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_PLUS) {
             // Not capturing PLUS.
-            expr_ret_376 = SUCC;
+            expr_ret_372 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_376 = NULL;
+            expr_ret_372 = NULL;
           }
 
-          if (expr_ret_376) dbg_accept(ctx, "PLUS"); else dbg_reject(ctx, "PLUS");
         }
 
         // ModExprList 1
-        if (expr_ret_376)
+        if (expr_ret_372)
         {
-          daisho_astnode_t* expr_ret_377 = NULL;
-          expr_ret_377 = daisho_parse_multexpr(ctx);
-          expr_ret_376 = expr_ret_377;
-          n = expr_ret_377;
+          daisho_astnode_t* expr_ret_373 = NULL;
+          expr_ret_373 = daisho_parse_multexpr(ctx);
+          expr_ret_372 = expr_ret_373;
+          n = expr_ret_373;
         }
 
         // ModExprList 2
-        if (expr_ret_376)
+        if (expr_ret_372)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_376
+          #define ret expr_ret_372
           ret = SUCC;
 
           rule=srepr(node(PLUS,  rule, n), "+");
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_376) rew(mod_376);
-        expr_ret_375 = expr_ret_376 ? SUCC : NULL;
+        if (!expr_ret_372) rew(mod_372);
+        expr_ret_371 = expr_ret_372 ? SUCC : NULL;
       }
 
       // SlashExpr 1
-      if (!expr_ret_375)
+      if (!expr_ret_371)
       {
-        daisho_astnode_t* expr_ret_378 = NULL;
-        rec(mod_378);
+        daisho_astnode_t* expr_ret_374 = NULL;
+        rec(mod_374);
         // ModExprList 0
         {
-          dbg_enter(ctx, "MINUS", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MINUS) {
             // Not capturing MINUS.
-            expr_ret_378 = SUCC;
+            expr_ret_374 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_378 = NULL;
+            expr_ret_374 = NULL;
           }
 
-          if (expr_ret_378) dbg_accept(ctx, "MINUS"); else dbg_reject(ctx, "MINUS");
         }
 
         // ModExprList 1
-        if (expr_ret_378)
+        if (expr_ret_374)
         {
-          daisho_astnode_t* expr_ret_379 = NULL;
-          expr_ret_379 = daisho_parse_multexpr(ctx);
-          expr_ret_378 = expr_ret_379;
-          n = expr_ret_379;
+          daisho_astnode_t* expr_ret_375 = NULL;
+          expr_ret_375 = daisho_parse_multexpr(ctx);
+          expr_ret_374 = expr_ret_375;
+          n = expr_ret_375;
         }
 
         // ModExprList 2
-        if (expr_ret_378)
+        if (expr_ret_374)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_378
+          #define ret expr_ret_374
           ret = SUCC;
 
           rule=srepr(node(MINUS, rule, n), "-");
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_378) rew(mod_378);
-        expr_ret_375 = expr_ret_378 ? SUCC : NULL;
+        if (!expr_ret_374) rew(mod_374);
+        expr_ret_371 = expr_ret_374 ? SUCC : NULL;
       }
 
       // SlashExpr end
-      if (!expr_ret_375) rew(slash_375);
-      expr_ret_374 = expr_ret_375;
+      if (!expr_ret_371) rew(slash_371);
+      expr_ret_370 = expr_ret_371;
 
     }
 
-    expr_ret_374 = SUCC;
-    expr_ret_372 = expr_ret_374;
+    expr_ret_370 = SUCC;
+    expr_ret_368 = expr_ret_370;
   }
 
   // ModExprList end
-  if (!expr_ret_372) rew(mod_372);
-  expr_ret_371 = expr_ret_372 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_371;
-  if (!expr_ret_371) rule = NULL;
+  if (!expr_ret_368) rew(mod_368);
+  expr_ret_367 = expr_ret_368 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_367;
+  if (!expr_ret_367) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "sumexpr");
-  else if (rule) dbg_accept(ctx, "sumexpr");
-  else dbg_reject(ctx, "sumexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_multexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_380
+  #define rule expr_ret_376
 
-  daisho_astnode_t* expr_ret_381 = NULL;
-  daisho_astnode_t* expr_ret_380 = NULL;
-  dbg_enter(ctx, "multexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_382 = NULL;
-  rec(mod_382);
+  daisho_astnode_t* expr_ret_377 = NULL;
+  daisho_astnode_t* expr_ret_376 = NULL;
+  daisho_astnode_t* expr_ret_378 = NULL;
+  rec(mod_378);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_383 = NULL;
-    expr_ret_383 = daisho_parse_powexpr(ctx);
-    expr_ret_382 = expr_ret_383;
-    n = expr_ret_383;
+    daisho_astnode_t* expr_ret_379 = NULL;
+    expr_ret_379 = daisho_parse_powexpr(ctx);
+    expr_ret_378 = expr_ret_379;
+    n = expr_ret_379;
   }
 
   // ModExprList 1
-  if (expr_ret_382)
+  if (expr_ret_378)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_382
+    #define ret expr_ret_378
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_382)
+  if (expr_ret_378)
   {
-    daisho_astnode_t* expr_ret_384 = NULL;
-    expr_ret_384 = SUCC;
-    while (expr_ret_384)
+    daisho_astnode_t* expr_ret_380 = NULL;
+    expr_ret_380 = SUCC;
+    while (expr_ret_380)
     {
-      daisho_astnode_t* expr_ret_385 = NULL;
+      daisho_astnode_t* expr_ret_381 = NULL;
 
-      rec(slash_385);
+      rec(slash_381);
 
       // SlashExpr 0
-      if (!expr_ret_385)
+      if (!expr_ret_381)
+      {
+        daisho_astnode_t* expr_ret_382 = NULL;
+        rec(mod_382);
+        // ModExprList 0
+        {
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
+            // Not capturing STAR.
+            expr_ret_382 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_382 = NULL;
+          }
+
+        }
+
+        // ModExprList 1
+        if (expr_ret_382)
+        {
+          daisho_astnode_t* expr_ret_383 = NULL;
+          expr_ret_383 = daisho_parse_powexpr(ctx);
+          expr_ret_382 = expr_ret_383;
+          n = expr_ret_383;
+        }
+
+        // ModExprList 2
+        if (expr_ret_382)
+        {
+          // CodeExpr
+          #define ret expr_ret_382
+          ret = SUCC;
+
+          rule=srepr(node(STAR, rule, n), "*");
+
+          #undef ret
+        }
+
+        // ModExprList end
+        if (!expr_ret_382) rew(mod_382);
+        expr_ret_381 = expr_ret_382 ? SUCC : NULL;
+      }
+
+      // SlashExpr 1
+      if (!expr_ret_381)
+      {
+        daisho_astnode_t* expr_ret_384 = NULL;
+        rec(mod_384);
+        // ModExprList 0
+        {
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_DIV) {
+            // Not capturing DIV.
+            expr_ret_384 = SUCC;
+            ctx->pos++;
+          } else {
+            expr_ret_384 = NULL;
+          }
+
+        }
+
+        // ModExprList 1
+        if (expr_ret_384)
+        {
+          daisho_astnode_t* expr_ret_385 = NULL;
+          expr_ret_385 = daisho_parse_powexpr(ctx);
+          expr_ret_384 = expr_ret_385;
+          n = expr_ret_385;
+        }
+
+        // ModExprList 2
+        if (expr_ret_384)
+        {
+          // CodeExpr
+          #define ret expr_ret_384
+          ret = SUCC;
+
+          rule=srepr(node(DIV,  rule, n), "/");
+
+          #undef ret
+        }
+
+        // ModExprList end
+        if (!expr_ret_384) rew(mod_384);
+        expr_ret_381 = expr_ret_384 ? SUCC : NULL;
+      }
+
+      // SlashExpr 2
+      if (!expr_ret_381)
       {
         daisho_astnode_t* expr_ret_386 = NULL;
         rec(mod_386);
         // ModExprList 0
         {
-          dbg_enter(ctx, "STAR", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STAR) {
-            // Not capturing STAR.
+          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MOD) {
+            // Not capturing MOD.
             expr_ret_386 = SUCC;
             ctx->pos++;
           } else {
             expr_ret_386 = NULL;
           }
 
-          if (expr_ret_386) dbg_accept(ctx, "STAR"); else dbg_reject(ctx, "STAR");
         }
 
         // ModExprList 1
@@ -9349,413 +8619,286 @@ static inline daisho_astnode_t* daisho_parse_multexpr(daisho_parser_ctx* ctx) {
         if (expr_ret_386)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
           #define ret expr_ret_386
           ret = SUCC;
 
-          rule=srepr(node(STAR, rule, n), "*");
+          rule=srepr(node(MOD,  rule, n), "%");
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
         if (!expr_ret_386) rew(mod_386);
-        expr_ret_385 = expr_ret_386 ? SUCC : NULL;
-      }
-
-      // SlashExpr 1
-      if (!expr_ret_385)
-      {
-        daisho_astnode_t* expr_ret_388 = NULL;
-        rec(mod_388);
-        // ModExprList 0
-        {
-          dbg_enter(ctx, "DIV", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_DIV) {
-            // Not capturing DIV.
-            expr_ret_388 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_388 = NULL;
-          }
-
-          if (expr_ret_388) dbg_accept(ctx, "DIV"); else dbg_reject(ctx, "DIV");
-        }
-
-        // ModExprList 1
-        if (expr_ret_388)
-        {
-          daisho_astnode_t* expr_ret_389 = NULL;
-          expr_ret_389 = daisho_parse_powexpr(ctx);
-          expr_ret_388 = expr_ret_389;
-          n = expr_ret_389;
-        }
-
-        // ModExprList 2
-        if (expr_ret_388)
-        {
-          // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_388
-          ret = SUCC;
-
-          rule=srepr(node(DIV,  rule, n), "/");
-
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
-          #undef ret
-        }
-
-        // ModExprList end
-        if (!expr_ret_388) rew(mod_388);
-        expr_ret_385 = expr_ret_388 ? SUCC : NULL;
-      }
-
-      // SlashExpr 2
-      if (!expr_ret_385)
-      {
-        daisho_astnode_t* expr_ret_390 = NULL;
-        rec(mod_390);
-        // ModExprList 0
-        {
-          dbg_enter(ctx, "MOD", ctx->pos);
-          if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MOD) {
-            // Not capturing MOD.
-            expr_ret_390 = SUCC;
-            ctx->pos++;
-          } else {
-            expr_ret_390 = NULL;
-          }
-
-          if (expr_ret_390) dbg_accept(ctx, "MOD"); else dbg_reject(ctx, "MOD");
-        }
-
-        // ModExprList 1
-        if (expr_ret_390)
-        {
-          daisho_astnode_t* expr_ret_391 = NULL;
-          expr_ret_391 = daisho_parse_powexpr(ctx);
-          expr_ret_390 = expr_ret_391;
-          n = expr_ret_391;
-        }
-
-        // ModExprList 2
-        if (expr_ret_390)
-        {
-          // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_390
-          ret = SUCC;
-
-          rule=srepr(node(MOD,  rule, n), "%");
-
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
-          #undef ret
-        }
-
-        // ModExprList end
-        if (!expr_ret_390) rew(mod_390);
-        expr_ret_385 = expr_ret_390 ? SUCC : NULL;
+        expr_ret_381 = expr_ret_386 ? SUCC : NULL;
       }
 
       // SlashExpr end
-      if (!expr_ret_385) rew(slash_385);
-      expr_ret_384 = expr_ret_385;
+      if (!expr_ret_381) rew(slash_381);
+      expr_ret_380 = expr_ret_381;
 
     }
 
-    expr_ret_384 = SUCC;
-    expr_ret_382 = expr_ret_384;
+    expr_ret_380 = SUCC;
+    expr_ret_378 = expr_ret_380;
   }
 
   // ModExprList end
-  if (!expr_ret_382) rew(mod_382);
-  expr_ret_381 = expr_ret_382 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_381;
-  if (!expr_ret_381) rule = NULL;
+  if (!expr_ret_378) rew(mod_378);
+  expr_ret_377 = expr_ret_378 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_377;
+  if (!expr_ret_377) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "multexpr");
-  else if (rule) dbg_accept(ctx, "multexpr");
-  else dbg_reject(ctx, "multexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_powexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_392
+  #define rule expr_ret_388
 
-  daisho_astnode_t* expr_ret_393 = NULL;
-  daisho_astnode_t* expr_ret_392 = NULL;
-  dbg_enter(ctx, "powexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_394 = NULL;
-  rec(mod_394);
+  daisho_astnode_t* expr_ret_389 = NULL;
+  daisho_astnode_t* expr_ret_388 = NULL;
+  daisho_astnode_t* expr_ret_390 = NULL;
+  rec(mod_390);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_395 = NULL;
-    expr_ret_395 = daisho_parse_shfexpr(ctx);
-    expr_ret_394 = expr_ret_395;
-    n = expr_ret_395;
+    daisho_astnode_t* expr_ret_391 = NULL;
+    expr_ret_391 = daisho_parse_shfexpr(ctx);
+    expr_ret_390 = expr_ret_391;
+    n = expr_ret_391;
   }
 
   // ModExprList 1
-  if (expr_ret_394)
+  if (expr_ret_390)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_394
+    #define ret expr_ret_390
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_394)
+  if (expr_ret_390)
   {
-    daisho_astnode_t* expr_ret_396 = NULL;
-    expr_ret_396 = SUCC;
-    while (expr_ret_396)
+    daisho_astnode_t* expr_ret_392 = NULL;
+    expr_ret_392 = SUCC;
+    while (expr_ret_392)
     {
-      daisho_astnode_t* expr_ret_397 = NULL;
-      rec(mod_397);
+      daisho_astnode_t* expr_ret_393 = NULL;
+      rec(mod_393);
       // ModExprList 0
       {
-        dbg_enter(ctx, "POW", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_POW) {
           // Not capturing POW.
-          expr_ret_397 = SUCC;
+          expr_ret_393 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_397 = NULL;
+          expr_ret_393 = NULL;
         }
 
-        if (expr_ret_397) dbg_accept(ctx, "POW"); else dbg_reject(ctx, "POW");
       }
 
       // ModExprList 1
-      if (expr_ret_397)
+      if (expr_ret_393)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_397
+        #define ret expr_ret_393
         ret = SUCC;
 
         rule=srepr(node(POW, rule, n), "**");
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_397) rew(mod_397);
-      expr_ret_396 = expr_ret_397 ? SUCC : NULL;
+      if (!expr_ret_393) rew(mod_393);
+      expr_ret_392 = expr_ret_393 ? SUCC : NULL;
     }
 
-    expr_ret_396 = SUCC;
-    expr_ret_394 = expr_ret_396;
+    expr_ret_392 = SUCC;
+    expr_ret_390 = expr_ret_392;
   }
 
   // ModExprList end
-  if (!expr_ret_394) rew(mod_394);
-  expr_ret_393 = expr_ret_394 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_393;
-  if (!expr_ret_393) rule = NULL;
+  if (!expr_ret_390) rew(mod_390);
+  expr_ret_389 = expr_ret_390 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_389;
+  if (!expr_ret_389) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "powexpr");
-  else if (rule) dbg_accept(ctx, "powexpr");
-  else dbg_reject(ctx, "powexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_shfexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_398
+  #define rule expr_ret_394
 
-  daisho_astnode_t* expr_ret_399 = NULL;
-  daisho_astnode_t* expr_ret_398 = NULL;
-  dbg_enter(ctx, "shfexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_400 = NULL;
-  rec(mod_400);
+  daisho_astnode_t* expr_ret_395 = NULL;
+  daisho_astnode_t* expr_ret_394 = NULL;
+  daisho_astnode_t* expr_ret_396 = NULL;
+  rec(mod_396);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_401 = NULL;
-    expr_ret_401 = daisho_parse_callexpr(ctx);
-    expr_ret_400 = expr_ret_401;
-    n = expr_ret_401;
+    daisho_astnode_t* expr_ret_397 = NULL;
+    expr_ret_397 = daisho_parse_callexpr(ctx);
+    expr_ret_396 = expr_ret_397;
+    n = expr_ret_397;
   }
 
   // ModExprList 1
-  if (expr_ret_400)
+  if (expr_ret_396)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_400
+    #define ret expr_ret_396
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_400)
+  if (expr_ret_396)
   {
-    daisho_astnode_t* expr_ret_402 = NULL;
-    expr_ret_402 = SUCC;
-    while (expr_ret_402)
+    daisho_astnode_t* expr_ret_398 = NULL;
+    expr_ret_398 = SUCC;
+    while (expr_ret_398)
     {
-      daisho_astnode_t* expr_ret_403 = NULL;
+      daisho_astnode_t* expr_ret_399 = NULL;
 
-      rec(slash_403);
+      rec(slash_399);
 
       // SlashExpr 0
-      if (!expr_ret_403)
+      if (!expr_ret_399)
       {
-        daisho_astnode_t* expr_ret_404 = NULL;
-        rec(mod_404);
+        daisho_astnode_t* expr_ret_400 = NULL;
+        rec(mod_400);
         // ModExprList 0
         {
-          dbg_enter(ctx, "LT", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LT) {
             // Not capturing LT.
-            expr_ret_404 = SUCC;
+            expr_ret_400 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_404 = NULL;
+            expr_ret_400 = NULL;
           }
 
-          if (expr_ret_404) dbg_accept(ctx, "LT"); else dbg_reject(ctx, "LT");
         }
 
         // ModExprList 1
-        if (expr_ret_404)
+        if (expr_ret_400)
         {
-          dbg_enter(ctx, "LT", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LT) {
             // Not capturing LT.
-            expr_ret_404 = SUCC;
+            expr_ret_400 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_404 = NULL;
+            expr_ret_400 = NULL;
           }
 
-          if (expr_ret_404) dbg_accept(ctx, "LT"); else dbg_reject(ctx, "LT");
         }
 
         // ModExprList 2
-        if (expr_ret_404)
+        if (expr_ret_400)
         {
-          daisho_astnode_t* expr_ret_405 = NULL;
-          expr_ret_405 = daisho_parse_callexpr(ctx);
-          expr_ret_404 = expr_ret_405;
-          n = expr_ret_405;
+          daisho_astnode_t* expr_ret_401 = NULL;
+          expr_ret_401 = daisho_parse_callexpr(ctx);
+          expr_ret_400 = expr_ret_401;
+          n = expr_ret_401;
         }
 
         // ModExprList 3
-        if (expr_ret_404)
+        if (expr_ret_400)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_404
+          #define ret expr_ret_400
           ret = SUCC;
 
           rule=srepr(node(BSL, rule, n), "<<");
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_404) rew(mod_404);
-        expr_ret_403 = expr_ret_404 ? SUCC : NULL;
+        if (!expr_ret_400) rew(mod_400);
+        expr_ret_399 = expr_ret_400 ? SUCC : NULL;
       }
 
       // SlashExpr 1
-      if (!expr_ret_403)
+      if (!expr_ret_399)
       {
-        daisho_astnode_t* expr_ret_406 = NULL;
-        rec(mod_406);
+        daisho_astnode_t* expr_ret_402 = NULL;
+        rec(mod_402);
         // ModExprList 0
         {
-          dbg_enter(ctx, "GT", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GT) {
             // Not capturing GT.
-            expr_ret_406 = SUCC;
+            expr_ret_402 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_406 = NULL;
+            expr_ret_402 = NULL;
           }
 
-          if (expr_ret_406) dbg_accept(ctx, "GT"); else dbg_reject(ctx, "GT");
         }
 
         // ModExprList 1
-        if (expr_ret_406)
+        if (expr_ret_402)
         {
-          dbg_enter(ctx, "GT", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GT) {
             // Not capturing GT.
-            expr_ret_406 = SUCC;
+            expr_ret_402 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_406 = NULL;
+            expr_ret_402 = NULL;
           }
 
-          if (expr_ret_406) dbg_accept(ctx, "GT"); else dbg_reject(ctx, "GT");
         }
 
         // ModExprList 2
-        if (expr_ret_406)
+        if (expr_ret_402)
         {
-          daisho_astnode_t* expr_ret_407 = NULL;
-          expr_ret_407 = daisho_parse_callexpr(ctx);
-          expr_ret_406 = expr_ret_407;
-          n = expr_ret_407;
+          daisho_astnode_t* expr_ret_403 = NULL;
+          expr_ret_403 = daisho_parse_callexpr(ctx);
+          expr_ret_402 = expr_ret_403;
+          n = expr_ret_403;
         }
 
         // ModExprList 3
-        if (expr_ret_406)
+        if (expr_ret_402)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_406
+          #define ret expr_ret_402
           ret = SUCC;
 
           rule=srepr(node(BSR, rule, n), ">>");
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_406) rew(mod_406);
-        expr_ret_403 = expr_ret_406 ? SUCC : NULL;
+        if (!expr_ret_402) rew(mod_402);
+        expr_ret_399 = expr_ret_402 ? SUCC : NULL;
       }
 
       // SlashExpr end
-      if (!expr_ret_403) rew(slash_403);
-      expr_ret_402 = expr_ret_403;
+      if (!expr_ret_399) rew(slash_399);
+      expr_ret_398 = expr_ret_399;
 
     }
 
-    expr_ret_402 = SUCC;
-    expr_ret_400 = expr_ret_402;
+    expr_ret_398 = SUCC;
+    expr_ret_396 = expr_ret_398;
   }
 
   // ModExprList end
-  if (!expr_ret_400) rew(mod_400);
-  expr_ret_399 = expr_ret_400 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_399;
-  if (!expr_ret_399) rule = NULL;
+  if (!expr_ret_396) rew(mod_396);
+  expr_ret_395 = expr_ret_396 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_395;
+  if (!expr_ret_395) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "shfexpr");
-  else if (rule) dbg_accept(ctx, "shfexpr");
-  else dbg_reject(ctx, "shfexpr");
   return rule;
   #undef rule
 }
@@ -9765,194 +8908,180 @@ static inline daisho_astnode_t* daisho_parse_callexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* t = NULL;
   daisho_astnode_t* args = NULL;
   daisho_astnode_t* n = NULL;
-  #define rule expr_ret_408
+  #define rule expr_ret_404
 
-  daisho_astnode_t* expr_ret_409 = NULL;
-  daisho_astnode_t* expr_ret_408 = NULL;
-  dbg_enter(ctx, "callexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_410 = NULL;
+  daisho_astnode_t* expr_ret_405 = NULL;
+  daisho_astnode_t* expr_ret_404 = NULL;
+  daisho_astnode_t* expr_ret_406 = NULL;
 
-  rec(slash_410);
+  rec(slash_406);
 
   // SlashExpr 0
-  if (!expr_ret_410)
+  if (!expr_ret_406)
   {
-    daisho_astnode_t* expr_ret_411 = NULL;
-    rec(mod_411);
+    daisho_astnode_t* expr_ret_407 = NULL;
+    rec(mod_407);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_412 = NULL;
-      dbg_enter(ctx, "VARIDENT", ctx->pos);
+      daisho_astnode_t* expr_ret_408 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
         // Capturing VARIDENT.
-        expr_ret_412 = leaf(VARIDENT);
+        expr_ret_408 = leaf(VARIDENT);
         #if DAISHO_SOURCEINFO
-        expr_ret_412->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_412->len_or_toknum = ctx->tokens[ctx->pos].len;
+        expr_ret_408->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_408->len_or_toknum = ctx->tokens[ctx->pos].len;
         #endif
         ctx->pos++;
       } else {
-        expr_ret_412 = NULL;
+        expr_ret_408 = NULL;
       }
 
-      if (expr_ret_412) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-      expr_ret_411 = expr_ret_412;
-      vi = expr_ret_412;
+      expr_ret_407 = expr_ret_408;
+      vi = expr_ret_408;
     }
 
     // ModExprList 1
-    if (expr_ret_411)
+    if (expr_ret_407)
     {
-      daisho_astnode_t* expr_ret_413 = NULL;
-      expr_ret_413 = daisho_parse_tmplexpand(ctx);
+      daisho_astnode_t* expr_ret_409 = NULL;
+      expr_ret_409 = daisho_parse_tmplexpand(ctx);
       // optional
-      if (!expr_ret_413)
-        expr_ret_413 = SUCC;
-      expr_ret_411 = expr_ret_413;
-      t = expr_ret_413;
+      if (!expr_ret_409)
+        expr_ret_409 = SUCC;
+      expr_ret_407 = expr_ret_409;
+      t = expr_ret_409;
     }
 
     // ModExprList 2
-    if (expr_ret_411)
+    if (expr_ret_407)
     {
-      daisho_astnode_t* expr_ret_414 = NULL;
-      expr_ret_414 = SUCC;
-      while (expr_ret_414)
+      daisho_astnode_t* expr_ret_410 = NULL;
+      expr_ret_410 = SUCC;
+      while (expr_ret_410)
       {
-        daisho_astnode_t* expr_ret_415 = NULL;
-        rec(mod_415);
+        daisho_astnode_t* expr_ret_411 = NULL;
+        rec(mod_411);
         // ModExprList 0
         {
-          daisho_astnode_t* expr_ret_416 = NULL;
-          expr_ret_416 = daisho_parse_fncallargs(ctx);
-          expr_ret_415 = expr_ret_416;
-          args = expr_ret_416;
+          daisho_astnode_t* expr_ret_412 = NULL;
+          expr_ret_412 = daisho_parse_fncallargs(ctx);
+          expr_ret_411 = expr_ret_412;
+          args = expr_ret_412;
         }
 
         // ModExprList 1
-        if (expr_ret_415)
+        if (expr_ret_411)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_415
+          #define ret expr_ret_411
           ret = SUCC;
 
           rule=node(CALL, vi, args); if (has(t)) {rule=node(TMPLCALL, rule, t);t=NULL;};
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_415) rew(mod_415);
-        expr_ret_414 = expr_ret_415 ? SUCC : NULL;
+        if (!expr_ret_411) rew(mod_411);
+        expr_ret_410 = expr_ret_411 ? SUCC : NULL;
       }
 
-      expr_ret_414 = SUCC;
-      expr_ret_411 = expr_ret_414;
+      expr_ret_410 = SUCC;
+      expr_ret_407 = expr_ret_410;
     }
 
     // ModExprList 3
-    if (expr_ret_411)
+    if (expr_ret_407)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_411
+      #define ret expr_ret_407
       ret = SUCC;
 
       ret=!has(rule)?NULL:SUCC;
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList end
-    if (!expr_ret_411) rew(mod_411);
-    expr_ret_410 = expr_ret_411 ? SUCC : NULL;
+    if (!expr_ret_407) rew(mod_407);
+    expr_ret_406 = expr_ret_407 ? SUCC : NULL;
   }
 
   // SlashExpr 1
-  if (!expr_ret_410)
+  if (!expr_ret_406)
   {
-    daisho_astnode_t* expr_ret_417 = NULL;
-    rec(mod_417);
+    daisho_astnode_t* expr_ret_413 = NULL;
+    rec(mod_413);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_418 = NULL;
-      expr_ret_418 = daisho_parse_castexpr(ctx);
-      expr_ret_417 = expr_ret_418;
-      n = expr_ret_418;
+      daisho_astnode_t* expr_ret_414 = NULL;
+      expr_ret_414 = daisho_parse_castexpr(ctx);
+      expr_ret_413 = expr_ret_414;
+      n = expr_ret_414;
     }
 
     // ModExprList 1
-    if (expr_ret_417)
+    if (expr_ret_413)
     {
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_417
+      #define ret expr_ret_413
       ret = SUCC;
 
       rule=n;
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
     }
 
     // ModExprList 2
-    if (expr_ret_417)
+    if (expr_ret_413)
     {
-      daisho_astnode_t* expr_ret_419 = NULL;
-      expr_ret_419 = SUCC;
-      while (expr_ret_419)
+      daisho_astnode_t* expr_ret_415 = NULL;
+      expr_ret_415 = SUCC;
+      while (expr_ret_415)
       {
-        daisho_astnode_t* expr_ret_420 = NULL;
-        rec(mod_420);
+        daisho_astnode_t* expr_ret_416 = NULL;
+        rec(mod_416);
         // ModExprList 0
         {
-          daisho_astnode_t* expr_ret_421 = NULL;
-          expr_ret_421 = daisho_parse_fncallargs(ctx);
-          expr_ret_420 = expr_ret_421;
-          args = expr_ret_421;
+          daisho_astnode_t* expr_ret_417 = NULL;
+          expr_ret_417 = daisho_parse_fncallargs(ctx);
+          expr_ret_416 = expr_ret_417;
+          args = expr_ret_417;
         }
 
         // ModExprList 1
-        if (expr_ret_420)
+        if (expr_ret_416)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_420
+          #define ret expr_ret_416
           ret = SUCC;
 
           rule=node(CALL, rule, args);
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_420) rew(mod_420);
-        expr_ret_419 = expr_ret_420 ? SUCC : NULL;
+        if (!expr_ret_416) rew(mod_416);
+        expr_ret_415 = expr_ret_416 ? SUCC : NULL;
       }
 
-      expr_ret_419 = SUCC;
-      expr_ret_417 = expr_ret_419;
+      expr_ret_415 = SUCC;
+      expr_ret_413 = expr_ret_415;
     }
 
     // ModExprList end
-    if (!expr_ret_417) rew(mod_417);
-    expr_ret_410 = expr_ret_417 ? SUCC : NULL;
+    if (!expr_ret_413) rew(mod_413);
+    expr_ret_406 = expr_ret_413 ? SUCC : NULL;
   }
 
   // SlashExpr end
-  if (!expr_ret_410) rew(slash_410);
-  expr_ret_409 = expr_ret_410;
+  if (!expr_ret_406) rew(slash_406);
+  expr_ret_405 = expr_ret_406;
 
-  if (!rule) rule = expr_ret_409;
-  if (!expr_ret_409) rule = NULL;
+  if (!rule) rule = expr_ret_405;
+  if (!expr_ret_405) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "callexpr");
-  else if (rule) dbg_accept(ctx, "callexpr");
-  else dbg_reject(ctx, "callexpr");
   return rule;
   #undef rule
 }
@@ -9960,169 +9089,151 @@ static inline daisho_astnode_t* daisho_parse_callexpr(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_fncallargs(daisho_parser_ctx* ctx) {
   daisho_astnode_t* l = NULL;
   daisho_astnode_t* e = NULL;
-  #define rule expr_ret_422
+  #define rule expr_ret_418
 
-  daisho_astnode_t* expr_ret_423 = NULL;
-  daisho_astnode_t* expr_ret_422 = NULL;
-  dbg_enter(ctx, "fncallargs", ctx->pos);
-  daisho_astnode_t* expr_ret_424 = NULL;
-  rec(mod_424);
+  daisho_astnode_t* expr_ret_419 = NULL;
+  daisho_astnode_t* expr_ret_418 = NULL;
+  daisho_astnode_t* expr_ret_420 = NULL;
+  rec(mod_420);
   // ModExprList 0
   {
-    dbg_enter(ctx, "OPEN", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
       // Not capturing OPEN.
-      expr_ret_424 = SUCC;
+      expr_ret_420 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_424 = NULL;
+      expr_ret_420 = NULL;
     }
 
-    if (expr_ret_424) dbg_accept(ctx, "OPEN"); else dbg_reject(ctx, "OPEN");
   }
 
   // ModExprList 1
-  if (expr_ret_424)
+  if (expr_ret_420)
   {
-    daisho_astnode_t* expr_ret_425 = NULL;
+    daisho_astnode_t* expr_ret_421 = NULL;
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_425
+    #define ret expr_ret_421
     ret = SUCC;
 
     ret=rule=list(FNARGLIST);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
-    expr_ret_424 = expr_ret_425;
-    l = expr_ret_425;
+    expr_ret_420 = expr_ret_421;
+    l = expr_ret_421;
   }
 
   // ModExprList 2
-  if (expr_ret_424)
+  if (expr_ret_420)
   {
-    daisho_astnode_t* expr_ret_426 = NULL;
-    expr_ret_426 = daisho_parse_expr(ctx);
+    daisho_astnode_t* expr_ret_422 = NULL;
+    expr_ret_422 = daisho_parse_expr(ctx);
     // optional
-    if (!expr_ret_426)
-      expr_ret_426 = SUCC;
-    expr_ret_424 = expr_ret_426;
-    e = expr_ret_426;
+    if (!expr_ret_422)
+      expr_ret_422 = SUCC;
+    expr_ret_420 = expr_ret_422;
+    e = expr_ret_422;
   }
 
   // ModExprList 3
-  if (expr_ret_424)
+  if (expr_ret_420)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_424
+    #define ret expr_ret_420
     ret = SUCC;
 
     if (has(e)) add(l, e);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 4
-  if (expr_ret_424)
+  if (expr_ret_420)
   {
-    daisho_astnode_t* expr_ret_427 = NULL;
-    expr_ret_427 = SUCC;
-    while (expr_ret_427)
+    daisho_astnode_t* expr_ret_423 = NULL;
+    expr_ret_423 = SUCC;
+    while (expr_ret_423)
     {
-      daisho_astnode_t* expr_ret_428 = NULL;
-      rec(mod_428);
+      daisho_astnode_t* expr_ret_424 = NULL;
+      rec(mod_424);
       // ModExprList 0
       {
-        dbg_enter(ctx, "COMMA", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
           // Not capturing COMMA.
-          expr_ret_428 = SUCC;
+          expr_ret_424 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_428 = NULL;
+          expr_ret_424 = NULL;
         }
 
-        if (expr_ret_428) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
       }
 
       // ModExprList 1
-      if (expr_ret_428)
+      if (expr_ret_424)
       {
-        daisho_astnode_t* expr_ret_429 = NULL;
-        expr_ret_429 = daisho_parse_expr(ctx);
-        expr_ret_428 = expr_ret_429;
-        e = expr_ret_429;
+        daisho_astnode_t* expr_ret_425 = NULL;
+        expr_ret_425 = daisho_parse_expr(ctx);
+        expr_ret_424 = expr_ret_425;
+        e = expr_ret_425;
       }
 
       // ModExprList 2
-      if (expr_ret_428)
+      if (expr_ret_424)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_428
+        #define ret expr_ret_424
         ret = SUCC;
 
         add(l, e);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_428) rew(mod_428);
-      expr_ret_427 = expr_ret_428 ? SUCC : NULL;
+      if (!expr_ret_424) rew(mod_424);
+      expr_ret_423 = expr_ret_424 ? SUCC : NULL;
     }
 
-    expr_ret_427 = SUCC;
-    expr_ret_424 = expr_ret_427;
+    expr_ret_423 = SUCC;
+    expr_ret_420 = expr_ret_423;
   }
 
   // ModExprList 5
-  if (expr_ret_424)
+  if (expr_ret_420)
   {
-    daisho_astnode_t* expr_ret_430 = NULL;
-    dbg_enter(ctx, "COMMA", ctx->pos);
+    daisho_astnode_t* expr_ret_426 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
       // Not capturing COMMA.
-      expr_ret_430 = SUCC;
+      expr_ret_426 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_430 = NULL;
+      expr_ret_426 = NULL;
     }
 
-    if (expr_ret_430) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
     // optional
-    if (!expr_ret_430)
-      expr_ret_430 = SUCC;
-    expr_ret_424 = expr_ret_430;
+    if (!expr_ret_426)
+      expr_ret_426 = SUCC;
+    expr_ret_420 = expr_ret_426;
   }
 
   // ModExprList 6
-  if (expr_ret_424)
+  if (expr_ret_420)
   {
-    dbg_enter(ctx, "CLOSE", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
       // Not capturing CLOSE.
-      expr_ret_424 = SUCC;
+      expr_ret_420 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_424 = NULL;
+      expr_ret_420 = NULL;
     }
 
-    if (expr_ret_424) dbg_accept(ctx, "CLOSE"); else dbg_reject(ctx, "CLOSE");
   }
 
   // ModExprList end
-  if (!expr_ret_424) rew(mod_424);
-  expr_ret_423 = expr_ret_424 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_423;
-  if (!expr_ret_423) rule = NULL;
+  if (!expr_ret_420) rew(mod_420);
+  expr_ret_419 = expr_ret_420 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_419;
+  if (!expr_ret_419) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "fncallargs");
-  else if (rule) dbg_accept(ctx, "fncallargs");
-  else dbg_reject(ctx, "fncallargs");
   return rule;
   #undef rule
 }
@@ -10130,114 +9241,102 @@ static inline daisho_astnode_t* daisho_parse_fncallargs(daisho_parser_ctx* ctx) 
 static inline daisho_astnode_t* daisho_parse_castexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
   daisho_astnode_t* t = NULL;
-  #define rule expr_ret_431
+  #define rule expr_ret_427
 
-  daisho_astnode_t* expr_ret_432 = NULL;
-  daisho_astnode_t* expr_ret_431 = NULL;
-  dbg_enter(ctx, "castexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_433 = NULL;
-  rec(mod_433);
+  daisho_astnode_t* expr_ret_428 = NULL;
+  daisho_astnode_t* expr_ret_427 = NULL;
+  daisho_astnode_t* expr_ret_429 = NULL;
+  rec(mod_429);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_434 = NULL;
-    expr_ret_434 = daisho_parse_refexpr(ctx);
-    expr_ret_433 = expr_ret_434;
-    n = expr_ret_434;
+    daisho_astnode_t* expr_ret_430 = NULL;
+    expr_ret_430 = daisho_parse_refexpr(ctx);
+    expr_ret_429 = expr_ret_430;
+    n = expr_ret_430;
   }
 
   // ModExprList 1
-  if (expr_ret_433)
+  if (expr_ret_429)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_433
+    #define ret expr_ret_429
     ret = SUCC;
 
     rule=n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_433)
+  if (expr_ret_429)
   {
-    daisho_astnode_t* expr_ret_435 = NULL;
-    expr_ret_435 = SUCC;
-    while (expr_ret_435)
+    daisho_astnode_t* expr_ret_431 = NULL;
+    expr_ret_431 = SUCC;
+    while (expr_ret_431)
     {
-      daisho_astnode_t* expr_ret_436 = NULL;
-      rec(mod_436);
+      daisho_astnode_t* expr_ret_432 = NULL;
+      rec(mod_432);
       // ModExprList 0
       {
-        dbg_enter(ctx, "OPEN", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
           // Not capturing OPEN.
-          expr_ret_436 = SUCC;
+          expr_ret_432 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_436 = NULL;
+          expr_ret_432 = NULL;
         }
 
-        if (expr_ret_436) dbg_accept(ctx, "OPEN"); else dbg_reject(ctx, "OPEN");
       }
 
       // ModExprList 1
-      if (expr_ret_436)
+      if (expr_ret_432)
       {
-        daisho_astnode_t* expr_ret_437 = NULL;
-        expr_ret_437 = daisho_parse_type(ctx);
-        expr_ret_436 = expr_ret_437;
-        t = expr_ret_437;
+        daisho_astnode_t* expr_ret_433 = NULL;
+        expr_ret_433 = daisho_parse_type(ctx);
+        expr_ret_432 = expr_ret_433;
+        t = expr_ret_433;
       }
 
       // ModExprList 2
-      if (expr_ret_436)
+      if (expr_ret_432)
       {
-        dbg_enter(ctx, "CLOSE", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
           // Not capturing CLOSE.
-          expr_ret_436 = SUCC;
+          expr_ret_432 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_436 = NULL;
+          expr_ret_432 = NULL;
         }
 
-        if (expr_ret_436) dbg_accept(ctx, "CLOSE"); else dbg_reject(ctx, "CLOSE");
       }
 
       // ModExprList 3
-      if (expr_ret_436)
+      if (expr_ret_432)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_436
+        #define ret expr_ret_432
         ret = SUCC;
 
         rule = srepr(node(CAST, rule, t), "cast");
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_436) rew(mod_436);
-      expr_ret_435 = expr_ret_436 ? SUCC : NULL;
+      if (!expr_ret_432) rew(mod_432);
+      expr_ret_431 = expr_ret_432 ? SUCC : NULL;
     }
 
-    expr_ret_435 = SUCC;
-    expr_ret_433 = expr_ret_435;
+    expr_ret_431 = SUCC;
+    expr_ret_429 = expr_ret_431;
   }
 
   // ModExprList end
-  if (!expr_ret_433) rew(mod_433);
-  expr_ret_432 = expr_ret_433 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_432;
-  if (!expr_ret_432) rule = NULL;
+  if (!expr_ret_429) rew(mod_429);
+  expr_ret_428 = expr_ret_429 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_428;
+  if (!expr_ret_428) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "castexpr");
-  else if (rule) dbg_accept(ctx, "castexpr");
-  else dbg_reject(ctx, "castexpr");
   return rule;
   #undef rule
 }
@@ -10245,69 +9344,61 @@ static inline daisho_astnode_t* daisho_parse_castexpr(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_refexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
   daisho_astnode_t* r = NULL;
-  #define rule expr_ret_438
+  #define rule expr_ret_434
 
-  daisho_astnode_t* expr_ret_439 = NULL;
-  daisho_astnode_t* expr_ret_438 = NULL;
-  dbg_enter(ctx, "refexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_440 = NULL;
-  rec(mod_440);
+  daisho_astnode_t* expr_ret_435 = NULL;
+  daisho_astnode_t* expr_ret_434 = NULL;
+  daisho_astnode_t* expr_ret_436 = NULL;
+  rec(mod_436);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_441 = NULL;
-    expr_ret_441 = daisho_parse_derefexpr(ctx);
-    expr_ret_440 = expr_ret_441;
-    n = expr_ret_441;
+    daisho_astnode_t* expr_ret_437 = NULL;
+    expr_ret_437 = daisho_parse_derefexpr(ctx);
+    expr_ret_436 = expr_ret_437;
+    n = expr_ret_437;
   }
 
   // ModExprList 1
-  if (expr_ret_440)
+  if (expr_ret_436)
   {
-    daisho_astnode_t* expr_ret_442 = NULL;
-    dbg_enter(ctx, "REF", ctx->pos);
+    daisho_astnode_t* expr_ret_438 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_REF) {
       // Capturing REF.
-      expr_ret_442 = leaf(REF);
+      expr_ret_438 = leaf(REF);
       #if DAISHO_SOURCEINFO
-      expr_ret_442->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_442->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_438->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_438->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_442 = NULL;
+      expr_ret_438 = NULL;
     }
 
-    if (expr_ret_442) dbg_accept(ctx, "REF"); else dbg_reject(ctx, "REF");
     // optional
-    if (!expr_ret_442)
-      expr_ret_442 = SUCC;
-    expr_ret_440 = expr_ret_442;
-    r = expr_ret_442;
+    if (!expr_ret_438)
+      expr_ret_438 = SUCC;
+    expr_ret_436 = expr_ret_438;
+    r = expr_ret_438;
   }
 
   // ModExprList 2
-  if (expr_ret_440)
+  if (expr_ret_436)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_440
+    #define ret expr_ret_436
     ret = SUCC;
 
     rule=has(r) ? srepr(node(REF, n), "@") : n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_440) rew(mod_440);
-  expr_ret_439 = expr_ret_440 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_439;
-  if (!expr_ret_439) rule = NULL;
+  if (!expr_ret_436) rew(mod_436);
+  expr_ret_435 = expr_ret_436 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_435;
+  if (!expr_ret_435) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "refexpr");
-  else if (rule) dbg_accept(ctx, "refexpr");
-  else dbg_reject(ctx, "refexpr");
   return rule;
   #undef rule
 }
@@ -10315,69 +9406,61 @@ static inline daisho_astnode_t* daisho_parse_refexpr(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_derefexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
   daisho_astnode_t* d = NULL;
-  #define rule expr_ret_443
+  #define rule expr_ret_439
 
-  daisho_astnode_t* expr_ret_444 = NULL;
-  daisho_astnode_t* expr_ret_443 = NULL;
-  dbg_enter(ctx, "derefexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_445 = NULL;
-  rec(mod_445);
+  daisho_astnode_t* expr_ret_440 = NULL;
+  daisho_astnode_t* expr_ret_439 = NULL;
+  daisho_astnode_t* expr_ret_441 = NULL;
+  rec(mod_441);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_446 = NULL;
-    expr_ret_446 = daisho_parse_postretexpr(ctx);
-    expr_ret_445 = expr_ret_446;
-    n = expr_ret_446;
+    daisho_astnode_t* expr_ret_442 = NULL;
+    expr_ret_442 = daisho_parse_postretexpr(ctx);
+    expr_ret_441 = expr_ret_442;
+    n = expr_ret_442;
   }
 
   // ModExprList 1
-  if (expr_ret_445)
+  if (expr_ret_441)
   {
-    daisho_astnode_t* expr_ret_447 = NULL;
-    dbg_enter(ctx, "DEREF", ctx->pos);
+    daisho_astnode_t* expr_ret_443 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_DEREF) {
       // Capturing DEREF.
-      expr_ret_447 = leaf(DEREF);
+      expr_ret_443 = leaf(DEREF);
       #if DAISHO_SOURCEINFO
-      expr_ret_447->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_447->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_443->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_443->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_447 = NULL;
+      expr_ret_443 = NULL;
     }
 
-    if (expr_ret_447) dbg_accept(ctx, "DEREF"); else dbg_reject(ctx, "DEREF");
     // optional
-    if (!expr_ret_447)
-      expr_ret_447 = SUCC;
-    expr_ret_445 = expr_ret_447;
-    d = expr_ret_447;
+    if (!expr_ret_443)
+      expr_ret_443 = SUCC;
+    expr_ret_441 = expr_ret_443;
+    d = expr_ret_443;
   }
 
   // ModExprList 2
-  if (expr_ret_445)
+  if (expr_ret_441)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_445
+    #define ret expr_ret_441
     ret = SUCC;
 
-    rule=has(d) ? srepr(node(REF, n), "$") : n;
+    rule=has(d) ? srepr(node(DEREF, n), "$") : n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_445) rew(mod_445);
-  expr_ret_444 = expr_ret_445 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_444;
-  if (!expr_ret_444) rule = NULL;
+  if (!expr_ret_441) rew(mod_441);
+  expr_ret_440 = expr_ret_441 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_440;
+  if (!expr_ret_440) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "derefexpr");
-  else if (rule) dbg_accept(ctx, "derefexpr");
-  else dbg_reject(ctx, "derefexpr");
   return rule;
   #undef rule
 }
@@ -10385,319 +9468,293 @@ static inline daisho_astnode_t* daisho_parse_derefexpr(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_postretexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* n = NULL;
   daisho_astnode_t* g = NULL;
-  #define rule expr_ret_448
+  #define rule expr_ret_444
 
-  daisho_astnode_t* expr_ret_449 = NULL;
-  daisho_astnode_t* expr_ret_448 = NULL;
-  dbg_enter(ctx, "postretexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_450 = NULL;
-  rec(mod_450);
+  daisho_astnode_t* expr_ret_445 = NULL;
+  daisho_astnode_t* expr_ret_444 = NULL;
+  daisho_astnode_t* expr_ret_446 = NULL;
+  rec(mod_446);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_451 = NULL;
-    expr_ret_451 = daisho_parse_atomexpr(ctx);
-    expr_ret_450 = expr_ret_451;
-    n = expr_ret_451;
+    daisho_astnode_t* expr_ret_447 = NULL;
+    expr_ret_447 = daisho_parse_atomexpr(ctx);
+    expr_ret_446 = expr_ret_447;
+    n = expr_ret_447;
   }
 
   // ModExprList 1
-  if (expr_ret_450)
+  if (expr_ret_446)
   {
-    daisho_astnode_t* expr_ret_452 = NULL;
-    dbg_enter(ctx, "GRAVE", ctx->pos);
+    daisho_astnode_t* expr_ret_448 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_GRAVE) {
       // Capturing GRAVE.
-      expr_ret_452 = leaf(GRAVE);
+      expr_ret_448 = leaf(GRAVE);
       #if DAISHO_SOURCEINFO
-      expr_ret_452->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_452->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_448->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_448->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_452 = NULL;
+      expr_ret_448 = NULL;
     }
 
-    if (expr_ret_452) dbg_accept(ctx, "GRAVE"); else dbg_reject(ctx, "GRAVE");
     // optional
-    if (!expr_ret_452)
-      expr_ret_452 = SUCC;
-    expr_ret_450 = expr_ret_452;
-    g = expr_ret_452;
+    if (!expr_ret_448)
+      expr_ret_448 = SUCC;
+    expr_ret_446 = expr_ret_448;
+    g = expr_ret_448;
   }
 
   // ModExprList 2
-  if (expr_ret_450)
+  if (expr_ret_446)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_450
+    #define ret expr_ret_446
     ret = SUCC;
 
     rule=has(g) ? srepr(node(RET, n), "return") : n;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_450) rew(mod_450);
-  expr_ret_449 = expr_ret_450 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_449;
-  if (!expr_ret_449) rule = NULL;
+  if (!expr_ret_446) rew(mod_446);
+  expr_ret_445 = expr_ret_446 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_445;
+  if (!expr_ret_445) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "postretexpr");
-  else if (rule) dbg_accept(ctx, "postretexpr");
-  else dbg_reject(ctx, "postretexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_atomexpr(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_453
+  #define rule expr_ret_449
 
-  daisho_astnode_t* expr_ret_454 = NULL;
-  daisho_astnode_t* expr_ret_453 = NULL;
-  dbg_enter(ctx, "atomexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_455 = NULL;
+  daisho_astnode_t* expr_ret_450 = NULL;
+  daisho_astnode_t* expr_ret_449 = NULL;
+  daisho_astnode_t* expr_ret_451 = NULL;
 
-  rec(slash_455);
+  rec(slash_451);
 
   // SlashExpr 0
-  if (!expr_ret_455)
+  if (!expr_ret_451)
+  {
+    daisho_astnode_t* expr_ret_452 = NULL;
+    rec(mod_452);
+    // ModExprList Forwarding
+    expr_ret_452 = daisho_parse_blockexpr(ctx);
+    // ModExprList end
+    if (!expr_ret_452) rew(mod_452);
+    expr_ret_451 = expr_ret_452;
+  }
+
+  // SlashExpr 1
+  if (!expr_ret_451)
+  {
+    daisho_astnode_t* expr_ret_453 = NULL;
+    rec(mod_453);
+    // ModExprList Forwarding
+    expr_ret_453 = daisho_parse_lambdaexpr(ctx);
+    // ModExprList end
+    if (!expr_ret_453) rew(mod_453);
+    expr_ret_451 = expr_ret_453;
+  }
+
+  // SlashExpr 2
+  if (!expr_ret_451)
+  {
+    daisho_astnode_t* expr_ret_454 = NULL;
+    rec(mod_454);
+    // ModExprList Forwarding
+    expr_ret_454 = daisho_parse_listcomp(ctx);
+    // ModExprList end
+    if (!expr_ret_454) rew(mod_454);
+    expr_ret_451 = expr_ret_454;
+  }
+
+  // SlashExpr 3
+  if (!expr_ret_451)
+  {
+    daisho_astnode_t* expr_ret_455 = NULL;
+    rec(mod_455);
+    // ModExprList Forwarding
+    expr_ret_455 = daisho_parse_listlit(ctx);
+    // ModExprList end
+    if (!expr_ret_455) rew(mod_455);
+    expr_ret_451 = expr_ret_455;
+  }
+
+  // SlashExpr 4
+  if (!expr_ret_451)
   {
     daisho_astnode_t* expr_ret_456 = NULL;
     rec(mod_456);
     // ModExprList Forwarding
-    expr_ret_456 = daisho_parse_blockexpr(ctx);
+    expr_ret_456 = daisho_parse_parenexpr(ctx);
     // ModExprList end
     if (!expr_ret_456) rew(mod_456);
-    expr_ret_455 = expr_ret_456;
+    expr_ret_451 = expr_ret_456;
   }
 
-  // SlashExpr 1
-  if (!expr_ret_455)
+  // SlashExpr 5
+  if (!expr_ret_451)
   {
     daisho_astnode_t* expr_ret_457 = NULL;
     rec(mod_457);
     // ModExprList Forwarding
-    expr_ret_457 = daisho_parse_lambdaexpr(ctx);
+    expr_ret_457 = daisho_parse_preretexpr(ctx);
     // ModExprList end
     if (!expr_ret_457) rew(mod_457);
-    expr_ret_455 = expr_ret_457;
+    expr_ret_451 = expr_ret_457;
   }
 
-  // SlashExpr 2
-  if (!expr_ret_455)
+  // SlashExpr 6
+  if (!expr_ret_451)
   {
     daisho_astnode_t* expr_ret_458 = NULL;
     rec(mod_458);
     // ModExprList Forwarding
-    expr_ret_458 = daisho_parse_listcomp(ctx);
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
+      // Capturing VARIDENT.
+      expr_ret_458 = leaf(VARIDENT);
+      #if DAISHO_SOURCEINFO
+      expr_ret_458->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_458->len_or_toknum = ctx->tokens[ctx->pos].len;
+      #endif
+      ctx->pos++;
+    } else {
+      expr_ret_458 = NULL;
+    }
+
     // ModExprList end
     if (!expr_ret_458) rew(mod_458);
-    expr_ret_455 = expr_ret_458;
+    expr_ret_451 = expr_ret_458;
   }
 
-  // SlashExpr 3
-  if (!expr_ret_455)
+  // SlashExpr 7
+  if (!expr_ret_451)
   {
     daisho_astnode_t* expr_ret_459 = NULL;
     rec(mod_459);
     // ModExprList Forwarding
-    expr_ret_459 = daisho_parse_listlit(ctx);
+    expr_ret_459 = daisho_parse_numlit(ctx);
     // ModExprList end
     if (!expr_ret_459) rew(mod_459);
-    expr_ret_455 = expr_ret_459;
+    expr_ret_451 = expr_ret_459;
   }
 
-  // SlashExpr 4
-  if (!expr_ret_455)
+  // SlashExpr 8
+  if (!expr_ret_451)
   {
     daisho_astnode_t* expr_ret_460 = NULL;
     rec(mod_460);
     // ModExprList Forwarding
-    expr_ret_460 = daisho_parse_parenexpr(ctx);
+    expr_ret_460 = daisho_parse_strlits(ctx);
     // ModExprList end
     if (!expr_ret_460) rew(mod_460);
-    expr_ret_455 = expr_ret_460;
-  }
-
-  // SlashExpr 5
-  if (!expr_ret_455)
-  {
-    daisho_astnode_t* expr_ret_461 = NULL;
-    rec(mod_461);
-    // ModExprList Forwarding
-    expr_ret_461 = daisho_parse_preretexpr(ctx);
-    // ModExprList end
-    if (!expr_ret_461) rew(mod_461);
-    expr_ret_455 = expr_ret_461;
-  }
-
-  // SlashExpr 6
-  if (!expr_ret_455)
-  {
-    daisho_astnode_t* expr_ret_462 = NULL;
-    rec(mod_462);
-    // ModExprList Forwarding
-    dbg_enter(ctx, "VARIDENT", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
-      // Capturing VARIDENT.
-      expr_ret_462 = leaf(VARIDENT);
-      #if DAISHO_SOURCEINFO
-      expr_ret_462->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_462->len_or_toknum = ctx->tokens[ctx->pos].len;
-      #endif
-      ctx->pos++;
-    } else {
-      expr_ret_462 = NULL;
-    }
-
-    if (expr_ret_462) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-    // ModExprList end
-    if (!expr_ret_462) rew(mod_462);
-    expr_ret_455 = expr_ret_462;
-  }
-
-  // SlashExpr 7
-  if (!expr_ret_455)
-  {
-    daisho_astnode_t* expr_ret_463 = NULL;
-    rec(mod_463);
-    // ModExprList Forwarding
-    expr_ret_463 = daisho_parse_numlit(ctx);
-    // ModExprList end
-    if (!expr_ret_463) rew(mod_463);
-    expr_ret_455 = expr_ret_463;
-  }
-
-  // SlashExpr 8
-  if (!expr_ret_455)
-  {
-    daisho_astnode_t* expr_ret_464 = NULL;
-    rec(mod_464);
-    // ModExprList Forwarding
-    expr_ret_464 = daisho_parse_strlit(ctx);
-    // ModExprList end
-    if (!expr_ret_464) rew(mod_464);
-    expr_ret_455 = expr_ret_464;
+    expr_ret_451 = expr_ret_460;
   }
 
   // SlashExpr end
-  if (!expr_ret_455) rew(slash_455);
-  expr_ret_454 = expr_ret_455;
+  if (!expr_ret_451) rew(slash_451);
+  expr_ret_450 = expr_ret_451;
 
-  if (!rule) rule = expr_ret_454;
-  if (!expr_ret_454) rule = NULL;
+  if (!rule) rule = expr_ret_450;
+  if (!expr_ret_450) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "atomexpr");
-  else if (rule) dbg_accept(ctx, "atomexpr");
-  else dbg_reject(ctx, "atomexpr");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_blockexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* e = NULL;
-  #define rule expr_ret_465
+  #define rule expr_ret_461
 
-  daisho_astnode_t* expr_ret_466 = NULL;
-  daisho_astnode_t* expr_ret_465 = NULL;
-  dbg_enter(ctx, "blockexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_467 = NULL;
-  rec(mod_467);
+  daisho_astnode_t* expr_ret_462 = NULL;
+  daisho_astnode_t* expr_ret_461 = NULL;
+  daisho_astnode_t* expr_ret_463 = NULL;
+  rec(mod_463);
   // ModExprList 0
   {
-    dbg_enter(ctx, "LCBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LCBRACK) {
       // Not capturing LCBRACK.
-      expr_ret_467 = SUCC;
+      expr_ret_463 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_467 = NULL;
+      expr_ret_463 = NULL;
     }
 
-    if (expr_ret_467) dbg_accept(ctx, "LCBRACK"); else dbg_reject(ctx, "LCBRACK");
   }
 
   // ModExprList 1
-  if (expr_ret_467)
+  if (expr_ret_463)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_467
+    #define ret expr_ret_463
     ret = SUCC;
 
     rule=list(BLK);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList 2
-  if (expr_ret_467)
+  if (expr_ret_463)
   {
-    daisho_astnode_t* expr_ret_468 = NULL;
-    expr_ret_468 = SUCC;
-    while (expr_ret_468)
+    daisho_astnode_t* expr_ret_464 = NULL;
+    expr_ret_464 = SUCC;
+    while (expr_ret_464)
     {
-      daisho_astnode_t* expr_ret_469 = NULL;
-      rec(mod_469);
+      daisho_astnode_t* expr_ret_465 = NULL;
+      rec(mod_465);
       // ModExprList 0
       {
-        daisho_astnode_t* expr_ret_470 = NULL;
-        expr_ret_470 = daisho_parse_expr(ctx);
-        expr_ret_469 = expr_ret_470;
-        e = expr_ret_470;
+        daisho_astnode_t* expr_ret_466 = NULL;
+        expr_ret_466 = daisho_parse_expr(ctx);
+        expr_ret_465 = expr_ret_466;
+        e = expr_ret_466;
       }
 
       // ModExprList 1
-      if (expr_ret_469)
+      if (expr_ret_465)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_469
+        #define ret expr_ret_465
         ret = SUCC;
 
         add(rule, e);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList end
-      if (!expr_ret_469) rew(mod_469);
-      expr_ret_468 = expr_ret_469 ? SUCC : NULL;
+      if (!expr_ret_465) rew(mod_465);
+      expr_ret_464 = expr_ret_465 ? SUCC : NULL;
     }
 
-    expr_ret_468 = SUCC;
-    expr_ret_467 = expr_ret_468;
+    expr_ret_464 = SUCC;
+    expr_ret_463 = expr_ret_464;
   }
 
   // ModExprList 3
-  if (expr_ret_467)
+  if (expr_ret_463)
   {
-    dbg_enter(ctx, "RCBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_RCBRACK) {
       // Not capturing RCBRACK.
-      expr_ret_467 = SUCC;
+      expr_ret_463 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_467 = NULL;
+      expr_ret_463 = NULL;
     }
 
-    if (expr_ret_467) dbg_accept(ctx, "RCBRACK"); else dbg_reject(ctx, "RCBRACK");
   }
 
   // ModExprList end
-  if (!expr_ret_467) rew(mod_467);
-  expr_ret_466 = expr_ret_467 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_466;
-  if (!expr_ret_466) rule = NULL;
+  if (!expr_ret_463) rew(mod_463);
+  expr_ret_462 = expr_ret_463 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_462;
+  if (!expr_ret_462) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "blockexpr");
-  else if (rule) dbg_accept(ctx, "blockexpr");
-  else dbg_reject(ctx, "blockexpr");
   return rule;
   #undef rule
 }
@@ -10707,448 +9764,386 @@ static inline daisho_astnode_t* daisho_parse_lambdaexpr(daisho_parser_ctx* ctx) 
   daisho_astnode_t* caps = NULL;
   daisho_astnode_t* args = NULL;
   daisho_astnode_t* e = NULL;
-  #define rule expr_ret_471
+  #define rule expr_ret_467
 
-  daisho_astnode_t* expr_ret_472 = NULL;
-  daisho_astnode_t* expr_ret_471 = NULL;
-  dbg_enter(ctx, "lambdaexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_473 = NULL;
-  rec(mod_473);
+  daisho_astnode_t* expr_ret_468 = NULL;
+  daisho_astnode_t* expr_ret_467 = NULL;
+  daisho_astnode_t* expr_ret_469 = NULL;
+  rec(mod_469);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_474 = NULL;
-    daisho_astnode_t* expr_ret_475 = NULL;
-    rec(mod_475);
+    daisho_astnode_t* expr_ret_470 = NULL;
+    daisho_astnode_t* expr_ret_471 = NULL;
+    rec(mod_471);
     // ModExprList 0
     {
-      dbg_enter(ctx, "LSBRACK", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LSBRACK) {
         // Not capturing LSBRACK.
-        expr_ret_475 = SUCC;
+        expr_ret_471 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_475 = NULL;
+        expr_ret_471 = NULL;
       }
 
-      if (expr_ret_475) dbg_accept(ctx, "LSBRACK"); else dbg_reject(ctx, "LSBRACK");
     }
 
     // ModExprList 1
-    if (expr_ret_475)
+    if (expr_ret_471)
     {
-      daisho_astnode_t* expr_ret_476 = NULL;
-      dbg_enter(ctx, "VARIDENT", ctx->pos);
+      daisho_astnode_t* expr_ret_472 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
         // Capturing VARIDENT.
-        expr_ret_476 = leaf(VARIDENT);
+        expr_ret_472 = leaf(VARIDENT);
         #if DAISHO_SOURCEINFO
-        expr_ret_476->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_476->len_or_toknum = ctx->tokens[ctx->pos].len;
+        expr_ret_472->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_472->len_or_toknum = ctx->tokens[ctx->pos].len;
         #endif
         ctx->pos++;
       } else {
-        expr_ret_476 = NULL;
+        expr_ret_472 = NULL;
       }
 
-      if (expr_ret_476) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
       // optional
-      if (!expr_ret_476)
-        expr_ret_476 = SUCC;
-      expr_ret_475 = expr_ret_476;
-      v = expr_ret_476;
+      if (!expr_ret_472)
+        expr_ret_472 = SUCC;
+      expr_ret_471 = expr_ret_472;
+      v = expr_ret_472;
     }
 
     // ModExprList 2
-    if (expr_ret_475)
+    if (expr_ret_471)
     {
-      daisho_astnode_t* expr_ret_477 = NULL;
+      daisho_astnode_t* expr_ret_473 = NULL;
       // CodeExpr
-      dbg_enter(ctx, "CodeExpr", ctx->pos);
-      #define ret expr_ret_477
+      #define ret expr_ret_473
       ret = SUCC;
 
       ret=list(ARGLIST);if (has(v)) add(ret, v);
 
-      if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
       #undef ret
-      expr_ret_475 = expr_ret_477;
-      caps = expr_ret_477;
+      expr_ret_471 = expr_ret_473;
+      caps = expr_ret_473;
     }
 
     // ModExprList 3
-    if (expr_ret_475)
+    if (expr_ret_471)
     {
-      daisho_astnode_t* expr_ret_478 = NULL;
-      expr_ret_478 = SUCC;
-      while (expr_ret_478)
+      daisho_astnode_t* expr_ret_474 = NULL;
+      expr_ret_474 = SUCC;
+      while (expr_ret_474)
       {
-        daisho_astnode_t* expr_ret_479 = NULL;
-        rec(mod_479);
+        daisho_astnode_t* expr_ret_475 = NULL;
+        rec(mod_475);
         // ModExprList 0
         {
-          dbg_enter(ctx, "COMMA", ctx->pos);
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
             // Not capturing COMMA.
-            expr_ret_479 = SUCC;
+            expr_ret_475 = SUCC;
             ctx->pos++;
           } else {
-            expr_ret_479 = NULL;
+            expr_ret_475 = NULL;
           }
 
-          if (expr_ret_479) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
         }
 
         // ModExprList 1
-        if (expr_ret_479)
+        if (expr_ret_475)
         {
-          daisho_astnode_t* expr_ret_480 = NULL;
-          dbg_enter(ctx, "VARIDENT", ctx->pos);
+          daisho_astnode_t* expr_ret_476 = NULL;
           if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
             // Capturing VARIDENT.
-            expr_ret_480 = leaf(VARIDENT);
+            expr_ret_476 = leaf(VARIDENT);
             #if DAISHO_SOURCEINFO
-            expr_ret_480->tok_repr = ctx->tokens[ctx->pos].content;
-            expr_ret_480->len_or_toknum = ctx->tokens[ctx->pos].len;
+            expr_ret_476->tok_repr = ctx->tokens[ctx->pos].content;
+            expr_ret_476->len_or_toknum = ctx->tokens[ctx->pos].len;
             #endif
             ctx->pos++;
           } else {
-            expr_ret_480 = NULL;
+            expr_ret_476 = NULL;
           }
 
-          if (expr_ret_480) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-          expr_ret_479 = expr_ret_480;
-          v = expr_ret_480;
+          expr_ret_475 = expr_ret_476;
+          v = expr_ret_476;
         }
 
         // ModExprList 2
-        if (expr_ret_479)
+        if (expr_ret_475)
         {
           // CodeExpr
-          dbg_enter(ctx, "CodeExpr", ctx->pos);
-          #define ret expr_ret_479
+          #define ret expr_ret_475
           ret = SUCC;
 
           add(caps, v);
 
-          if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
           #undef ret
         }
 
         // ModExprList end
-        if (!expr_ret_479) rew(mod_479);
-        expr_ret_478 = expr_ret_479 ? SUCC : NULL;
+        if (!expr_ret_475) rew(mod_475);
+        expr_ret_474 = expr_ret_475 ? SUCC : NULL;
       }
 
-      expr_ret_478 = SUCC;
-      expr_ret_475 = expr_ret_478;
+      expr_ret_474 = SUCC;
+      expr_ret_471 = expr_ret_474;
     }
 
     // ModExprList 4
-    if (expr_ret_475)
+    if (expr_ret_471)
     {
-      dbg_enter(ctx, "RSBRACK", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_RSBRACK) {
         // Not capturing RSBRACK.
-        expr_ret_475 = SUCC;
+        expr_ret_471 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_475 = NULL;
+        expr_ret_471 = NULL;
       }
 
-      if (expr_ret_475) dbg_accept(ctx, "RSBRACK"); else dbg_reject(ctx, "RSBRACK");
     }
 
     // ModExprList end
-    if (!expr_ret_475) rew(mod_475);
-    expr_ret_474 = expr_ret_475 ? SUCC : NULL;
+    if (!expr_ret_471) rew(mod_471);
+    expr_ret_470 = expr_ret_471 ? SUCC : NULL;
     // optional
-    if (!expr_ret_474)
-      expr_ret_474 = SUCC;
-    expr_ret_473 = expr_ret_474;
+    if (!expr_ret_470)
+      expr_ret_470 = SUCC;
+    expr_ret_469 = expr_ret_470;
   }
 
   // ModExprList 1
-  if (expr_ret_473)
+  if (expr_ret_469)
   {
-    daisho_astnode_t* expr_ret_481 = NULL;
-    // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_481
-    ret = SUCC;
+    daisho_astnode_t* expr_ret_477 = NULL;
 
-    ret=list(ARGLIST);
-
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
-    #undef ret
-    expr_ret_473 = expr_ret_481;
-    args = expr_ret_481;
-  }
-
-  // ModExprList 2
-  if (expr_ret_473)
-  {
-    daisho_astnode_t* expr_ret_482 = NULL;
-
-    rec(slash_482);
+    rec(slash_477);
 
     // SlashExpr 0
-    if (!expr_ret_482)
+    if (!expr_ret_477)
     {
-      daisho_astnode_t* expr_ret_483 = NULL;
-      rec(mod_483);
+      daisho_astnode_t* expr_ret_478 = NULL;
+      rec(mod_478);
       // ModExprList 0
       {
-        // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_483
-        ret = SUCC;
-
-        ret=(!caps || !caps->num_children)?SUCC:NULL;
-
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
-        #undef ret
-      }
-
-      // ModExprList 1
-      if (expr_ret_483)
-      {
-        daisho_astnode_t* expr_ret_484 = NULL;
-        dbg_enter(ctx, "VARIDENT", ctx->pos);
+        daisho_astnode_t* expr_ret_479 = NULL;
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
           // Capturing VARIDENT.
-          expr_ret_484 = leaf(VARIDENT);
+          expr_ret_479 = leaf(VARIDENT);
           #if DAISHO_SOURCEINFO
-          expr_ret_484->tok_repr = ctx->tokens[ctx->pos].content;
-          expr_ret_484->len_or_toknum = ctx->tokens[ctx->pos].len;
+          expr_ret_479->tok_repr = ctx->tokens[ctx->pos].content;
+          expr_ret_479->len_or_toknum = ctx->tokens[ctx->pos].len;
           #endif
           ctx->pos++;
         } else {
-          expr_ret_484 = NULL;
+          expr_ret_479 = NULL;
         }
 
-        if (expr_ret_484) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-        expr_ret_483 = expr_ret_484;
-        v = expr_ret_484;
+        expr_ret_478 = expr_ret_479;
+        v = expr_ret_479;
       }
 
-      // ModExprList 2
-      if (expr_ret_483)
+      // ModExprList 1
+      if (expr_ret_478)
       {
+        daisho_astnode_t* expr_ret_480 = NULL;
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_483
+        #define ret expr_ret_480
         ret = SUCC;
 
-        add(args, v);
+        ret=list(ARGLIST);add(ret, v);
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
+        expr_ret_478 = expr_ret_480;
+        args = expr_ret_480;
       }
 
       // ModExprList end
-      if (!expr_ret_483) rew(mod_483);
-      expr_ret_482 = expr_ret_483 ? SUCC : NULL;
+      if (!expr_ret_478) rew(mod_478);
+      expr_ret_477 = expr_ret_478 ? SUCC : NULL;
     }
 
     // SlashExpr 1
-    if (!expr_ret_482)
+    if (!expr_ret_477)
     {
-      daisho_astnode_t* expr_ret_485 = NULL;
-      rec(mod_485);
+      daisho_astnode_t* expr_ret_481 = NULL;
+      rec(mod_481);
+      // ModExprList Forwarding
+      daisho_astnode_t* expr_ret_482 = NULL;
+      rec(mod_482);
       // ModExprList 0
       {
-        dbg_enter(ctx, "OPEN", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
           // Not capturing OPEN.
-          expr_ret_485 = SUCC;
+          expr_ret_482 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_485 = NULL;
+          expr_ret_482 = NULL;
         }
 
-        if (expr_ret_485) dbg_accept(ctx, "OPEN"); else dbg_reject(ctx, "OPEN");
       }
 
       // ModExprList 1
-      if (expr_ret_485)
+      if (expr_ret_482)
       {
-        daisho_astnode_t* expr_ret_486 = NULL;
-        dbg_enter(ctx, "VARIDENT", ctx->pos);
+        daisho_astnode_t* expr_ret_483 = NULL;
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
           // Capturing VARIDENT.
-          expr_ret_486 = leaf(VARIDENT);
+          expr_ret_483 = leaf(VARIDENT);
           #if DAISHO_SOURCEINFO
-          expr_ret_486->tok_repr = ctx->tokens[ctx->pos].content;
-          expr_ret_486->len_or_toknum = ctx->tokens[ctx->pos].len;
+          expr_ret_483->tok_repr = ctx->tokens[ctx->pos].content;
+          expr_ret_483->len_or_toknum = ctx->tokens[ctx->pos].len;
           #endif
           ctx->pos++;
         } else {
-          expr_ret_486 = NULL;
+          expr_ret_483 = NULL;
         }
 
-        if (expr_ret_486) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
         // optional
-        if (!expr_ret_486)
-          expr_ret_486 = SUCC;
-        expr_ret_485 = expr_ret_486;
-        v = expr_ret_486;
+        if (!expr_ret_483)
+          expr_ret_483 = SUCC;
+        expr_ret_482 = expr_ret_483;
+        v = expr_ret_483;
       }
 
       // ModExprList 2
-      if (expr_ret_485)
+      if (expr_ret_482)
       {
         // CodeExpr
-        dbg_enter(ctx, "CodeExpr", ctx->pos);
-        #define ret expr_ret_485
+        #define ret expr_ret_482
         ret = SUCC;
 
-        add(args, v);
+        if (has(v)) {args=list(ARGLIST); add(args, v);};
 
-        if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
         #undef ret
       }
 
       // ModExprList 3
-      if (expr_ret_485)
+      if (expr_ret_482)
       {
-        daisho_astnode_t* expr_ret_487 = NULL;
-        expr_ret_487 = SUCC;
-        while (expr_ret_487)
+        daisho_astnode_t* expr_ret_484 = NULL;
+        expr_ret_484 = SUCC;
+        while (expr_ret_484)
         {
-          daisho_astnode_t* expr_ret_488 = NULL;
-          rec(mod_488);
+          daisho_astnode_t* expr_ret_485 = NULL;
+          rec(mod_485);
           // ModExprList 0
           {
-            dbg_enter(ctx, "COMMA", ctx->pos);
             if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
               // Not capturing COMMA.
-              expr_ret_488 = SUCC;
+              expr_ret_485 = SUCC;
               ctx->pos++;
             } else {
-              expr_ret_488 = NULL;
+              expr_ret_485 = NULL;
             }
 
-            if (expr_ret_488) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
           }
 
           // ModExprList 1
-          if (expr_ret_488)
+          if (expr_ret_485)
           {
-            daisho_astnode_t* expr_ret_489 = NULL;
-            dbg_enter(ctx, "VARIDENT", ctx->pos);
+            daisho_astnode_t* expr_ret_486 = NULL;
             if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
               // Capturing VARIDENT.
-              expr_ret_489 = leaf(VARIDENT);
+              expr_ret_486 = leaf(VARIDENT);
               #if DAISHO_SOURCEINFO
-              expr_ret_489->tok_repr = ctx->tokens[ctx->pos].content;
-              expr_ret_489->len_or_toknum = ctx->tokens[ctx->pos].len;
+              expr_ret_486->tok_repr = ctx->tokens[ctx->pos].content;
+              expr_ret_486->len_or_toknum = ctx->tokens[ctx->pos].len;
               #endif
               ctx->pos++;
             } else {
-              expr_ret_489 = NULL;
+              expr_ret_486 = NULL;
             }
 
-            if (expr_ret_489) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-            expr_ret_488 = expr_ret_489;
-            v = expr_ret_489;
+            expr_ret_485 = expr_ret_486;
+            v = expr_ret_486;
           }
 
           // ModExprList 2
-          if (expr_ret_488)
+          if (expr_ret_485)
           {
             // CodeExpr
-            dbg_enter(ctx, "CodeExpr", ctx->pos);
-            #define ret expr_ret_488
+            #define ret expr_ret_485
             ret = SUCC;
 
-            add(args, v);
+            if (!args)  {args=list(ARGLIST);}add(args, v) ;
 
-            if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
             #undef ret
           }
 
           // ModExprList end
-          if (!expr_ret_488) rew(mod_488);
-          expr_ret_487 = expr_ret_488 ? SUCC : NULL;
+          if (!expr_ret_485) rew(mod_485);
+          expr_ret_484 = expr_ret_485 ? SUCC : NULL;
         }
 
-        expr_ret_487 = SUCC;
-        expr_ret_485 = expr_ret_487;
+        expr_ret_484 = SUCC;
+        expr_ret_482 = expr_ret_484;
       }
 
       // ModExprList 4
-      if (expr_ret_485)
+      if (expr_ret_482)
       {
-        dbg_enter(ctx, "CLOSE", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
           // Not capturing CLOSE.
-          expr_ret_485 = SUCC;
+          expr_ret_482 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_485 = NULL;
+          expr_ret_482 = NULL;
         }
 
-        if (expr_ret_485) dbg_accept(ctx, "CLOSE"); else dbg_reject(ctx, "CLOSE");
       }
 
       // ModExprList end
-      if (!expr_ret_485) rew(mod_485);
-      expr_ret_482 = expr_ret_485 ? SUCC : NULL;
+      if (!expr_ret_482) rew(mod_482);
+      expr_ret_481 = expr_ret_482 ? SUCC : NULL;
+      // ModExprList end
+      if (!expr_ret_481) rew(mod_481);
+      expr_ret_477 = expr_ret_481;
     }
 
     // SlashExpr end
-    if (!expr_ret_482) rew(slash_482);
-    expr_ret_473 = expr_ret_482;
+    if (!expr_ret_477) rew(slash_477);
+    expr_ret_469 = expr_ret_477;
+
+  }
+
+  // ModExprList 2
+  if (expr_ret_469)
+  {
+    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_ARROW) {
+      // Not capturing ARROW.
+      expr_ret_469 = SUCC;
+      ctx->pos++;
+    } else {
+      expr_ret_469 = NULL;
+    }
 
   }
 
   // ModExprList 3
-  if (expr_ret_473)
+  if (expr_ret_469)
   {
-    dbg_enter(ctx, "ARROW", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_ARROW) {
-      // Not capturing ARROW.
-      expr_ret_473 = SUCC;
-      ctx->pos++;
-    } else {
-      expr_ret_473 = NULL;
-    }
-
-    if (expr_ret_473) dbg_accept(ctx, "ARROW"); else dbg_reject(ctx, "ARROW");
+    daisho_astnode_t* expr_ret_487 = NULL;
+    expr_ret_487 = daisho_parse_expr(ctx);
+    expr_ret_469 = expr_ret_487;
+    e = expr_ret_487;
   }
 
   // ModExprList 4
-  if (expr_ret_473)
-  {
-    daisho_astnode_t* expr_ret_490 = NULL;
-    expr_ret_490 = daisho_parse_expr(ctx);
-    expr_ret_473 = expr_ret_490;
-    e = expr_ret_490;
-  }
-
-  // ModExprList 5
-  if (expr_ret_473)
+  if (expr_ret_469)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_473
+    #define ret expr_ret_469
     ret = SUCC;
 
-    rule=node(LAMBDA, caps, args, e);
+    rule=node(LAMBDA, caps ? caps : leaf(ARGLIST), args ? args : leaf(ARGLIST), e);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_473) rew(mod_473);
-  expr_ret_472 = expr_ret_473 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_472;
-  if (!expr_ret_472) rule = NULL;
+  if (!expr_ret_469) rew(mod_469);
+  expr_ret_468 = expr_ret_469 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_468;
+  if (!expr_ret_468) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "lambdaexpr");
-  else if (rule) dbg_accept(ctx, "lambdaexpr");
-  else dbg_reject(ctx, "lambdaexpr");
   return rule;
   #undef rule
 }
@@ -11156,394 +10151,360 @@ static inline daisho_astnode_t* daisho_parse_lambdaexpr(daisho_parser_ctx* ctx) 
 static inline daisho_astnode_t* daisho_parse_listcomp(daisho_parser_ctx* ctx) {
   daisho_astnode_t* cnt = NULL;
   daisho_astnode_t* item = NULL;
-  #define rule expr_ret_491
+  daisho_astnode_t* in = NULL;
+  daisho_astnode_t* where = NULL;
+  #define rule expr_ret_488
 
-  daisho_astnode_t* expr_ret_492 = NULL;
-  daisho_astnode_t* expr_ret_491 = NULL;
-  dbg_enter(ctx, "listcomp", ctx->pos);
-  daisho_astnode_t* expr_ret_493 = NULL;
-  rec(mod_493);
+  daisho_astnode_t* expr_ret_489 = NULL;
+  daisho_astnode_t* expr_ret_488 = NULL;
+  daisho_astnode_t* expr_ret_490 = NULL;
+  rec(mod_490);
   // ModExprList 0
   {
-    dbg_enter(ctx, "LSBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LSBRACK) {
       // Not capturing LSBRACK.
-      expr_ret_493 = SUCC;
+      expr_ret_490 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_493 = NULL;
+      expr_ret_490 = NULL;
     }
 
-    if (expr_ret_493) dbg_accept(ctx, "LSBRACK"); else dbg_reject(ctx, "LSBRACK");
   }
 
   // ModExprList 1
-  if (expr_ret_493)
+  if (expr_ret_490)
   {
-    daisho_astnode_t* expr_ret_494 = NULL;
-    daisho_astnode_t* expr_ret_495 = NULL;
-    rec(mod_495);
+    daisho_astnode_t* expr_ret_491 = NULL;
+    daisho_astnode_t* expr_ret_492 = NULL;
+    rec(mod_492);
     // ModExprList 0
     {
-      daisho_astnode_t* expr_ret_496 = NULL;
-      dbg_enter(ctx, "VARIDENT", ctx->pos);
+      daisho_astnode_t* expr_ret_493 = NULL;
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
         // Capturing VARIDENT.
-        expr_ret_496 = leaf(VARIDENT);
+        expr_ret_493 = leaf(VARIDENT);
         #if DAISHO_SOURCEINFO
-        expr_ret_496->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_496->len_or_toknum = ctx->tokens[ctx->pos].len;
+        expr_ret_493->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_493->len_or_toknum = ctx->tokens[ctx->pos].len;
         #endif
         ctx->pos++;
       } else {
-        expr_ret_496 = NULL;
+        expr_ret_493 = NULL;
       }
 
-      if (expr_ret_496) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-      expr_ret_495 = expr_ret_496;
-      cnt = expr_ret_496;
+      expr_ret_492 = expr_ret_493;
+      cnt = expr_ret_493;
     }
 
     // ModExprList 1
-    if (expr_ret_495)
+    if (expr_ret_492)
     {
-      dbg_enter(ctx, "COMMA", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
         // Not capturing COMMA.
-        expr_ret_495 = SUCC;
+        expr_ret_492 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_495 = NULL;
+        expr_ret_492 = NULL;
       }
 
-      if (expr_ret_495) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
     }
 
     // ModExprList end
-    if (!expr_ret_495) rew(mod_495);
-    expr_ret_494 = expr_ret_495 ? SUCC : NULL;
+    if (!expr_ret_492) rew(mod_492);
+    expr_ret_491 = expr_ret_492 ? SUCC : NULL;
     // optional
-    if (!expr_ret_494)
-      expr_ret_494 = SUCC;
-    expr_ret_493 = expr_ret_494;
+    if (!expr_ret_491)
+      expr_ret_491 = SUCC;
+    expr_ret_490 = expr_ret_491;
   }
 
   // ModExprList 2
-  if (expr_ret_493)
+  if (expr_ret_490)
   {
-    expr_ret_493 = daisho_parse_expr(ctx);
+    expr_ret_490 = daisho_parse_expr(ctx);
   }
 
   // ModExprList 3
-  if (expr_ret_493)
+  if (expr_ret_490)
   {
-    dbg_enter(ctx, "FOR", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_FOR) {
       // Not capturing FOR.
-      expr_ret_493 = SUCC;
+      expr_ret_490 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_493 = NULL;
+      expr_ret_490 = NULL;
     }
 
-    if (expr_ret_493) dbg_accept(ctx, "FOR"); else dbg_reject(ctx, "FOR");
   }
 
   // ModExprList 4
-  if (expr_ret_493)
+  if (expr_ret_490)
   {
-    daisho_astnode_t* expr_ret_497 = NULL;
-    dbg_enter(ctx, "VARIDENT", ctx->pos);
+    daisho_astnode_t* expr_ret_494 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_VARIDENT) {
       // Capturing VARIDENT.
-      expr_ret_497 = leaf(VARIDENT);
+      expr_ret_494 = leaf(VARIDENT);
       #if DAISHO_SOURCEINFO
-      expr_ret_497->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_497->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_494->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_494->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_497 = NULL;
+      expr_ret_494 = NULL;
     }
 
-    if (expr_ret_497) dbg_accept(ctx, "VARIDENT"); else dbg_reject(ctx, "VARIDENT");
-    expr_ret_493 = expr_ret_497;
-    item = expr_ret_497;
+    expr_ret_490 = expr_ret_494;
+    item = expr_ret_494;
   }
 
   // ModExprList 5
-  if (expr_ret_493)
+  if (expr_ret_490)
   {
-    dbg_enter(ctx, "IN", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_IN) {
       // Not capturing IN.
-      expr_ret_493 = SUCC;
+      expr_ret_490 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_493 = NULL;
+      expr_ret_490 = NULL;
     }
 
-    if (expr_ret_493) dbg_accept(ctx, "IN"); else dbg_reject(ctx, "IN");
   }
 
   // ModExprList 6
-  if (expr_ret_493)
+  if (expr_ret_490)
   {
-    expr_ret_493 = daisho_parse_expr(ctx);
+    daisho_astnode_t* expr_ret_495 = NULL;
+    expr_ret_495 = daisho_parse_expr(ctx);
+    expr_ret_490 = expr_ret_495;
+    in = expr_ret_495;
   }
 
   // ModExprList 7
-  if (expr_ret_493)
+  if (expr_ret_490)
   {
-    daisho_astnode_t* expr_ret_498 = NULL;
-    daisho_astnode_t* expr_ret_499 = NULL;
-    rec(mod_499);
+    daisho_astnode_t* expr_ret_496 = NULL;
+    daisho_astnode_t* expr_ret_497 = NULL;
+    rec(mod_497);
     // ModExprList 0
     {
-      dbg_enter(ctx, "WHERE", ctx->pos);
       if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_WHERE) {
         // Not capturing WHERE.
-        expr_ret_499 = SUCC;
+        expr_ret_497 = SUCC;
         ctx->pos++;
       } else {
-        expr_ret_499 = NULL;
+        expr_ret_497 = NULL;
       }
 
-      if (expr_ret_499) dbg_accept(ctx, "WHERE"); else dbg_reject(ctx, "WHERE");
     }
 
     // ModExprList 1
-    if (expr_ret_499)
+    if (expr_ret_497)
     {
-      expr_ret_499 = daisho_parse_expr(ctx);
+      daisho_astnode_t* expr_ret_498 = NULL;
+      expr_ret_498 = daisho_parse_expr(ctx);
+      expr_ret_497 = expr_ret_498;
+      where = expr_ret_498;
     }
 
     // ModExprList end
-    if (!expr_ret_499) rew(mod_499);
-    expr_ret_498 = expr_ret_499 ? SUCC : NULL;
+    if (!expr_ret_497) rew(mod_497);
+    expr_ret_496 = expr_ret_497 ? SUCC : NULL;
     // optional
-    if (!expr_ret_498)
-      expr_ret_498 = SUCC;
-    expr_ret_493 = expr_ret_498;
+    if (!expr_ret_496)
+      expr_ret_496 = SUCC;
+    expr_ret_490 = expr_ret_496;
   }
 
   // ModExprList 8
-  if (expr_ret_493)
+  if (expr_ret_490)
   {
-    dbg_enter(ctx, "RSBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_RSBRACK) {
       // Not capturing RSBRACK.
-      expr_ret_493 = SUCC;
+      expr_ret_490 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_493 = NULL;
+      expr_ret_490 = NULL;
     }
 
-    if (expr_ret_493) dbg_accept(ctx, "RSBRACK"); else dbg_reject(ctx, "RSBRACK");
   }
 
   // ModExprList end
-  if (!expr_ret_493) rew(mod_493);
-  expr_ret_492 = expr_ret_493 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_492;
-  if (!expr_ret_492) rule = NULL;
+  if (!expr_ret_490) rew(mod_490);
+  expr_ret_489 = expr_ret_490 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_489;
+  if (!expr_ret_489) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "listcomp");
-  else if (rule) dbg_accept(ctx, "listcomp");
-  else dbg_reject(ctx, "listcomp");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_listlit(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_500
+  #define rule expr_ret_499
 
-  daisho_astnode_t* expr_ret_501 = NULL;
   daisho_astnode_t* expr_ret_500 = NULL;
-  dbg_enter(ctx, "listlit", ctx->pos);
-  daisho_astnode_t* expr_ret_502 = NULL;
-  rec(mod_502);
+  daisho_astnode_t* expr_ret_499 = NULL;
+  daisho_astnode_t* expr_ret_501 = NULL;
+  rec(mod_501);
   // ModExprList 0
   {
-    dbg_enter(ctx, "LSBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_LSBRACK) {
       // Not capturing LSBRACK.
-      expr_ret_502 = SUCC;
+      expr_ret_501 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_502 = NULL;
+      expr_ret_501 = NULL;
     }
 
-    if (expr_ret_502) dbg_accept(ctx, "LSBRACK"); else dbg_reject(ctx, "LSBRACK");
   }
 
   // ModExprList 1
-  if (expr_ret_502)
+  if (expr_ret_501)
   {
-    daisho_astnode_t* expr_ret_503 = NULL;
-    expr_ret_503 = daisho_parse_expr(ctx);
+    daisho_astnode_t* expr_ret_502 = NULL;
+    expr_ret_502 = daisho_parse_expr(ctx);
     // optional
-    if (!expr_ret_503)
-      expr_ret_503 = SUCC;
-    expr_ret_502 = expr_ret_503;
+    if (!expr_ret_502)
+      expr_ret_502 = SUCC;
+    expr_ret_501 = expr_ret_502;
   }
 
   // ModExprList 2
-  if (expr_ret_502)
+  if (expr_ret_501)
   {
-    daisho_astnode_t* expr_ret_504 = NULL;
-    expr_ret_504 = SUCC;
-    while (expr_ret_504)
+    daisho_astnode_t* expr_ret_503 = NULL;
+    expr_ret_503 = SUCC;
+    while (expr_ret_503)
     {
-      daisho_astnode_t* expr_ret_505 = NULL;
-      rec(mod_505);
+      daisho_astnode_t* expr_ret_504 = NULL;
+      rec(mod_504);
       // ModExprList 0
       {
-        dbg_enter(ctx, "COMMA", ctx->pos);
         if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
           // Not capturing COMMA.
-          expr_ret_505 = SUCC;
+          expr_ret_504 = SUCC;
           ctx->pos++;
         } else {
-          expr_ret_505 = NULL;
+          expr_ret_504 = NULL;
         }
 
-        if (expr_ret_505) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
       }
 
       // ModExprList 1
-      if (expr_ret_505)
+      if (expr_ret_504)
       {
-        expr_ret_505 = daisho_parse_expr(ctx);
+        expr_ret_504 = daisho_parse_expr(ctx);
       }
 
       // ModExprList end
-      if (!expr_ret_505) rew(mod_505);
-      expr_ret_504 = expr_ret_505 ? SUCC : NULL;
+      if (!expr_ret_504) rew(mod_504);
+      expr_ret_503 = expr_ret_504 ? SUCC : NULL;
     }
 
-    expr_ret_504 = SUCC;
-    expr_ret_502 = expr_ret_504;
+    expr_ret_503 = SUCC;
+    expr_ret_501 = expr_ret_503;
   }
 
   // ModExprList 3
-  if (expr_ret_502)
+  if (expr_ret_501)
   {
-    daisho_astnode_t* expr_ret_506 = NULL;
-    dbg_enter(ctx, "COMMA", ctx->pos);
+    daisho_astnode_t* expr_ret_505 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_COMMA) {
       // Not capturing COMMA.
-      expr_ret_506 = SUCC;
+      expr_ret_505 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_506 = NULL;
+      expr_ret_505 = NULL;
     }
 
-    if (expr_ret_506) dbg_accept(ctx, "COMMA"); else dbg_reject(ctx, "COMMA");
     // optional
-    if (!expr_ret_506)
-      expr_ret_506 = SUCC;
-    expr_ret_502 = expr_ret_506;
+    if (!expr_ret_505)
+      expr_ret_505 = SUCC;
+    expr_ret_501 = expr_ret_505;
   }
 
   // ModExprList 4
-  if (expr_ret_502)
+  if (expr_ret_501)
   {
-    dbg_enter(ctx, "RSBRACK", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_RSBRACK) {
       // Not capturing RSBRACK.
-      expr_ret_502 = SUCC;
+      expr_ret_501 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_502 = NULL;
+      expr_ret_501 = NULL;
     }
 
-    if (expr_ret_502) dbg_accept(ctx, "RSBRACK"); else dbg_reject(ctx, "RSBRACK");
   }
 
   // ModExprList end
-  if (!expr_ret_502) rew(mod_502);
-  expr_ret_501 = expr_ret_502 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_501;
-  if (!expr_ret_501) rule = NULL;
+  if (!expr_ret_501) rew(mod_501);
+  expr_ret_500 = expr_ret_501 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_500;
+  if (!expr_ret_500) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "listlit");
-  else if (rule) dbg_accept(ctx, "listlit");
-  else dbg_reject(ctx, "listlit");
   return rule;
   #undef rule
 }
 
 static inline daisho_astnode_t* daisho_parse_parenexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* e = NULL;
-  #define rule expr_ret_507
+  #define rule expr_ret_506
 
-  daisho_astnode_t* expr_ret_508 = NULL;
   daisho_astnode_t* expr_ret_507 = NULL;
-  dbg_enter(ctx, "parenexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_509 = NULL;
-  rec(mod_509);
+  daisho_astnode_t* expr_ret_506 = NULL;
+  daisho_astnode_t* expr_ret_508 = NULL;
+  rec(mod_508);
   // ModExprList 0
   {
-    dbg_enter(ctx, "OPEN", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_OPEN) {
       // Not capturing OPEN.
-      expr_ret_509 = SUCC;
+      expr_ret_508 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_509 = NULL;
+      expr_ret_508 = NULL;
     }
 
-    if (expr_ret_509) dbg_accept(ctx, "OPEN"); else dbg_reject(ctx, "OPEN");
   }
 
   // ModExprList 1
-  if (expr_ret_509)
+  if (expr_ret_508)
   {
-    daisho_astnode_t* expr_ret_510 = NULL;
-    expr_ret_510 = daisho_parse_expr(ctx);
-    expr_ret_509 = expr_ret_510;
-    e = expr_ret_510;
+    daisho_astnode_t* expr_ret_509 = NULL;
+    expr_ret_509 = daisho_parse_expr(ctx);
+    expr_ret_508 = expr_ret_509;
+    e = expr_ret_509;
   }
 
   // ModExprList 2
-  if (expr_ret_509)
+  if (expr_ret_508)
   {
-    dbg_enter(ctx, "CLOSE", ctx->pos);
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_CLOSE) {
       // Not capturing CLOSE.
-      expr_ret_509 = SUCC;
+      expr_ret_508 = SUCC;
       ctx->pos++;
     } else {
-      expr_ret_509 = NULL;
+      expr_ret_508 = NULL;
     }
 
-    if (expr_ret_509) dbg_accept(ctx, "CLOSE"); else dbg_reject(ctx, "CLOSE");
   }
 
   // ModExprList 3
-  if (expr_ret_509)
+  if (expr_ret_508)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_509
+    #define ret expr_ret_508
     ret = SUCC;
 
     rule=e;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_509) rew(mod_509);
-  expr_ret_508 = expr_ret_509 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_508;
-  if (!expr_ret_508) rule = NULL;
+  if (!expr_ret_508) rew(mod_508);
+  expr_ret_507 = expr_ret_508 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_507;
+  if (!expr_ret_507) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "parenexpr");
-  else if (rule) dbg_accept(ctx, "parenexpr");
-  else dbg_reject(ctx, "parenexpr");
   return rule;
   #undef rule
 }
@@ -11551,66 +10512,58 @@ static inline daisho_astnode_t* daisho_parse_parenexpr(daisho_parser_ctx* ctx) {
 static inline daisho_astnode_t* daisho_parse_preretexpr(daisho_parser_ctx* ctx) {
   daisho_astnode_t* r = NULL;
   daisho_astnode_t* e = NULL;
-  #define rule expr_ret_511
+  #define rule expr_ret_510
 
-  daisho_astnode_t* expr_ret_512 = NULL;
   daisho_astnode_t* expr_ret_511 = NULL;
-  dbg_enter(ctx, "preretexpr", ctx->pos);
-  daisho_astnode_t* expr_ret_513 = NULL;
-  rec(mod_513);
+  daisho_astnode_t* expr_ret_510 = NULL;
+  daisho_astnode_t* expr_ret_512 = NULL;
+  rec(mod_512);
   // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_514 = NULL;
-    dbg_enter(ctx, "RET", ctx->pos);
+    daisho_astnode_t* expr_ret_513 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_RET) {
       // Capturing RET.
-      expr_ret_514 = leaf(RET);
+      expr_ret_513 = leaf(RET);
       #if DAISHO_SOURCEINFO
-      expr_ret_514->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_514->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_513->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_513->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_514 = NULL;
+      expr_ret_513 = NULL;
     }
 
-    if (expr_ret_514) dbg_accept(ctx, "RET"); else dbg_reject(ctx, "RET");
-    expr_ret_513 = expr_ret_514;
-    r = expr_ret_514;
+    expr_ret_512 = expr_ret_513;
+    r = expr_ret_513;
   }
 
   // ModExprList 1
-  if (expr_ret_513)
+  if (expr_ret_512)
   {
-    daisho_astnode_t* expr_ret_515 = NULL;
-    expr_ret_515 = daisho_parse_expr(ctx);
-    expr_ret_513 = expr_ret_515;
-    e = expr_ret_515;
+    daisho_astnode_t* expr_ret_514 = NULL;
+    expr_ret_514 = daisho_parse_expr(ctx);
+    expr_ret_512 = expr_ret_514;
+    e = expr_ret_514;
   }
 
   // ModExprList 2
-  if (expr_ret_513)
+  if (expr_ret_512)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_513
+    #define ret expr_ret_512
     ret = SUCC;
 
     rule=node(RET, r, e);
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_513) rew(mod_513);
-  expr_ret_512 = expr_ret_513 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_512;
-  if (!expr_ret_512) rule = NULL;
+  if (!expr_ret_512) rew(mod_512);
+  expr_ret_511 = expr_ret_512 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_511;
+  if (!expr_ret_511) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "preretexpr");
-  else if (rule) dbg_accept(ctx, "preretexpr");
-  else dbg_reject(ctx, "preretexpr");
   return rule;
   #undef rule
 }
@@ -11618,30 +10571,51 @@ static inline daisho_astnode_t* daisho_parse_preretexpr(daisho_parser_ctx* ctx) 
 static inline daisho_astnode_t* daisho_parse_numlit(daisho_parser_ctx* ctx) {
   daisho_astnode_t* pm = NULL;
   daisho_astnode_t* nl = NULL;
-  #define rule expr_ret_516
+  #define rule expr_ret_515
 
-  daisho_astnode_t* expr_ret_517 = NULL;
   daisho_astnode_t* expr_ret_516 = NULL;
-  dbg_enter(ctx, "numlit", ctx->pos);
-  daisho_astnode_t* expr_ret_518 = NULL;
-  rec(mod_518);
+  daisho_astnode_t* expr_ret_515 = NULL;
+  daisho_astnode_t* expr_ret_517 = NULL;
+  rec(mod_517);
   // ModExprList 0
   {
+    daisho_astnode_t* expr_ret_518 = NULL;
     daisho_astnode_t* expr_ret_519 = NULL;
-    daisho_astnode_t* expr_ret_520 = NULL;
 
-    rec(slash_520);
+    rec(slash_519);
 
     // SlashExpr 0
-    if (!expr_ret_520)
+    if (!expr_ret_519)
+    {
+      daisho_astnode_t* expr_ret_520 = NULL;
+      rec(mod_520);
+      // ModExprList Forwarding
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_PLUS) {
+        // Capturing PLUS.
+        expr_ret_520 = leaf(PLUS);
+        #if DAISHO_SOURCEINFO
+        expr_ret_520->tok_repr = ctx->tokens[ctx->pos].content;
+        expr_ret_520->len_or_toknum = ctx->tokens[ctx->pos].len;
+        #endif
+        ctx->pos++;
+      } else {
+        expr_ret_520 = NULL;
+      }
+
+      // ModExprList end
+      if (!expr_ret_520) rew(mod_520);
+      expr_ret_519 = expr_ret_520;
+    }
+
+    // SlashExpr 1
+    if (!expr_ret_519)
     {
       daisho_astnode_t* expr_ret_521 = NULL;
       rec(mod_521);
       // ModExprList Forwarding
-      dbg_enter(ctx, "PLUS", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_PLUS) {
-        // Capturing PLUS.
-        expr_ret_521 = leaf(PLUS);
+      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MINUS) {
+        // Capturing MINUS.
+        expr_ret_521 = leaf(MINUS);
         #if DAISHO_SOURCEINFO
         expr_ret_521->tok_repr = ctx->tokens[ctx->pos].content;
         expr_ret_521->len_or_toknum = ctx->tokens[ctx->pos].len;
@@ -11651,167 +10625,174 @@ static inline daisho_astnode_t* daisho_parse_numlit(daisho_parser_ctx* ctx) {
         expr_ret_521 = NULL;
       }
 
-      if (expr_ret_521) dbg_accept(ctx, "PLUS"); else dbg_reject(ctx, "PLUS");
       // ModExprList end
       if (!expr_ret_521) rew(mod_521);
-      expr_ret_520 = expr_ret_521;
-    }
-
-    // SlashExpr 1
-    if (!expr_ret_520)
-    {
-      daisho_astnode_t* expr_ret_522 = NULL;
-      rec(mod_522);
-      // ModExprList Forwarding
-      dbg_enter(ctx, "MINUS", ctx->pos);
-      if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_MINUS) {
-        // Capturing MINUS.
-        expr_ret_522 = leaf(MINUS);
-        #if DAISHO_SOURCEINFO
-        expr_ret_522->tok_repr = ctx->tokens[ctx->pos].content;
-        expr_ret_522->len_or_toknum = ctx->tokens[ctx->pos].len;
-        #endif
-        ctx->pos++;
-      } else {
-        expr_ret_522 = NULL;
-      }
-
-      if (expr_ret_522) dbg_accept(ctx, "MINUS"); else dbg_reject(ctx, "MINUS");
-      // ModExprList end
-      if (!expr_ret_522) rew(mod_522);
-      expr_ret_520 = expr_ret_522;
+      expr_ret_519 = expr_ret_521;
     }
 
     // SlashExpr end
-    if (!expr_ret_520) rew(slash_520);
-    expr_ret_519 = expr_ret_520;
+    if (!expr_ret_519) rew(slash_519);
+    expr_ret_518 = expr_ret_519;
 
     // optional
-    if (!expr_ret_519)
-      expr_ret_519 = SUCC;
-    expr_ret_518 = expr_ret_519;
-    pm = expr_ret_519;
+    if (!expr_ret_518)
+      expr_ret_518 = SUCC;
+    expr_ret_517 = expr_ret_518;
+    pm = expr_ret_518;
   }
 
   // ModExprList 1
-  if (expr_ret_518)
+  if (expr_ret_517)
   {
-    daisho_astnode_t* expr_ret_523 = NULL;
-    dbg_enter(ctx, "NUMLIT", ctx->pos);
+    daisho_astnode_t* expr_ret_522 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_NUMLIT) {
       // Capturing NUMLIT.
-      expr_ret_523 = leaf(NUMLIT);
+      expr_ret_522 = leaf(NUMLIT);
       #if DAISHO_SOURCEINFO
-      expr_ret_523->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_523->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_522->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_522->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_523 = NULL;
+      expr_ret_522 = NULL;
     }
 
-    if (expr_ret_523) dbg_accept(ctx, "NUMLIT"); else dbg_reject(ctx, "NUMLIT");
-    expr_ret_518 = expr_ret_523;
-    nl = expr_ret_523;
+    expr_ret_517 = expr_ret_522;
+    nl = expr_ret_522;
   }
 
   // ModExprList 2
-  if (expr_ret_518)
+  if (expr_ret_517)
   {
     // CodeExpr
-    dbg_enter(ctx, "CodeExpr", ctx->pos);
-    #define ret expr_ret_518
+    #define ret expr_ret_517
     ret = SUCC;
 
     rule = nl;
 
-    if (ret) dbg_accept(ctx, "CodeExpr"); else dbg_reject(ctx, "CodeExpr");
     #undef ret
   }
 
   // ModExprList end
-  if (!expr_ret_518) rew(mod_518);
-  expr_ret_517 = expr_ret_518 ? SUCC : NULL;
-  if (!rule) rule = expr_ret_517;
-  if (!expr_ret_517) rule = NULL;
+  if (!expr_ret_517) rew(mod_517);
+  expr_ret_516 = expr_ret_517 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_516;
+  if (!expr_ret_516) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "numlit");
-  else if (rule) dbg_accept(ctx, "numlit");
-  else dbg_reject(ctx, "numlit");
   return rule;
   #undef rule
 }
 
-static inline daisho_astnode_t* daisho_parse_strlit(daisho_parser_ctx* ctx) {
-  #define rule expr_ret_524
+static inline daisho_astnode_t* daisho_parse_strlits(daisho_parser_ctx* ctx) {
+  daisho_astnode_t* s = NULL;
+  daisho_astnode_t* l = NULL;
+  #define rule expr_ret_523
 
-  daisho_astnode_t* expr_ret_525 = NULL;
   daisho_astnode_t* expr_ret_524 = NULL;
-  dbg_enter(ctx, "strlit", ctx->pos);
-  daisho_astnode_t* expr_ret_526 = NULL;
-
-  rec(slash_526);
-
-  // SlashExpr 0
-  if (!expr_ret_526)
+  daisho_astnode_t* expr_ret_523 = NULL;
+  daisho_astnode_t* expr_ret_525 = NULL;
+  rec(mod_525);
+  // ModExprList 0
   {
-    daisho_astnode_t* expr_ret_527 = NULL;
-    rec(mod_527);
-    // ModExprList Forwarding
-    dbg_enter(ctx, "STRLIT", ctx->pos);
+    daisho_astnode_t* expr_ret_526 = NULL;
     if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STRLIT) {
       // Capturing STRLIT.
-      expr_ret_527 = leaf(STRLIT);
+      expr_ret_526 = leaf(STRLIT);
       #if DAISHO_SOURCEINFO
-      expr_ret_527->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_527->len_or_toknum = ctx->tokens[ctx->pos].len;
+      expr_ret_526->tok_repr = ctx->tokens[ctx->pos].content;
+      expr_ret_526->len_or_toknum = ctx->tokens[ctx->pos].len;
       #endif
       ctx->pos++;
     } else {
-      expr_ret_527 = NULL;
+      expr_ret_526 = NULL;
     }
 
-    if (expr_ret_527) dbg_accept(ctx, "STRLIT"); else dbg_reject(ctx, "STRLIT");
-    // ModExprList end
-    if (!expr_ret_527) rew(mod_527);
-    expr_ret_526 = expr_ret_527;
+    expr_ret_525 = expr_ret_526;
+    s = expr_ret_526;
   }
 
-  // SlashExpr 1
-  if (!expr_ret_526)
+  // ModExprList 1
+  if (expr_ret_525)
+  {
+    daisho_astnode_t* expr_ret_527 = NULL;
+    // CodeExpr
+    #define ret expr_ret_527
+    ret = SUCC;
+
+    ret=list(STRLITS);add(ret, s);
+
+    #undef ret
+    expr_ret_525 = expr_ret_527;
+    l = expr_ret_527;
+  }
+
+  // ModExprList 2
+  if (expr_ret_525)
   {
     daisho_astnode_t* expr_ret_528 = NULL;
-    rec(mod_528);
-    // ModExprList Forwarding
-    dbg_enter(ctx, "FSTRLIT", ctx->pos);
-    if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_FSTRLIT) {
-      // Capturing FSTRLIT.
-      expr_ret_528 = leaf(FSTRLIT);
-      #if DAISHO_SOURCEINFO
-      expr_ret_528->tok_repr = ctx->tokens[ctx->pos].content;
-      expr_ret_528->len_or_toknum = ctx->tokens[ctx->pos].len;
-      #endif
-      ctx->pos++;
-    } else {
-      expr_ret_528 = NULL;
+    expr_ret_528 = SUCC;
+    while (expr_ret_528)
+    {
+      daisho_astnode_t* expr_ret_529 = NULL;
+      rec(mod_529);
+      // ModExprList 0
+      {
+        daisho_astnode_t* expr_ret_530 = NULL;
+        if (ctx->tokens[ctx->pos].kind == DAISHO_TOK_STRLIT) {
+          // Capturing STRLIT.
+          expr_ret_530 = leaf(STRLIT);
+          #if DAISHO_SOURCEINFO
+          expr_ret_530->tok_repr = ctx->tokens[ctx->pos].content;
+          expr_ret_530->len_or_toknum = ctx->tokens[ctx->pos].len;
+          #endif
+          ctx->pos++;
+        } else {
+          expr_ret_530 = NULL;
+        }
+
+        expr_ret_529 = expr_ret_530;
+        s = expr_ret_530;
+      }
+
+      // ModExprList 1
+      if (expr_ret_529)
+      {
+        // CodeExpr
+        #define ret expr_ret_529
+        ret = SUCC;
+
+        add(l, s);
+
+        #undef ret
+      }
+
+      // ModExprList end
+      if (!expr_ret_529) rew(mod_529);
+      expr_ret_528 = expr_ret_529 ? SUCC : NULL;
     }
 
-    if (expr_ret_528) dbg_accept(ctx, "FSTRLIT"); else dbg_reject(ctx, "FSTRLIT");
-    // ModExprList end
-    if (!expr_ret_528) rew(mod_528);
-    expr_ret_526 = expr_ret_528;
+    expr_ret_528 = SUCC;
+    expr_ret_525 = expr_ret_528;
   }
 
-  // SlashExpr end
-  if (!expr_ret_526) rew(slash_526);
-  expr_ret_525 = expr_ret_526;
+  // ModExprList 3
+  if (expr_ret_525)
+  {
+    // CodeExpr
+    #define ret expr_ret_525
+    ret = SUCC;
 
-  if (!rule) rule = expr_ret_525;
-  if (!expr_ret_525) rule = NULL;
+    rule=l;
+
+    #undef ret
+  }
+
+  // ModExprList end
+  if (!expr_ret_525) rew(mod_525);
+  expr_ret_524 = expr_ret_525 ? SUCC : NULL;
+  if (!rule) rule = expr_ret_524;
+  if (!expr_ret_524) rule = NULL;
   rule_end:;
-  if (rule==SUCC) dbg_succ(ctx, "strlit");
-  else if (rule) dbg_accept(ctx, "strlit");
-  else dbg_reject(ctx, "strlit");
   return rule;
   #undef rule
 }
