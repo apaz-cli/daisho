@@ -63,19 +63,6 @@ WHERE:  "where";
 // OOP //
 /////////
 
-TEMPLATE: (4, 11) { // tmpl|template
-  (0,  't') -> 1;
-  (1,  'm') -> 2;
-  (2,  'p') -> 3;
-  (3,  'l') -> 4;
-  (1,  'e') -> 5;
-  (5,  'm') -> 6;
-  (6,  'p') -> 7;
-  (7,  'l') -> 8;
-  (8,  'a') -> 9;
-  (9,  't') -> 10;
-  (10, 'e') -> 11;
-};
 STRUCT: (5, 11, 16) { // class|struct|type
   (0, 'c') -> 1;
   (1, 'l') -> 2;
@@ -109,9 +96,7 @@ IMPL:  (4, 10) { // impl([ei]ments)?
   (9, 's') -> 10;
 };
 FN: "fn";
-FNTYPE: "Fn";
-CTYPE: "ctype";
-CFUNC: (4, 5, 6) { // cfn|cfun|cfunc
+CFN: (4, 5, 6) { // cfn|cfun|cfunc
   (0, 'c') -> 1;
   (1, 'f') -> 2;
   (2, 'u') -> 3;
@@ -119,11 +104,14 @@ CFUNC: (4, 5, 6) { // cfn|cfun|cfunc
   (4, 'c') -> 5;
   (2, 'n') -> 6;
 };
+FNTYPE: "Fn";
+CTYPE: "ctype";
 NAMESPACE: "namespace";
 SELFTYPE: "Self";
 SELFVAR: "self";
 VOIDTYPE: "Void";
 VOIDPTR: "VoidPtr";
+ALIAS: "alias";
 
 
 /////////////////
@@ -191,13 +179,13 @@ REDEF: (5, 8) {
 /////////////////////////
 
 // Starts with capital
-STRUCTIDENT: (1, 2) {
+TYPEIDENT: (1, 2) {
   (0, [A-Z]) -> 1;
   ((1, 2), [_a-zA-Zα-ωΑ-Ω0-9]) -> 2;
 };
 
 // Starts with capital, ends with '
-DTRAITIDENT: 3 {
+TRAITIDENT: 3 {
   (0, [A-Z]) -> 1;
   ((1, 2), [_a-zA-Zα-ωΑ-Ω0-9]) -> 2;
   ((1, 2), [']) -> 3;
@@ -212,6 +200,32 @@ VARIDENT: (1, 2) {
 CIDENT: (1, 2) {
   (0, [_a-z]) -> 1;
   ((1, 2), [_a-zA-Z0-9]) -> 2;
+};
+
+//                 *  *  <  <  >  >  []
+FNIDENT: (1, 2, 3, 4, 5, 6, 7, 8, 9, 11) {
+  (0, [_a-zα-ωΑ-Ω]) -> 1;
+  ((1, 2), [_a-zA-Zα-ωΑ-Ω0-9]) -> 2;
+  (0,  '+') -> 3;
+  (0,  '-') -> 3;
+  (0,  '/') -> 3;
+  (0,  '%') -> 3;
+  (0,  '*') -> 4;
+  (4,  '*') -> 5;
+  (0,  '<') -> 6;
+  (6,  '<') -> 7
+  (0,  '>') -> 8;
+  (8,  '>') -> 9;
+  (0,  '[') -> 10;
+  (10, ']') -> 11;
+  (0,  '(') -> 12;
+  (12, ')') -> 13;
+  (0,  '#') -> 14;
+  (0,  '~') -> 15;
+  (0,  '!') -> 16;
+  (0,  '=') -> 17;
+  ((16, 17), '=') -> 18;
+
 };
 
 // [0-9]*(\.[0-9]*)?
@@ -239,6 +253,27 @@ STRLIT: 2 {
   (3, ['])  -> 1; // single quote
   (3, ["])  -> 1; // double quote
 };
+
+// 0 1  2        2 3              4
+// f["]([^"\n\\]|\\[nfbrte\\'"])*["]
+FSTRLIT: 2 {
+  (0, 'f')  -> 1;
+  (1, ["])  -> 2;
+  (2, ["])  -> 4;
+  (1, [\n]) -> 9; // no newlines in string.
+  (1, [\\]) -> 3; // start parsing escape sequence
+  (1, [^])  -> 2; // string content
+  (3, [n])  -> 2; // newline
+  (3, [f])  -> 2; // form feed
+  (3, [b])  -> 2; // backspace
+  (3, [r])  -> 2; // carriage return
+  (3, [t])  -> 2; // tab
+  (3, [e])  -> 2; // escape character
+  (3, [\\]) -> 2; // backslash
+  (3, ['])  -> 2; // single quote
+  (3, ["])  -> 2; // double quote
+};
+
 
 
 ///////////////////////////////////////

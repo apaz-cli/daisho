@@ -1,118 +1,127 @@
 %include <assert.h>
-%extra     void* extra;
 %extra     void* symtab;
 %extra     void* type;
-%extrainit node->extra = NULL;
 %extrainit node->symtab = NULL;
 %extrainit node->type = NULL;
 %postinclude "../asthelpers.h"
 
-file      <- sh:SHEBANG? topdecl (SEMI topdecl)*
+file      <- sh:SHEBANG? (expr / decl) (SEMI (expr / decl))*
 
 /****************/
 /* DECLARATIONS */
 /****************/
 
-topdecl    <- structdecl / uniondecl / traitdecl / fndecl / impldecl / nsdecl
+decl       <- nsdecl / structdecl / uniondecl / traitdecl / impldecl / ctypedecl / aliasdecl / fndecl
 
 
-structdecl <- STRUCT id:STRUCTIDENT tmpl:tmpldecl?
+nsdecl     <- NAMESPACE t:TYPEIDENT {rule=node(NAMESPACEDECL, t)}
+
+structdecl <- STRUCT id:TYPEIDENT tmpl:tmpldecl?
               impl:(IMPL type (COMMA type)*)?
               LCBRACK
               members:{ret=list(MEMBERLIST)}
              (m:typemember {add(members, m)})*
               RCBRACK
-              n:{n = node(STRUCT, id, members);
+              n:{n = node(STRUCTDECL, id, members);
               rule = has(tmpl) ? node(TMPLSTRUCT, tmpl, n) : n}
 
-uniondecl  <- UNION id:STRUCTIDENT tmpl:tmplexpand?
+uniondecl  <- UNION id:TYPEIDENT tmpl:tmplexpand?
               impl:(IMPL type (COMMA type)*)?
               LCBRACK
               members:{ret=list(MEMBERLIST)}
              (m:typemember {add(members, m)})*
               RCBRACK
-              n:{n = node(UNION, id, members);
+              n:{n = node(UNIONDECL, id, members);
               rule = has(tmpl) ? node(TMPLUNION, tmpl, n) : n}
 
-traitdecl  <- TRAIT id:STRUCTIDENT tmpl:tmplexpand?
+traitdecl  <- TRAIT id:TYPEIDENT tmpl:tmplexpand?
               impl:(IMPL type (COMMA type)*)?
               LCBRACK
               members:{ret=list(MEMBERLIST)}
              (m:fnmember {add(members, m)})*
               RCBRACK
-              n:{n = node(TRAIT, id, members);
+              n:{n = node(TRAITDECL, id, members);
               rule = has(tmpl) ? node(TMPLTRAIT, tmpl, n) : n}
 
-fndecl     <- FN fnproto tmplexpand? expr
-
-impldecl   <- IMPL tt:STRUCTIDENT tmplexpand?
+impldecl   <- IMPL tt:TYPEIDENT tmplexpand?
               FOR ft:type
               LCBRACK
               members:{ret=list(MEMBERLIST)}
              (m:fnmember {add(members, m)})*
               RCBRACK
 
-nsdecl     <- ns:NAMESPACE t:STRUCTIDENT {rule=node(NAMESPACE, t)}
-
 typemember <- t:type v:VARIDENT SEMI {rule=node(TYPEMEMBER, t, v)}
 
-fnmember   <- r:(fndecl / fnproto) SEMI {rule=r}
+fnmember   <- r:(fndecl / cfndecl / fnproto) SEMI {rule=r}
+
+%node CIDENT
+ctypedecl  <- CTYPE t:TYPEIDENT c:CIDENT {rule=srepr(node(CTYPEDECL, t, c), "ctypedecl")}
+
+aliasdecl  <- ALIAS t:TYPEIDENT f:type {rule=srepr(node(ALIASDECL, t, f), "aliasdecl")}
+
+fndecl     <- FN rt:type t:VARIDENT t:tmplexpand? OPEN CLOSE e:expr {rule=srepr(node(FNDECL, rt, t, e), "fndecl")}
+
+%node CFNDECL
+cfndecl    <- CFN rt:type t:VARIDENT t:tmplexpand? OPEN CLOSE e:expr {rule=srepr(node(CFNDECL, rt, t, e), "cfndecl")}
 
 
-/*********/
-/* TYPES */
-/*********/
+
+
+/*************/
+/* TEMPLATES */
+/*************/
+
+%node TMPLDECL
+tmpldecl    <- LT l:{rule=ret=list(TMPLDECL)}
+               m:tmpldeclmember? {if (has(m)) add(l, m)} (COMMA m:tmpldeclmember {add(l, m)})* COMMA?
+               GT
+
+tmpldeclmember <- type TYPEIDENT (EQ type)?
+
+tmplexpand <- LT l:{rule=ret=list(TMPLEXPANDLIST)}
+              m:tmplex? {if (has(m)) add(l, m)} (COMMA m:tmplex {add(l, m)})* COMMA?
+              GT
+
+tmplex <- type / NUMLIT
+
+
+/********************/
+/* TYPE ANNOTATIONS */
+/********************/
 
 // a type, not a type definition
 type<uint8_t depth = 0>
-           <- v:VOIDTYPE     !STAR              {rule=node(TYPE, v)} // Void means nothing.
-            / v:voidptr      (STAR {depth++})*  {rule=node(TYPE, v)} // Void* means anything.
-            / s:SELFTYPE     (STAR {depth++})*  {rule=node(TYPE, s)} // Self refers to the type of the first arg, or the current type.
-            / t:traittype    (STAR {depth++})*  {rule=node(TYPE, t)} // Trait object (+1 pointer, trait)
-            / s:structtype   (STAR {depth++})*  {rule=node(TYPE, s)} // Type identifier
-            / f:fntype       (STAR {depth++})*  {rule=node(TYPE, f)} // Fn<From -> To> is To(*fptr)(From).
-            / c:ctypedecl                       {rule=node(TYPE, c)} // TODO figure out syntax
+           <- v:VOIDTYPE    !STAR              {rule=set_depth(v, 0)}     // Void means nothing.
+            / p:voidptr     (STAR {depth++})*  {rule=set_depth(p, depth)} // Void* means anything.
+            / s:SELFTYPE    (STAR {depth++})*  {rule=set_depth(s, depth)} // Self refers to the type of the first arg, or the current type.
+            / f:fntype      (STAR {depth++})*  {rule=set_depth(f, depth)} // Fn<From -> To> is To(*fptr)(From).
+            / t:ttexpand    (STAR {depth++})*  {rule=set_depth(t, depth)} // Type or Trait object, possibly templated
 
 voidptr    <- v:VOIDPTR         {rule=v}
-            / v:VOIDTYPE s:STAR {rule=leaf(VOIDPTR)}
+            / v:VOIDTYPE s:STAR {rule=srepr(leaf(VOIDPTR), "VoidPtr")}
 
-traittype  <- i:STRUCTIDENT t:tmplexpand?
-              {rule = has(t) ? node(TMPLTYPE, t, i) : node(TYPE, i)}
-
-structtype <- s:STRUCTIDENT t:tmplexpand?
-              {rule = has(t) ? node(TMPLTYPE, t, s) : node(TYPE, s)}
-
-ctypedecl  <- CTYPE CIDENT
+ttexpand <- i:(TYPEIDENT / TRAITIDENT) t:tmplexpand?
+              {rule = has(t) ? node(TMPLTYPE, t, i) : i}
 
 fntype     <- FNTYPE
               LT
               argtypes:{ret=list(ARGLIST)}
               (      t:type {add(argtypes, t)})?
               (COMMA t:type {add(argtypes, t)})*
-              {if (!argtypes->num_children) add(argtypes, node(TYPE, leaf(VOIDTYPE)))}
-              (arrow:ARROW rettype:type)?
+              {if (!argtypes->num_children) add(argtypes, leaf(VOIDTYPE))}
+              ((ARROW / SEMI / EQ GT) rettype:type)?
               GT
-              {rule=node(FNTYPE,
-                         argtypes,
-                         !has(rettype) ? node(TYPE, leaf(VOIDTYPE)) : rettype)}
+              {rule=node(FNTYPE, argtypes, !has(rettype) ? leaf(VOIDTYPE) : rettype)}
               /
               FNTYPE
-              tmp:{rule=node(FNTYPE,
-                            (tmp=list(ARGLIST), add(tmp, node(TYPE, leaf(VOIDTYPE))), tmp),
-                             node(TYPE, leaf(VOIDTYPE)))}
+              l:{l=list(ARGLIST);add(l, leaf(VOIDTYPE))}
+              {rule=node(FNTYPE, l, leaf(VOIDTYPE))}
 
 
 /***********************/
 /* FUNCTIONS AND TYPES */
 /***********************/
 
-tmpldecl   <- TEMPLATE
-
-tmplspec   <-
-
-tmplexpand <- LT tmplmember? (COMMA tmplmember)* GT
-
-tmplmember <- type
 
 fnproto    <- type OPEN fnarg? (COMMA fnarg)* CLOSE
 
@@ -160,7 +169,7 @@ eqexpr     <- n:next {rule=n}
               t:next
               // Requires information about what the next expression is
               {
-                if      (op->kind == kind(EQ))    rule=node(EQ, rule,                       t );
+                if      (op->kind == kind(EQ))    rule=node(EQ, rule,                   t );
                 else if (op->kind == kind(PLEQ))  rule=node(EQ, rule, node(PLUS,  rule, t));
                 else if (op->kind == kind(MINEQ)) rule=node(EQ, rule, node(MINUS, rule, t));
                 else if (op->kind == kind(MULEQ)) rule=node(EQ, rule, node(MUL,   rule, t));
@@ -204,7 +213,8 @@ multexpr   <- n:next {rule=n}
              /DIV  n:next {rule=srepr(node(DIV,  rule, n), "/")}
              /MOD  n:next {rule=srepr(node(MOD,  rule, n), "%")})*
 
-powexpr    <- n:next {rule=n} (POW {rule=srepr(node(POW, rule, n), "**")})*
+powexpr    <- n:next {rule=n}
+             (POW {rule=srepr(node(POW, rule, n), "**")})*
 
 
 shfexpr    <- n:next {rule=n} // Tokenized as << and >>.
@@ -241,7 +251,6 @@ atomexpr   <- blockexpr
             / listcomp
             / listlit
             / parenexpr
-            / cfuncexpr
             / preretexpr
             / VARIDENT
             / numlit
@@ -252,26 +261,31 @@ blockexpr  <- LCBRACK
               (e:expr {add(rule, e)})*
               RCBRACK
 
-lambdaexpr <- (LSBRACK expr? (COMMA expr)* RSBRACK)? ((OPEN VARIDENT? (COMMA VARIDENT)* CLOSE) / (VARIDENT)) ARROW expr
+%node CAPLIST
+// Captures, Arguments, Expression
+lambdaexpr <- (LSBRACK v:VARIDENT? caps:{ret=list(ARGLIST);if (has(v)) add(ret, v)}
+              (COMMA v:VARIDENT {add(caps, v)})* RSBRACK)?
+              args:{ret=list(ARGLIST)}
+              (({ret=(!caps || !caps->num_children)?SUCC:NULL} v:VARIDENT {add(args, v)}) /
+              (OPEN v:VARIDENT? {add(args, v)} (COMMA v:VARIDENT {add(args, v)})* CLOSE))
+              ARROW e:expr {rule=node(LAMBDA, caps, args, e)}
 
 listcomp   <- LSBRACK
               (cnt:VARIDENT COMMA)? expr   // Optional count
               FOR item:VARIDENT
-              IN expr
-              (WHERE expr)?
+              IN in:expr
+              (WHERE where:expr)?
               RSBRACK
 
 listlit    <- LSBRACK expr? (COMMA expr)* COMMA? RSBRACK
 
 parenexpr  <- OPEN e:expr CLOSE {rule=e}
 
-cfuncexpr  <- CFUNC CIDENT
-
 preretexpr <- r:RET e:expr {rule=node(RET, r, e)}
 
 numlit     <- pm:(PLUS / MINUS)? nl:NUMLIT {rule = nl}
 
-strlit     <- STRLIT // todo: adapt for fstrings
+strlit     <- STRLIT / FSTRLIT
 
 
 /**************/
@@ -283,16 +297,27 @@ strlit     <- STRLIT // todo: adapt for fstrings
 %node NAMESPACE
 %node GLOBALSCOPE
 
-%node TEMPLATE
+%node NAMESPACEDECL
+%node STRUCTDECL
+%node UNIONDECL
+%node TRAITDECL
+%node CTYPEDECL
+%node ALIASDECL
+%node FNDECL
+
+%node TMPLBEGIN
+%node TMPLEXPAND
+%node TMPLEXPANDLIST
+
+%node TMPLSTRUCT
+%node TMPLUNION
+%node TMPLTRAIT
+%node TMPLTYPE
+
 %node MEMBERLIST
 %node STRUCT
-%node TMPLSTRUCT
 %node UNION
-%node TMPLUNION
 %node TRAIT
-%node TMPLTRAIT
-%node TYPE
-%node TMPLTYPE
 %node TRAITTYPE
 %node STRUCTTYPE
 %node VOIDPTR
@@ -372,7 +397,8 @@ strlit     <- STRLIT // todo: adapt for fstrings
 %node CLOSE
 %node NUMLIT
 %node STRLIT
+%node FSTRLIT
 %node TYPEMEMBER
-%node STRUCTIDENT
-%node DTRAITIDENT
+%node TYPEIDENT
+%node TRAITIDENT
 %node VARIDENT

@@ -99,14 +99,17 @@ There is no iterative refinement of types, only:
   * Resolve Self
     * Traverse the tree, keeping track of what Self is supposed to be (the last type
       definition encountered in a parent node). Replace all instances of that token
-      with the pre-monomorphized type.
+      with the pre-monomorphized (and therefore possibly templated) type.
 
   * Monomorphize
+    * There are templated nodes, and there are template expansions.
+    * Traverse the tree, and match up each template expansion with the thing that it's expanding.
+      * If it's a type that's expanding, set node->extra to the type.
     * Traverse the tree, and make another tree of all the template definitions and
       replacement sites.
 
   * Create symbol tables for each scope in the AST.
-    * Symbol tables are a simple map of Post-Mono-Identifier -> Info.
+    * Symbol tables are a simple map of Post-Mono-Identifier -> Declaration.
     * Each scope is implied to contain the symbols belonging to its parents, but not its
       parents' children.
     * The nodes that contain symbol tables are:

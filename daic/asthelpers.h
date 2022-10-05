@@ -7,19 +7,29 @@
 #include "grammar/daisho_tokenizer_parser.h"
 #endif
 
-typedef struct {
-    uint8_t pointer_depth;
-    struct {
-        bool resolved : 1;
-        bool unresolved : 1;
-    };
-} TypeInfo;
+#include "types.h"
 
-daisho_astnode_t*
-type_node(daisho_parser_ctx* ctx, daisho_astnode_t* node, uint8_t depth) {
-    TypeInfo* info = PGEN_ALLOC_OF(ctx->alloc, TypeInfo);
+// This file is meant to include only the bare minimum for building the AST.
+// Doing stuff with the AST goes elsewhere.
+
+static TypeDecl voidtypedecl = {NULL, 0};
+static ExprType voidExprType = {0, 0, 0};
+
+static inline ExprType*
+ExprType_init(daisho_parser_ctx* ctx, ExprType* info) {
+    if (!info) info = PGEN_ALLOC_OF(ctx->alloc, ExprType);
+    info->declared_at = NULL;
+    info->pointer_depth = 0;
+    info->concrete = 0;
+    return info;
+}
+
+#define set_depth(node, depth) _set_depth(ctx, node, depth)
+static inline daisho_astnode_t*
+_set_depth(daisho_parser_ctx* ctx, daisho_astnode_t* node, uint8_t depth) {
+    ExprType* info = ExprType_init(ctx, NULL);
     info->pointer_depth = depth;
-    node->extra = info;
+    node->type = info;
     return node;
 }
 

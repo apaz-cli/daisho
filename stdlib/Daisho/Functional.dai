@@ -1,11 +1,11 @@
 https://docs.oracle.com/javase/8/docs/api/index.html
 trait Consumer<T>          { operator()(T t); };
 trait BiConsumer<T, U>     { operator()(T t, U u); };
-trait Function<T, R>       { R operator()(T t); };
-trait BiFunction<T, U, R>  { R operator()(T t, U u); };
+trait Mapper<T, R>         { R operator()(T t); };
+trait BiMapper<T, U, R>    { R operator()(T t, U u); };
 trait Predicate<T>         { Bool operator()(T t); };
 trait BiPredicate<T, U>    { Bool operator()(T t, U u); };
 trait Supplier<T>          { T operator()(T t); };
 
-trait UnaryOperator<T>     impl Function<T,T>;
-trait BinaryOperator<T>    impl BiFunction<T,T,T>;
+trait UnaryOperator<T>     impl Mapper<T,T>;
+trait BinaryOperator<T>    impl BiMapper<T,T,T>;

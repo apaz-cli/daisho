@@ -7,21 +7,6 @@
 #include "grammar/daisho_tokenizer_parser.h"
 #endif
 
-typedef char* SymtabKey;
-typedef char* SymtabValue;
-
-typedef struct {
-    SymtabKey key;
-    SymtabValue value;
-} SymtabEntry;
-
-typedef struct {
-    SymtabEntry* entries;
-    size_t num_entries;
-    size_t cap_entries;
-    pgen_allocator* alloc;
-} Symtab;
-
 static inline size_t
 roundUpToNextMultiple(size_t num, size_t of) {
     return ((num / of) + 1) * of;

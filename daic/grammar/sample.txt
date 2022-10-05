@@ -1,1 +1,1 @@
-5 - (abc<Int>(1, 2, 3) - 1) / 72
+5 - (abc<Fn<Int, Void* -> VoidPtr>, Void>(1, 2, 3) - 1) / 72

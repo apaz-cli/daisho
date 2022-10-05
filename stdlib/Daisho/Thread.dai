@@ -5,7 +5,7 @@ class Mutex {
     native Void unlock();
 }
 
-ctype pthread_t Thread;
+ctype Thread pthread_t;
 
 class Thread {
     native Thread();
