@@ -1,7 +1,7 @@
 # What is Daisho?
 
 <p align="center">
-<img src="https://media.discordapp.net/attachments/886799296819765279/968529592891629588/Daisho_App_Icon-01.png" width=300>
+<img src="https://cdn.discordapp.com/attachments/1001261693554393158/1029827311991783534/16655994047613413430354031618171.png" width=300>
 </p>
 
 The goal of this project is to create a language that's basically
@@ -13,7 +13,7 @@ but provides a way to pave over the sharp edges that come with writing C directl
 
 Interop between
 <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
-<a href="https://github.com/apaz-cli/daisho/">Daisho <img src="https://media.discordapp.net/attachments/886799296819765279/968529592891629588/Daisho_App_Icon-01.png" width=15></a>,
+<a href="https://github.com/apaz-cli/daisho/">Daisho <img src="https://cdn.discordapp.com/attachments/1001261693554393158/1029827311991783534/16655994047613413430354031618171.png" width=15></a>,
 and
 <a href="https://github.com/python/cpython">Python <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width=15></a>
 code should be seamless, and no performance shall be left on the table.
