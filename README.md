@@ -5,8 +5,8 @@
 <img align="left" src="https://cdn.discordapp.com/attachments/886799296819765279/1029882805397758023/best_logo_transparent_cropped.png" width=300 style="padding-right:100;">
 </p>
 
-<br><br><br>
-<div style="text-align:left;display:flex;vertical-align:middle;"><table style="border:2px solid black;border-radius:15px;"><tr><th width="800px">
+<br><br>
+<div style="text-align:left;display:flex;vertical-align:middle;"><table style="border:2px solid black;border-radius:15px;"><tr><th width="691px">
 
 The goal of this project is to create a language that's basically
 <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
