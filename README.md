@@ -1,23 +1,32 @@
 # What is Daisho?
 
+<div style="float: left;">
 <p align="center">
-<img src="https://cdn.discordapp.com/attachments/886799296819765279/1029882805397758023/best_logo_transparent_cropped.png" width=300>
+<img align="left" src="https://cdn.discordapp.com/attachments/886799296819765279/1029882805397758023/best_logo_transparent_cropped.png" width=300 style="padding-right:100;">
 </p>
+
+<br><br><br>
+<div style="text-align:left;display:flex;vertical-align:middle;"><table style="border:2px solid black;border-radius:15px;"><tr><th width="800px">
 
 The goal of this project is to create a language that's basically
 <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
-but way nicer to work with, and focused on trait metaprogramming. It transpiles to
+but way nicer to work with. It transpiles to
 <a href="https://en.wikipedia.org/wiki/POSIX">POSIX</a>
 <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
 but provides a way to pave over the sharp edges that come with writing C directly.
 
-Interop between
+In particular, Daisho is focused on trait metaprogramming. However, interop between
 <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
 <a href="https://github.com/apaz-cli/daisho/">Daisho <img src="https://cdn.discordapp.com/attachments/886799296819765279/1029882805397758023/best_logo_transparent_cropped.png" width=15></a>,
 and
 <a href="https://github.com/python/cpython">Python <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width=15></a>
 code should be seamless, and no performance shall be left on the table.
 
+</th></tr></table></div>
+
+</div>
+<div style="float: right;">
+<hr>
 
 ## Status
 The language is currently still in very early stages. I've been working on it for a few months, and everything is still a WIP. If you see something in the repo, talk to me first. It's probably a proof of concept, and it's probably broken. I'm writing pretty much every part at once to get a feel for how everything is supposed to work together. See <a href="https://github.com/apaz-cli/Daisho/blob/master/planning/TODO.md">planning/TODO.md</a> for a roadmap and who is doing what. A lot of people want to help, but unfortunately there's not a lot that other people can do. I just need to work on it every day for a few more months. After that, there should be a bit more to help with.
@@ -28,13 +37,7 @@ Right now, a lot of work is happening in <a href="https://github.com/apaz-cli/pg
 
 <br>
 
-# How can I get involved?
-
-<a href="https://discord.gg/yM8ZBDHGdR">
-<p align="center">
-<img src="https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/cd362cfc9014c90e02c08d741448914cda069efc/Join%20Our%20Discord.png">
-</p>
-</a>
+## How can I get involved?
 
 If you have suggestions or want to talk about type systems and their implementation, <a href="https://discord.gg/yM8ZBDHGdR">come on over to our Discord</a>.
 
@@ -132,3 +135,5 @@ If you're not on a POSIX operating system (if you're still on Windows), I recomm
 * Language Server  (coming eventually)
 * VSCode Extension (coming eventually)
 * Code Formatter   (coming eventually)
+* 
+</div>
