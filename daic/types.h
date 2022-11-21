@@ -22,8 +22,26 @@ typedef struct {
 } Symtab;
 
 /*
+
+typedef struct {
+  ASTNode* belongsTo;
+  List<BoundType> backedges;
+} BindableType;
+
+typedef struct {
+  UniverseType from;
+  List<Void*> as;
+} BoundType;
+
+// A type unification context
+typedef struct {
+  List<>
+} Universe;
+
 typedef struct {} NamespaceDecl;
-typedef struct {} StructDecl;
+typedef struct {
+  
+} StructDecl;
 typedef struct {} UnionDecl;
 typedef struct {} TraitDecl;
 typedef struct {} ImplDecl;

@@ -1,20 +1,17 @@
 
 # Types
 
-Other languages have language bindings. Daisho, the whole entire programming 
-language, IS a language binding. Specifically, to the C programming language. 
-C makes sense as a compilation target because of the rich ecosystem of 
-libraries already available to do just about any task. Therefore, Daisho can 
-already do everything that C can. It can also do anything that extensions of 
-C can do, such as C++ and OpenCL.
+Other languages have language bindings. Daisho, the whole entire programming
+language, IS a language binding. Specifically, to the C programming language.
+C makes sense as a compilation target because of the rich ecosystem of
+libraries already available to do just about any task. Since Daisho effortlessly
+integrates with C libraries, it reaps the same benefits.
 
-Calling Daisho "just" a language binding would be disingenuous. Daisho is a 
-pathway to many abilities some consider to be unnatural. Abilities such as 
-metaprogramming enabled by a traits, a generic type system, a collections 
-framework, lambda expressions, optional typing, differentiable programming, 
-and a standardized package system. It is a fully-fledged programming language, 
-built from the ground up to allow complete and seamless C interop, without 
-leaving any performance on the table or leaving out any features.
+Calling Daisho "just" a language binding would be disingenuous. The idea of
+Daisho is that it's a natural extension to C's type system that provides all
+the amenities of a modern language. Traits, generic types, collections, lambda
+expressions, inferred typing, etc. It is a fully-fledged programming language,
+but does not leave any room for a faster language, unlike C++.
 
 
 ### The types of types are as follows:
@@ -32,55 +29,67 @@ leaving any performance on the table or leaving out any features.
 
 ## CTypes
 
-Daisho's concept of a primitive/integral type is replaced with ctype. Since 
-Daisho transpiles to C, C types are the base of the type system. A CType can 
-be any fully qualified struct or an integral type from C. You can define your 
-own in a syntax similar to C's typedef syntax. You can also strap methods to 
-them. However, you cannot access a ctype's state outside of `native` bindings. 
-What happens in C stays in C, Daisho has no knowledge of it. This allows all 
-`ctype`s to be treated equally by the language.
+At its core, Daisho reduces to `ctype`s and `native` functions.
 
-`ctype` and `native` bindings are central to how the entire standard library 
-is designed and implemented. `Int` from the standard library (which is always 
-implicitly included) is declared with `ctype int32_t Int;`. The reason why 
-`5 + 4` is valid in the language is becuause `Int operator+(Int rhs)` is 
-implemented on `Int` as a native method. There is no such thing as primitive 
-addition in Daisho. In fact, Daisho has no concept of numbers. Or anything 
-else. Everything traces back to `ctype`s and `native` implementations. All 
-the language does is stitch these together with a polymorphic trait-based 
-type system on top. Hence the opening statements about how Daisho is a 
-language binding.
+Daisho's primitive/integral type is `ctype`. Since Daisho transpiles to C,
+C types are the base of the type system. When you compile your program,
+Daisho knows what C code to generate because everything eventually reduces
+to `ctype`s.
 
-Builtin functions such as `sizeof()` work on `ctype`s because the compiler 
-literally generates `sizeof(type)`. This is why any `ctype` you declare must 
+The state of a `ctype` is opaque. The idea is that What happens in C stays
+in C, and Daisho has no knowledge of it. To dip into C, you can write a
+`native` function or lambda, which is literally copy/pasted by the compiler
+into the generated code as appropriate. Note that it may be copy/pasted
+several times, in the case of specializing a generic function.
+
+To access fields inside of a C struct, you must write a native function to
+extract it. There is a macro called `CFIELD` that wraps the field access in
+a native lambda and evaluates it. This way, Daisho never has to parse C code
+or rely on platform dependent behavior regarding things like padding,
+endianness, etc.
+
+`ctype` and `native` bindings are central to how the entire standard library
+is designed and implemented. `Int` from the standard library (which is always
+implicitly included) is declared with `ctype Int int;`. The reason why
+`5(Int) + 4(Int)` is valid in the language is because numbers like `5` are
+implemented in the grammar (and needs to be cast or assigned to a typed
+variable so that its type can be inferred), and `native +(Int lhs, Int rhs)`
+is implemented as a `native` function. There is no such thing as addition in
+Daisho. Or a concept of anything else. Everything traces back to `ctype`s and
+`native` implementations. All the language does is stitch these together with
+a polymorphic trait-based type system on top. Hence the opening statements
+about how Daisho is a language binding.
+
+Builtin functions such as `sizeof()` work on `ctype`s because the compiler
+literally generates `sizeof(type)`. Therefore, any `ctype` you declare must
 be fully-qualified. Otherwise, the C compiler will choke on your code.
 
 
 ## Classes
 
-A `class` is literally a C struct with methods associated with it. Each of 
-these methods is literally a function which takes the object as an argument 
-called `this`. When you define a native method on a class, it includes `this` 
+A `class` is literally a C struct with methods associated with it. Each of
+these methods is literally a function which takes the object as an argument
+called `this`. When you define a native method on a class, it includes `this`
 as an extra first argument.
 
-When you have an object containing members, you literally have a C struct 
-containing those members. The same way, a `class` containing another `class` 
-is a struct containing another struct. This gives the user perfect information 
+When you have an object containing members, you literally have a C struct
+containing those members. The same way, a `class` containing another `class`
+is a struct containing another struct. This gives the user perfect information
 about how objects are laid out in memory.
 
 
-Just like in C, a `class` cannot contain an instance of itself as a member. 
-Additionally, it cannot contain an instance of a `trait` that it implements 
+Just like in C, a `class` cannot contain an instance of itself as a member.
+Additionally, it cannot contain an instance of a `trait` that it implements
 as a member. To get around this, store a reference instead.
 
 
 ## Generics
 
-A generic is a compile-time stand-in for another type or value. The way that 
-Daisho handles them is similar to C++ templates. You can add generics to 
-methods, classes, traits, impls, and structs. When a generic is used, the 
-compiler generates a matching definition for you with the given parameters. 
-They are implemented using `#define` and duplication of the generated section 
+A generic is a compile-time stand-in for another type or value. The way that
+Daisho handles them is similar to C++ templates. You can add generics to
+methods, classes, traits, impls, and structs. When a generic is used, the
+compiler generates a matching definition for you with the given parameters.
+They are implemented using `#define` and duplication of the generated section
 of code that they pertain to, much like you imagine the implementation in C++.
 
 
