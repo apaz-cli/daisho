@@ -25,7 +25,7 @@ structdecl <- STRUCT id:TYPEIDENT tmpl:tmplexpand?
              (m:typemember {add(members, m)})*
               RCBRACK
               n:{n = node(STRUCT, id, members);
-              rule = (tmpl != SUCC) ? node(TMPLSTRUCT, tmpl, n) : n}
+              rule = has(tmpl) ? node(TMPLSTRUCT, tmpl, n) : n}
 
 uniondecl  <- UNION id:TYPEIDENT tmpl:tmplexpand?
               impl:(IMPL type (COMMA type)*)?
@@ -34,7 +34,7 @@ uniondecl  <- UNION id:TYPEIDENT tmpl:tmplexpand?
              (m:typemember {add(members, m)})*
               RCBRACK
               n:{n = node(UNION, id, members);
-              rule = (tmpl != SUCC) ? node(TMPLUNION, tmpl, n) : n}
+              rule = has(tmpl) ? node(TMPLUNION, tmpl, n) : n}
 
 traitdecl  <- TRAIT id:TYPEIDENT tmpl:tmplexpand?
               impl:(IMPL type (COMMA type)*)?
@@ -43,7 +43,7 @@ traitdecl  <- TRAIT id:TYPEIDENT tmpl:tmplexpand?
              (m:fnmember {add(members, m)})*
               RCBRACK
               n:{n = node(TRAIT, id, members);
-              rule = (tmpl != SUCC) ? node(TMPLTRAIT, tmpl, n) : n}
+              rule = has(tmpl) ? node(TMPLTRAIT, tmpl, n) : n}
 
 fndecl     <- FN fnproto tmplexpand? expr
 
@@ -133,9 +133,9 @@ whileexpr  <- WHILE o:OPEN? n:next c:CLOSE? {ret=o==c?SUCC:NULL} expr
             / n:next {rule=n}
 
 ternexpr   <- n:next (q:QUEST qe:expr (c:COLON ce:expr)?)?
-              {rule = !qe ? n
-                    : !ce ? node(IF, q, n, qe)
-                    :       node(TERN, q, c, n, qe, ce)}
+              {rule = has(qe) ? n
+                    : has(ce) ? node(IF, q, n, qe)
+                    :           node(TERN, q, c, n, qe, ce)}
 
 thenexpr   <- n:next {rule=n} (THEN nn:next {rule=node(THEN, rule, nn)})*
 
@@ -164,8 +164,7 @@ eqexpr     <- n:next {rule=n}
                 else if (op->kind == kind(XOREQ)) rule=node(EQ, rule, node(BNEQ,  rule, t));
                 else if (op->kind == kind(BSREQ)) rule=node(EQ, rule, node(BSR,   rule, t));
                 else if (op->kind == kind(BSLEQ)) rule=node(EQ, rule, node(BSL,   rule, t));
-                else
-                    __DAI_UNREACHABLE()
+                else __DAI_UNREACHABLE()
               })*
 
 logorexpr  <- n:next {rule=n} (LOGOR  n:next {rule=node(LOGOR,  rule, n)})*
@@ -184,7 +183,7 @@ cmpexpr    <- n:next {rule=n}
              /LEQ n:next {rule=node(LEQ, rule, n)}
              /GEQ n:next {rule=node(GEQ, rule, n)})*
 
-shfexpr    <- n:next {rule=n} // Tokenized as << and >>.
+shfexpr    <- n:next {rule=n} // Tokenized as < < and > >.
              (l:LT lt:LT n:next {rule=node(BSL, l, lt, rule, n)}
              /g:GT gt:GT n:next {rule=node(BSR, g, gt, rule, n)})*
 
@@ -204,11 +203,11 @@ callexpr   <- VARIDENT t:tmplexpand? OPEN CLOSE
 
 castexpr   <- n:next (OPEN t:type CLOSE)? {rule = t ? node(CAST, t, n) : n}
 
-refexpr    <- n:next r:REF?    {rule=(r != SUCC) ? node(REF, r, n) : n}
+refexpr    <- n:next r:REF?    {rule=has(r) ? node(REF, r, n) : n}
 
-derefexpr  <- n:next d:DEREF?  {rule=(d != SUCC) ? node(REF, d, n) : n}
+derefexpr  <- n:next d:DEREF?  {rule=has(d) ? node(REF, d, n) : n}
 
-postretexpr <- n:next g:GRAVE? {rule=(g != SUCC) ? node(RET, g, n) : n}
+postretexpr <- n:next g:GRAVE? {rule=has(g) ? node(RET, g, n) : n}
 
 
 /*********************************/
@@ -219,6 +218,7 @@ atomexpr   <- blockexpr
             / lambdaexpr
             / listcomp
             / listlit
+            / tuplelit
             / parenexpr
             / cfuncexpr
             / preretexpr
@@ -240,9 +240,16 @@ listcomp   <- LSBRACK
               (WHERE expr)?
               RSBRACK
 
-listlit    <- LSBRACK expr? (COMMA expr)* COMMA? RSBRACK
-
 parenexpr  <- OPEN e:expr CLOSE {rule=e}
+
+listlit    <- LSBRACK e:expr
+            (COMMA? RSBRACK / (COMMA e:expr)* COMMA? RSBRACK)
+
+tuplelit   <- OPEN e:expr
+             (COMMA CLOSE / (COMMA e:expr)* COMMA? CLOSE)
+
+//mapexpr    <- LCBRACK e:expr DARROW v:value
+//             (COMMA RCBRACK / (COMMA e:expr DARROW v:value)* COMMA? RCBRACK)
 
 cfuncexpr  <- CFN CIDENT
 
@@ -287,6 +294,7 @@ strlit     <- STRLIT // todo: adapt for fstrings
 %node BLK
 %node ARGLIST
 %node ARROW
+%node DARROW
 %node LAMBDA
 
 %node EQ

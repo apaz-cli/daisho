@@ -14,7 +14,7 @@ Composite types:
 	Struct
 	Union
 	Trait'
-		Cannot be dereferenced
+		Concrete, cannot be dereferenced
 	Fn
 	Pointer types
 		VoidPtr cannot be dereferenced
@@ -24,6 +24,8 @@ Contextually bound types:
 	Type<T>
 	T
 
+Create a symtab for each namespace and scope from symbol + free tvars to
+meaning.
 
 Pull out all declarations and put them into symtabs for their namespace, as written in the AST.
 Where a contextually bound type appears, create an object to track its use and replace the use with a 
@@ -32,7 +34,7 @@ pointer to that contextually bound type.
 	Declarations of types
 
 
-A function definition 
+A function definition
 Expressions have types.
 
-Γ 
+

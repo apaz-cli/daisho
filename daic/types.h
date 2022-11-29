@@ -16,15 +16,15 @@ typedef struct {
 
 typedef struct {
     SymtabEntry* entries;
+    pgen_allocator* alloc;
     size_t num_entries;
     size_t cap_entries;
-    pgen_allocator* alloc;
 } Symtab;
 
 /*
 
 typedef struct {
-  ASTNode* belongsTo;
+  daisho_astnode_t* belongsTo;
   List<BoundType> backedges;
 } BindableType;
 
@@ -66,16 +66,38 @@ typedef struct {
 // Constructed post-monomorphization.
 // Goes into the symbol table that is attached to each lexical scope in the AST. 
 typedef struct {
-    daisho_astnode_t* source;
-    size_t size;
+  daisho_astnode_t* source;
+  size_t size;
 } TypeDecl;
 
+typedef enum {
+  SYMTAB_TYPE,
+  FUNCTION_TYPE,
+  VOID_TYPE,
+  VOIDPTR_TYPE,
+} TypeKind;
+
+struct ConcreteType;
+typedef struct ConcreteType ConcreteType;
+struct ConcreteType {
+  union {
+    SymtabEntry* entry;
+  };
+  TypeKind kind;
+  size_t size;
+};
+
 // The type of an expression in the AST.
-typedef struct {
-    TypeDecl* declared_at;
-    uint8_t pointer_depth;
-    bool concrete : 1;
-} ExprType;
+struct ExprType;
+typedef struct ExprType ExprType;
+struct ExprType {
+  union {
+    ExprType* generic;
+    SymtabEntry* declared_at;
+  };
+  uint8_t is_concrete : 1;
+  uint8_t pointer_depth : 7;
+};
 
 
 #endif /* DAIC_TYPES_INCLUDE */
