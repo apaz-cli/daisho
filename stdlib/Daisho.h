@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __DAI_STD_RUNTIME_INCLUDE
-#define __DAI_STD_RUNTIME_INCLUDE
+#ifndef _DAI_STD_RUNTIME_INCLUDE
+#define _DAI_STD_RUNTIME_INCLUDE
 
 /* The project is structured hierarchically like so. */
 
@@ -14,4 +14,4 @@
 #include "Native/Builtins/Builtins.h"
 /* No reorder */
 
-#endif /* __DAI_STDLIB_INCLUDES */
+#endif /* _DAI_STDLIB_INCLUDES */

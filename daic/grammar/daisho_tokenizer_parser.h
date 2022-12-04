@@ -3073,7 +3073,7 @@ static inline daisho_astnode_t* daisho_parse_structdecl(daisho_parser_ctx* ctx) 
     ret = SUCC;
 
     n = node(STRUCT, id, members);
-              rule = (tmpl != SUCC) ? node(TMPLSTRUCT, tmpl, n) : n;
+              rule = has(tmpl) ? node(TMPLSTRUCT, tmpl, n) : n;
 
     #undef ret
     expr_ret_17 = expr_ret_28;
@@ -3305,7 +3305,7 @@ static inline daisho_astnode_t* daisho_parse_uniondecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
 
     n = node(UNION, id, members);
-              rule = (tmpl != SUCC) ? node(TMPLUNION, tmpl, n) : n;
+              rule = has(tmpl) ? node(TMPLUNION, tmpl, n) : n;
 
     #undef ret
     expr_ret_31 = expr_ret_42;
@@ -3537,7 +3537,7 @@ static inline daisho_astnode_t* daisho_parse_traitdecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
 
     n = node(TRAIT, id, members);
-              rule = (tmpl != SUCC) ? node(TMPLTRAIT, tmpl, n) : n;
+              rule = has(tmpl) ? node(TMPLTRAIT, tmpl, n) : n;
 
     #undef ret
     expr_ret_45 = expr_ret_56;
@@ -5925,9 +5925,9 @@ static inline daisho_astnode_t* daisho_parse_ternexpr(daisho_parser_ctx* ctx) {
     #define ret expr_ret_216
     ret = SUCC;
 
-    rule = !qe ? n
-                    : !ce ? node(IF, q, n, qe)
-                    :       node(TERN, q, c, n, qe, ce);
+    rule = has(qe) ? n
+                    : has(ce) ? node(IF, q, n, qe)
+                    :           node(TERN, q, c, n, qe, ce);
 
     #undef ret
   }
@@ -6499,8 +6499,7 @@ static inline daisho_astnode_t* daisho_parse_eqexpr(daisho_parser_ctx* ctx) {
                 else if (op->kind == kind(XOREQ)) rule=node(EQ, rule, node(BNEQ,  rule, t));
                 else if (op->kind == kind(BSREQ)) rule=node(EQ, rule, node(BSR,   rule, t));
                 else if (op->kind == kind(BSLEQ)) rule=node(EQ, rule, node(BSL,   rule, t));
-                else
-                    __DAI_UNREACHABLE()
+                else _DAI_UNREACHABLE()
               ;
 
         #undef ret
@@ -8225,7 +8224,7 @@ static inline daisho_astnode_t* daisho_parse_refexpr(daisho_parser_ctx* ctx) {
     #define ret expr_ret_383
     ret = SUCC;
 
-    rule=(r != SUCC) ? node(REF, r, n) : n;
+    rule=has(r) ? node(REF, r, n) : n;
 
     #undef ret
   }
@@ -8287,7 +8286,7 @@ static inline daisho_astnode_t* daisho_parse_derefexpr(daisho_parser_ctx* ctx) {
     #define ret expr_ret_388
     ret = SUCC;
 
-    rule=(d != SUCC) ? node(REF, d, n) : n;
+    rule=has(d) ? node(REF, d, n) : n;
 
     #undef ret
   }
@@ -8349,7 +8348,7 @@ static inline daisho_astnode_t* daisho_parse_postretexpr(daisho_parser_ctx* ctx)
     #define ret expr_ret_393
     ret = SUCC;
 
-    rule=(g != SUCC) ? node(RET, g, n) : n;
+    rule=has(g) ? node(RET, g, n) : n;
 
     #undef ret
   }

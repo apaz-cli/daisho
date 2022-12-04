@@ -1,5 +1,5 @@
-#ifndef __DAI_STDLIB_LIBRARIES
-#define __DAI_STDLIB_LIBRARIES
+#ifndef _DAI_STDLIB_LIBRARIES
+#define _DAI_STDLIB_LIBRARIES
 #include "../Configs/Configs.h"
 
 /*
@@ -8,8 +8,8 @@
  * It can be disabled in the config files, or on the
  * daic command line.
  */
-#ifndef __DAI_NO_LIBRARIES
-#if __DAI_EMBED_PYTHON
+#ifndef _DAI_NO_LIBRARIES
+#if _DAI_EMBED_PYTHON
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #endif
@@ -107,8 +107,8 @@
 #include <unistd.h>
 
 /* Use GNU backtraces if possible. */
-#if __DAI_USING_BACKTRACES
+#if _DAI_USING_BACKTRACES
 #include <execinfo.h>
 #endif
 
-#endif /* __DAI_STDLIB_LIBRARIES */
+#endif /* _DAI_STDLIB_LIBRARIES */

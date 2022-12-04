@@ -1,5 +1,5 @@
-#ifndef __DAI_STDLIB_ALLOCATORS
-#define __DAI_STDLIB_ALLOCATORS
+#ifndef _DAI_STDLIB_ALLOCATORS
+#define _DAI_STDLIB_ALLOCATORS
 
 /*
  * Allocator API:
@@ -18,4 +18,4 @@
 #include "Mallocator.h"
 #include "MaskedAllocator.h"
 
-#endif /* __DAI_STDLIB_ALLOCATORS */
+#endif /* _DAI_STDLIB_ALLOCATORS */

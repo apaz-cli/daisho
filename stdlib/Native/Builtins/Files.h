@@ -1,5 +1,5 @@
-#ifndef __DAI_STDLIB_FILES
-#define __DAI_STDLIB_FILES
+#ifndef _DAI_STDLIB_FILES
+#define _DAI_STDLIB_FILES
 #include "../PreStart/PreStart.h"
 #include "String.h"
 
@@ -14,18 +14,18 @@
  * Since Stilts only works on 64 bit, we know that size_t is 64 bits.
  * That's over 18 Exabytes.
  */
-__DAI_FN size_t
-__Dai_fileSize(char* filePath) {
+_DAI_FN size_t
+_Dai_fileSize(char* filePath) {
     struct stat st;
     return (!stat(filePath, &st)) ? (size_t)st.st_size : SIZE_MAX;
 }
 
-__DAI_FN __Dai_String_View
-__Dai_readFile(char* filePath) {
-    __Dai_String_View err = {.str = NULL, .len = 0};
+_DAI_FN _Dai_String_View
+_Dai_readFile(char* filePath) {
+    _Dai_String_View err = {.str = NULL, .len = 0};
 
     /* Ask for the length of the file */
-    size_t fsize = __Dai_fileSize(filePath);
+    size_t fsize = _Dai_fileSize(filePath);
     if (fsize == SIZE_MAX) return err;
 
     /* Open the file */
@@ -33,7 +33,7 @@ __Dai_readFile(char* filePath) {
     if (fd == -1) return err;
 
     /* Allocate exactly enough memory. */
-    char* buffer = (char*)__DAI_MALLOC(fsize + 1);
+    char* buffer = (char*)_DAI_MALLOC(fsize + 1);
     if (!buffer) {
         close(fd);
         return err;
@@ -43,14 +43,14 @@ __Dai_readFile(char* filePath) {
     size_t bytes_read = read(fd, buffer, fsize);
     int close_err = close(fd);
     if ((bytes_read != fsize) | close_err) {
-        __DAI_FREE(buffer);
+        _DAI_FREE(buffer);
         return err;
     }
 
     /* Write null terminator */
     buffer[fsize] = '\0';
 
-    return (__Dai_String_View){.str = buffer, .len = fsize};
+    return (_Dai_String_View){.str = buffer, .len = fsize};
 }
 
-#endif /* __DAI_STDLIB_FILES */
+#endif /* _DAI_STDLIB_FILES */

@@ -10,7 +10,7 @@ WRITE_TO="/tmp/GeneratedConfig.h"
 COPY_TO="stdlib/Native/Configs/GeneratedConfig.h"
 COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
 [ $COLS -gt 90 ] && COLS=57
-IN_CMT="// __DAI_STDLIB_GENERATEDCONFIG"
+IN_CMT="// _DAI_STDLIB_GENERATEDCONFIG"
 
 rm "$WRITE_TO" 2>/dev/null
 touch "$WRITE_TO"
@@ -85,7 +85,7 @@ config_variables() {
 	# page size
 	PAGESIZE=$(getconf PAGE_SIZE)
 	msg "PAGE SIZE" "$PAGESIZE"
-	append "#define __DAI_PAGESIZE $PAGESIZE"
+	append "#define _DAI_PAGESIZE $PAGESIZE"
 
 
 	#################
@@ -93,7 +93,7 @@ config_variables() {
 	#################
 	THREADS=$(grep -c processor /proc/cpuinfo)
 	msg "THREADS" "$THREADS"
-	append "#define __DAI_IDEAL_NUM_THREADS $THREADS"
+	append "#define _DAI_IDEAL_NUM_THREADS $THREADS"
 
 }
 
@@ -125,16 +125,16 @@ supported_features() {
 	PYEXEC=${PYEXEC:-NONE}
 	if [ -n "$PYEXEC" ]; then
 		msg "PYTHON EXECUTABLE" "$PYEXEC"
-		append "#define __DAI_HAS_PYTHON 1"
-		append "#define __DAI_PYTHON_EXECUTABLE \"$PYEXEC\""
+		append "#define _DAI_HAS_PYTHON 1"
+		append "#define _DAI_PYTHON_EXECUTABLE \"$PYEXEC\""
 
 		PYV=$($PYEXEC --version | cut -d' ' -f2)
 		PYV=${PYV:-0.0.0}
 		msg "PYTHON VERSION" "$PYV"
-		append "#define __DAI_PYTHON_VERSION \"$PYV\""
-		append "#define __DAI_PYTHON_MAJOR_VERSION $(echo $PYV | cut -d. -f1)"
-		append "#define __DAI_PYTHON_MINOR_VERSION $(echo $PYV | cut -d. -f2)"
-		append "#define __DAI_PYTHON_SUBMINOR_VERSION $(echo $PYV | cut -d. -f3)"
+		append "#define _DAI_PYTHON_VERSION \"$PYV\""
+		append "#define _DAI_PYTHON_MAJOR_VERSION $(echo $PYV | cut -d. -f1)"
+		append "#define _DAI_PYTHON_MINOR_VERSION $(echo $PYV | cut -d. -f2)"
+		append "#define _DAI_PYTHON_SUBMINOR_VERSION $(echo $PYV | cut -d. -f3)"
 	fi
 
 
@@ -143,7 +143,7 @@ supported_features() {
 	###############
 	msg "ANSI COLORS" "$HAS_COLORS"
 	append ""
-	append "#define __DAI_HAS_ANSI_COLORS $HAS_COLORS"
+	append "#define _DAI_HAS_ANSI_COLORS $HAS_COLORS"
 
 
 	##############
@@ -154,7 +154,7 @@ supported_features() {
 	ret=$(expr $? = 0)
 	msg "BACKTRACES" "$ret"
 	append ""
-	append "#define __DAI_HAS_BACKTRACES $ret"
+	append "#define _DAI_HAS_BACKTRACES $ret"
 	rm backtraces.cfg 2>/dev/null
 
 	####################
@@ -164,7 +164,7 @@ supported_features() {
 	ret=$(expr $? = 0)
 	msg "LABEL VALUES" "$ret"
 	append ""
-	append "#define __DAI_HAS_LABEL_VALUES $ret"
+	append "#define _DAI_HAS_LABEL_VALUES $ret"
 	rm label_values.cfg 2>/dev/null
 }
 
@@ -174,8 +174,8 @@ write_config() {
 
 	cat <<- _end_of_guard > "$WRITE_TO"
 	#pragma once
-	#ifndef __DAI_STDLIB_GENERATEDCONFIG
-	#define __DAI_STDLIB_GENERATEDCONFIG
+	#ifndef _DAI_STDLIB_GENERATEDCONFIG
+	#define _DAI_STDLIB_GENERATEDCONFIG
 	_end_of_guard
 
 	config_variables

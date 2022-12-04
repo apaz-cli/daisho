@@ -1,5 +1,5 @@
 #define __GNU_SOURCE
-#define __DAI_NO_LIBRARIES
+#define _DAI_NO_LIBRARIES
 #include "../../stdlib/Daisho.h"
 
 int
@@ -13,7 +13,7 @@ main(void) {
 
 #define TEST_TYPETOA(t, func, fmt)                                                               \
     /* For every possible value of the type */                                                   \
-    for (t i = __DAI_MIN_OF_TYPE(t); i <= __DAI_MAX_OF_TYPE(t); i++) {                           \
+    for (t i = _DAI_MIN_OF_TYPE(t); i <= _DAI_MAX_OF_TYPE(t); i++) {                           \
         if (!(i % 100000000)) printf(fmt "\n", i);                                               \
         /* Initialize the array to known values (BEAD repeating)  */                             \
         for (size_t j = 0; j < 80; j++) space[j] = bead[j % 4];                                  \
@@ -23,7 +23,7 @@ main(void) {
         size_t ret = func(i, buf);                                                               \
                                                                                                  \
         /* Validate the return */                                                                \
-        if (printed != ret) {                                                                    \
+        if ((size_t)printed != ret) {                                                                    \
             printf("Expected %d characters printed for " fmt ", but printed %zu.\n", printed, i, \
                    ret);                                                                         \
             write(STDOUT_FILENO, space, 80);                                                     \
@@ -60,6 +60,6 @@ main(void) {
             }                                                                                    \
         }                                                                                        \
     }
-    TEST_TYPETOA(long, __Dai_ltoa, "%ld");
-    TEST_TYPETOA(unsigned long, __Dai_ultoa, "%lu");
+    TEST_TYPETOA(long, _Dai_ltoa, "%ld");
+    TEST_TYPETOA(unsigned long, _Dai_ultoa, "%lu");
 }

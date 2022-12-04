@@ -7,8 +7,8 @@
 \***********************************************************************/
 
 #pragma once
-#ifndef __DAI_STDLIB_CONFIG
-#define __DAI_STDLIB_CONFIG
+#ifndef _DAI_STDLIB_CONFIG
+#define _DAI_STDLIB_CONFIG
 
 /* Generated from the configure script. */
 #include "GeneratedConfig.h"
@@ -24,8 +24,8 @@
  * --no-python specifies 0.
  * --python    specifies 1.
  */
-#ifndef __DAI_EMBED_PYTHON
-#define __DAI_EMBED_PYTHON 0
+#ifndef _DAI_EMBED_PYTHON
+#define _DAI_EMBED_PYTHON 0
 #endif
 
 /*
@@ -41,8 +41,8 @@
  * --sane     specifies 1.
  * --pedantic specifies 2.
  */
-#ifndef __DAI_SANITY_CHECK
-#define __DAI_SANITY_CHECK 1
+#ifndef _DAI_SANITY_CHECK
+#define _DAI_SANITY_CHECK 1
 #endif
 
 /*
@@ -50,16 +50,16 @@
  * 1 - Memory debugging.
  * 2 - Memory debugging, and print all allocations and frees to stderr.
  *
- * When memory debugging is turned on, __Dai_malloc(),
- * __Dai_calloc(), __Dai_realloc(), and __Dai_free()
+ * When memory debugging is turned on, _Dai_malloc(),
+ * _Dai_calloc(), _Dai_realloc(), and _Dai_free()
  * are wrapped for additional sanity checks.
  *
- * For example, trying to __Dai_realloc() or __Dai_free()
+ * For example, trying to _Dai_realloc() or _Dai_free()
  * a pointer not allocated by one of the other wrapped functions
  * (including by normal malloc()) causes a crash and prints debugging
  * information to stderr about exactly where the invalid free happened.
  *
- * You can also use __Dai_heap_dump() to print a summary to stderr
+ * You can also use _Dai_heap_dump() to print a summary to stderr
  * of all tracked memory allocations and where they happened.
  *
  * Can be declared by daic as a flag to the C compiler.
@@ -70,8 +70,8 @@
  * --memdebug       specifies 1.
  * --memdebug-print specifies 2.
  */
-#ifndef __DAI_MEMDEBUG
-#define __DAI_MEMDEBUG 0
+#ifndef _DAI_MEMDEBUG
+#define _DAI_MEMDEBUG 0
 #endif
 
 /*
@@ -79,16 +79,16 @@
  * 1 - Replace malloc() (default)
  *
  * Replaces the memory allocator used by
- * __Dai_malloc(), __Dai_realloc(), __Dai_calloc(), and
- * __Dai_free(), and also wraps normal malloc(), realloc(), calloc(), and
- * free() in a macro redirecting to their __Dai_ versions. This only works
+ * _Dai_malloc(), _Dai_realloc(), _Dai_calloc(), and
+ * _Dai_free(), and also wraps normal malloc(), realloc(), calloc(), and
+ * free() in a macro redirecting to their _Dai_ versions. This only works
  * for the current translation unit.
  *
  * This has multiple benefits. The custom memory allocator is faster. Also, in
- * combination with __DAI_MEMDEBUG, this can be used to track down errors in
+ * combination with _DAI_MEMDEBUG, this can be used to track down errors in
  * code not written by daic.
  *
- * When you use __DAI_REPLACE_MALLOC, be sure to always include Daisho.h
+ * When you use _DAI_REPLACE_MALLOC, be sure to always include Daisho.h
  * before including the file that provides malloc(), so that it can be wrapped
  * for the whole translation unit.
  *
@@ -99,8 +99,8 @@
  * --normal-malloc  specifies 0.
  * --replace-malloc specifies 1.
  */
-#ifndef __DAI_REPLACE_MALLOC
-#define __DAI_REPLACE_MALLOC 1
+#ifndef _DAI_REPLACE_MALLOC
+#define _DAI_REPLACE_MALLOC 1
 #endif
 
 /*
@@ -110,8 +110,8 @@
  * If this number is smaller than the number of stack frames to report,
  * then the newest ones are reported.
  */
-#ifndef __DAI_BT_MAX_FRAMES
-#define __DAI_BT_MAX_FRAMES 128
+#ifndef _DAI_BT_MAX_FRAMES
+#define _DAI_BT_MAX_FRAMES 128
 #endif
 
 /*
@@ -122,16 +122,16 @@
  * Controls how stdout and stderr are flushed. Behavior is the same
  * as setvbuf() from the c stdlib.
  */
-#ifndef __DAI_OUTPUT_BUFFERING
-#define __DAI_OUTPUT_BUFFERING 1
+#ifndef _DAI_OUTPUT_BUFFERING
+#define _DAI_OUTPUT_BUFFERING 1
 #endif
 
 /*
  * The C runtime locale for Daisho to use.
  * Default: "C.UTF-8"
  */
-#ifndef __DAI_LOCALE
-#define __DAI_LOCALE "C.UTF-8"
+#ifndef _DAI_LOCALE
+#define _DAI_LOCALE "C.UTF-8"
 #endif
 
 /*
@@ -145,23 +145,23 @@
  *
  * See man signal.h for details and a list of signals and default actions.
  */
-#ifndef __DAI_BACKTRACE_SIGNALS
-#define __DAI_BACKTRACE_SIGNALS \
+#ifndef _DAI_BACKTRACE_SIGNALS
+#define _DAI_BACKTRACE_SIGNALS \
     SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, SIGVTALRM, SIGXCPU, SIGXFSZ, SIGSYS
 #endif
 
 /*
  * Backtraces must be both supported and enabled to work.
  */
-#ifndef __DAI_BACKTRACES_ENABLED
-#define __DAI_BACKTRACES_ENABLED __DAI_HAS_BACKTRACES
+#ifndef _DAI_BACKTRACES_ENABLED
+#define _DAI_BACKTRACES_ENABLED _DAI_HAS_BACKTRACES
 #endif
 
 /*
  * Use ANSI colors inside backtraces
  */
-#ifndef __DAI_BT_COLORS
-#define __DAI_BT_COLORS __DAI_HAS_ANSI_COLORS
+#ifndef _DAI_BT_COLORS
+#define _DAI_BT_COLORS _DAI_HAS_ANSI_COLORS
 #endif
 
-#endif /* __DAI_STDLIB_CONFIG */
+#endif /* _DAI_STDLIB_CONFIG */

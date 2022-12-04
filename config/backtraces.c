@@ -1,8 +1,8 @@
 #include <execinfo.h>
 
-#define __DAI_SANITY_CHECK 2
-#define __DAI_TESTING_BACKTRACES
-#define __DAI_NO_LIBRARIES
+#define _DAI_SANITY_CHECK 2
+#define _DAI_TESTING_BACKTRACES
+#define _DAI_NO_LIBRARIES
 #include "../stdlib/Daisho.h"
 
 void
@@ -21,8 +21,8 @@ main() {
     free(strings);
 
     // Test builtin
-    __Dai_init_backtraces();
-    __Dai_raise_test_backtrace_signal();
+    _Dai_init_backtraces();
+    _Dai_raise_test_backtrace_signal();
 
     return 1;
 }

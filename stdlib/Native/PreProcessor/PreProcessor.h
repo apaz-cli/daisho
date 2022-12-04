@@ -1,5 +1,5 @@
-#ifndef __DAI_STDLIB_PREPROCESSOR
-#define __DAI_STDLIB_PREPROCESSOR
+#ifndef _DAI_STDLIB_PREPROCESSOR
+#define _DAI_STDLIB_PREPROCESSOR
 
 #include "../Configs/Configs.h"
 #include "Color.h"
@@ -9,4 +9,4 @@
 #include "Limits.h"
 #include "Overflow.h"
 
-#endif /* __DAI_STDLIB_PREPROCESSOR */
+#endif /* _DAI_STDLIB_PREPROCESSOR */

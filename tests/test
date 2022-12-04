@@ -62,7 +62,7 @@ cc = "clang"
 pycconfig = subprocess.run(["python3-config", "--cflags", "--embed"], stdout=subprocess.PIPE).stdout.decode('utf-8')
 pycconfig = re.sub("-ffile-prefix-map=/build/python3.9-RNBry6/python3.9-3.9.2=.", "", pycconfig)
 pycconfig = re.sub("-specs=/usr/share/dpkg/no-pie-compile.specs", "", pycconfig)
-pycconfig = re.sub("-fstack-protector", "", pycconfig)
+pycconfig = re.sub("-fstack-protector(-strong)?", "", pycconfig)
 pycconfig = re.sub("-g", "", pycconfig)
 pycconfig = re.sub("\n", " ", pycconfig)
 pycconfig = re.sub(" +", " ", pycconfig)
@@ -73,7 +73,7 @@ pyldconfig = re.sub(" +", " ", pyldconfig)
 
 warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes -Wno-missing-braces -Wno-unused-function"
 
-extras = "-O0 -D__DAI_EMBED_PYTHON=1 -g -rdynamic"
+extras = "-O0 -D_DAI_EMBED_PYTHON=1 -g -rdynamic"
 
 
 invocations = []

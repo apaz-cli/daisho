@@ -1,106 +1,106 @@
-#ifndef __DAI_STDLIB_SIGLIST
-#define __DAI_STDLIB_SIGLIST
+#ifndef _DAI_STDLIB_SIGLIST
+#define _DAI_STDLIB_SIGLIST
 #include "../PreProcessor/PreProcessor.h"
 
 /* http://www.skrenta.com/rt/man/signal.7.html */
 
 typedef enum {
-    __DAI_DSA_IGNO, /* Default action is to ignore the signal. */
-    __DAI_DSA_CORE, /* Default action is to terminate the process and dump core. */
-    __DAI_DSA_TERM, /* Default action is to terminate the process. */
-    __DAI_DSA_STOP, /* Default action is to stop the process until it receives a continue signal. */
-    __DAI_DSA_CONT, /* Default action is to continue the process from where it stopped. */
-} __Dai_Default_Sigaction;
+    _DAI_DSA_IGNO, /* Default action is to ignore the signal. */
+    _DAI_DSA_CORE, /* Default action is to terminate the process and dump core. */
+    _DAI_DSA_TERM, /* Default action is to terminate the process. */
+    _DAI_DSA_STOP, /* Default action is to stop the process until it receives a continue signal. */
+    _DAI_DSA_CONT, /* Default action is to continue the process from where it stopped. */
+} _Dai_Default_Sigaction;
 
 typedef struct {
     int code;
-    __Dai_Default_Sigaction action;
+    _Dai_Default_Sigaction action;
     bool catchable;
     const char* name;
-} __Dai_Siginfo;
+} _Dai_Siginfo;
 
-const __Dai_Siginfo __Dai_siglist[] = {
+const _Dai_Siginfo _Dai_siglist[] = {
 
     /*************************/
     /* 19 POSIX 1990 SIGNALS */
     /*************************/
-    {SIGHUP, __DAI_DSA_TERM, true, "SIGHUP"},
-    {SIGINT, __DAI_DSA_TERM, true, "SIGINT"},
-    {SIGQUIT, __DAI_DSA_CORE, true, "SIGQUIT"},
-    {SIGILL, __DAI_DSA_CORE, true, "SIGILL"},
-    {SIGABRT, __DAI_DSA_CORE, true, "SIGABRT"},
-    {SIGFPE, __DAI_DSA_CORE, true, "SIGFPE"},
-    {SIGKILL, __DAI_DSA_TERM, false, "SIGKILL"},
-    {SIGSEGV, __DAI_DSA_CORE, true, "SIGSEGV"},
-    {SIGPIPE, __DAI_DSA_TERM, true, "SIGPIPE"},
-    {SIGALRM, __DAI_DSA_TERM, true, "SIGALRM"},
-    {SIGTERM, __DAI_DSA_TERM, true, "SIGTERM"},
-    {SIGUSR1, __DAI_DSA_TERM, true, "SIGUSR1"},
-    {SIGUSR2, __DAI_DSA_TERM, true, "SIGUSR2"},
-    {SIGCHLD, __DAI_DSA_IGNO, true, "SIGCHLD"},
-    {SIGCONT, __DAI_DSA_CONT, true, "SIGCONT"},
-    {SIGSTOP, __DAI_DSA_STOP, false, "SIGSTOP"},
-    {SIGTSTP, __DAI_DSA_STOP, true, "SIGTSTP"},
-    {SIGTTIN, __DAI_DSA_STOP, true, "SIGTTIN"},
-    {SIGTTOU, __DAI_DSA_STOP, true, "SIGTTOU"},
+    {SIGHUP, _DAI_DSA_TERM, true, "SIGHUP"},
+    {SIGINT, _DAI_DSA_TERM, true, "SIGINT"},
+    {SIGQUIT, _DAI_DSA_CORE, true, "SIGQUIT"},
+    {SIGILL, _DAI_DSA_CORE, true, "SIGILL"},
+    {SIGABRT, _DAI_DSA_CORE, true, "SIGABRT"},
+    {SIGFPE, _DAI_DSA_CORE, true, "SIGFPE"},
+    {SIGKILL, _DAI_DSA_TERM, false, "SIGKILL"},
+    {SIGSEGV, _DAI_DSA_CORE, true, "SIGSEGV"},
+    {SIGPIPE, _DAI_DSA_TERM, true, "SIGPIPE"},
+    {SIGALRM, _DAI_DSA_TERM, true, "SIGALRM"},
+    {SIGTERM, _DAI_DSA_TERM, true, "SIGTERM"},
+    {SIGUSR1, _DAI_DSA_TERM, true, "SIGUSR1"},
+    {SIGUSR2, _DAI_DSA_TERM, true, "SIGUSR2"},
+    {SIGCHLD, _DAI_DSA_IGNO, true, "SIGCHLD"},
+    {SIGCONT, _DAI_DSA_CONT, true, "SIGCONT"},
+    {SIGSTOP, _DAI_DSA_STOP, false, "SIGSTOP"},
+    {SIGTSTP, _DAI_DSA_STOP, true, "SIGTSTP"},
+    {SIGTTIN, _DAI_DSA_STOP, true, "SIGTTIN"},
+    {SIGTTOU, _DAI_DSA_STOP, true, "SIGTTOU"},
 
     /************************/
     /* 9 POSIX 2001 SIGNALS */
     /************************/
-    {SIGBUS, __DAI_DSA_CORE, true, "SIGBUS"},
-    {SIGPOLL, __DAI_DSA_TERM, true, "SIGPOLL"},
-    {SIGPROF, __DAI_DSA_TERM, true, "SIGPROF"},
-    {SIGSYS, __DAI_DSA_CORE, true, "SIGSYS"},
-    {SIGTRAP, __DAI_DSA_CORE, true, "SIGTRAP"},
-    {SIGURG, __DAI_DSA_IGNO, true, "SIGURG"},
-    {SIGVTALRM, __DAI_DSA_TERM, true, "SIGVTALRM"},
-    {SIGXCPU, __DAI_DSA_CORE, true, "SIGXCPU"},
-    {SIGXFSZ, __DAI_DSA_CORE, true, "SIGXFSZ"},
+    {SIGBUS, _DAI_DSA_CORE, true, "SIGBUS"},
+    {SIGPOLL, _DAI_DSA_TERM, true, "SIGPOLL"},
+    {SIGPROF, _DAI_DSA_TERM, true, "SIGPROF"},
+    {SIGSYS, _DAI_DSA_CORE, true, "SIGSYS"},
+    {SIGTRAP, _DAI_DSA_CORE, true, "SIGTRAP"},
+    {SIGURG, _DAI_DSA_IGNO, true, "SIGURG"},
+    {SIGVTALRM, _DAI_DSA_TERM, true, "SIGVTALRM"},
+    {SIGXCPU, _DAI_DSA_CORE, true, "SIGXCPU"},
+    {SIGXFSZ, _DAI_DSA_CORE, true, "SIGXFSZ"},
 
 /*********************************/
 /* 10 POSSIBLE NON-POSIX SIGNALS */
 /*********************************/
 #ifdef SIGCLD
-    {SIGCLD, __DAI_DSA_IGNO, true, "SIGCLD"},
+    {SIGCLD, _DAI_DSA_IGNO, true, "SIGCLD"},
 #endif
 #ifdef SIGEMT
-    {SIGEMT, __DAI_DSA_CORE, true, "SIGEMT"},
+    {SIGEMT, _DAI_DSA_CORE, true, "SIGEMT"},
 #endif
 #ifdef SIGINFO
-    {SIGINFO, __DAI_DSA_TERM, true, "SIGINFO"},
+    {SIGINFO, _DAI_DSA_TERM, true, "SIGINFO"},
 #endif
 #ifdef SIGIO
-    {SIGIO, __DAI_DSA_TERM, true, "SIGIO"},
+    {SIGIO, _DAI_DSA_TERM, true, "SIGIO"},
 #endif
 #ifdef SIGIOT
-    {SIGIOT, __DAI_DSA_CORE, true, "SIGIOT"},
+    {SIGIOT, _DAI_DSA_CORE, true, "SIGIOT"},
 #endif
 #ifdef SIGLOST
-    {SIGLOST, __DAI_DSA_TERM, true, "SIGLOST"},
+    {SIGLOST, _DAI_DSA_TERM, true, "SIGLOST"},
 #endif
 #ifdef SIGPWR
-    {SIGPWR, __DAI_DSA_TERM, true, "SIGPWR"},
+    {SIGPWR, _DAI_DSA_TERM, true, "SIGPWR"},
 #endif
 #ifdef SIGSTKFLT
-    {SIGSTKFLT, __DAI_DSA_TERM, true, "SIGSTKFLT"},
+    {SIGSTKFLT, _DAI_DSA_TERM, true, "SIGSTKFLT"},
 #endif
 #ifdef SIGUNUSED
-    {SIGUNUSED, __DAI_DSA_CORE, true, "SIGUNUSED"},
+    {SIGUNUSED, _DAI_DSA_CORE, true, "SIGUNUSED"},
 #endif
 #ifdef SIGWINCH
-    {SIGWINCH, __DAI_DSA_IGNO, true, "SIGWINCH"},
+    {SIGWINCH, _DAI_DSA_IGNO, true, "SIGWINCH"},
 #endif
 };
 
-#define __DAI_SIGLIST_LENGTH (sizeof(__Dai_siglist) / sizeof(__Dai_siglist[0]))
+#define _DAI_SIGLIST_LENGTH (sizeof(_Dai_siglist) / sizeof(_Dai_siglist[0]))
 
-__DAI_FN const char*
-__Dai_signal_to_str(int signal) {
-    for (size_t i = 0; i < __DAI_SIGLIST_LENGTH; i++)
-        if (__Dai_siglist[i].code == signal) return __Dai_siglist[i].name;
+_DAI_FN const char*
+_Dai_signal_to_str(int signal) {
+    for (size_t i = 0; i < _DAI_SIGLIST_LENGTH; i++)
+        if (_Dai_siglist[i].code == signal) return _Dai_siglist[i].name;
 
-    if (__DAI_INSANE)
-        __DAI_UNREACHABLE();
+    if (_DAI_INSANE)
+        _DAI_UNREACHABLE();
     else {
         const char* errmsg =
             "The signal you're looking for, number %i, could not be found in the signal list.\n"
@@ -115,8 +115,8 @@ __Dai_signal_to_str(int signal) {
     return NULL;
 }
 
-__DAI_FN void
-__Dai_print_siglist(void) {
+_DAI_FN void
+_Dai_print_siglist(void) {
     // On stack, so not to clutter the binary.
     const char ign[] = "Ignore";
     const char dmp[] = "Dump Core";
@@ -138,11 +138,11 @@ __Dai_print_siglist(void) {
     puts(sep);
     puts(labels);
     puts(sep);
-    for (size_t i = 0; i < __DAI_SIGLIST_LENGTH; i++) {
-        __Dai_Siginfo sig = __Dai_siglist[i];
+    for (size_t i = 0; i < _DAI_SIGLIST_LENGTH; i++) {
+        _Dai_Siginfo sig = _Dai_siglist[i];
         printf(fmt, sig.name, sig.code, actions[sig.action], ft[sig.catchable]);
     }
     puts(startend);
 }
 
-#endif  // __DAI_STDLIB_SIGLIST
+#endif  // _DAI_STDLIB_SIGLIST

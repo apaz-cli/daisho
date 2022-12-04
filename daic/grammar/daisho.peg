@@ -164,7 +164,7 @@ eqexpr     <- n:next {rule=n}
                 else if (op->kind == kind(XOREQ)) rule=node(EQ, rule, node(BNEQ,  rule, t));
                 else if (op->kind == kind(BSREQ)) rule=node(EQ, rule, node(BSR,   rule, t));
                 else if (op->kind == kind(BSLEQ)) rule=node(EQ, rule, node(BSL,   rule, t));
-                else __DAI_UNREACHABLE()
+                else _DAI_UNREACHABLE()
               })*
 
 logorexpr  <- n:next {rule=n} (LOGOR  n:next {rule=node(LOGOR,  rule, n)})*

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __DAI_STDLIB_PRESTART
-#define __DAI_STDLIB_PRESTART
+#ifndef _DAI_STDLIB_PRESTART
+#define _DAI_STDLIB_PRESTART
 
 #include "../PreProcessor/PreProcessor.h"
 #include "Backtrace.h"
@@ -16,4 +16,4 @@
 
 #include "Allocators/Allocators.h"
 
-#endif /* __DAI_STDLIB_PRESTART */
+#endif /* _DAI_STDLIB_PRESTART */

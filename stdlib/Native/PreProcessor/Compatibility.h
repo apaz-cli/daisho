@@ -1,17 +1,17 @@
 #pragma once
-#ifndef __DAI_STDLIB_COMPATIBILITY
-#define __DAI_STDLIB_COMPATIBILITY
+#ifndef _DAI_STDLIB_COMPATIBILITY
+#define _DAI_STDLIB_COMPATIBILITY
 
-#define __DAI_FN static inline
+#define _DAI_FN static inline
 
 #ifndef __cplusplus /* C */
-#define __DAI_ALIGNOF(type) _Alignof(type)
-#define __DAI_NORETURN _Noreturn
-#define __DAI_RESTRICT restrict
+#define _DAI_ALIGNOF(type) _Alignof(type)
+#define _DAI_NORETURN _Noreturn
+#define _DAI_RESTRICT restrict
 #else /* __cplusplus */
-#define __DAI_ALIGNOF(type) alignof(type)
-#define __DAI_NORETURN
-#define __DAI_RESTRICT
+#define _DAI_ALIGNOF(type) alignof(type)
+#define _DAI_NORETURN
+#define _DAI_RESTRICT
 #endif /* __cplusplus */
 
-#endif /* __DAI_STDLIB_COMPATIBILITY */
+#endif /* _DAI_STDLIB_COMPATIBILITY */

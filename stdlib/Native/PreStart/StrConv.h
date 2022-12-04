@@ -1,5 +1,5 @@
-#ifndef __DAI_STDLIB_STRCONVERT
-#define __DAI_STDLIB_STRCONVERT
+#ifndef _DAI_STDLIB_STRCONVERT
+#define _DAI_STDLIB_STRCONVERT
 #include "../PreProcessor/PreProcessor.h"
 #include "Error.h"
 
@@ -14,59 +14,59 @@
  * returns the number of characters written to a.
  *
  * For the number of characters required to format
- * into, see the macro __DAI_<type>TOA_SPACE() for each
+ * into, see the macro _DAI_<type>TOA_SPACE() for each
  * function.
  */
 
-#define __DAI_STOA_SPACE 6
-#define __DAI_USTOA_SPACE 5
-#define __DAI_ITOA_SPACE 11
-#define __DAI_UITOA_SPACE 10
-#define __DAI_LTOA_SPACE 20
-#define __DAI_ULTOA_SPACE 20
+#define _DAI_STOA_SPACE 6
+#define _DAI_USTOA_SPACE 5
+#define _DAI_ITOA_SPACE 11
+#define _DAI_UITOA_SPACE 10
+#define _DAI_LTOA_SPACE 20
+#define _DAI_ULTOA_SPACE 20
 
-__DAI_FN size_t __Dai_stoa(short s, char* a);
-__DAI_FN size_t __Dai_ustoa(unsigned short us, char* a);
-__DAI_FN size_t __Dai_itoa(int i, char* a);
-__DAI_FN size_t __Dai_uitoa(unsigned int ui, char* a);
-__DAI_FN size_t __Dai_ltoa(long l, char* a);
-__DAI_FN size_t __Dai_ultoa(unsigned long ul, char* a);
+_DAI_FN size_t _Dai_stoa(short s, char* a);
+_DAI_FN size_t _Dai_ustoa(unsigned short us, char* a);
+_DAI_FN size_t _Dai_itoa(int i, char* a);
+_DAI_FN size_t _Dai_uitoa(unsigned int ui, char* a);
+_DAI_FN size_t _Dai_ltoa(long l, char* a);
+_DAI_FN size_t _Dai_ultoa(unsigned long ul, char* a);
 
-__DAI_FN size_t
-__Dai_ultoa(unsigned long ul, char* a) {
+_DAI_FN size_t
+_Dai_ultoa(unsigned long ul, char* a) {
     const char digits[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    char space[__DAI_ULTOA_SPACE];
+    char space[_DAI_ULTOA_SPACE];
     size_t copied = 0;
 
     // Write number into temp buffer from the back
     do {
-        space[__DAI_ULTOA_SPACE - (++copied)] = digits[ul % 10];
+        space[_DAI_ULTOA_SPACE - (++copied)] = digits[ul % 10];
     } while ((ul /= 10) != 0);
 
     // Copy into result
     for (size_t z = 0; z < copied; z++) {
-        a[z] = space[(__DAI_ULTOA_SPACE - copied) + z];
+        a[z] = space[(_DAI_ULTOA_SPACE - copied) + z];
     }
 
     return copied;
 }
 
-__DAI_FN size_t
-__Dai_ltoa(long l, char* a) {
+_DAI_FN size_t
+_Dai_ltoa(long l, char* a) {
     size_t neg = (l < 0);
     if (neg) *a++ = '-';  // Casting before conversion works for abs(LONG_MIN).
-    return neg + __Dai_ultoa((neg ? -(unsigned long)l : l), a);
+    return neg + _Dai_ultoa((neg ? -(unsigned long)l : l), a);
 }
 
 /*
  * Convert ascii to int types.
  *
  * Ex:                            return,   ret
- *     __Dai_atoi("1000a", &ret)  -> 1000, "1000a" (parsed successfully)
+ *     _Dai_atoi("1000a", &ret)  -> 1000, "1000a" (parsed successfully)
  *                                              ^
- *     __Dai_atoi("abcde", &ret)  -> ????,  NULL   (doesn't match pattern)
+ *     _Dai_atoi("abcde", &ret)  -> ????,  NULL   (doesn't match pattern)
  *
- *     __Dai_atos("-99999", &ret) -> ????,  NULL   (overflow / underflow)
+ *     _Dai_atos("-99999", &ret) -> ????,  NULL   (overflow / underflow)
  *
  *
  * Parses and returns a number from its ascii representation a.
@@ -85,15 +85,15 @@ __Dai_ltoa(long l, char* a) {
  * On error, writes NULL to ret.
  */
 
-__DAI_FN short __Dai_atos(char* a, char** ret);
-__DAI_FN unsigned short __Dai_atous(char* a, char** ret);
-__DAI_FN int __Dai_atoi(char* a, char** ret);
-__DAI_FN unsigned int __Dai_atoui(char* a, char** ret);
-__DAI_FN long __Dai_atol(char* a, char** ret);
-__DAI_FN unsigned long __Dai_atoul(char* a, char** ret);
+_DAI_FN short _Dai_atos(char* a, char** ret);
+_DAI_FN unsigned short _Dai_atous(char* a, char** ret);
+_DAI_FN int _Dai_atoi(char* a, char** ret);
+_DAI_FN unsigned int _Dai_atoui(char* a, char** ret);
+_DAI_FN long _Dai_atol(char* a, char** ret);
+_DAI_FN unsigned long _Dai_atoul(char* a, char** ret);
 
 /* Pointer to Hex */
-__DAI_FN int __Dai_ptoh(void* ptr, char* h, size_t s);
+_DAI_FN int _Dai_ptoh(void* ptr, char* h, size_t s);
 
 
 /*
@@ -134,4 +134,4 @@ static inline int codepoint_atoi(const codepoint_t *a, size_t len,
 }
 */
 
-#endif /* __DAI_STDLIB_STRCONVERT */
+#endif /* _DAI_STDLIB_STRCONVERT */

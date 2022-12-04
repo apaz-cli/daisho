@@ -1,5 +1,5 @@
 #define __GNU_SOURCE
-#define __DAI_NO_LIBRARIES
+#define _DAI_NO_LIBRARIES
 #include "../../stdlib/Daisho.h"
 
 int main(void) {
@@ -7,11 +7,11 @@ int main(void) {
     uint64_t seed = (uint64_t)rand();
     seed |= (uint64_t)rand() << 32;
 
-    __Dai_Random rand;
-    __Dai_Random_init(&rand, seed);
+    _Dai_Random rand;
+    _Dai_Random_init(&rand, seed);
 
     for (size_t i = 0; i < 10; i++) {
-        printf("%f\n", __Dai_rand_normal(&rand));
+        printf("%f\n", _Dai_rand_normal(&rand));
     }
 
 }

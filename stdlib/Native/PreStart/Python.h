@@ -1,14 +1,14 @@
-#ifndef __DAI_STDLIB_PYTHON
-#define __DAI_STDLIB_PYTHON
+#ifndef _DAI_STDLIB_PYTHON
+#define _DAI_STDLIB_PYTHON
 
 #include "../PreProcessor/PreProcessor.h"
 
 /* No stdlib stuff in here. Only python. */
 
-#if __DAI_EMBED_PYTHON
+#if _DAI_EMBED_PYTHON
 
-__DAI_FN void
-__Dai_py_init(int argc, char** argv) {
+_DAI_FN void
+_Dai_py_init(int argc, char** argv) {
 
     /* Create a status and config. */
     PyStatus status;
@@ -40,36 +40,37 @@ __Dai_py_init(int argc, char** argv) {
     PyConfig_Clear(&config);
 }
 
-__DAI_FN void
-__Dai_py_exit(void) {
+_DAI_FN void
+_Dai_py_exit(void) {
     /* Shut down the python interpreter */
     /* This should be the last thing that's done. */
     if (Py_FinalizeEx() < 0) {
-        fprintf(stdout, "Failed to shut down the python interpreter.\n")
+        fprintf(stdout, "Failed to shut down the python interpreter.\n");
         exit(120);
     }
     exit(0);
 }
 
-__DAI_FN void
-__Dai_py_eval(char* to_eval) {
+_DAI_FN void
+_Dai_py_eval(char* to_eval) {
     PyRun_SimpleString(to_eval);
 }
 
-#else /* __DAI_EMBED_PYTHON */
+#else /* _DAI_EMBED_PYTHON */
 
-__DAI_FN void
-__Dai_py_init(int argc, char** argv) {
+_DAI_FN void
+_Dai_py_init(int argc, char** argv) {
     (void)argc;
     (void)argv;
 }
-__DAI_FN void
-__Dai_py_exit(void) {}
+_DAI_FN void
+_Dai_py_exit(void) {}
 
-__DAI_FN void
-__Dai_py_eval(char* to_eval) {
+_DAI_FN void
+_Dai_py_eval(char* to_eval) {
+    (void)to_eval;
     fprintf(stderr, "Cannot eval python code. Python is not enabled.\n");
 }
 
-#endif /* __DAI_EMBED_PYTHON */
-#endif /* __DAI_STDLIB_PYTHON */
+#endif /* _DAI_EMBED_PYTHON */
+#endif /* _DAI_STDLIB_PYTHON */

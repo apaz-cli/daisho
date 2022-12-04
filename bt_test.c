@@ -7,11 +7,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define __DAI_TESTING_BACKTRACES
+#define _DAI_TESTING_BACKTRACES
 #include "stdlib/Daisho.h"
 
-__DAI_FN char*
-__Dai_simplifyPath(char* path) {
+_DAI_FN char*
+_Dai_simplifyPath(char* path) {
     /* https://leetcode.com/problems/simplify-path/discuss/266774/S-100-speed-(4-ms)-100-memory-(7-mb)
      */
     char state = 1;
@@ -83,8 +83,8 @@ __Dai_simplifyPath(char* path) {
 // Returns < 0 on a syscall or addr2line failure. Keeps errno set to indicate the error, and returns
 // an error code. Otherwise, returns the number of characters written to space, including the null
 // terminator, and writes the source file name to info->sourcefile.
-__DAI_FN long
-__Dai_SymInfo_addr2line(__Dai_SymInfo* info, char* space, size_t n) {
+_DAI_FN long
+_Dai_SymInfo_addr2line(_Dai_SymInfo* info, char* space, size_t n) {
     // Create a file descriptor for addr2line to pipe to.
     errno = 0;
     int pipes[2];
@@ -123,10 +123,10 @@ __Dai_SymInfo_addr2line(__Dai_SymInfo* info, char* space, size_t n) {
     }
 
     // Read from the pipe (addr2line child stdout), and null terminate.
-    char tmp[__DAI_BT_BUF_CAP];
-    ssize_t bytes_read = read(pipes[0], tmp, __DAI_BT_BUF_CAP);
+    char tmp[_DAI_BT_BUF_CAP];
+    ssize_t bytes_read = read(pipes[0], tmp, _DAI_BT_BUF_CAP);
     if (bytes_read <= 0) return -10;
-    if (bytes_read == __DAI_BT_BUF_CAP) {
+    if (bytes_read == _DAI_BT_BUF_CAP) {
         /* Large return probably doesn't matter. It shouldn't come up.
            We can do multiple reads instead of erroring if it becomes a problem. */
         return -11;
@@ -176,7 +176,7 @@ __Dai_SymInfo_addr2line(__Dai_SymInfo* info, char* space, size_t n) {
     // Copy the line number and source file from the return of addr2line into the space provided.
     if (!source_failed) {
         // Copy, null terminate over the colon or end, and add to info.
-        __Dai_simplifyPath(tmp);
+        _Dai_simplifyPath(tmp);
         written = strlen(tmp) + 1;
         if (n <= written) {
             info->source = NULL;
@@ -216,17 +216,17 @@ __Dai_SymInfo_addr2line(__Dai_SymInfo* info, char* space, size_t n) {
     return written;
 }
 
-__DAI_FN long
-__Dai_SymInfo_snwrite(char* s, size_t n, __Dai_SymInfo info, size_t width) {
+_DAI_FN long
+_Dai_SymInfo_snwrite(char* s, size_t n, _Dai_SymInfo info, size_t width) {
     long num_written = 0;
 
-#if __DAI_BT_COLORS
-    // "" if !__DAI_ANSI_TERMINAL
-    const char func_color[] = __DAI_COLOR_FUNC;
-    const char file_color[] = __DAI_COLOR_FILE;
-    const char line_color[] = __DAI_COLOR_LINE;
-    const char reset_color[] = __DAI_COLOR_RESET;
-    const char head_color[] = __DAI_COLOR_HEAD;
+#if _DAI_BT_COLORS
+    // "" if !_DAI_ANSI_TERMINAL
+    const char func_color[] = _DAI_COLOR_FUNC;
+    const char file_color[] = _DAI_COLOR_FILE;
+    const char line_color[] = _DAI_COLOR_LINE;
+    const char reset_color[] = _DAI_COLOR_RESET;
+    const char head_color[] = _DAI_COLOR_HEAD;
 #else
     const char func_color[] = "";
     const char file_color[] = "";
@@ -274,8 +274,8 @@ init() {
     // Call backtrace once to load the
     // library so dlopen(), which calls malloc(),
     // is not called inside the signal handler.
-    void* frames[__DAI_BT_MAX_FRAMES];
-    int num_frames = backtrace(frames, __DAI_BT_MAX_FRAMES);
+    void* frames[_DAI_BT_MAX_FRAMES];
+    int num_frames = backtrace(frames, _DAI_BT_MAX_FRAMES);
     if (!num_frames) return 1;
 
     // Create a temp file buffer.
@@ -288,11 +288,11 @@ init() {
 
 long print_trace(void) {
     // Call backtrace.
-    __Dai_SymInfo frameinfo[__DAI_BT_MAX_FRAMES];
-    void* frames[__DAI_BT_MAX_FRAMES];
-    int num_frames = backtrace(frames, __DAI_BT_MAX_FRAMES);
+    _Dai_SymInfo frameinfo[_DAI_BT_MAX_FRAMES];
+    void* frames[_DAI_BT_MAX_FRAMES];
+    int num_frames = backtrace(frames, _DAI_BT_MAX_FRAMES);
     if (!num_frames) return 1;                       // No backtrace
-    if (num_frames > __DAI_BT_MAX_FRAMES) return 2;  // Backtrace too long
+    if (num_frames > _DAI_BT_MAX_FRAMES) return 2;  // Backtrace too long
 
     // Write the backtrace to the temp file dedicated for it during initialization.
     // Unfortunately, redirecting a write() into memory is barely doable and not portable.
@@ -307,8 +307,8 @@ long print_trace(void) {
     }
 
     // Read back the file into memory.
-    char pages[__DAI_BT_BUF_CAP];
-    ssize_t num_read = read(fd, pages, __DAI_BT_BUF_CAP - 1);
+    char pages[_DAI_BT_BUF_CAP];
+    ssize_t num_read = read(fd, pages, _DAI_BT_BUF_CAP - 1);
 
     // Reset the file offset for the next time we backtrace.
     lseek(fd, 0, SEEK_SET);
@@ -328,7 +328,7 @@ long print_trace(void) {
         while ((*next != '\n')) next++;
         next++;
 
-        frameinfo[n] = __Dai_SymInfo_parse(str);
+        frameinfo[n] = _Dai_SymInfo_parse(str);
         // fprintf(stderr, "%s %s %s\n", frameinfo[n].file, frameinfo[n].func, frameinfo[n].addr);
 
         // If we know we've hit main(), stop early.
@@ -346,10 +346,10 @@ long print_trace(void) {
 
     // For each frame (which we now have info for), get the line number.
     char* space = pages + num_read;
-    size_t remaining = __DAI_BT_BUF_CAP - num_read;
+    size_t remaining = _DAI_BT_BUF_CAP - num_read;
     for (int n = 0; n < num_frames; n++) {
         // Call addr2line
-        long written = __Dai_SymInfo_addr2line(frameinfo + n, space, remaining);
+        long written = _Dai_SymInfo_addr2line(frameinfo + n, space, remaining);
 
         // If a syscall failed, error out.
         if (written <= -1) {
@@ -364,7 +364,7 @@ long print_trace(void) {
     }
 
     for (size_t i = 0; i < num_frames; i++) {
-        long written = __Dai_SymInfo_snwrite(space, remaining, frameinfo[i], 80);
+        long written = _Dai_SymInfo_snwrite(space, remaining, frameinfo[i], 80);
         if (written < 0) {
             backtrace_symbols_fd(frames, num_frames, STDERR_FILENO);
             return 5;
