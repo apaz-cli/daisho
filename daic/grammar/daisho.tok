@@ -103,7 +103,13 @@ SELFTYPE: "Self";
 SELFVAR: "self";
 VOIDTYPE: "Void";
 VOIDPTR:  "VoidPtr";
-NAMESPACE: "namespace";
+SIZEOF: "sizeof";
+NAMESPACE: (9, 15, 22) { // namespace|module|package
+  (0,  'n') -> 1;(1,  'a') -> 2;(2,  'm') -> 3;(3,  'e') -> 4;(4,  's') -> 5;(5,  'p') -> 6;(6,  'a') -> 7;(7,  'c') -> 8;(8,  'e') -> 9;
+  (0,  'm') -> 10;(10, 'o') -> 11;(11, 'd') -> 12;(12, 'u') -> 13;(13, 'l') -> 14;(14, 'e') -> 15;
+  (0,  'p') -> 16;(16, 'a') -> 17;(17, 'c') -> 18;(18, 'k') -> 19;(19, 'a') -> 20;(20, 'g') -> 21;(21, 'e') -> 22;
+};
+
 
 /////////////////
 // Misc Syntax //
@@ -122,8 +128,8 @@ HASH:    "#";
 REF:     "@";
 DEREF:   "$";
 GRAVE:   "`";
-ARROW:    "->";
-DARROW:   "=>";
+ARROW:   "->";
+DARROW:  "=>";
 
 
 ///////////////////////

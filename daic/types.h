@@ -6,42 +6,34 @@
 
 // This file should contain only type definitions.
 
-typedef char* SymtabKey;
-typedef char* SymtabValue;
+
+//////////////////////////////
+// SYMTABS AND DECLARATIONS //
+//////////////////////////////
 
 typedef struct {
-    SymtabKey key;
-    SymtabValue value;
-} SymtabEntry;
+  codepoint_t* name;
+  size_t len;
+} Identifier;
 
+static inline int ident_eq(Identifier i1, Identifier i2) {
+  if (i1.len != i2.len) return 0;
+  for (size_t i = 0; i < i1.len; i++)
+    if (i1.name[i] != i2.name[i])
+      return 0;
+  return 1;
+}
+
+struct Declaration;
+typedef struct Declaration Declaration;
 typedef struct {
-    SymtabEntry* entries;
-    pgen_allocator* alloc;
-    size_t num_entries;
-    size_t cap_entries;
-} Symtab;
-
-/*
-
-typedef struct {
-  daisho_astnode_t* belongsTo;
-  List<BoundType> backedges;
-} BindableType;
-
-typedef struct {
-  UniverseType from;
-  List<Void*> as;
-} BoundType;
-
-// A type unification context
-typedef struct {
-  List<>
-} Universe;
+  Declaration* type;
+  codepoint_t* name;
+  size_t size;
+} Field;
 
 typedef struct {} NamespaceDecl;
-typedef struct {
-  
-} StructDecl;
+typedef struct {} StructDecl;
 typedef struct {} UnionDecl;
 typedef struct {} TraitDecl;
 typedef struct {} ImplDecl;
@@ -49,7 +41,17 @@ typedef struct {} CTypeDecl;
 typedef struct {} AliasDecl;
 typedef struct {} FunctionDecl;
 
-typedef struct {
+
+struct Declaration {
+#define FIELD_DECLKIND     0
+#define NAMESPACE_DECLKIND 1
+#define STRUCT_DECLKIND    2
+#define UNION_DECLKIND     3
+#define TRAIT_DECLKIND     4
+#define IMPL_DECLKIND      5
+#define CTYPE_DECLKIND     6
+#define ALIAS_DECLKIND     7
+#define FN_DECLKIND        8
   union {
     NamespaceDecl ns;
     StructDecl s;
@@ -60,44 +62,61 @@ typedef struct {
     AliasDecl a;
     FunctionDecl f;
   };
-} Declaration;
-*/
-
-// Constructed post-monomorphization.
-// Goes into the symbol table that is attached to each lexical scope in the AST. 
-typedef struct {
   daisho_astnode_t* source;
-  size_t size;
-} TypeDecl;
-
-typedef enum {
-  SYMTAB_TYPE,
-  FUNCTION_TYPE,
-  VOID_TYPE,
-  VOIDPTR_TYPE,
-} TypeKind;
-
-struct ConcreteType;
-typedef struct ConcreteType ConcreteType;
-struct ConcreteType {
-  union {
-    SymtabEntry* entry;
-  };
-  TypeKind kind;
-  size_t size;
+  Identifier id;
+  uint8_t kind;
 };
+
+typedef struct {
+  Declaration* decls;
+  pgen_allocator* alloc;
+  size_t num_decls;
+  size_t cap_decls;
+} Symtab;
+
+//////////////////////
+// TYPES IN THE AST //
+//////////////////////
 
 // The type of an expression in the AST.
 struct ExprType;
 typedef struct ExprType ExprType;
 struct ExprType {
+#define SYMTAB_EXPRTYPE   0
+#define FUNCTION_EXPRTYPE 1
+#define VOID_EXPRTYPE     2
+#define TRAIT_EXPRTYPE    3
   union {
     ExprType* generic;
-    SymtabEntry* declared_at;
+    Declaration* decl;
   };
-  uint8_t is_concrete : 1;
-  uint8_t pointer_depth : 7;
+  uint8_t kind : 2;
+  uint8_t pointer_depth : 5;
+  List_MonoParams mono;
 };
 
+
+////////////////////////
+// FUNCTIONS ON TYPES //
+////////////////////////
+
+static inline ExprType* typeFromDecl(Declaration* decl) {
+
+}
+
+static inline char* mangle_decl(Declaration* decl) {
+
+}
+
+static inline char* mangle_expr(ExprType* type) {
+
+}
+
+//////////////
+// BUILTINS //
+//////////////
+
+// static Declaration voidTypeDecl;
+// static ExprType* voidType;
 
 #endif /* DAIC_TYPES_INCLUDE */

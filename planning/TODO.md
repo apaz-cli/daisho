@@ -11,7 +11,7 @@
 ## Easy issues to pick up
 | Task:                 | Asignee | Priority | Notes:                         |
 | :-------------------- | :-----: | :------: | -----------------------------: |
-| __Dai_String impl     |         | Medium   |                                |
+| _Dai_String impl      |         | Medium   |                                |
 
 
 

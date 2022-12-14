@@ -4,7 +4,8 @@ bin/**
 .cache/**
 tests/bin/*
 compile_commands.json
-daic/grammar/a.out
+**/a.out
+**/*.swp
 
 # Tokenizer reference materials
 **/Maximal-munch tokenization in linear time.pdf

@@ -1,1 +1,2 @@
-5 - (abc<Fn<Int, Void* => VoidPtr>, Void>(1, "str", arg -> expr)) - 1) / 72
+
+0.(Fn<>)

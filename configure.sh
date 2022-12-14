@@ -97,6 +97,39 @@ config_variables() {
 
 }
 
+gitrev() {
+	LONGREV=$(git rev-parse HEAD)
+	SHORTREV=$(git rev-parse --short HEAD)
+	VERSION_MAJOR="0"
+	VERSION_MINOR="0"
+	VERSION_SUBMINOR="1"
+
+	cat <<- _end_of_text
+	${MAGENTA}
+	###########
+	# Version #
+	###########
+	${NORMAL}
+	_end_of_text
+
+	cat <<- _end_of_header >> "$WRITE_TO"
+
+	/***********/
+	/* Version */
+	/***********/
+	_end_of_header
+
+	msg    "Version" "0.0.1"
+	append "#define _DAI_VERSION $VERSION_MAJOR.$VERSION_MINOR.$VERSION_SUBMINOR"
+	append "#define _DAI_VERSION_MAJOR $VERSION_MINOR"
+	append "#define _DAI_VERSION_MINOR $VERSION_MAJOR"
+	append "#define _DAI_VERSION_SUBMINOR $VERSION_SUBMINOR"
+
+	msg    "Revision" "$LONGREV"
+	append "#define _DAI_SHORT_REV $SHORTREV"
+	append "#define _DAI_LONG_REV $LONGREV"
+}
+
 ############################
 #                          #
 #    SUPPORTED FEATURES    #
@@ -157,6 +190,7 @@ supported_features() {
 	append "#define _DAI_HAS_BACKTRACES $ret"
 	rm backtraces.cfg 2>/dev/null
 
+
 	####################
 	# LABELS AS VALUES #
 	####################
@@ -177,6 +211,8 @@ write_config() {
 	#ifndef _DAI_STDLIB_GENERATEDCONFIG
 	#define _DAI_STDLIB_GENERATEDCONFIG
 	_end_of_guard
+
+	gitrev
 
 	config_variables
 	supported_features

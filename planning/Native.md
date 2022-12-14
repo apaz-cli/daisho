@@ -7,8 +7,6 @@
       * They might need pull in extra headers.
 
 
-
-
 ## Rules:
 1. Native methods cannot be defined on a trait.
    * However you can declare a native function and call it inside a Daisho method to get around this.
@@ -38,9 +36,7 @@
    * Note that generic members are not allowed inside native-qualified types (Ex: `T item;`and `List<T> items;`).
    * You may not omit the types of arguments to `native` functions/methods.
 
-
 5. When you define a native method on a ctype or function, it includes `this` as an implicit first argument.
-
 
 6. The return value of a native function must follow the same rules as the arguments.
    * You may return `this`.

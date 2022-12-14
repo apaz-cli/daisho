@@ -52,12 +52,13 @@ endianness, etc.
 is designed and implemented. `Int` from the standard library (which is always
 implicitly included) is declared with `ctype Int int;`. The reason why
 `5(Int) + 4(Int)` is valid in the language is because numbers like `5` are
-implemented in the grammar (and needs to be cast or assigned to a typed
+implemented in the grammar (and need to be cast or assigned to a typed
 variable so that its type can be inferred), and `native +(Int lhs, Int rhs)`
 is implemented as a `native` function. There is no such thing as addition in
-Daisho. Or a concept of anything else. Everything traces back to `ctype`s and
-`native` implementations. All the language does is stitch these together with
-a polymorphic trait-based type system on top. Hence the opening statements
+Daisho. Or a concept of anything else. There is only the function `+`,
+implemented for `Int`. Everything traces back to `ctype`s and `native`
+implementations. All the language does is stitch these together with a
+polymorphic trait-based type system on top. Hence the opening statements
 about how Daisho is a language binding.
 
 Builtin functions such as `sizeof()` work on `ctype`s because the compiler
@@ -65,20 +66,19 @@ literally generates `sizeof(type)`. Therefore, any `ctype` you declare must
 be fully-qualified. Otherwise, the C compiler will choke on your code.
 
 
-## Classes
+## Structs
 
-A `class` is literally a C struct with methods associated with it. Each of
-these methods is literally a function which takes the object as an argument
-called `this`. When you define a native method on a class, it includes `this`
-as an extra first argument.
+A `struct` (or equivalently `class` or `type`) is literally a C struct with
+methods associated with it. Each of these methods is literally a function which
+takes the object as an argument called `self`. When you define a native method
+on a class, it includes `self` as an extra first argument.
 
 When you have an object containing members, you literally have a C struct
-containing those members. The same way, a `class` containing another `class`
+containing those members. The same way, a `struct` containing another `struct`
 is a struct containing another struct. This gives the user perfect information
 about how objects are laid out in memory.
 
-
-Just like in C, a `class` cannot contain an instance of itself as a member.
+Just like in C, a `struct` cannot contain an instance of itself as a member.
 Additionally, it cannot contain an instance of a `trait` that it implements
 as a member. To get around this, store a reference instead.
 

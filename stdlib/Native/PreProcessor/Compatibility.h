@@ -14,4 +14,10 @@
 #define _DAI_RESTRICT
 #endif /* __cplusplus */
 
+#if defined __has_include
+#define _DAI_HAS_INCLUDE 1
+#else
+#define _DAI_HAS_INCLUDE 0
+#endif
+
 #endif /* _DAI_STDLIB_COMPATIBILITY */

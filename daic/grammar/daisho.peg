@@ -9,13 +9,17 @@
 %extrainit   node->type = NULL;
 
 
-file      <- sh:SHEBANG? topdecl (SEMI topdecl)*
+program      <- sh:SHEBANG? nses:{list(NSLIST)} (f:namespace {add(nses, f)})+ {rule=node(PROGRAM, sh, nses)}
+
+namespace    <- ns:NAMESPACE name:TYPEIDENT SEMI l:{list(NSDECLS)}
+                t:topdecl {add(l, t)} (SEMI t:topdecl {add(l, t)})*
+                {rule=node(NAMESPACE, name, l)}
 
 /****************/
 /* DECLARATIONS */
 /****************/
 
-topdecl    <- structdecl / uniondecl / traitdecl / fndecl / impldecl / nsdecl
+topdecl    <- fndecl / structdecl / uniondecl / traitdecl / impldecl
 
 
 structdecl <- STRUCT id:TYPEIDENT tmpl:tmplexpand?
@@ -54,8 +58,6 @@ impldecl   <- IMPL tt:TYPEIDENT tmplexpand?
              (m:fnmember {add(members, m)})*
               RCBRACK
 
-nsdecl     <- ns:NAMESPACE t:TYPEIDENT {rule=node(NAMESPACE, t)}
-
 typemember <- t:type v:VARIDENT SEMI {rule=node(TYPEMEMBER, t, v)}
 
 fnmember   <- r:(fndecl / fnproto) SEMI {rule=r}
@@ -70,7 +72,7 @@ type<uint8_t depth = 0>
             / v:voidptr      (STAR {depth++})*  {rule=node(TYPE, v)} // Void* means anything.
             / s:SELFTYPE     (STAR {depth++})*  {rule=node(TYPE, s)} // Self refers to the type of the first arg, or the current type.
             / t:traittype    (STAR {depth++})*  {rule=node(TYPE, t)} // Trait object (+1 pointer, trait)
-            / s:structtype   (STAR {depth++})*  {rule=node(TYPE, t)} // Type identifier
+            / s:structtype   (STAR {depth++})*  {rule=node(TYPE, s)} // Type identifier
             / f:fntype       (STAR {depth++})*  {rule=node(TYPE, f)} // Fn<From -> To> is To(*fptr)(From).
             / c:ctypedecl                       {rule=node(TYPE, c)} // TODO figure out syntax
 
@@ -78,10 +80,10 @@ voidptr    <- v:VOIDPTR         {rule=v}
             / v:VOIDTYPE s:STAR {rule=leaf(VOIDPTR)}
 
 traittype  <- i:TYPEIDENT t:tmplexpand?
-              {ret = t ? node(TMPLTYPE, t, i) : node(TYPE, i)}
+              {ret = has(t) ? node(TMPLTYPE, t, i) : node(TYPE, i)}
 
 structtype <- s:TYPEIDENT t:tmplexpand?
-              {ret = t ? node(TMPLTYPE, t, s) : node(TYPE, s)}
+              {ret = has(t) ? node(TMPLTYPE, t, s) : node(TYPE, s)}
 
 ctypedecl  <- CTYPE CIDENT
 
@@ -89,18 +91,16 @@ fntype     <- FNTYPE
               LT
               argtypes:{ret=list(ARGLIST)}
               (      t:type {add(argtypes, t)})?
-              (COMMA t:type {add(argtypes, t)})*
-              {if (!argtypes->num_children) add(argtypes, node(TYPE, leaf(VOIDTYPE)))}
+              (COMMA t:type {add(argtypes, t)})* COMMA?
+              {if (!argtypes->num_children) add(argtypes, leaf(VOIDTYPE))}
               (arrow:ARROW rettype:type)?
               GT
-              {rule=node(FNTYPE,
-                         argtypes,
-                         ((rettype==SUCC) | (rettype==NULL)) ? node(TYPE, leaf(VOIDTYPE)) : rettype)}
+              {rule=node(FNTYPE, argtypes, !has(rettype) ? leaf(VOIDTYPE) : rettype)}
               /
               FNTYPE
               tmp:{rule=node(FNTYPE,
-                            (tmp=list(ARGLIST), add(tmp, node(TYPE, leaf(VOIDTYPE))), tmp),
-                             node(TYPE, leaf(VOIDTYPE)))}
+                            (tmp=list(ARGLIST), add(tmp, leaf(VOIDTYPE)), tmp),
+                             leaf(VOIDTYPE))}
 
 
 /***********************/
@@ -133,9 +133,9 @@ whileexpr  <- WHILE o:OPEN? n:next c:CLOSE? {ret=o==c?SUCC:NULL} expr
             / n:next {rule=n}
 
 ternexpr   <- n:next (q:QUEST qe:expr (c:COLON ce:expr)?)?
-              {rule = has(qe) ? n
-                    : has(ce) ? node(IF, q, n, qe)
-                    :           node(TERN, q, c, n, qe, ce)}
+              {rule = !has(qe) ? n
+                    : !has(ce) ? node(IF, q, n, qe)
+                    :            node(TERN, q, c, n, qe, ce)}
 
 thenexpr   <- n:next {rule=n} (THEN nn:next {rule=node(THEN, rule, nn)})*
 
@@ -187,21 +187,21 @@ shfexpr    <- n:next {rule=n} // Tokenized as < < and > >.
              (l:LT lt:LT n:next {rule=node(BSL, l, lt, rule, n)}
              /g:GT gt:GT n:next {rule=node(BSR, g, gt, rule, n)})*
 
-powexpr    <- n:next {rule=n} (POW {rule=node(POW, rule, n)})*
+sumexpr    <- n:next {rule=n}
+             (p:PLUS  n:next {rule=repr(node(PLUS, rule, n), p)}
+             /m:MINUS n:next {rule=repr(node(MINUS, rule, n), m)})*
 
 multexpr   <- n:next {rule=n}
              (STAR n:next {rule=node(STAR, rule, n)}
              /DIV  n:next {rule=node(DIV,  rule, n)}
              /MOD  n:next {rule=node(MOD,  rule, n)})*
 
-sumexpr    <- n:next {rule=n}
-             (p:PLUS  n:next {rule=repr(node(PLUS, rule, n), p)}
-             /m:MINUS n:next {rule=repr(node(MINUS, rule, n), m)})*
+powexpr    <- n:next {rule=n} (POW {rule=node(POW, rule, n)})*
 
 callexpr   <- VARIDENT t:tmplexpand? OPEN CLOSE
             / n:next {rule=n}
 
-castexpr   <- n:next (OPEN t:type CLOSE)? {rule = t ? node(CAST, t, n) : n}
+castexpr   <- n:next (OPEN t:type CLOSE)? {rule = has(t) ? node(CAST, t, n) : n}
 
 refexpr    <- n:next r:REF?    {rule=has(r) ? node(REF, r, n) : n}
 
@@ -225,6 +225,7 @@ atomexpr   <- blockexpr
             / VARIDENT
             / numlit
             / strlit
+            / sizeofexpr
 
 blockexpr  <- LCBRACK
               {rule=list(BLK)}
@@ -259,15 +260,18 @@ numlit     <- pm:(PLUS / MINUS)? nl:NUMLIT {rule = nl}
 
 strlit     <- STRLIT // todo: adapt for fstrings
 
+sizeofexpr <- SIZEOF OPEN (t:type / t:expr) CLOSE {rule=node(SIZEOF, t)}
+
 
 /**************/
 /* NODE KINDS */
 /**************/
 
-%node PROG
+%node PROGRAM
 %node SHEBANG
+%node NSLIST
 %node NAMESPACE
-%node GLOBALSCOPE
+%node NSDECLS
 
 %node MEMBERLIST
 %node STRUCT
@@ -296,6 +300,7 @@ strlit     <- STRLIT // todo: adapt for fstrings
 %node ARROW
 %node DARROW
 %node LAMBDA
+%node SIZEOF
 
 %node EQ
 %node PLEQ

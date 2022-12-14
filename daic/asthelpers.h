@@ -12,24 +12,29 @@
 // This file is meant to include only the bare minimum for building the AST.
 // Doing stuff with the AST goes elsewhere.
 
-static TypeDecl voidTypeDecl = {NULL, 0};
-static ExprType voidExprType = {{NULL}, 0, 0};
-
 static inline ExprType*
-ExprType_init(daisho_parser_ctx* ctx, ExprType* info) {
+ExprType_symtab_init(daisho_parser_ctx* ctx, ExprType* info) {
   if (!info) info = PGEN_ALLOC_OF(ctx->alloc, ExprType);
-  info->declared_at = NULL;
+  info->decl = NULL;
   info->pointer_depth = 0;
-  info->is_concrete = 0;
+  info->kind = SYMTAB_EXPRTYPE;
   return info;
 }
 
+static inline ExprType*
+ExprType_function_init(daisho_parser_ctx* ctx, ExprType* info) {
+  if (!info) info = PGEN_ALLOC_OF(ctx->alloc, ExprType);
+  info->decl = NULL;
+  info->pointer_depth = 0;
+  info->kind = SYMTAB_EXPRTYPE;
+  return info;
+}
+
+
 #define set_depth(node, depth) _set_depth(ctx, node, depth)
 static inline daisho_astnode_t*
-_set_depth(daisho_parser_ctx* ctx, daisho_astnode_t* node, uint8_t depth) {
-  ExprType* info = ExprType_init(ctx, NULL);
-  info->pointer_depth = depth;
-  node->type = info;
+_set_depth(daisho_parser_ctx* ctx, ExprType* type, uint8_t depth) {
+  type->pointer_depth = depth;
   return node;
 }
 
