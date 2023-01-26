@@ -70,7 +70,7 @@ _Dai_OStream_write(_Dai_OStream* os, void* mem, size_t bytes, int unlocked) {
     memcpy(os->buf + os->len, mem, cpy);
     os->len += cpy;
     if (bytes > bufspace) {
-        if (!unlocked) _Dai_OStream_flush(os, unlocked);
+        _Dai_OStream_flush(os, unlocked);
         memcpy(os->buf, mem, bytes - bufspace);
         os->len = bytes - bufspace;
     }
