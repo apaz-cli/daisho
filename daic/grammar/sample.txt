@@ -1,2 +1,1 @@
-
-0.(Fn<>)
+(do_ten = (Void->Void f) -> for (Size_t i = 0; i < 10; i++) f())(()->{println("Hello")})

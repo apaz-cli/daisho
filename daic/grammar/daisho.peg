@@ -1,26 +1,31 @@
-%preinclude  "../types.h"
+%precode #ifndef DAIC_TYPES_INCLUDE
+%precode #include "../types.h"
+%precode #endif
+%code #ifndef DAIC_ASTHELPERS_INCLUDE
+%code #include "../asthelpers.h"
+%code #endif
 %include     <daisho/Daisho.h>
-%include     "../asthelpers.h"
-%extra       void* extra;
-%extra       void* symtab;
-%extra       ExprType* type; // The concrete type
-%extrainit   node->extra = NULL;
+
+%precode     struct Symtab;
+%precode     struct ExprType;
+%extra       Symtab* symtab; // Anything in the scope created by this expression
+%extra       ExprType* type; // The concrete type of this expression
 %extrainit   node->symtab = NULL;
 %extrainit   node->type = NULL;
 
 
-program      <- sh:SHEBANG? nses:{list(NSLIST)} (f:namespace {add(nses, f)})+ {rule=node(PROGRAM, sh, nses)}
+program      <- sh:SHEBANG? nses:{list(NSLIST)}
+               (f:namespace {add(nses, f)})+ {rule=node(PROGRAM, sh, nses)}
 
-namespace    <- ns:NAMESPACE name:TYPEIDENT SEMI l:{list(NSDECLS)}
-                t:topdecl {add(l, t)} (SEMI t:topdecl {add(l, t)})*
+namespace    <- ns:NAMESPACE name:TYPEIDENT wsemi l:{list(NSDECLS)}
+                t:topdecl {add(l, t)} (wsemi t:topdecl {add(l, t)})*
                 {rule=node(NAMESPACE, name, l)}
 
 /****************/
 /* DECLARATIONS */
 /****************/
 
-topdecl    <- fndecl / structdecl / uniondecl / traitdecl / impldecl
-
+topdecl    <- structdecl / uniondecl / traitdecl / fndecl / impldecl / ctypedecl
 
 structdecl <- STRUCT id:TYPEIDENT tmpl:tmplexpand?
               impl:(IMPL type (COMMA type)*)?
@@ -49,7 +54,9 @@ traitdecl  <- TRAIT id:TYPEIDENT tmpl:tmplexpand?
               n:{n = node(TRAIT, id, members);
               rule = has(tmpl) ? node(TMPLTRAIT, tmpl, n) : n}
 
-fndecl     <- FN fnproto tmplexpand? expr
+fndecl     <- FN rett:type name:VARIDENT e:tmplexpand? OPEN arglist CLOSE expr
+
+fnproto    <- FN rett:type name:VARIDENT e:tmplexpand? OPEN protolist CLOSE wsemi
 
 impldecl   <- IMPL tt:TYPEIDENT tmplexpand?
               FOR ft:type
@@ -58,97 +65,112 @@ impldecl   <- IMPL tt:TYPEIDENT tmplexpand?
              (m:fnmember {add(members, m)})*
               RCBRACK
 
-typemember <- t:type v:VARIDENT SEMI {rule=node(TYPEMEMBER, t, v)}
+typemember <- t:type v:VARIDENT
+              {rule=node(TYPEMEMBER, t, v)}
 
-fnmember   <- r:(fndecl / fnproto) SEMI {rule=r}
+fnmember   <- rule:fndecl
+            / rule:fnproto wsemi
+
+tmplexpand <- LT rule:typelist {rule->kind=kind(TMPLEXPAND)} GT
 
 
 /*********/
 /* TYPES */
 /*********/
 
-type<uint8_t depth = 0>
-           <- v:VOIDTYPE     !STAR              {rule=node(TYPE, v)} // Void means nothing.
-            / v:voidptr      (STAR {depth++})*  {rule=node(TYPE, v)} // Void* means anything.
-            / s:SELFTYPE     (STAR {depth++})*  {rule=node(TYPE, s)} // Self refers to the type of the first arg, or the current type.
-            / t:traittype    (STAR {depth++})*  {rule=node(TYPE, t)} // Trait object (+1 pointer, trait)
-            / s:structtype   (STAR {depth++})*  {rule=node(TYPE, s)} // Type identifier
-            / f:fntype       (STAR {depth++})*  {rule=node(TYPE, f)} // Fn<From -> To> is To(*fptr)(From).
-            / c:ctypedecl                       {rule=node(TYPE, c)} // TODO figure out syntax
+type       <- fntype
+
+fntype     <- from:{} to:ptrtype
+              (ARROW n:ptrtype
+              {if (!has(from)) from = list(TYPELIST)}
+              {add(from, to); to = n})*
+              {rule=has(from) ? node(FNTYPE, from, to) : to}
+
+ptrtype    <- rule:basetype (STAR {rule=node(PTRTYPE, rule)})*
+
+basetype   <- OPEN rule:type CLOSE
+            / SELFTYPE
+            / v:VOIDTYPE !STAR {rule=v}
+            / voidptr
+            / ctypedecl
+            / s:TYPEIDENT t:tmplexpand? {rule=has(t) ? node(TMPLTYPE, t, s) : s}
+
+%node TUPLETYPE
+tupletype  <- OPEN t:type COMMA CLOSE {rule=node(TUPLETYPE, t)}
+            / OPEN rule:typelist CLOSE {rule->kind = kind(TUPLETYPE)}
 
 voidptr    <- v:VOIDPTR         {rule=v}
             / v:VOIDTYPE s:STAR {rule=leaf(VOIDPTR)}
 
-traittype  <- i:TYPEIDENT t:tmplexpand?
-              {ret = has(t) ? node(TMPLTYPE, t, i) : node(TYPE, i)}
-
-structtype <- s:TYPEIDENT t:tmplexpand?
-              {ret = has(t) ? node(TMPLTYPE, t, s) : node(TYPE, s)}
-
-ctypedecl  <- CTYPE CIDENT
-
-fntype     <- FNTYPE
-              LT
-              argtypes:{ret=list(ARGLIST)}
-              (      t:type {add(argtypes, t)})?
-              (COMMA t:type {add(argtypes, t)})* COMMA?
-              {if (!argtypes->num_children) add(argtypes, leaf(VOIDTYPE))}
-              (arrow:ARROW rettype:type)?
-              GT
-              {rule=node(FNTYPE, argtypes, !has(rettype) ? leaf(VOIDTYPE) : rettype)}
-              /
-              FNTYPE
-              tmp:{rule=node(FNTYPE,
-                            (tmp=list(ARGLIST), add(tmp, leaf(VOIDTYPE)), tmp),
-                             leaf(VOIDTYPE))}
+ctypedecl  <- CTYPE i:TYPEIDENT c:CIDENT
+              {rule=node(CTYPEDECL, i, c)}
 
 
 /***********************/
 /* FUNCTIONS AND TYPES */
 /***********************/
 
-tmplspec   <-
+typelist   <- nocomma? {rule=list(TYPELIST)}
+              t:type? {if has(t) add(rule, t)}
+             (COMMA t:type {add(rule, t)})* nocomma?
 
-tmplexpand <- LT tmplmember? (COMMA tmplmember)* COMMA? GT
+exprlist   <- nocomma? {rule=list(EXPRLIST)}
+              e:expr? {if has(e) add(rule, e)}
+             (COMMA e:expr {add(rule, e)})* nocomma?
 
-tmplmember <- type
+fnarg      <- t:type i:VARIDENT
+              {rule=node(FNARG, t, i)}
+arglist    <- nocomma? {rule=list(ARGLIST)}
+              a:fnarg {if has(a) add(rule, a)}
+             (COMMA a:fnarg {add(rule, a)})* nocomma?
 
-fnproto    <- type OPEN fnarg? (COMMA fnarg)* COMMA? CLOSE
+protoarg   <- t:type i:VARIDENT?
+              {rule=has(i) ? node(PROTOARG, t, i) : node(PROTOARG, t)}
+protolist  <- nocomma? {rule=list(PROTOLIST)}
+              p:protoarg {if has(p) add(rule, p)}
+             (COMMA p:protoarg {add(rule, p)})* nocomma?
 
-fnarg      <- type (VARIDENT tmplexpand?)?
 
-fnbody     <- expr
-
-
-/****************************/
-/* CONTROL FLOW EXPRESSIONS */
-/****************************/
+/***************/
+/* EXPRESSIONS */
+/***************/
 
 expr       <- next
 
-forexpr    <- FOR OPEN? n:next ((COLON / IN) / (SEMI sn:next SEMI))  n:next CLOSE? n:next
-            / n:next {rule=n}
+preretexpr <- RET n:expr {rule=node(RET, n)}
+            / rule:next (GRAVE {rule = node(RET, rule)})?
 
-whileexpr  <- WHILE o:OPEN? n:next c:CLOSE? {ret=o==c?SUCC:NULL} expr
-            / n:next {rule=n}
+forexpr    <- FOR o:OPEN?
+              f:expr ((COLON / IN) / (wsemi s:expr wsemi)) t:expr
+              c:CLOSE? {if (has(o) != has(c)) WARNING("For expression parens mismatch.")}
+              e:expr
+              {rule = has(s) ? node(FOR, f, s, t, e)
+                    :          node(FOREACH, f, t, e)}
+            / rule:next
 
-ternexpr   <- n:next (q:QUEST qe:expr (c:COLON ce:expr)?)?
+whileexpr  <- WHILE o:OPEN? n:expr c:CLOSE?
+              {if (has(o) != has(c)) FATAL("While expression parens mismatch.")}
+              e:expr {rule=node(WHILE, n, e)}
+            / rule:next
+
+preifexpr  <- IF o:OPEN? n:expr c:CLOSE?
+              {if (has(o) != has(c)) FATAL("If expression parens mismatch.")}
+              e:expr
+              (ELSE ee:expr)?
+              {rule = !has(ee) ? node(IF, n, e)
+                    :            node(TERN, n, e, ee)}
+            / rule:next
+
+ternexpr   <- n:next (QUEST qe:expr (COLON ce:expr)?)?
               {rule = !has(qe) ? n
-                    : !has(ce) ? node(IF, q, n, qe)
-                    :            node(TERN, q, c, n, qe, ce)}
+                    : !has(ce) ? node(IF, n, qe)
+                    :            node(TERN, n, qe, ce)}
 
-thenexpr   <- n:next {rule=n} (THEN nn:next {rule=node(THEN, rule, nn)})*
+thenexpr   <- rule:next (THEN nn:next {rule=node(THEN, rule, nn)})*
 
-alsoexpr   <- n:next {rule=n} (ALSO nn:next {rule=node(ALSO, rule, nn)})*
+alsoexpr   <- rule:next (ALSO nn:next {rule=node(ALSO, rule, nn)})*
 
-
-/********************/
-/* BINARY OPERATORS */
-/********************/
-
-binop      <- next
-
-eqexpr     <- n:next {rule=n}
+ceqexpr    <- rule:next
              (op:(EQ / PLEQ / MINEQ / MULEQ / DIVEQ / MODEQ / ANDEQ / OREQ / XOREQ / BNEQ / BSREQ / BSLEQ)
               t:next
               // Requires information about what the next expression is
@@ -167,100 +189,147 @@ eqexpr     <- n:next {rule=n}
                 else _DAI_UNREACHABLE()
               })*
 
-logorexpr  <- n:next {rule=n} (LOGOR  n:next {rule=node(LOGOR,  rule, n)})*
-logandexpr <- n:next {rule=n} (LOGAND n:next {rule=node(LOGAND, rule, n)})*
-binorexpr  <- n:next {rule=n} (OR     n:next {rule=node(OR,     rule, n)})*
-binxorexpr <- n:next {rule=n} (XOR    n:next {rule=node(XOR,    rule, n)})*
-binandexpr <- n:next {rule=n} (AND    n:next {rule=node(AND,    rule, n)})*
+logorexpr  <- rule:next (LOGOR  n:next {rule=node(LOGOR,  rule, n)})*
+logandexpr <- rule:next (LOGAND n:next {rule=node(LOGAND, rule, n)})*
+binorexpr  <- rule:next (OR     n:next {rule=node(OR,     rule, n)})*
+binxorexpr <- rule:next (XOR    n:next {rule=node(XOR,    rule, n)})*
+binandexpr <- rule:next (AND    n:next {rule=node(AND,    rule, n)})*
 
-deneqexpr  <- n:next {rule=n}
+deneqexpr  <- rule:next
              (DEQ n:next {rule=node(DEQ, rule, n)}
              /NEQ n:next {rule=node(NEQ, rule, n)})*
 
-cmpexpr    <- n:next {rule=n}
+cmpexpr    <- rule:next
              (LT  n:next {rule=node(LT,  rule, n)}
              /GT  n:next {rule=node(GT,  rule, n)}
              /LEQ n:next {rule=node(LEQ, rule, n)}
              /GEQ n:next {rule=node(GEQ, rule, n)})*
 
-shfexpr    <- n:next {rule=n} // Tokenized as < < and > >.
+shfexpr    <- rule:next // Tokenized as < < and > >.
              (l:LT lt:LT n:next {rule=node(BSL, l, lt, rule, n)}
              /g:GT gt:GT n:next {rule=node(BSR, g, gt, rule, n)})*
 
-sumexpr    <- n:next {rule=n}
-             (p:PLUS  n:next {rule=repr(node(PLUS, rule, n), p)}
-             /m:MINUS n:next {rule=repr(node(MINUS, rule, n), m)})*
+sumexpr    <- rule:next
+             (p:PLUS  n:next {rule=node(PLUS, rule, n)}
+             /m:MINUS n:next {rule=node(MINUS, rule, n)})*
 
-multexpr   <- n:next {rule=n}
+multexpr   <- rule:next
              (STAR n:next {rule=node(STAR, rule, n)}
              /DIV  n:next {rule=node(DIV,  rule, n)}
-             /MOD  n:next {rule=node(MOD,  rule, n)})*
+             /MOD  n:next {rule=node(MOD,  rule, n)}
+             /POW  n:next {rule=node(POW,  rule, n)})*
 
-powexpr    <- n:next {rule=n} (POW {rule=node(POW, rule, n)})*
+accexpr    <- rule:next (LSBRACK e:expr RSBRACK {rule=node(ACCESS, rule, e)})*
 
-callexpr   <- VARIDENT t:tmplexpand? OPEN CLOSE
-            / n:next {rule=n}
+dotexpr    <- rule:next (DOT i:VARIDENT {rule=node(DOT, rule, i)})*
 
-castexpr   <- n:next (OPEN t:type CLOSE)? {rule = has(t) ? node(CAST, t, n) : n}
+refexpr<int32_t rd = 0>
+           <- rule:next (REF {rd++} / DEREF {rd--})*
+             {for (int64_t i = 0; i < (rd > 0 ? rd : -rd); i++) {
+                rule = rd > 0 ? node(REF, rule) : node(DEREF, rule);
+              }}
 
-refexpr    <- n:next r:REF?    {rule=has(r) ? node(REF, r, n) : n}
+callexpr   <- rule:next
+              ({ret=rule->kind == kind(VARIDENT) ? SUCC : NULL} te:tmplexpand)?
+              (OPEN el:exprlist CLOSE
+              {rule = !has(te) ? node(CALL, rule, el)
+                    :            node(CALL, rule, te, el)})*
 
-derefexpr  <- n:next d:DEREF?  {rule=has(d) ? node(REF, d, n) : n}
+castexpr   <- rule:next (OPEN t:type CLOSE {rule=node(CAST, rule, t)})*
 
-postretexpr <- n:next g:GRAVE? {rule=has(g) ? node(RET, g, n) : n}
-
+increxpr   <- rule:next ((INCR {rule=node(INCR, rule)})
+                        /(DECR {rule=node(DECR, rule)}))?
 
 /*********************************/
 /* ATOMS AND SPECIAL EXPRESSIONS */
 /*********************************/
 
-atomexpr   <- blockexpr
-            / lambdaexpr
-            / listcomp
-            / listlit
-            / tuplelit
-            / parenexpr
-            / cfuncexpr
-            / preretexpr
-            / VARIDENT
-            / numlit
-            / strlit
-            / sizeofexpr
+atomexpr   <-
+            // {}
+                blockexpr
+            // VAR
+              / VARIDENT
+            // Type
+              / vardeclexpr
+            // ()
+              / lambdaexpr
+              / parenexpr
+              / tuplelit
+            // []
+              / listcomp
+              / listlit
+            // Unambiguous
+              / strlit
+              / NUMLIT
+              / cfuncexpr
+              / SELFVAR
+              / sizeofexpr
 
-blockexpr  <- LCBRACK
-              {rule=list(BLK)}
-              (e:expr {add(rule, e)})*
+blockexpr  <- LCBRACK {rule=list(BLOCK)}
+              (!RCBRACK e:expr SEMI {add(rule, e)})*
               RCBRACK
 
-lambdaexpr <- (LSBRACK expr? (COMMA expr)* RSBRACK)? ((OPEN CLOSE) / (VARIDENT)) ARROW expr
+lambdaexpr <- args:{}
+              ((VARIDENT)
+              /(OPEN arglist CLOSE))
+              ARROW
+              expr
 
 listcomp   <- LSBRACK
-              (cnt:VARIDENT COMMA)? expr   // Optional count
+             (cnt:VARIDENT COMMA)? expr
               FOR item:VARIDENT
               IN expr
-              (WHERE expr)?
+             (WHERE expr)?
               RSBRACK
 
-parenexpr  <- OPEN e:expr CLOSE {rule=e}
+parenexpr  <- OPEN rule:expr CLOSE
 
-listlit    <- LSBRACK e:expr
-            (COMMA? RSBRACK / (COMMA e:expr)* COMMA? RSBRACK)
+listlit    <- LSBRACK
+              rule:exprlist {rule->kind = kind(LISTLIT)}
+              RSBRACK
 
-tuplelit   <- OPEN e:expr
-             (COMMA CLOSE / (COMMA e:expr)* COMMA? CLOSE)
+tuplelit   <- OPEN
+              rule:exprlist {rule->kind = kind(TUPLELIT)}
+              CLOSE
 
+%node MAPLIT
 //mapexpr    <- LCBRACK e:expr DARROW v:value
 //             (COMMA RCBRACK / (COMMA e:expr DARROW v:value)* COMMA? RCBRACK)
 
 cfuncexpr  <- CFN CIDENT
 
-preretexpr <- r:RET e:expr {rule=node(RET, r, e)}
+%node VARDECL
+vardeclexpr <- t:type i:VARIDENT {rule=node(VARDECL, t, i)}
 
-numlit     <- pm:(PLUS / MINUS)? nl:NUMLIT {rule = nl}
+strlit     <- sstrlit
+            / fstrlit
 
-strlit     <- STRLIT // todo: adapt for fstrings
+sstrlit    <- s:STRLIT {rule=list(SSTR); add(rule, s)}
+             (s:STRLIT {add(rule, s)})*
 
-sizeofexpr <- SIZEOF OPEN (t:type / t:expr) CLOSE {rule=node(SIZEOF, t)}
+fstrlit    <- f:fstrfrag {rule=list(FSTR); add(rule, f)}
+             (f:fstrfrag {add(rule, f)})*
+
+fstrfrag   <- STRLIT
+            / s:FSTRLITSTART {rule=list(FSTRFRAG); add(rule, s)}
+              x:expr {add(rule, x)}
+             (m:FSTRLITMID x:expr {add(rule, m); add(rule, x)})*
+              e:FSTRLITEND {add(rule, e)}
+
+sizeofexpr <- SIZEOF OPEN te:(type / expr) CLOSE {rule=node(SIZEOF, te)}
+
+/******************/
+/* ERROR HANDLING */
+/******************/
+
+%node RECOVERY
+wexpr      <- (expr  / {WARNING("Missing expression."); ret=leaf(RECOVERY)})
+noexpr     <- (e:expr  {WARNING("Extra expression."); ret=e})
+wcomma     <- (COMMA / {WARNING("Missing comma."); ret=leaf(COMMA)})
+nocomma    <- (c:COMMA {WARNING("Extra comma."); ret=c})
+wsemi      <- (SEMI  / {WARNING("Missing semicolon."); ret=leaf(SEMI)})
+nosemi     <- (s:SEMI  {WARNING("Extra semicolon."); ret=s})
+
 
 
 /**************/
@@ -268,98 +337,373 @@ sizeofexpr <- SIZEOF OPEN (t:type / t:expr) CLOSE {rule=node(SIZEOF, t)}
 /**************/
 
 %node PROGRAM
-%node SHEBANG
 %node NSLIST
-%node NAMESPACE
 %node NSDECLS
 
 %node MEMBERLIST
-%node STRUCT
 %node TMPLSTRUCT
-%node UNION
 %node TMPLUNION
-%node TRAIT
 %node TMPLTRAIT
-%node TYPE
 %node TMPLTYPE
 %node TRAITTYPE
 %node STRUCTTYPE
-%node VOIDPTR
-
-%node QUEST
-%node COLON
-
-%node FOR
-%node WHILE
-
-%node CAST
-%node REF
-%node DEREF
-%node BLK
-%node ARGLIST
-%node ARROW
-%node DARROW
-%node LAMBDA
-%node SIZEOF
-
-%node EQ
-%node PLEQ
-%node MINEQ
-%node MULEQ
-%node DIVEQ
-%node MODEQ
-%node ANDEQ
-%node OREQ
-%node XOREQ
-%node BNEQ
-%node BSREQ
-%node BSLEQ
+%node CTYPEDECL
+%node TMPLEXPAND
 
 %node TERN
-%node IF
-%node THEN
-%node ALSO
-
-%node LOGOR
-%node LOGAND
-%node OR
-%node XOR
-%node AND
-
-%node DEQ
-%node NEQ
-
-%node LT
-%node GT
-%node LEQ
-%node GEQ
-
-%node BSL
-%node BSR
-
-%node STAR
 %node MUL
-%node DIV
-%node MOD
-%node POW
+%node BSR
+%node BSL
 
-%node SUM
-%node PLUS
-%node MINUS
+%node BLOCK
+%node CAST
+%node LAMBDA
+%node FOREACH
+%node CALL
+%node ACCESS
+%node LISTLIT
+%node TUPLELIT
 
-%node RET
-%node GRAVE
+%node FNARG
+%node PROTOARG
+%node EXPANDLIST
+%node ARGLIST
+%node TYPELIST
+%node EXPRLIST
+%node PROTOLIST
 
-%node SELF
-%node SELFTYPE
-%node VOIDTYPE
-%node FNTYPE
-
-%node OPEN
-%node CLOSE
-%node NUMLIT
-%node STRLIT
+%node TYPE
+%node PTRTYPE
 %node TYPEMEMBER
-%node TYPEIDENT
 %node DTRAITIDENT
-%node VARIDENT
+
+%node SSTR
+%node FSTR
+%node FSTRFRAG
+
+
+///////////////
+// Operators //
+///////////////
+
+// Note: << and >> are handled in the parser.
+// This is helpful for parsing templates.
+PLUS:   "+";
+MINUS:  "-";
+STAR:    "*";
+POW:     "**";
+DIV:     "/";
+MOD:     "%";
+AND:     "&";
+OR:      "|";
+XOR:     "^";
+NOT:     "!";
+BITNOT:  "~";
+LOGAND:  "&&";
+LOGOR:   "||";
+
+DEQ:    "==";
+NEQ:    "!=";
+LT:     "<";
+LEQ:    "<=";
+GT:     ">";
+GEQ:    ">=";
+
+EQ:     "=";
+PLEQ:   "+=";
+MINEQ:  "-=";
+MULEQ:  "*=";
+DIVEQ:  "/=";
+MODEQ:  "%=";
+ANDEQ:  "&=";
+OREQ:   "|=";
+XOREQ:  "^=";
+BNEQ:   "~=";
+BSREQ:  ">>=";
+BSLEQ:  "<<=";
+
+INCR:   "++";
+DECR:   "--";
+QUEST:  "?";
+COLON:  ":";
+NCOLL:  "?:";
+
+
+//////////////////
+// Control Flow //
+//////////////////
+IF:   "if";
+ELSE: "else";
+//DO:   "do";
+FOR:    "for";
+IN:     "in";
+WHILE:  "while";
+THEN:   "then";
+ALSO:   "also";
+WHERE:  "where";
+
+/////////
+// OOP //
+/////////
+
+STRUCT: (5, 11, 16) { // class|struct|type
+  (0, 'c') -> 1;
+  (1, 'l') -> 2;
+  (2, 'a') -> 3;
+  (3, 's') -> 4;
+  (4, 's') -> 5;
+  (0, 's') -> 6;
+  (6, 't') -> 7;
+  (7, 'r') -> 8;
+  (8, 'u') -> 9;
+  (9, 'c') -> 10;
+  (10, 't') -> 11;
+  (0,  't') -> 13;
+  (13, 'y') -> 14;
+  (14, 'p') -> 15;
+  (15, 'e') -> 16;
+};
+UNION: "union";
+TRAIT: "trait";
+IMPL:  (4, 10) { // impl([ei]ments)?
+  (0, 'i') -> 1;
+  (1, 'm') -> 2;
+  (2, 'p') -> 3;
+  (3, 'l') -> 4;
+  (4, 'e') -> 5;
+  (4, 'i') -> 5;
+  (5, 'm') -> 6;
+  (6, 'e') -> 7;
+  (7, 'n') -> 8;
+  (8, 't') -> 9;
+  (9, 's') -> 10;
+};
+FN: "fn";
+FNTYPE: "Fn";
+CTYPE: "ctype";
+CFN: "cfn";
+SELFTYPE: "Self";
+SELFVAR: "self";
+VOIDTYPE: "Void";
+VOIDPTR:  "VoidPtr";
+SIZEOF: "sizeof";
+NAMESPACE: (9, 15, 22) { // namespace|module|package
+  (0,  'n') -> 1;(1,  'a') -> 2;(2,  'm') -> 3;(3,  'e') -> 4;(4,  's') -> 5;(5,  'p') -> 6;(6,  'a') -> 7;(7,  'c') -> 8;(8,  'e') -> 9;
+  (0,  'm') -> 10;(10, 'o') -> 11;(11, 'd') -> 12;(12, 'u') -> 13;(13, 'l') -> 14;(14, 'e') -> 15;
+  (0,  'p') -> 16;(16, 'a') -> 17;(17, 'c') -> 18;(18, 'k') -> 19;(19, 'a') -> 20;(20, 'g') -> 21;(21, 'e') -> 22;
+};
+
+
+/////////////////
+// Misc Syntax //
+/////////////////
+
+SEMI:    ";";
+DOT:     ".";
+COMMA:   ",";
+OPEN:    "(";
+CLOSE:   ")";
+LCBRACK: "{";
+RCBRACK: "}";
+LSBRACK: "[";
+RSBRACK: "]";
+HASH:    "#";
+REF:     "@";
+DEREF:   "$";
+GRAVE:   "`";
+ARROW:   "->";
+DARROW:  "=>";
+
+
+///////////////////////
+// Abbreviated Words //
+///////////////////////
+
+// ret(urn)?
+RET: (3, 6) {
+  (0, 'r') -> 1;
+  (1, 'e') -> 2;
+  (2, 't') -> 3;
+  (3, 'u') -> 4;
+  (4, 'r') -> 5;
+  (5, 'n') -> 6;
+};
+
+// op(erator)?
+OP: (2, 8) {
+  (0, 'o') -> 1;
+  (1, 'p') -> 2;
+  (2, 'e') -> 3;
+  (3, 'r') -> 4;
+  (4, 'a') -> 5;
+  (5, 't') -> 6;
+  (6, 'o') -> 7;
+  (7, 'r') -> 8;
+};
+
+// redef(ine)?
+REDEF: (5, 8) {
+  (0, 'r') -> 1;
+  (1, 'e') -> 2;
+  (2, 'd') -> 3;
+  (3, 'e') -> 4;
+  (4, 'f') -> 5;
+  (5, 'i') -> 6;
+  (6, 'n') -> 7;
+  (7, 'e') -> 8;
+};
+
+/////////////////////////////
+// Numbers and Identifiers //
+/////////////////////////////
+
+// Starts with capital
+TYPEIDENT: (1, 2) {
+  (0, [A-Z]) -> 1;
+  ((1, 2), [_a-zA-Zα-ωΑ-Ω0-9]) -> 2;
+};
+
+// Starts with lowercase (or noncapital)
+VARIDENT: (1, 2) {
+  (0, [_a-zα-ωΑ-Ω]) -> 1;
+  ((1, 2), [_a-zA-Zα-ωΑ-Ω0-9]) -> 2;
+};
+
+CIDENT: (1, 2) {
+  (0, [_a-z]) -> 1;
+  ((1, 2), [_a-zA-Z0-9]) -> 2;
+};
+
+// [-+]?[0-9]+(\.[0-9]+)?
+NUMLIT: (2, 3) {
+  (0, [-+]) -> 1;
+  ((0, 1, 2), [0-9]) -> 2;
+  (2, '.') -> 3;
+  (3, [0-9]) -> 3;
+};
+
+/////////////
+// Strings //
+/////////////
+
+// ["]([^"\n\\]|\\[nfbrte\\'"{}])*["]
+STRLIT: 2 {
+  (0, ["])  -> 1;
+  (1, ["])  -> 2;
+  (1, '{')  -> -1; // fstring
+
+  (1, [\n]) -> -1; // no newlines in string.
+  (1, [\\]) -> 3;  // start parsing escape sequence
+  (1, [^])  -> 1;  // string content
+  (3, [n])  -> 1;  // newline
+  (3, [f])  -> 1;  // form feed
+  (3, [b])  -> 1;  // backspace
+  (3, [r])  -> 1;  // carriage return
+  (3, [t])  -> 1;  // tab
+  (3, [e])  -> 1;  // escape character
+  (3, [\\]) -> 1;  // backslash
+  (3, ['])  -> 1;  // single quote
+  (3, ["])  -> 1;  // double quote
+  (3, '{')  -> 1;  // open curly
+  (3, '}')  -> 1;  // close curly
+};
+
+FSTRLITSTART: 2 {
+  (0, ["])  -> 1;
+  (1, '{')  -> 2;
+  (1, ["])  -> -1; // strlit
+
+  (1, [\n]) -> -1; // no newlines in string.
+  (1, [\\]) -> 3;  // start parsing escape sequence
+  (1, [^])  -> 1;  // string content
+  (3, [n])  -> 1;  // newline
+  (3, [f])  -> 1;  // form feed
+  (3, [b])  -> 1;  // backspace
+  (3, [r])  -> 1;  // carriage return
+  (3, [t])  -> 1;  // tab
+  (3, [e])  -> 1;  // escape character
+  (3, [\\]) -> 1;  // backslash
+  (3, ['])  -> 1;  // single quote
+  (3, ["])  -> 1;  // double quote
+  (3, '{')  -> 1;  // open curly
+  (3, '}')  -> 1;  // close curly
+};
+
+FSTRLITMID: 2 {
+  (0, '}')  -> 1;
+  (1, '{')  -> 2;
+  (1, ["])  -> -1; // fstrend
+
+  (1, [\n]) -> -1; // no newlines in string.
+  (1, [\\]) -> 3;  // start parsing escape sequence
+  (1, [^])  -> 1;  // string content
+  (3, [n])  -> 1;  // newline
+  (3, [f])  -> 1;  // form feed
+  (3, [b])  -> 1;  // backspace
+  (3, [r])  -> 1;  // carriage return
+  (3, [t])  -> 1;  // tab
+  (3, [e])  -> 1;  // escape character
+  (3, [\\]) -> 1;  // backslash
+  (3, ['])  -> 1;  // single quote
+  (3, ["])  -> 1;  // double quote
+  (3, '{')  -> 1;  // open curly
+  (3, '}')  -> 1;  // close curly
+};
+
+FSTRLITEND: 2 {
+  (0, '}')  -> 1;
+  (1, ["])  -> 2;
+  (1, '{')  -> -1; // fstrmid.
+
+  (1, [\n]) -> -1; // no newlines in string.
+  (1, [\\]) -> 3;  // start parsing escape sequence
+  (1, [^])  -> 1;  // string content
+  (3, [n])  -> 1;  // newline
+  (3, [f])  -> 1;  // form feed
+  (3, [b])  -> 1;  // backspace
+  (3, [r])  -> 1;  // carriage return
+  (3, [t])  -> 1;  // tab
+  (3, [e])  -> 1;  // escape character
+  (3, [\\]) -> 1;  // backslash
+  (3, ['])  -> 1;  // single quote
+  (3, ["])  -> 1;  // double quote
+  (3, '{')  -> 1;  // open curly
+  (3, '}')  -> 1;  // close curly
+};
+
+
+///////////////////////////////////////
+// Whitespace, Comments, and Shebang //
+///////////////////////////////////////
+
+// [\ \n\r\t]+
+WS: 1 {
+  ((0, 1), [ \n\r\t]) -> 1;
+};
+
+// \/\*([^*]*\*)*\/
+MLCOM: 4 {
+  (0, '/') -> 1;
+  (1, '*') -> 2;
+  (2, '*') -> 3;
+  (2, [^]) -> 2;
+  (3, '*') -> 3;
+  (3, '/') -> 4;
+  (3, [^]) -> 2;
+};
+
+// \/\/[^\n]*
+SLCOM: (2, 3) {
+  (0, '/') -> 1;
+  (1, '/') -> 2;
+  (2, [^\n]) -> 2;
+  (2, [\n]) -> 3;
+};
+
+// #![^\n]*[\n]
+SHEBANG: 3 {
+  (0, '#') -> 1;
+  (1, '!') -> 2;
+  (2, [^\n]) -> 2;
+  (2, [\n]) -> 3;
+};

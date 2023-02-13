@@ -24,19 +24,19 @@ _DAI_STATIC_ASSERT(__STDC_VERSION__ >= 201112L, "Daisho requires a C11 compiler 
 
 _DAI_STATIC_ASSERT(CHAR_BIT == 8, "Daisho's implementation of String assumes CHAR_BIT to be 8.");
 _DAI_STATIC_ASSERT((~(long)0U) == (long)(-1),
-                    "The Daisho standard library assumes "
-                    "that the archetecture uses two's complement to represent "
-                    "numbers.");
+                   "The Daisho standard library assumes "
+                   "that the archetecture uses two's complement to represent "
+                   "numbers.");
 
-#define ASSERT_COMPATIBLE(t1, t2) \
-    _DAI_STATIC_ASSERT(sizeof(t1) == sizeof(t2), "Daisho assumes that "#t1 " is the same size as " #t2 "."); \
-    _DAI_STATIC_ASSERT(_DAI_MIN_OF_INTEGER_TYPE(t1) == _DAI_MIN_OF_INTEGER_TYPE(t2), \
-                        "Daisho assumes that " #t1 " min casts freely with " #t2 " min."); \
-    _DAI_STATIC_ASSERT(_DAI_MAX_OF_INTEGER_TYPE(t1) == _DAI_MAX_OF_INTEGER_TYPE(t2),\
-                        "Daisho assumes that " #t1 " max casts freely with " #t2 " min.");
+#define ASSERT_COMPATIBLE(t1, t2)                                                         \
+    _DAI_STATIC_ASSERT(sizeof(t1) == sizeof(t2),                                          \
+                       "Daisho assumes that " #t1 " is the same size as " #t2 ".");       \
+    _DAI_STATIC_ASSERT(_DAI_MIN_OF_INTEGER_TYPE(t1) == _DAI_MIN_OF_INTEGER_TYPE(t2),      \
+                       "Daisho assumes that " #t1 " min casts freely with " #t2 " min."); \
+    _DAI_STATIC_ASSERT(_DAI_MAX_OF_INTEGER_TYPE(t1) == _DAI_MAX_OF_INTEGER_TYPE(t2),      \
+                       "Daisho assumes that " #t1 " max casts freely with " #t2 " min.");
 
 /* TODO figure this out. */
-// ASSERT_COMPATIBLE(int8_t, char)
 
 ASSERT_COMPATIBLE(uint8_t, unsigned char)
 ASSERT_COMPATIBLE(int16_t, short)
@@ -50,13 +50,18 @@ ASSERT_COMPATIBLE(size_t, uintptr_t)
 ASSERT_COMPATIBLE(ssize_t, intptr_t)
 ASSERT_COMPATIBLE(intptr_t, ptrdiff_t)
 
-_DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(void*), "Daisho assumes that size_t is the same size as a pointer.");
-_DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(char*), "Daisho assumes that size_t is the same size as a pointer.");
-_DAI_STATIC_ASSERT(sizeof(uintptr_t) == sizeof(intptr_t), "Daisho assumes that intptr_t is the same size as uintptr_t.");
+_DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(void*),
+                   "Daisho assumes that size_t is the same size as a pointer.");
+_DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(char*),
+                   "Daisho assumes that size_t is the same size as a pointer.");
+_DAI_STATIC_ASSERT(sizeof(uintptr_t) == sizeof(intptr_t),
+                   "Daisho assumes that intptr_t is the same size as uintptr_t.");
 _DAI_STATIC_ASSERT(_DAI_MAX_OF_INTEGER_TYPE(clock_t) > UINT32_MAX,
-                    "The Daisho standard library assumes that the max value "
-                    "of clock_t is more than 32 bits.");
+                   "The Daisho standard library assumes that the max value "
+                   "of clock_t is more than 32 bits.");
 
+_Static_assert(_DAI_STDOUT_BUFSIZ <= 4294967295, "_DAI_STDOUT_BUFSIZ is greater than UINT32_MAX.");
+_Static_assert(_DAI_STDERR_BUFSIZ <= 4294967295, "_DAI_STDERR_BUFSIZ is greater than UINT32_MAX");
 
 /*
  * Make sure the numeric limits macros work on this system.
@@ -64,16 +69,16 @@ _DAI_STATIC_ASSERT(_DAI_MAX_OF_INTEGER_TYPE(clock_t) > UINT32_MAX,
  * Such an implementation would be very rare.
  */
 
-#define TWOS_COMPLEMENT(type)                                                       \
+#define TWOS_COMPLEMENT(type)                                                     \
     _DAI_STATIC_ASSERT(!_DAI_IS_TYPE_SIGNED(type) ? 1 : (~(type)0) == (type)(-1), \
-                        #type " is not represented as two's complement.");
+                       #type " is not represented as two's complement.");
 
-#define ASSERT_TYPE(type, min, max)                                  \
-    TWOS_COMPLEMENT(type)                                            \
+#define ASSERT_TYPE(type, min, max)                                \
+    TWOS_COMPLEMENT(type)                                          \
     _DAI_STATIC_ASSERT(_DAI_MIN_OF_INTEGER_TYPE(type) == min, ""); \
     _DAI_STATIC_ASSERT(_DAI_MAX_OF_INTEGER_TYPE(type) == max, "");
 
-#define ASSERT_FLOAT_TYPE(type, min, max)                  \
+#define ASSERT_FLOAT_TYPE(type, min, max)                 \
     if (_DAI_MIN_OF_FLOATING_TYPE(type) != min) return 1; \
     if (_DAI_MAX_OF_FLOATING_TYPE(type) != max) return 1;
 
@@ -95,7 +100,8 @@ ASSERT_TYPE(wint_t, WINT_MIN, WINT_MAX)
 ASSERT_TYPE(intmax_t, INTMAX_MIN, INTMAX_MAX)
 ASSERT_TYPE(uintmax_t, 0, UINTMAX_MAX)
 
-int main(void) {
+int
+main(void) {
     /* Unfortunately, _Static_assert cannot work on expressions with floats in them.
        No matter where they are. Go figure. */
     ASSERT_FLOAT_TYPE(float, FLT_MIN, FLT_MAX)

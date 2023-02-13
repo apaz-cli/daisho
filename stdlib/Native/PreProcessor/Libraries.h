@@ -11,7 +11,7 @@
 #ifndef _DAI_NO_LIBRARIES
 #if _DAI_EMBED_PYTHON
 #define PY_SSIZE_T_CLEAN
-#include <Python.h>
+#include <python3.9/Python.h>
 #endif
 #endif
 

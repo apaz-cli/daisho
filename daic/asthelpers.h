@@ -14,23 +14,21 @@
 
 static inline ExprType*
 ExprType_symtab_init(daisho_parser_ctx* ctx, ExprType* info) {
-  if (!info) info = PGEN_ALLOC_OF(ctx->alloc, ExprType);
+  if (!info) info = PGEN_ALLOC(ctx->alloc, ExprType);
   info->decl = NULL;
-  info->pointer_depth = 0;
   info->kind = SYMTAB_EXPRTYPE;
   return info;
 }
 
 static inline ExprType*
 ExprType_function_init(daisho_parser_ctx* ctx, ExprType* info) {
-  if (!info) info = PGEN_ALLOC_OF(ctx->alloc, ExprType);
+  if (!info) info = PGEN_ALLOC(ctx->alloc, ExprType);
   info->decl = NULL;
-  info->pointer_depth = 0;
-  info->kind = SYMTAB_EXPRTYPE;
+  info->kind = FUNCTION_EXPRTYPE;
   return info;
 }
 
-
+/*
 #define set_depth(node, depth) _set_depth(ctx, node, depth)
 static inline daisho_astnode_t*
 _set_depth(daisho_parser_ctx* ctx, ExprType* type, uint8_t depth) {
@@ -47,5 +45,6 @@ get_depth(ExprType* type) {
   }
   return depth;
 }
+*/
 
 #endif /* DAIC_ASTHELPERS_INCLUDE */

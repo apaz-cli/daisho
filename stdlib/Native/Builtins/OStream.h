@@ -12,16 +12,6 @@ typedef struct {
     _Dai_Mutex mtx;
 } _Dai_OStream;
 
-#ifndef _DAI_STDOUT_BUFSIZ
-#define _DAI_STDOUT_BUFSIZ _DAI_PAGESIZE * 16
-_Static_assert(_DAI_STDOUT_BUFSIZ <= UINT32_MAX, "");
-#endif
-
-#ifndef _DAI_STDERR_BUFSIZ
-#define _DAI_STDERR_BUFSIZ _DAI_PAGESIZE * 2
-_Static_assert(_DAI_STDERR_BUFSIZ <= UINT32_MAX, "");
-#endif
-
 static char _Dai_stdout_buf[_DAI_STDOUT_BUFSIZ];
 static char _Dai_stderr_buf[_DAI_STDERR_BUFSIZ];
 
@@ -34,7 +24,7 @@ static const _Dai_OStream* _Dai_stdout = &_Dai_stdout_;
 static const _Dai_OStream* _Dai_stderr = &_Dai_stderr_;
 
 _DAI_FN size_t
-_Dai_write_wrapper(int fd, void* mem, size_t bytes) {
+_Dai_write_wrapper(int fd, const void* mem, size_t bytes) {
     size_t written_sofar = 0;
     while (bytes) {
         ssize_t bytes_written = write(fd, (char*)mem + written_sofar, bytes);
@@ -56,26 +46,43 @@ _Dai_OStream_flush(_Dai_OStream* os, int unlocked) {
 }
 
 _DAI_FN ssize_t
-_Dai_OStream_write(_Dai_OStream* os, void* mem, size_t bytes, int unlocked) {
+_Dai_OStream_write(_Dai_OStream* os, const void* mem, size_t bytes, int unlocked) {
     if (!unlocked) _Dai_mutex_lock(&os->mtx);
     if (bytes > os->cap) {
-        _Dai_OStream_flush(os, unlocked);
+        _Dai_OStream_flush(os, 1);
         _Dai_write_wrapper(os->fd, mem, bytes);
-        if (!unlocked) _Dai_mutex_unlock(&os->mtx);
-        return bytes;
-    }
-
-    size_t bufspace = os->cap - os->len;
-    size_t cpy = bytes <= bufspace ? bytes : bufspace;
-    memcpy(os->buf + os->len, mem, cpy);
-    os->len += cpy;
-    if (bytes > bufspace) {
-        _Dai_OStream_flush(os, unlocked);
-        memcpy(os->buf, mem, bytes - bufspace);
-        os->len = bytes - bufspace;
+    } else {
+        size_t bufspace = os->cap - os->len;
+        size_t cpy = bytes <= bufspace ? bytes : bufspace;
+        memcpy(os->buf + os->len, mem, cpy);
+        os->len += cpy;
+        if (bytes > bufspace) {
+            _Dai_OStream_flush(os, 1);
+            memcpy(os->buf, mem, bytes - bufspace);
+            os->len = bytes - bufspace;
+        }
     }
     if (!unlocked) _Dai_mutex_unlock(&os->mtx);
     return bytes;
+}
+
+_DAI_FN void
+_Dai_OStream_fprintf(_Dai_OStream* os, int unlocked, const char* fmt, ...) {
+    if (!unlocked) _Dai_mutex_lock(&os->mtx);
+    _Dai_OStream_flush(os, 1);
+    va_list va;
+    va_start(va, fmt);
+    vdprintf(os->fd, fmt, va);
+    va_end(va);
+    if (!unlocked) _Dai_mutex_unlock(&os->mtx);
+}
+
+_DAI_FN void
+_Dai_OStream_write_cstr(_Dai_OStream* os, const char* cstr, int unlocked) {
+    size_t len = strlen(cstr);
+    if (!unlocked) _Dai_mutex_lock(&os->mtx);
+    _Dai_OStream_write(os, cstr, len, 1);
+    if (!unlocked) _Dai_mutex_unlock(&os->mtx);
 }
 
 _DAI_FN int

@@ -17,7 +17,9 @@ _Dai_py_init(int argc, char** argv) {
 
     /* Set the config not to hijack the C runtime. (That's our job) */
     /* These are already set by PyConfig_InitIsolatedConfig(). */
-    /* config.isolated = 1; config.install_signal_handlers = 0; config.configure_c_stdio = 0; */
+    /* config.isolated = 1;
+     * config.install_signal_handlers = 0;
+     * config.configure_c_stdio = 0; */
     config.optimization_level = 1;
 
     /* (Note that, upon fatal errors, it is acceptable to use the print buffers). */

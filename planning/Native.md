@@ -12,7 +12,7 @@
    * However you can declare a native function and call it inside a Daisho method to get around this.
     ```rust
     // Ex:
-    native Void nativeFn() { printf("Native Code.\n"); fflush(stdout); };
+    native Void nativeFn() { puts("Native Code from libc.\n"); fflush(stdout); };
     trait Tr { Void nativeMethod() { nativeFn(); } };
     ```
 

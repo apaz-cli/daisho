@@ -127,6 +127,19 @@
 #endif
 
 /*
+ * The size of the buffers used by _Dai_stdout and _Dai_stderr.
+ *
+ * These numbers can be tuned for performance.
+ */
+#ifndef _DAI_STDOUT_BUFSIZ
+#define _DAI_STDOUT_BUFSIZ _DAI_PAGESIZE * 16
+#endif
+#ifndef _DAI_STDERR_BUFSIZ
+#define _DAI_STDERR_BUFSIZ _DAI_PAGESIZE * 2
+#endif
+
+
+/*
  * The C runtime locale for Daisho to use.
  * Default: "C.UTF-8"
  */
@@ -141,7 +154,7 @@
  * still by default terminate the program however.
  *
  * At least one signal must be defined below. If you want to disable backtraces,
- * 
+ *
  *
  * See man signal.h for details and a list of signals and default actions.
  */

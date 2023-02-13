@@ -1,39 +1,62 @@
 #include "apaz-libc.h"
 #include "daisho/Daisho.h"
-#define DAISHO_SOURCEINFO 1
 #include "daisho_tokenizer_parser.h"
 
 LIST_DECLARE(daisho_token)
 LIST_DEFINE(daisho_token)
 
 static inline void
-readFile(char* filePath, char** str, size_t* len) {
-    long inputFileLen;
+pgen_readfile(char* filePath, char** str, size_t* len, char** error) {
+    long inputFileLen, numRead;
     FILE* inputFile;
     char* filestr;
 
-    if (!(inputFile = fopen(filePath, "r")))
-        fprintf(stderr, "Error: Could not open %s.\n", filePath), exit(1);
-    if (fseek(inputFile, 0, SEEK_END) == -1)
-        fprintf(stderr, "Error: Could not seek to end of file.\n"), exit(1);
-    if ((inputFileLen = ftell(inputFile)) == -1)
-        fprintf(stderr, "Error: Could not check file length.\n"), exit(1);
-    if (fseek(inputFile, 0, SEEK_SET) == -1)
-        fprintf(stderr, "Error: Could not rewind the file.\n"), exit(1);
-    if (!(filestr = (char*)malloc(inputFileLen + 1)))
-        fprintf(stderr, "Error: Could not allocate memory.\n"), exit(1);
-    if (!fread(filestr, 1, inputFileLen, inputFile))
-        fprintf(stderr, "Error: Could not read any bytes from the file.\n"), exit(1);
+    if (!(inputFile = fopen(filePath, "r"))) {
+        *str = NULL;
+        *len = 0;
+        *error = "Could not open the file.";
+        return;
+    }
+    if (fseek(inputFile, 0, SEEK_END) == -1) {
+        *str = NULL;
+        *len = 0;
+        *error = "Could not seek to end of file.";
+        return;
+    }
+    if ((inputFileLen = ftell(inputFile)) == -1) {
+        *str = NULL;
+        *len = 0;
+        *error = "Could not check file length.";
+        return;
+    }
+    if (fseek(inputFile, 0, SEEK_SET) == -1) {
+        *str = NULL;
+        *len = 0;
+        *error = "Could not rewind the file.";
+        return;
+    }
+    if (!(filestr = (char*)malloc(inputFileLen + 1))) {
+        *str = NULL;
+        *len = 0;
+        *error = "Could not allocate memory.";
+        return;
+    }
+    if ((numRead = fread(filestr, 1, inputFileLen, inputFile)), numRead != inputFileLen) {
+        *str = NULL;
+        *len = 0;
+        *error = "Could not read from the file.";
+        return;
+    }
     filestr[inputFileLen] = '\0';
     fclose(inputFile);
 
     *str = filestr;
     *len = inputFileLen;
+    *error = NULL;
 }
 
 static inline void
-printtok(daisho_token tok, void* _tokenizer) {
-    daisho_tokenizer tokenizer = *(daisho_tokenizer*)_tokenizer;
+printtok(daisho_token tok) {
     printf("Token: (");
     for (size_t i = 0; i < tok.len; i++) {
         codepoint_t c = tok.content[i];
@@ -47,20 +70,19 @@ printtok(daisho_token tok, void* _tokenizer) {
             putchar(c);
     }
 
-#if DAISHO_SOURCEINFO
     printf(") {.kind=%s, .len=%zu, .line=%zu, .col=%zu}\n", daisho_tokenkind_name[tok.kind],
            tok.len, tok.line, tok.col);
-#else
-    printf(") {.kind=%s, .len=%zu}\n", daisho_tokenkind_name[tok.kind], tok.len);
-#endif
 }
 
 int
 main(void) {
     // Read file
-    char* input_str = NULL;
-    size_t input_len = 0;
-    readFile("sample.txt", &input_str, &input_len);
+    char* input_file = "sample.txt";
+    char *input_str, *ferr;
+    size_t input_len;
+    pgen_readfile(input_file, &input_str, &input_len, &ferr);
+    if (ferr) fprintf(stderr, "Error reading %s: %s\n", input_file, ferr), exit(1);
+    if (!input_len) fprintf(stderr, "The input file is empty."), exit(1);
 
     // Decode to UTF32
     codepoint_t* cps = NULL;
@@ -87,7 +109,7 @@ main(void) {
 
     // Print tokens
     for (size_t i = 0; i < List_daisho_token_len(tokens); i++) {
-        printtok(tokens[i], &tokenizer);
+        printtok(tokens[i]);
     }
 
     // Parse AST
@@ -96,6 +118,15 @@ main(void) {
     daisho_parser_ctx_init(&parser, &allocator, tokens, List_daisho_token_len(tokens));
 
     daisho_astnode_t* ast = daisho_parse_expr(&parser);
+
+    // Check for errors
+    if (parser.num_errors) {
+        for (size_t i = 0; i < parser.num_errors; i++) {
+            fprintf(stderr, "Error on line %zu: %s\n", parser.errlist[i].line,
+                    parser.errlist[i].msg);
+        }
+        exit(1);
+    }
 
     // Print AST
     if (ast)

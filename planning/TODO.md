@@ -12,6 +12,7 @@
 | Task:                 | Asignee | Priority | Notes:                         |
 | :-------------------- | :-----: | :------: | -----------------------------: |
 | _Dai_String impl      |         | Medium   |                                |
+| StdIO impl            |         | Medium   |                                |
 
 
 
