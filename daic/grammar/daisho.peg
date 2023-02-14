@@ -71,7 +71,9 @@ typemember <- t:type v:VARIDENT
 fnmember   <- rule:fndecl
             / rule:fnproto wsemi
 
-tmplexpand <- LT rule:typelist {rule->kind=kind(TMPLEXPAND)} GT
+tmplexpand <- LT
+              rule:typelist {rule->kind = kind(TMPLEXPAND)}
+              GT
 
 
 /*********/
@@ -93,17 +95,30 @@ basetype   <- OPEN rule:type CLOSE
             / v:VOIDTYPE !STAR {rule=v}
             / voidptr
             / ctypedecl
-            / s:TYPEIDENT t:tmplexpand? {rule=has(t) ? node(TMPLTYPE, t, s) : s}
+            / s:TYPEIDENT t:tmplexpand? {rule=has(t) ? node(TMPLEXPAND, t, s) : s}
 
-%node TUPLETYPE
 tupletype  <- OPEN t:type COMMA CLOSE {rule=node(TUPLETYPE, t)}
             / OPEN rule:typelist CLOSE {rule->kind = kind(TUPLETYPE)}
 
 voidptr    <- v:VOIDPTR         {rule=v}
             / v:VOIDTYPE s:STAR {rule=leaf(VOIDPTR)}
 
-ctypedecl  <- CTYPE i:TYPEIDENT c:CIDENT
+ctypedecl  <- CTYPE i:TYPEIDENT c:cident
               {rule=node(CTYPEDECL, i, c)}
+
+cident     <- rule:VARIDENT {
+  for (size_t i = 0; i < rule->len_or_toknum; i++) {
+    codepoint_t c = rule->tok_repr[i];
+    int acc = ((c >= 'A') & (c <= 'Z')) |
+              ((c >= 'a') & (c <= 'z')) |
+               (c == '_');
+    if (i) acc |= ((c >= '0') & (c <= '9'));
+    if (!acc) {
+      ctx->pos--;
+      WARNING("Not a valid C identifier.");
+      ctx->pos++;
+    }
+  }}
 
 
 /***********************/
@@ -229,13 +244,13 @@ refexpr<int32_t rd = 0>
                 rule = rd > 0 ? node(REF, rule) : node(DEREF, rule);
               }}
 
+castexpr   <- rule:next (OPEN t:type CLOSE {rule=node(CAST, rule, t)})*
+
 callexpr   <- rule:next
               ({ret=rule->kind == kind(VARIDENT) ? SUCC : NULL} te:tmplexpand)?
               (OPEN el:exprlist CLOSE
               {rule = !has(te) ? node(CALL, rule, el)
                     :            node(CALL, rule, te, el)})*
-
-castexpr   <- rule:next (OPEN t:type CLOSE {rule=node(CAST, rule, t)})*
 
 increxpr   <- rule:next ((INCR {rule=node(INCR, rule)})
                         /(DECR {rule=node(DECR, rule)}))?
@@ -261,19 +276,28 @@ atomexpr   <-
             // Unambiguous
               / strlit
               / NUMLIT
-              / cfuncexpr
+              / cfnexpr
               / SELFVAR
               / sizeofexpr
 
-blockexpr  <- LCBRACK {rule=list(BLOCK)}
-              (!RCBRACK e:expr SEMI {add(rule, e)})*
+semiornl   <- SEMI
+            / {ret = (ctx->pos >= ctx->len ||
+                      ctx->tokens[ctx->pos - 1].line < ctx->tokens[ctx->pos].line)
+                      ? leaf(SEMI)
+                      : NULL}
+
+blockexpr<int skip=0>
+           <- LCBRACK {rule=list(BLOCK)}
+              ({if (skip) ret=NULL} !RCBRACK
+               e:expr? {if(has(e)) add(rule, e)}
+               (semiornl / {skip=1}))*
               RCBRACK
 
-lambdaexpr <- args:{}
-              ((VARIDENT)
-              /(OPEN arglist CLOSE))
+
+lambdaexpr <- (OPEN (!CLOSE al:arglist / {al=leaf(ARGLIST)})? CLOSE)
               ARROW
-              expr
+              e:expr {rule=node(LAMBDA, al, e)}
+
 
 listcomp   <- LSBRACK
              (cnt:VARIDENT COMMA)? expr
@@ -292,13 +316,12 @@ tuplelit   <- OPEN
               rule:exprlist {rule->kind = kind(TUPLELIT)}
               CLOSE
 
-%node MAPLIT
+//%node MAPLIT
 //mapexpr    <- LCBRACK e:expr DARROW v:value
 //             (COMMA RCBRACK / (COMMA e:expr DARROW v:value)* COMMA? RCBRACK)
 
-cfuncexpr  <- CFN CIDENT
+cfnexpr     <- CFN ci:cident {rule=node(CFN, ci)}
 
-%node VARDECL
 vardeclexpr <- t:type i:VARIDENT {rule=node(VARDECL, t, i)}
 
 strlit     <- sstrlit
@@ -317,6 +340,7 @@ fstrfrag   <- STRLIT
               e:FSTRLITEND {add(rule, e)}
 
 sizeofexpr <- SIZEOF OPEN te:(type / expr) CLOSE {rule=node(SIZEOF, te)}
+
 
 /******************/
 /* ERROR HANDLING */
@@ -344,7 +368,6 @@ nosemi     <- (s:SEMI  {WARNING("Extra semicolon."); ret=s})
 %node TMPLSTRUCT
 %node TMPLUNION
 %node TMPLTRAIT
-%node TMPLTYPE
 %node TRAITTYPE
 %node STRUCTTYPE
 %node CTYPEDECL
@@ -356,10 +379,11 @@ nosemi     <- (s:SEMI  {WARNING("Extra semicolon."); ret=s})
 %node BSL
 
 %node BLOCK
+%node VARDECL
 %node CAST
+%node CALL
 %node LAMBDA
 %node FOREACH
-%node CALL
 %node ACCESS
 %node LISTLIT
 %node TUPLELIT
@@ -374,6 +398,7 @@ nosemi     <- (s:SEMI  {WARNING("Extra semicolon."); ret=s})
 
 %node TYPE
 %node PTRTYPE
+%node TUPLETYPE
 %node TYPEMEMBER
 %node DTRAITIDENT
 
@@ -432,15 +457,15 @@ NCOLL:  "?:";
 //////////////////
 // Control Flow //
 //////////////////
-IF:   "if";
-ELSE: "else";
-//DO:   "do";
-FOR:    "for";
-IN:     "in";
-WHILE:  "while";
-THEN:   "then";
-ALSO:   "also";
-WHERE:  "where";
+IF:    "if";
+ELSE:  "else";
+//DO:    "do";
+FOR:   "for";
+IN:    "in";
+WHILE: "while";
+THEN:  "then";
+ALSO:  "also";
+WHERE: "where";
 
 /////////
 // OOP //
@@ -567,11 +592,6 @@ TYPEIDENT: (1, 2) {
 VARIDENT: (1, 2) {
   (0, [_a-zα-ωΑ-Ω]) -> 1;
   ((1, 2), [_a-zA-Zα-ωΑ-Ω0-9]) -> 2;
-};
-
-CIDENT: (1, 2) {
-  (0, [_a-z]) -> 1;
-  ((1, 2), [_a-zA-Z0-9]) -> 2;
 };
 
 // [-+]?[0-9]+(\.[0-9]+)?
