@@ -28,23 +28,4 @@ ExprType_function_init(daisho_parser_ctx* ctx, ExprType* info) {
   return info;
 }
 
-/*
-#define set_depth(node, depth) _set_depth(ctx, node, depth)
-static inline daisho_astnode_t*
-_set_depth(daisho_parser_ctx* ctx, ExprType* type, uint8_t depth) {
-  type->pointer_depth = depth;
-  return node;
-}
-
-static inline size_t
-get_depth(ExprType* type) {
-  size_t depth = type->pointer_depth;
-  while (type->is_concrete == 0) {
-    type = type->generic;
-    depth += type->pointer_depth;
-  }
-  return depth;
-}
-*/
-
 #endif /* DAIC_ASTHELPERS_INCLUDE */

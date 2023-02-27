@@ -18,6 +18,7 @@ typedef struct {
 static inline int
 ident_eq(Identifier i1, Identifier i2) {
     if (i1.len != i2.len) return 0;
+    if (i1.name == i2.name) return 1;
     for (size_t i = 0; i < i1.len; i++)
         if (i1.name[i] != i2.name[i]) return 0;
     return 1;
@@ -59,6 +60,7 @@ typedef struct {
 
 struct Declaration {
 #define FIELD_DECLKIND 0
+
 #define NAMESPACE_DECLKIND 1
 #define STRUCT_DECLKIND 2
 #define UNION_DECLKIND 3
@@ -67,6 +69,7 @@ struct Declaration {
 #define CTYPE_DECLKIND 6
 #define ALIAS_DECLKIND 7
 #define FN_DECLKIND 8
+#define CFN_DECLKIND 9
     union {
         NamespaceDecl ns;
         StructDecl s;
@@ -110,31 +113,5 @@ struct ExprType {
     uint8_t kind : 2;
     // List_MonoParams mono;
 };
-
-////////////////////////
-// FUNCTIONS ON TYPES //
-////////////////////////
-
-static inline ExprType*
-typeFromDecl(Declaration* decl) {
-    return NULL;
-}
-
-static inline char*
-mangle_decl(Declaration* decl) {
-    return NULL;
-}
-
-static inline char*
-mangle_expr(ExprType* type) {
-    return NULL;
-}
-
-//////////////
-// BUILTINS //
-//////////////
-
-// static Declaration voidTypeDecl;
-// static ExprType* voidType;
 
 #endif /* DAIC_TYPES_INCLUDE */

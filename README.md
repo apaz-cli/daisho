@@ -15,7 +15,7 @@ but way nicer to work with. It transpiles to
 <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
 but provides a way to pave over the sharp edges that come with writing C directly.
 
-In particular, Daisho is focused on trait metaprogramming. However, interop between
+In particular, Daisho is focused on generic traits. However, interop between
 <a href="https://en.wikipedia.org/wiki/C_(programming_language)">C <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/C_Logo.png" width=15></a>,
 <a href="https://github.com/apaz-cli/daisho/">Daisho <img src="https://cdn.discordapp.com/attachments/886799296819765279/1029882805397758023/best_logo_transparent_cropped.png" width=15></a>,
 and
@@ -29,11 +29,12 @@ code should be seamless, and no performance shall be left on the table.
 <hr>
 
 ## Status
-The language is currently still in very early stages. I've been working on it for a few months, and everything is still a WIP. If you see something in the repo, talk to me first. It's probably a proof of concept, and it's probably broken. I'm writing pretty much every part at once to get a feel for how everything is supposed to work together. See <a href="https://github.com/apaz-cli/Daisho/blob/master/planning/TODO.md">planning/TODO.md</a> for a roadmap and who is doing what. A lot of people want to help, but unfortunately there's not a lot that other people can do. I just need to work on it every day for a few more months. After that, there should be a bit more to help with.
 
 Although everything is a WIP, it's not like no progress has been made. The collection of C libraries that will underpin the compiler and language runtime is almost done. These libraries are already a useful tool in their own right. The goal of this project is to make writing C less painful, and these libraries already accomplish that to some degree. They provide many things that C programmers usually spend a considerable amount of time rewriting for every project.
 
-Right now, a lot of work is happening in <a href="https://github.com/apaz-cli/pgen">pgen</a>, a tokenizer/parser generator that I'm bootstrapping for compiling the grammar of this language.
+Also, a lot of work is happening in <a href="https://github.com/apaz-cli/pgen">pgen</a>, a tokenizer/parser generator that I'm bootstrapping for compiling the grammar of this language. To see that grammar, look at `daic/grammar/daisho.peg`.
+
+I'm almost done writing the parser. Now I'm working on symbol table generation and type unification.
 
 <br>
 
@@ -54,8 +55,8 @@ The other thing that would be very helpful would be to have people to talk to ab
 If you're planning on contributing, here's the general lay of the land.
 
 * `planning/` - Documentation about how the language is going to work.
-  * Contains an example parser.
-* `daic/` - The compiler.
+* `daic/` - The compiler
+* `daic-old/` - An early draft of the compiler.
   * Gutted and broken beyond repair, but some can be repurposed.
 * `config/` - Configure scripts.
   * Detects which features are available on the platform it's running on.
@@ -87,7 +88,7 @@ If you're planning on contributing, here's the general lay of the land.
 * A working C toolchain that supports C11.
   * The C compiler should have an optimizer.
 * Python 3.7+ (optional, to support inline python library interop)
-* Reasonable hardware. 
+* Reasonable hardware.
   * Daisho doesn't support all the platforms that C does. It assumes `CHAR_BIT` is 8, an `int` is 32 bits, `long` is 64, etc.
   * If your computer isn't 15-20 years old, you're probably fine. If you're not fine, the configure script will fail and you'll get an error message as to why. If that happens, reach out to me on discord with details of your system. If it's a bug, we'll get it worked out.
 

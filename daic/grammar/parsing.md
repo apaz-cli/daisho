@@ -65,7 +65,7 @@ For the implementation grammar, see `daisho.peg`.
   * [expr, expr, expr...] // list literal
   * {expr; expr; expr...} // Scope
   * self
-  * Type expr // Bind vident type (Like a variable declaration)
+  * Type expr // Bind varident type (Like a variable declaration)
   * literal
     * strlit
       * fstrlit (format strings)
@@ -154,6 +154,6 @@ After this,
     * The expressions that control loop iteration
   * Iterable
   * "for (expr, )? expr in expr where expr"
-    * The first expr pair must be one or both vidents.
+    * The first expr pair must be one or both varidents.
       * The second of these is declared as Size_t.
     * The last expr must be boolable expressions, the middle ...

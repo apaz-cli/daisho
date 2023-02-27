@@ -1,6 +1,10 @@
 #include "apaz-libc.h"
 #include "daisho/Daisho.h"
+
 #include "daisho_tokenizer_parser.h"
+#include "../types.h"
+#include "../typecheck.h"
+
 
 LIST_DECLARE(daisho_token)
 LIST_DEFINE(daisho_token)
@@ -117,7 +121,7 @@ main(void) {
     daisho_parser_ctx parser;
     daisho_parser_ctx_init(&parser, &allocator, tokens, List_daisho_token_len(tokens));
 
-    daisho_astnode_t* ast = daisho_parse_expr(&parser);
+    daisho_astnode_t* ast = daisho_parse_program(&parser);
 
     // Check for errors
     if (parser.num_errors) {
@@ -133,6 +137,8 @@ main(void) {
         daisho_astnode_print_json(tokens, ast);
     else
         puts("null");
+
+    if (ast) exprTypeVisit(ast, NULL);
 
     free(cps);
     List_daisho_token_destroy(tokens);

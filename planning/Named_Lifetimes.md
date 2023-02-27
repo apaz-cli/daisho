@@ -86,4 +86,6 @@ situations.
 
 ## References:
 https://pypl.github.io/PYPL.html
+https://blog.sigplan.org/2022/01/13/provably-space-efficient-parallel-functional-programming/
+https://www.semanticscholar.org/paper/Region-Based-Memory-Management-for-the-Logic-Ingenieurswetenschappen/096928ce03c488db5bb42ad71d7e719b3c6aff71
 

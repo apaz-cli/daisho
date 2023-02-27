@@ -1,2 +1,2 @@
-
-(cfn puts)("String")
+cfn exit(Int);
+cfn exit(Int)
