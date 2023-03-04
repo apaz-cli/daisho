@@ -9,20 +9,14 @@ nodeIdentifier(daisho_astnode_t* node) {
     return (Identifier){node->tok_repr, node->repr_len};
 }
 
-typedef struct {
+static inline void
+mainReturnsInt(daisho_astnode_t* ast) {
     
-} TLDs;
+}
 
 static inline void
 extractTLDs(daisho_astnode_t* ast) {
 
-}
-
-static inline void
-basicTypeVisit(daisho_astnode_t* ast) {
-    for (size_t i = 0; ast->num_children; i++) {
-        basicTypeVisit(ast->children[i]);
-    }
 }
 
 static inline void

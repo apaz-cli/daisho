@@ -2,9 +2,17 @@
 #define _DAI_STDLIB_ERROR
 #include "../PreProcessor/PreProcessor.h"
 
+typedef struct {
+    size_t line;
+    const char* func;
+    const char* file;
+} _Dai_Src_Info;
+
 #define _DAI_SRC_INFO __LINE__, __func__, __FILE__
 #define _DAI_SRC_INFO_ARGS size_t line, const char *func, const char *file
 #define _DAI_SRC_INFO_PASS line, func, file
+#define _DAI_SRC_INFO_PACK(line, func, file) (_Dai_Src_Info){line, func, file}
+#define _DAI_SRC_INFO_UNPACK(info) (info).line, (info).func, (info).file
 #define _DAI_SRC_INFO_IGNORE() \
     (void)line;                 \
     (void)func;                 \

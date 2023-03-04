@@ -1,6 +1,7 @@
 #pragma once
 #ifndef _DAI_STDLIB_BUILTINS
 #define _DAI_STDLIB_BUILTINS
+#include "List.h"
 #include "Files.h"
 #include "Hash.h"
 #include "IntegralTypes.h"

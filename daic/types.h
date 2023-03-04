@@ -4,6 +4,8 @@
 #include "grammar/daisho_tokenizer_parser.h"
 #endif
 
+#include <daisho/Daisho.h>
+
 // This file should contain only type definitions.
 
 //////////////////////////////
@@ -33,8 +35,6 @@ typedef struct {
 } Field;
 
 typedef struct {
-} NamespaceDecl;
-typedef struct {
 } StructDecl;
 typedef struct {
 } UnionDecl;
@@ -59,19 +59,15 @@ typedef struct {
 } FunctionDecl;
 
 struct Declaration {
-#define FIELD_DECLKIND 0
-
-#define NAMESPACE_DECLKIND 1
-#define STRUCT_DECLKIND 2
-#define UNION_DECLKIND 3
-#define TRAIT_DECLKIND 4
-#define IMPL_DECLKIND 5
-#define CTYPE_DECLKIND 6
-#define ALIAS_DECLKIND 7
-#define FN_DECLKIND 8
-#define CFN_DECLKIND 9
+#define STRUCT_DECLKIND 1
+#define UNION_DECLKIND 2
+#define TRAIT_DECLKIND 3
+#define IMPL_DECLKIND 4
+#define CTYPE_DECLKIND 5
+#define ALIAS_DECLKIND 6
+#define FN_DECLKIND 7
+#define CFN_DECLKIND 8
     union {
-        NamespaceDecl ns;
         StructDecl s;
         UnionDecl u;
         TraitDecl t;
@@ -85,33 +81,75 @@ struct Declaration {
     uint8_t kind;
 };
 
-struct Symtab;
-typedef struct Symtab Symtab;
-struct Symtab {
-    Declaration** decls;
-    pgen_allocator* alloc;
-    size_t num_decls;
-    size_t cap_decls;
+_DAI_LIST_DECLARE(Declaration)
+_DAI_LIST_DEFINE(Declaration)
+
+struct PreMonoSymtab;
+typedef struct PreMonoSymtab PreMonoSymtab;
+struct PreMonoSymtab {
+    PreMonoSymtab* parent;
+    _Dai_List_Declaration decls;
 };
+
+typedef struct {
+    Identifier id;
+    PreMonoSymtab symtab;
+} NamespaceDecl;
 
 //////////////////////
 // TYPES IN THE AST //
 //////////////////////
 
 // The type of an expression in the AST.
-struct ExprType;
-typedef struct ExprType ExprType;
-struct ExprType {
-#define SYMTAB_EXPRTYPE 0
-#define FUNCTION_EXPRTYPE 1
-#define VOID_EXPRTYPE 2
-#define TRAIT_EXPRTYPE 3
+struct PreMonoType;
+typedef struct PreMonoType PreMonoType;
+_DAI_LIST_DECLARE(PreMonoType)
+struct PreMonoExpand;
+typedef struct PreMonoExpand PreMonoExpand;
+struct PreMonoType {
+#define SYMTAB_PREMONOTYPE 0   /* A ctype or struct type in a symtab. */
+#define FUNCTION_PREMONOTYPE 1 /* A type of the form Type -> Type.    */
+#define VOID_PREMONOTYPE 2     /* The type Void.                      */
+#define VOIDPTR_PREMONOTYPE 3  /* The type Void*.                     */
+#define PTR_PREMONOTYPE 4      /* A type of the form Type*.           */
+#define TRAIT_PREMONOTYPE 5    /* A trait type.                       */
+#define DYNTRAIT_PREMONOTYPE 6 /* A dynamic trait type.               */
+#define GENERIC_PREMONOTYPE 7  /* A type given by a generic.          */
     union {
-        ExprType* generic;
-        Declaration* decl;
+        struct {
+            Declaration* decl;
+        } st;
+        struct {
+            PreMonoType* rett;
+            _Dai_List_PreMonoType argt;
+        } fn;
+        // No repr for Void. Use the global declaration.
+        // No repr for Void*. Use the global declaration.
+        struct {
+            PreMonoType* to;
+        } ptr;
+        struct {
+            Declaration* decl;
+        } trait;
+        struct {
+            Declaration* decl;
+        } dyntrait;
+        struct {
+            Declaration* decl;
+        } generic;
     };
-    uint8_t kind : 2;
-    // List_MonoParams mono;
+    uint8_t kind;
 };
+
+static PreMonoType _voidpretype = {.kind = VOID_PREMONOTYPE};
+static PreMonoType* voidpretype = &_voidpretype;
+static PreMonoType _voidptrpretype = {.kind = VOIDPTR_PREMONOTYPE};
+static PreMonoType* voidptrpretype = &_voidptrpretype;
+
+_DAI_LIST_DEFINE(PreMonoType)
+
+struct PostMonoType;
+typedef struct PostMonoType PostMonoType;
+struct PostMonoType {};
 
 #endif /* DAIC_TYPES_INCLUDE */

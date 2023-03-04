@@ -1,13 +1,11 @@
-#include "apaz-libc.h"
-#include "daisho/Daisho.h"
+#include <daisho/Daisho.h>
 
-#include "daisho_tokenizer_parser.h"
-#include "../types.h"
 #include "../typecheck.h"
+#include "../types.h"
+#include "daisho_tokenizer_parser.h"
 
-
-LIST_DECLARE(daisho_token)
-LIST_DEFINE(daisho_token)
+_DAI_LIST_DECLARE(daisho_token)
+_DAI_LIST_DEFINE(daisho_token)
 
 static inline void
 pgen_readfile(char* filePath, char** str, size_t* len, char** error) {
@@ -78,6 +76,113 @@ printtok(daisho_token tok) {
            tok.len, tok.line, tok.col);
 }
 
+static inline size_t
+parse_current(daisho_tokenizer* ctx, char* s) {
+    size_t len = strlen(s);
+    if (!((ctx->len - ctx->pos) >= len)) return 0;
+
+    size_t idx = ctx->pos;
+    for (size_t i = 0; i < len; i++)
+        if ((codepoint_t)s[i] != ctx->start[idx++]) return 0;
+
+    return len;
+}
+
+static inline void
+parse_ws(daisho_tokenizer* ctx) {
+    int skipped = 0;
+    while (true) {
+        int cs = 0;
+        codepoint_t c = ctx->start[ctx->pos];
+        if ((c == ' ') | (c == '\r') | (c == '\t')) {
+            cs = 1;
+            ctx->pos++;
+            ctx->pos_col++;
+        } else if (c == '\n') {
+            cs = 1;
+            ctx->pos++;
+            ctx->pos_line++;
+            ctx->pos_col = 0;
+        } else if (parse_current(ctx, "//")) {
+            cs = 1;
+            ctx->pos += 2;
+            ctx->pos_col += 2;
+            while ((ctx->pos != ctx->len) && ctx->start[ctx->pos] != '\n') {
+                ctx->pos++;
+                ctx->pos_col++;
+            }
+        } else if (parse_current(ctx, "/*")) {
+            cs = 1;
+            ctx->pos += 2;
+            ctx->pos_col += 2;
+            while (!parse_current(ctx, "*/")) {
+                if (ctx->start[ctx->pos] == '\n') {
+                    ctx->pos_line++;
+                    ctx->pos_col = 0;
+                } else {
+                    ctx->pos_col++;
+                }
+                ctx->pos++;
+            }
+            size_t n = parse_current(ctx, "*/");
+            ctx->pos_col += n;
+            ctx->pos += n;
+        }
+
+        if (!cs)
+            break;
+        else
+            skipped = 1;
+    }
+}
+
+static inline daisho_token
+parse_Nativebody(daisho_tokenizer* ctx) {
+    parse_ws(ctx);
+    size_t line = ctx->pos_line;
+    size_t col = ctx->pos_col;
+    size_t original_pos = ctx->pos;
+
+    daisho_token failure;
+    failure.kind = DAISHO_TOK_STREAMEND;
+    failure.content = NULL;
+    failure.len = 0;
+    failure.line = line;
+    failure.col = col;
+
+    size_t depth = 1;
+    size_t first = parse_current(ctx, "{");
+    ctx->pos++;
+    ctx->pos_col++;
+    if (!first) return failure;
+
+    while (depth && (ctx->pos <= ctx->len)) {
+        codepoint_t c = ctx->start[ctx->pos];
+        ctx->pos++;
+        if (c == '{')
+            depth++;
+        else if (c == '}')
+            depth--;
+
+        if (c == '\n') {
+            ctx->pos_col = 0;
+            ctx->pos_line++;
+        } else {
+            ctx->pos_col++;
+        }
+    }
+
+    if (depth) return failure;
+
+    daisho_token capture;
+    capture.kind = DAISHO_TOK_NATIVE;
+    capture.len = (ctx->pos - original_pos);      // Strip last }
+    capture.content = ctx->start + original_pos;  // Strip first {
+    capture.line = line;
+    capture.col = col;
+    return capture;
+}
+
 int
 main(void) {
     // Read file
@@ -96,7 +201,7 @@ main(void) {
     free(input_str);
 
     // Tokenize
-    List_daisho_token tokens = List_daisho_token_new_cap(1000);
+    _Dai_List_daisho_token tokens = _Dai_List_daisho_token_new();
     daisho_tokenizer tokenizer;
     daisho_tokenizer_init(&tokenizer, cps, input_len);
 
@@ -105,21 +210,32 @@ main(void) {
         tok = daisho_nextToken(&tokenizer);
 
         // Discard whitespace and end of stream, add other tokens to the list.
-        if (!((tok.kind == DAISHO_TOK_SLCOM) | (tok.kind == DAISHO_TOK_MLCOM) |
-              (tok.kind == DAISHO_TOK_WS) | (tok.kind == DAISHO_TOK_STREAMEND)))
-            List_daisho_token_add(&tokens, tok);
+        if ((tok.kind == DAISHO_TOK_SLCOM) | (tok.kind == DAISHO_TOK_MLCOM) |
+            (tok.kind == DAISHO_TOK_WS) | (tok.kind == DAISHO_TOK_STREAMEND))
+            continue;
 
+        if (tok.kind == DAISHO_TOK_NATIVE) {
+            _Dai_List_daisho_token_add(&tokens, tok);
+            tok = parse_Nativebody(&tokenizer);
+            if (tok.kind == DAISHO_TOK_STREAMEND) {
+                fprintf(stderr, "Error on line %zu: Could not parse native body.\n",
+                        tokenizer.pos_line);
+                exit(1);
+            }
+        }
+
+        _Dai_List_daisho_token_add(&tokens, tok);
     } while (tok.kind != DAISHO_TOK_STREAMEND);
 
     // Print tokens
-    for (size_t i = 0; i < List_daisho_token_len(tokens); i++) {
-        printtok(tokens[i]);
+    for (size_t i = 0; i < tokens.len; i++) {
+        printtok(tokens.buf[i]);
     }
 
     // Parse AST
     pgen_allocator allocator = pgen_allocator_new();
     daisho_parser_ctx parser;
-    daisho_parser_ctx_init(&parser, &allocator, tokens, List_daisho_token_len(tokens));
+    daisho_parser_ctx_init(&parser, &allocator, tokens.buf, tokens.len);
 
     daisho_astnode_t* ast = daisho_parse_program(&parser);
 
@@ -134,13 +250,13 @@ main(void) {
 
     // Print AST
     if (ast)
-        daisho_astnode_print_json(tokens, ast);
+        daisho_astnode_print_json(tokens.buf, ast);
     else
         puts("null");
 
     if (ast) exprTypeVisit(ast, NULL);
 
     free(cps);
-    List_daisho_token_destroy(tokens);
+    _Dai_List_daisho_token_clear(&tokens);
     pgen_allocator_destroy(&allocator);
 }

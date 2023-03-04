@@ -1,2 +1,3 @@
-cfn exit(Int);
-cfn exit(Int)
+ctype Char char
+cfn Void puts(Char*)
+main() = 0

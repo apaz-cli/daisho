@@ -2,13 +2,14 @@
 ctype Bool bool;
 
 trait Boolable {
-  Bool();
+    Bool to_bool();
 };
 
 class Optional<T> {
     T t;
     Bool present;
 };
+
 impl Boolable for Optional<T> {
     Bool to_bool() self.present;
 };
@@ -31,9 +32,4 @@ trait Integer impl Boolable {
     Self  xor(Self other);
     Self ++() self` also self$ = self$ + 1;
     Self --() self` also self$ = self$ - 1;
-};
-
-template<T>
-trait Floating {
-    
 };

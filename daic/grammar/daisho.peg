@@ -1,27 +1,29 @@
-%precode #ifndef DAIC_TYPES_INCLUDE
-%precode #include "../types.h"
-%precode #endif
-%code #ifndef DAIC_ASTHELPERS_INCLUDE
-%code #include "../asthelpers.h"
-%code #endif
+%precode     #ifndef DAIC_TYPES_INCLUDE
+%precode     #include "../types.h"
+%precode     #endif
 %include     <daisho/Daisho.h>
 
-%precode     struct Symtab;
-%precode     struct ExprType;
-%extra       Symtab* symtab; // Anything in the scope created by this expression
-%extra       ExprType* type; // The concrete type of this expression
-%extrainit   node->symtab = NULL;
-%extrainit   node->type = NULL;
+%precode     struct PreMonoSymtab;
+%precode     typedef struct PreMonoSymtab PreMonoSymtab;
+%extra       PreMonoSymtab* presymtab; // Anything in the scope created by this expression
+%extrainit   node->presymtab = NULL;
+
+%precode     struct PreExprType;
+%precode     typedef struct PreExprType PreExprType;
+%extra       PreExprType* pretype; // The concrete type of this expression
+%extrainit   node->pretype = NULL;
 
 
 program    <- sh:SHEBANG? nses:{ret=list(NSLIST)} nsn:{} cn:{}
-             (ns:namespace current:{
+             ({ret=(ctx->pos >= ctx->len) ? NULL : SUCC} ns:namespace current:{
                 // The top level declarations of all namespaces are combined.
                 int found = 0;
                 for (size_t i = 0; i < nses->num_children; i++) {
                   current = nses->children[i];
-                  if (cpstr_equals(current->children[0]->tok_repr, current->children[0]->repr_len,
-                                   ns->children[0]->tok_repr, ns->children[0]->repr_len)) {
+                  if (cpstr_equals(current->children[0]->tok_repr,
+                                   current->children[0]->repr_len,
+                                   ns->children[0]->tok_repr,
+                                   ns->children[0]->repr_len)) {
                     for (size_t j = 0; j < ns->children[1]->num_children; j++)
                       add(current->children[1], ns->children[1]->children[j]);
                     found = 1;
@@ -37,8 +39,8 @@ program    <- sh:SHEBANG? nses:{ret=list(NSLIST)} nsn:{} cn:{}
 namespace  <- ((NAMESPACE name:TYPEIDENT wsemi)
               /name:{ret=srepr(leaf(TYPEIDENT), "GLOBAL")})
               t:topdecl l:{ret = list(NSDECLS)} {add(l, t)}
-             (SEMI? t:topdecl {add(l, t)})*
-              SEMI?
+             ({ret=(ctx->pos >= ctx->len) ? NULL : SUCC}
+              (SEMI / {t=NULL} t:topdecl {add(l, t)}))*
               {rule = node(NAMESPACE, name, l)}
 
 /****************/
@@ -52,24 +54,24 @@ topdecl    <- structdecl
             / ctypedecl
             / cfndecl
             / fndecl
+            / nativeexpr
 
-structdecl <- STRUCT id:TYPEIDENT tmpl:tmplexpand il:impllist LCBRACK
+structdecl <- STRUCT id:TYPEIDENT tmpl:tmplexpand IMPL il:typelist LCBRACK
               members:{ret=list(MEMBERLIST)}
              (m:typemember {add(members, m)})*
               RCBRACK
-              {rule = node(STRUCT, id, tmpl, il, members)}
+              {rule = node(STRUCT, id, tmpl, il ? il : leaf(TYPELIST), members)}
 
-uniondecl  <- UNION id:TYPEIDENT tmpl:tmplexpand il:impllist LCBRACK
+uniondecl  <- UNION id:TYPEIDENT tmpl:tmplexpand LCBRACK
               members:{ret=list(MEMBERLIST)}
              (m:typemember {add(members, m)})*
               RCBRACK
-              {rule = node(UNION, id, tmpl, il, members)}
+              {rule = node(UNION, id, tmpl, members)}
 
-traitdecl  <- TRAIT id:TYPEIDENT tmpl:tmplexpand il:impllist LCBRACK
+traitdecl  <- TRAIT id:TYPEIDENT tmpl:tmplexpand (IMPL il:typelist)?
               members:{ret=list(MEMBERLIST)}
-             (m:fnmember {add(members, m)})*
-              RCBRACK
-              {rule = node(TRAIT, id, tmpl, il, members)}
+             (LCBRACK (m:fnmember {add(members, m)})* RCBRACK)?
+              {rule = node(TRAIT, id, tmpl, il ? il : leaf(TYPELIST), members)}
 
 impldecl   <- IMPL id:TYPEIDENT tmpl:tmplexpand FOR ft:type LCBRACK
               members:{ret=list(MEMBERLIST)}
@@ -83,27 +85,13 @@ ctypedecl  <- CTYPE id:TYPEIDENT c:cident
 cfndecl    <- CFN rett:returntype
               ci:cident
               OPEN al:protoarglist CLOSE
-              semiornl?
+              semiornl
               {rule = node(CFN, rett, ci, al)}
-
-cident     <- rule:VARIDENT {
-  for (size_t i = 0; i < rule->repr_len; i++) {
-    codepoint_t c = rule->tok_repr[i];
-    int acc = ((c >= 'A') & (c <= 'Z')) |
-              ((c >= 'a') & (c <= 'z')) |
-               (c == '_');
-    if (i) acc |= ((c >= '0') & (c <= '9'));
-    if (!acc) {
-      ctx->pos--;
-      WARNING("Not a valid C identifier.");
-      ctx->pos++;
-    }
-  }}
 
 fndecl     <- FN? rett:returntype
               name:VARIDENT tmpl:tmplexpand
               OPEN al:arglist CLOSE
-              e:expr semiornl?
+              EQ? e:expr semiornl?
               {rule=node(FNDECL, rett, name, tmpl, al, e)}
 
 fnproto    <- FN? rett:returntype
@@ -118,13 +106,8 @@ fnmember   <- rule:fndecl
 typemember <- t:type v:VARIDENT wsemi
               {rule=node(TYPEMEMBER, t, v)}
 
-impllist   <- rule:{ret=list(IMPLLIST)}
-              nocomma? t:type? {if (has(t)) add(rule, t)}
-              (wcomma? t:type {add(rule, t)})* nocomma?
-
-tmplexpand <- LT
-              rule:typelist {rule->kind = kind(TMPLEXPAND)}
-              GT
+tmplexpand <- LT rule:typelist {rule->kind = kind(TMPLEXPAND)} GT
+            / {rule=leaf(NOEXPAND)}
 
 returntype <- (type / {ret=leaf(VOIDTYPE)})
 
@@ -132,7 +115,7 @@ returntype <- (type / {ret=leaf(VOIDTYPE)})
 /* TYPES */
 /*********/
 
-type       <- fntype
+type       <- &(OPEN / SELFTYPE / VOIDTYPE / VOIDPTR / TYPEIDENT) rule:fntype
 
 fntype     <- from:{} to:ptrtype
               (ARROW n:ptrtype
@@ -142,11 +125,17 @@ fntype     <- from:{} to:ptrtype
 
 ptrtype    <- rule:basetype (STAR {rule=node(PTRTYPE, rule)})*
 
+%node BASETYPE
+%node CURRENT_NS
 basetype   <- OPEN rule:type CLOSE
+            / tupletype
             / SELFTYPE
             / v:VOIDTYPE !STAR {rule=v}
             / voidptr
-            / s:TYPEIDENT t:tmplexpand {rule=has(t) ? node(TMPLEXPAND, t, s) : s}
+            / (ns:(nns:TYPEIDENT DOT ns:{ret=nns})?
+               {if (!has(ns)) ns = leaf(CURRENT_NS)}
+               s:TYPEIDENT t:tmplexpand
+               {rule=node(BASETYPE, ns, s, t)})
 
 tupletype  <- OPEN t:type COMMA CLOSE {rule=node(TUPLETYPE, t)}
             / OPEN rule:typelist CLOSE {rule->kind = kind(TUPLETYPE)}
@@ -185,7 +174,7 @@ protoarglist
 /* EXPRESSIONS */
 /***************/
 
-expr       <- next
+expr       <- !SEMI !CLOSE rule:next
 
 preretexpr <- RET n:expr {rule=node(RET, n)}
             / rule:next (GRAVE {rule = node(RET, rule)})?
@@ -284,11 +273,12 @@ castexpr   <- rule:next (OPEN t:type CLOSE {rule=node(CAST, rule, t)})*
 callexpr   <- rule:next
               ({ret=rule->kind == kind(VARIDENT) ? SUCC : NULL} te:tmplexpand)?
               (OPEN el:exprlist CLOSE
-              {rule = !has(te) ? node(CALL, rule, el)
-                    :            node(CALL, rule, te, el)})*
+              {rule = node(CALL, rule, te, el); te=NULL})*
 
 increxpr   <- rule:next ((INCR {rule=node(INCR, rule)})
                         /(DECR {rule=node(DECR, rule)}))?
+
+notexpr    <- rule:next (EXCL {rule=node(EXCL, rule)})*
 
 /*********************************/
 /* ATOMS AND SPECIAL EXPRESSIONS */
@@ -312,14 +302,9 @@ atomexpr   <-
               / NUMLIT
               / SELFVAR
               / CHARLIT
+              / nativeexpr
               / strlit
               / sizeofexpr
-
-semiornl   <- SEMI
-            / {ret = (ctx->pos >= ctx->len ||
-                      ctx->tokens[ctx->pos - 1].line < ctx->tokens[ctx->pos].line)
-                      ? leaf(SEMI)
-                      : NULL}
 
 blockexpr<int skip=0>
            <- LCBRACK {rule=list(BLOCK)}
@@ -328,6 +313,8 @@ blockexpr<int skip=0>
                (semiornl / {skip=1}))*
               RCBRACK
 
+%node NSACCESS
+nsexpr     <- ns:TYPEIDENT DOT v:VARIDENT {rule=node(NSACCESS, ns, v)}
 
 lambdaexpr <- (OPEN (!CLOSE al:arglist / {al=leaf(ARGLIST)})? CLOSE)
               ARROW
@@ -379,6 +366,7 @@ fstrfrag   <- STRLIT
 
 sizeofexpr <- SIZEOF OPEN te:(type / expr) CLOSE {rule=node(SIZEOF, te)}
 
+nativeexpr <- NATIVE rule:NATIVE
 
 /***********/
 /* Helpers */
@@ -390,6 +378,30 @@ sizeofexpr <- SIZEOF OPEN te:(type / expr) CLOSE {rule=node(SIZEOF, te)}
 %code for (size_t i = 0; i < l1; i++) if (s1[i] != s2[i]) return 0;
 %code return 1;
 %code }
+
+cident     <- rule:VARIDENT {
+  for (size_t i = 0; i < rule->repr_len; i++) {
+    codepoint_t c = rule->tok_repr[i];
+    int acc = ((c >= 'A') & (c <= 'Z')) |
+              ((c >= 'a') & (c <= 'z')) |
+               (c == '_');
+    if (i) acc |= ((c >= '0') & (c <= '9'));
+    if (!acc) {
+      ctx->pos--;
+      WARNING("Not a valid C identifier.");
+      ctx->pos++;
+    }
+  }}
+
+semiornl   <- SEMI
+            / {ret = (ctx->pos >= ctx->len ||
+                      ctx->tokens[ctx->pos - 1].line < ctx->tokens[ctx->pos].line)
+                      ? leaf(SEMI)
+                      : NULL}
+
+overloadable <- VARIDENT
+              / PLUS / MINUS / STAR / POW / DIV / MOD
+              / AND / OR / XOR / EXCL / BITNOT /
 
 
 /******************/
@@ -416,7 +428,6 @@ wsemiornl  <- (semiornl / {WARNING("Missing semicolon or newline."); ret=leaf(SE
 %node GLOBAL
 
 %node MEMBERLIST
-%node IMPLLIST
 %node TMPLTRAIT
 
 %node FNHEAD
@@ -424,6 +435,7 @@ wsemiornl  <- (semiornl / {WARNING("Missing semicolon or newline."); ret=leaf(SE
 %node FNPROTO
 
 %node TMPLEXPAND
+%node NOEXPAND
 
 %node COMPENUMERATE
 %node COMPCOND
@@ -478,7 +490,7 @@ MOD:     "%";
 AND:     "&";
 OR:      "|";
 XOR:     "^";
-NOT:     "!";
+EXCL:    "!";
 BITNOT:  "~";
 LOGAND:  "&&";
 LOGOR:   "||";
@@ -568,6 +580,20 @@ VOIDTYPE: "Void";
 VOIDPTR:  "VoidPtr";
 SIZEOF: "sizeof";
 NAMESPACE: "namespace";
+
+NATIVE: (6, 11) { // native|ccode
+  (0, 'n') -> 1;
+  (1, 'a') -> 2;
+  (2, 't') -> 3;
+  (3, 'i') -> 4;
+  (4, 'v') -> 5;
+  (5, 'e') -> 6;
+  (0, 'c') -> 7;
+  (7, 'c') -> 8;
+  (8, 'o') -> 9;
+  (9, 'd') -> 10;
+  (10,'e') -> 11;
+};
 
 
 /////////////////

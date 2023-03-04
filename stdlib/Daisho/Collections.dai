@@ -1,8 +1,8 @@
 #include "Builtins"
 
-interface Mapper<T, K> { abstract K apply(T input); }
-interface Consumer<T> { abstract Void apply(T input); }
-interface Stream<T> {
+trait Mapper<T, K> { abstract K apply(T input); }
+trait Consumer<T> { abstract Void apply(T input); }
+trait Stream<T> {
     Stream<K> map(Mapper<T, K> mapper);
     Stream<K> flatMap(Mapper<T, Stream<K>> mapper);
     Void      forEach(Consumer<T> action);
@@ -13,7 +13,7 @@ interface Stream<T> {
 }
 
 
-interface Collection<T> {
+trait Collection<T> {
     abstract Void contains(T elem);
 
     abstract List<T> toList();
