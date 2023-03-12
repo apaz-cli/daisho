@@ -4,7 +4,7 @@
 #include "../PreProcessor/PreProcessor.h"
 
 _DAI_FN void
-_Dai_configure_buffering() {
+_Dai_configure_buffering(void) {
 
 
 #if _DAI_OUTPUT_BUFFERING == 0 /* No buffering */

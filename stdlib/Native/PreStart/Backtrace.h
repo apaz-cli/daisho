@@ -7,7 +7,7 @@
 
 #if _DAI_USING_BACKTRACES
 
-#define _DAI_BT_BUF_CAP ((size_t)(_DAI_PAGESIZE * 10))
+#define _DAI_BT_BUF_CAP ((size_t)(_DAI_PAGESIZE * 64))
 
 static size_t _Dai_bt_buf_size;
 static char _Dai_bt_buffer[_DAI_BT_BUF_CAP];
@@ -37,8 +37,7 @@ _Dai_bt_footer(char* sigstr) {
     fprintf(stderr, fmt, errmsg, sigstr ? sigstr : na);
 }
 
-/*
- * Obtain a backtrace and print it to stdout.
+/* Obtain a backtrace and print it to stdout.
  * Signal handlers are hell. Therefore, this is a "best effort" scenario.
  */
 typedef struct {
@@ -150,19 +149,19 @@ _Dai_init_backtraces(void) {
         "In Daisho/stdlib/Native/config.h, the list\n"
         "of signals that trigger a backtrace cannot be empty.\n"
         "If you want to disable backtraces, #define _DAI_BACKTRACES_SUPPORTED to 0.";
-    _DAI_ASSERT(sigs[0] != 0, nserr);
+    _DAI_INIT_SANE_ASSERT(sigs[0] != 0, nserr);
 
     /* Ensure backtraces' .so is loaded. */
     void* frames[50];
     int num_frames = backtrace(frames, 50);
     const char bterr[] = "Empty backtrace.";
-    _DAI_SANE_ASSERT(num_frames, bterr);
+    _DAI_INIT_SANE_ASSERT(num_frames, bterr);
 
     // Create a temp file buffer.
     char tmpl[] = "/tmp/Daisho Backtrace XXXXXX";
     _Dai_bt_fd = mkstemp(tmpl);
     const char tmperr[] = "Could not create temp file.";
-    _DAI_SANE_ASSERT(_Dai_bt_fd != -1, tmperr);
+    _DAI_INIT_SANE_ASSERT(_Dai_bt_fd != -1, tmperr);
 
     /* Create sa_mask. This ensures our sighandler is atomic. */
     sigset_t set;

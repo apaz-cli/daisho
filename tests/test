@@ -59,22 +59,14 @@ os.system("")  # Enables escape sequences on windows lmao
 
 cc = "cc"
 
-pycconfig = subprocess.run(["python3-config", "--cflags", "--embed"], stdout=subprocess.PIPE).stdout.decode('utf-8')
-pycconfig = re.sub("\n", " ", pycconfig)
-pycconfig = re.sub(" +", " ", pycconfig)
+warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes -Wno-missing-braces -Wno-unused-function -Wno-unused-variable"
 
-pyldconfig = subprocess.run(["python3-config", "--ldflags", "--embed"], stdout=subprocess.PIPE).stdout.decode('utf-8')
-pyldconfig = re.sub("\n", " ", pyldconfig)
-pyldconfig = re.sub(" +", " ", pyldconfig)
-
-warnings = "-Wall -Wextra -Wpedantic -Wstrict-prototypes -Wno-missing-braces -Wno-unused-function"
-
-extras = "-O0 -D_DAI_EMBED_PYTHON=1 -g -rdynamic"
+extras = "-O0 -g -rdynamic -lm -lpthread"
 
 invocations = []
 
 def compile(script, exename):
-    command = f'{cc} {pycconfig} {warnings} {extras} {script} {pyldconfig} -o {exename}'
+    command = f'{cc} {warnings} {extras} {script} -o {exename}'
     run(command)
     invocations.append([os.getcwd(), command, exename])
 

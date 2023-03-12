@@ -2,77 +2,44 @@
 #ifndef _DAI_STDLIB_MALLOCATOR
 #define _DAI_STDLIB_MALLOCATOR
 #include "../../PreProcessor/PreProcessor.h"
+#include "../Error.h"
 #include "AllocUtil.h"
 
 /******************/
 /* Error Handling */
 /******************/
 
-/* Decide what to do with these in the future. */
-_DAI_FN void*
-_Dai_malloc(size_t size, _DAI_SRC_INFO_ARGS) {
+#define _DAI_MALLOC(size) _DAI_MALLOC_SLICE(size).buf
+#define _DAI_MALLOC_SLICE(size) _Dai_malloc((_Dai_Alloc_Request){size, 1} _DAI_ALLOC_INFO_AT)
+#define _DAI_MALLOC_TYPE(type) _DAI_MALLOC_TYPE_SLICE(type).buf
+#define _DAI_MALLOC_TYPE_SLICE(type) _Dai_malloc(_DAI_ALLOC_ARGS(type) _DAI_ALLOC_INFO_AT)
+_DAI_FN _Dai_Slice
+_Dai_malloc(_Dai_Alloc_Request req _DAI_ALLOC_INFO_ARGS) {
+    size_t size = _Dai_align_max(req.min_size);
     if (_DAI_SANE) {
-        /* Pass through OOM error. */
-        void* ret = malloc(size);
-        if (!ret) _DAI_OOM();
-        return ret;
+        char* ret = (char*)malloc(size);
+        if (!ret) _DAI_ALLOC_OOM();
+        return (_Dai_Slice){ret, size};
     } else {
-        _DAI_SRC_INFO_IGNORE();
-        return malloc(size);
+        _DAI_ALLOC_INFO_ARGS_INNER()
+        return (_Dai_Slice){(char*)malloc(size), size};
     }
 }
 
+#define _DAI_REALLOC(ptr, size) _Dai_realloc(ptr, size _DAI_ALLOC_INFO_AT)
 _DAI_FN void*
-_Dai_realloc(void* ptr, size_t size, _DAI_SRC_INFO_ARGS) {
-    if (_DAI_SANE) {
-        void* ret = realloc(ptr, size);
-        if (!ret) _DAI_OOM();
-        return ret;
-    } else {
-        _DAI_SRC_INFO_IGNORE();
-        return realloc(ptr, size);
-    }
+_Dai_realloc(void* ptr, size_t size _DAI_ALLOC_INFO_ARGS) {
+    void* ret = realloc(ptr, size);
+    _DAI_SANE_OOMCHECK(ret);
+    _DAI_ALLOC_INFO_ARGS_INNER();
+    return ret;
 }
 
-_DAI_FN void*
-_Dai_calloc(size_t num, size_t size, _DAI_SRC_INFO_ARGS) {
-    _DAI_PEDANTIC_ASSERT(num, "Argument \"num\" to calloc() cannot be zero.");
-    _DAI_PEDANTIC_ASSERT(size, "Argument \"size\" to calloc() cannot be zero.");
-
-    _DAI_SRC_INFO_IGNORE();
-
-    void* result = calloc(num, size);
-    _DAI_SANE_OOMCHECK(result);
-
-    return result;
-}
-
+#define _DAI_FREE(ptr) _Dai_free(ptr _DAI_ALLOC_INFO_AT)
 _DAI_FN void
-_Dai_free(void* ptr, _DAI_SRC_INFO_ARGS) {
-    _DAI_SRC_INFO_IGNORE();
+_Dai_free(void* ptr _DAI_ALLOC_INFO_ARGS) {
+    _DAI_ALLOC_INFO_ARGS_INNER();
     free(ptr);
 }
-
-_DAI_FN void*
-_Dai_originalMalloc(size_t size) {
-    return malloc(size);
-}
-_DAI_FN void*
-_Dai_originalRealloc(void* ptr, size_t size) {
-    return realloc(ptr, size);
-}
-_DAI_FN void*
-_Dai_originalCallloc(size_t num, size_t size) {
-    return calloc(num, size);
-}
-_DAI_FN void
-_Dai_originalFree(void* ptr) {
-    free(ptr);
-}
-
-#define _DAI_MALLOC(size) _Dai_malloc(size, _DAI_SRC_INFO)
-#define _DAI_REALLOC(ptr, size) _Dai_realloc(ptr, size, _DAI_SRC_INFO)
-#define _DAI_CALLOC(num, size) _Dai_calloc(num, size, _DAI_SRC_INFO)
-#define _DAI_FREE(ptr) _Dai_free(ptr, _DAI_SRC_INFO)
 
 #endif /* _DAI_STDLIB_MALLOCATOR */

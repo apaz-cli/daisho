@@ -2,19 +2,6 @@
 #define _DAI_STDLIB_LIBRARIES
 #include "../Configs/Configs.h"
 
-/*
- * Embed a python interpreter, because why not.
- * This has to be done before including stdlib files.
- * It can be disabled in the config files, or on the
- * daic command line.
- */
-#ifndef _DAI_NO_LIBRARIES
-#if _DAI_EMBED_PYTHON
-#define PY_SSIZE_T_CLEAN
-#include <python3.9/Python.h>
-#endif
-#endif
-
 /* Grab all the C11 headers. */
 /* note: pthread.h is used over C11's threads.h because
    it's better and actually more portable. */

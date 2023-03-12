@@ -38,7 +38,7 @@ to `ctype`s.
 
 The state of a `ctype` is opaque. The idea is that What happens in C stays
 in C, and Daisho has no knowledge of it. To dip into C, you can write a
-`native` function or lambda, which is literally copy/pasted by the compiler
+`native` block or lambda, which is literally copy/pasted by the compiler
 into the generated code as appropriate. Note that it may be copy/pasted
 several times, in the case of specializing a generic function.
 

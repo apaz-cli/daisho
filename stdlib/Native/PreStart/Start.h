@@ -12,9 +12,6 @@
 /* _Dai_configure_buffering() */
 #include "Buffering.h"
 
-/* _Dai_py_init() */
-#include "Python.h"
-
 /* Stack Traces */
 static char _Dai_stacktrace_buffer[50];
 static _Dai_Mutex _Dai_stacktrace_mutex = _DAI_MUTEX_INITIALIZER;
@@ -39,13 +36,9 @@ _DAI_FN void
 _Dai_initialize(int argc, char** argv) {
     /* Start python (which sets the locale),
        or set the locale ourselves. */
-#if _DAI_EMBED_PYTHON
-    _Dai_py_init(argc, argv);
-#else
     (void)argc;
     (void)argv;
     _Dai_setlocale();
-#endif
 
     /* Configure stdio buffering. The python runtime, if we're using it,
        has been configured not to mess this up. */
@@ -58,9 +51,6 @@ _Dai_initialize(int argc, char** argv) {
 
 _DAI_FN _DAI_NORETURN void
 _Dai_exit(int code) {
-#if _DAI_EMBED_PYTHON
-    _Dai_py_exit();
-#endif
     exit(code);
 }
 

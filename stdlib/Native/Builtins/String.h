@@ -29,11 +29,11 @@ typedef struct {
 
 #if _DAI_SANE
 #define _DAI_STRING_NONNULL(self) _DAI_SANE_ASSERT(self, "The \"self\" argument cannot be null.")
-#define _DAI_STRING_NULL_TERM(self)                                                       \
-    do {                                                                                   \
-        if (_DAI_SANITY_PEDANTIC) {                                                       \
+#define _DAI_STRING_NULL_TERM(self)                                                     \
+    do {                                                                                \
+        if (_DAI_SANITY_PEDANTIC) {                                                     \
             if (!*(_Dai_String_cstr(self) + _Dai_String_len(self))) _DAI_SANITY_FAIL(); \
-        }                                                                                  \
+        }                                                                               \
     } while (0)
 #else
 #define _DAI_STRING_NONNULL(self)
@@ -65,14 +65,16 @@ _Dai_String_isLarge(_Dai_String* self) {
 _DAI_FN size_t
 _Dai_String_get_cap(_Dai_String* self) {
     _DAI_STRING_NONNULL(self);
-    _DAI_PEDANTIC_ASSERT(_Dai_String_isLarge(self), "The string must be large to have a capacity to get.");
+    _DAI_PEDANTIC_ASSERT(_Dai_String_isLarge(self),
+                         "The string must be large to have a capacity to get.");
     return (self->_cap) >> CHAR_BIT;
 }
 
 _DAI_FN void
 _Dai_String_set_cap(_Dai_String* self, size_t cap) {
     _DAI_STRING_NONNULL(self);
-    _DAI_PEDANTIC_ASSERT(_Dai_String_isLarge(self), "The string must be large to have a capacity to set.");
+    _DAI_PEDANTIC_ASSERT(_Dai_String_isLarge(self),
+                         "The string must be large to have a capacity to set.");
     self->_cap = (cap << CHAR_BIT) | ((size_t)_Dai_String_get_flag(self));
 }
 
@@ -165,12 +167,12 @@ _Dai_String_isEmpty(_Dai_String* self) {
 
 /* If the string's using ssopt, convert it to large format. */
 _DAI_FN _Dai_String*
-_Dai_String_promote(_Dai_String* self, _DAI_SRC_INFO_ARGS) {
+_Dai_String_promote(_Dai_String* self) {
     _DAI_STRING_NONNULL(self);
     if (_Dai_String_isLarge(self)) return self;
 
-    size_t newcap = _Dai_align(self->size);
-    char* buffer = (char*)_Dai_malloc(newcap, _DAI_SRC_INFO_PASS);
+    size_t newcap = _Dai_align_max(self->size);
+    char* buffer = (char*)_DAI_MALLOC(newcap);
     self->buffer = strcpy(buffer, (char*)self);
     self->size = _Dai_String_small_len(self);
     _Dai_String_set_flag_cap(self, CHAR_MAX, newcap);
@@ -181,7 +183,7 @@ _Dai_String_promote(_Dai_String* self, _DAI_SRC_INFO_ARGS) {
  * Otherwise, shrink the allocation to size.
  */
 _DAI_FN _Dai_String*
-_Dai_String_shrink(_Dai_String* self, _DAI_SRC_INFO_ARGS) {
+_Dai_String_shrink(_Dai_String* self) {
     _DAI_STRING_NONNULL(self);
     bool large = _Dai_String_isLarge(self);
     if (large) {
@@ -194,12 +196,12 @@ _Dai_String_shrink(_Dai_String* self, _DAI_SRC_INFO_ARGS) {
             s[i] = '\0';
             s[_DAI_STR_SSOPT_BUF_LEN] = _DAI_STR_SSOPT_BUF_LEN - len;
 
-            _Dai_free(buf, _DAI_SRC_INFO_PASS);
+            _DAI_FREE(buf);
         }
         /* If not small enough for ssopt, shrink. */
         else {
             // len unchanged
-            self->buffer = (char*)_Dai_realloc(self->buffer, self->size, _DAI_SRC_INFO_PASS);
+            self->buffer = (char*)_DAI_REALLOC(self->buffer, self->size);
             _Dai_String_set_cap(self, self->size);
         }
     }
@@ -239,7 +241,7 @@ _Dai_String_initWith(_Dai_String* self, char* data, size_t len) {
     /* Large */
     else {
         /* Allocate and copy */
-        size_t buf_cap = _Dai_align(len);
+        size_t buf_cap = _Dai_align_max(len);
         char* buffer = (char*)_DAI_MALLOC(buf_cap);
 
         for (i = 0; i < len; i++) buffer[i] = data[i];

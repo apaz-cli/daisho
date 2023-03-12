@@ -1,4 +1,3 @@
-#define _DAI_NO_LIBRARIES 1
 #define _DAI_TESTING_BACKTRACES 1
 #include "../../stdlib/Daisho.h"
 

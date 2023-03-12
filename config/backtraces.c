@@ -2,7 +2,6 @@
 
 #define _DAI_SANITY_CHECK 2
 #define _DAI_TESTING_BACKTRACES
-#define _DAI_NO_LIBRARIES
 #include "../stdlib/Daisho.h"
 
 void

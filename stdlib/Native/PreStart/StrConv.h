@@ -34,7 +34,7 @@ _DAI_FN size_t _Dai_ultoa(unsigned long ul, char* a);
 
 _DAI_FN size_t
 _Dai_ultoa(unsigned long ul, char* a) {
-    const char digits[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    const char digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
     char space[_DAI_ULTOA_SPACE];
     size_t copied = 0;
 
@@ -55,7 +55,7 @@ _DAI_FN size_t
 _Dai_ltoa(long l, char* a) {
     size_t neg = (l < 0);
     if (neg) *a++ = '-';  // Casting before conversion works for abs(LONG_MIN).
-    return neg + _Dai_ultoa((neg ? -(unsigned long)l : l), a);
+    return neg + _Dai_ultoa((unsigned long)(neg ? -l : l), a);
 }
 
 /*
@@ -94,7 +94,6 @@ _DAI_FN unsigned long _Dai_atoul(char* a, char** ret);
 
 /* Pointer to Hex */
 _DAI_FN int _Dai_ptoh(void* ptr, char* h, size_t s);
-
 
 /*
 static inline unsigned long long

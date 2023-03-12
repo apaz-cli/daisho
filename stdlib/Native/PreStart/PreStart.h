@@ -9,7 +9,6 @@
 #include "ThreadPool.h"
 #include "Profile.h"
 #include "PtrFlag.h"
-#include "Python.h"
 #include "Start.h"
 #include "Signals.h"
 #include "StrConv.h"

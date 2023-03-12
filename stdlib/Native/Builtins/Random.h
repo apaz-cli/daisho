@@ -66,28 +66,31 @@ _Dai_rand_bernoulli(_Dai_Random* self, float p) {
     return (_Dai_rand_32(self) * (1. / UINT32_MAX)) <= p;
 }
 
+/*
 _DAI_FN double
 _Dai_rand_gaussian(_Dai_Random* self, double mean, double stddev) {
-    /* Polar Box–Muller transform.
-       https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform */
+    // Polar Box–Muller transform. https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
     double s1, s2, s;
     do {
-        /* Generate two random numbers in (-1, 1) inside a unit circle. */
+        // Generate two random numbers in (-1, 1) inside a unit circle.
         s1 = 2 * ((float)(int)_Dai_rand_32(self) / (1.0 * INT32_MAX)) - 1;
         s2 = 2 * ((float)(int)_Dai_rand_32(self) / (1.0 * INT32_MAX)) - 1;
         s = s1 * s1 + s2 * s2;
     } while ((s >= 1) | !s);
 
-    /* Transform onto gaussian normal */
+    // Transform onto gaussian normal
     double normal = s1 * sqrt(-2.0 * log(s) / s);
 
-    /* Skew */
+    // Skew
     return (mean + stddev * normal);
 }
+*/
 
+/*
 _DAI_FN double
 _Dai_rand_normal(_Dai_Random* self) {
     return _Dai_rand_gaussian(self, 0, 1);
 }
+*/
 
 #endif /* _DAI_STDLIB_RANDOM */

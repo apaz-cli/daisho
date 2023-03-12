@@ -7,7 +7,7 @@
 
 #define _DAI_LIMITS_LEFTSHIFT(num, shf) ((num) << (shf))
 
-#define _DAI_IS_TYPE_SIGNED(t) (((t)(-1)) < ((t)0))
+#define _DAI_IS_TYPE_SIGNED(t) (((t)(-1)) <= ((t)0))
 #define _DAI_IS_TYPE_FLOATING(t) _Generic((t)0, float : 1, double : 1, long double : 1, default : 0)
 
 #define _DAI_MAX_OF_UNSIGNED_INTEGER_TYPE(t)                           \

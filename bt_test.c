@@ -12,8 +12,6 @@
 
 _DAI_FN char*
 _Dai_simplifyPath(char* path) {
-    /* https://leetcode.com/problems/simplify-path/discuss/266774/S-100-speed-(4-ms)-100-memory-(7-mb)
-     */
     char state = 1;
     char c;
     int ri = 1;
@@ -126,7 +124,7 @@ _Dai_SymInfo_addr2line(_Dai_SymInfo* info, char* space, size_t n) {
     char tmp[_DAI_BT_BUF_CAP];
     ssize_t bytes_read = read(pipes[0], tmp, _DAI_BT_BUF_CAP);
     if (bytes_read <= 0) return -10;
-    if (bytes_read == _DAI_BT_BUF_CAP) {
+    if (bytes_read >= _DAI_BT_BUF_CAP) {
         /* Large return probably doesn't matter. It shouldn't come up.
            We can do multiple reads instead of erroring if it becomes a problem. */
         return -11;
@@ -154,7 +152,9 @@ _Dai_SymInfo_addr2line(_Dai_SymInfo* info, char* space, size_t n) {
     // Seek to the end, then backtrack to the last colon. Save the position of the colon.
     // Then step forward one character. This is the start of the line number.
     size_t pos = 0;
-    while (tmp[pos] != '\0') pos++;
+    bool hascolon = 0;
+    while (tmp[pos] != '\0') (tmp[pos] == ':' ? (hascolon = 1) : 0), pos++;
+    if (!hascolon) return -14;
     while (tmp[pos] != ':') pos--;
     size_t colonpos = pos;
     tmp[colonpos] = '\0';
@@ -184,11 +184,11 @@ _Dai_SymInfo_addr2line(_Dai_SymInfo* info, char* space, size_t n) {
             return -13;
         }
         for (size_t i = 0; i < written; i++) space[i] = tmp[i];
-        info->source = space;
 
         // Grab base name from the end of the path as well.
         size_t end = written;
         while (space[end] != '/') end--;
+        info->source = space;
         info->basename = space + end + 1;
     } else {
         info->source = NULL;
@@ -221,7 +221,6 @@ _Dai_SymInfo_snwrite(char* s, size_t n, _Dai_SymInfo info, size_t width) {
     long num_written = 0;
 
 #if _DAI_BT_COLORS
-    // "" if !_DAI_ANSI_TERMINAL
     const char func_color[] = _DAI_COLOR_FUNC;
     const char file_color[] = _DAI_COLOR_FILE;
     const char line_color[] = _DAI_COLOR_LINE;
@@ -232,7 +231,7 @@ _Dai_SymInfo_snwrite(char* s, size_t n, _Dai_SymInfo info, size_t width) {
     const char file_color[] = "";
     const char line_color[] = "";
     const char reset_color[] = "";
-    const char head_color[] "";
+    const char head_color[] = "";
 #endif
     char unk[] = "UNKNOWN";
 
@@ -286,12 +285,13 @@ init() {
     return 0;
 }
 
-long print_trace(void) {
+long
+print_trace(void) {
     // Call backtrace.
     _Dai_SymInfo frameinfo[_DAI_BT_MAX_FRAMES];
     void* frames[_DAI_BT_MAX_FRAMES];
     int num_frames = backtrace(frames, _DAI_BT_MAX_FRAMES);
-    if (!num_frames) return 1;                       // No backtrace
+    if (!num_frames) return 1;                      // No backtrace
     if (num_frames > _DAI_BT_MAX_FRAMES) return 2;  // Backtrace too long
 
     // Write the backtrace to the temp file dedicated for it during initialization.

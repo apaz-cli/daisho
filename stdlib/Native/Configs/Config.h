@@ -71,7 +71,7 @@
  * --memdebug-print specifies 2.
  */
 #ifndef _DAI_MEMDEBUG
-#define _DAI_MEMDEBUG 0
+#define _DAI_MEMDEBUG 1
 #endif
 
 /*

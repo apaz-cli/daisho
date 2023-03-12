@@ -95,10 +95,10 @@ _Dai_UTF8_atCharacter(_Dai_UTF8State* state) {
  */
 _DAI_FN _Dai_Unicode_Codepoint
 _Dai_UTF8_decodeNext(_Dai_UTF8State* state) {
-    char c;                    /* the first byte of the character */
-    char c1;                   /* the first continuation character */
-    char c2;                   /* the second continuation character */
-    char c3;                   /* the third continuation character */
+    char c;                   /* the first byte of the character */
+    char c1;                  /* the first continuation character */
+    char c2;                  /* the second continuation character */
+    char c3;                  /* the third continuation character */
     _Dai_Unicode_Codepoint r; /* the result */
 
     if (state->idx >= state->len) return state->idx == state->len ? _DAI_UTF8_END : _DAI_UTF8_ERR;
@@ -177,15 +177,14 @@ _Dai_UTF8_encodeNext(_Dai_Unicode_Codepoint codepoint, char* buf4) {
     _Dai__UTF8_encode(codepoints, len, __LINE__, __func__, __FILE__)
 _DAI_FN _Dai_UTF8_String_View
 _Dai__UTF8_encode(_Dai_Unicode_Codepoint* codepoints, size_t len, size_t line, const char* func,
-                   const char* file) {
+                  const char* file) {
     _Dai_UTF8_String_View ret;
     ret.content = NULL;
     ret.len = 0;
 
     // Allocate at least enough memory.
     char buf4[4];
-    char* out_buf =
-        (char*)_Dai_malloc(len * sizeof(_Dai_Unicode_Codepoint) + 1, line, func, file);
+    char* out_buf = (char*)_DAI_MALLOC(len * sizeof(_Dai_Unicode_Codepoint) + 1);
     if (!out_buf) return ret;
 
     size_t characters_used = 0;

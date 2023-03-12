@@ -11,12 +11,14 @@ typedef struct {
 #define _DAI_SRC_INFO __LINE__, __func__, __FILE__
 #define _DAI_SRC_INFO_ARGS size_t line, const char *func, const char *file
 #define _DAI_SRC_INFO_PASS line, func, file
-#define _DAI_SRC_INFO_PACK(line, func, file) (_Dai_Src_Info){line, func, file}
+#define _DAI_SRC_INFO_PACK(line, func, file) \
+    (_Dai_Src_Info) { line, func, file }
 #define _DAI_SRC_INFO_UNPACK(info) (info).line, (info).func, (info).file
 #define _DAI_SRC_INFO_IGNORE() \
-    (void)line;                 \
-    (void)func;                 \
+    (void)line;                \
+    (void)func;                \
     (void)file;
+
 
 #define _DAI_ERRSTR_LEN 32
 
@@ -36,9 +38,9 @@ _DAI_FN _DAI_NORETURN void
 _Dai_initialization_failure(int check_sanity, char* msg, _DAI_SRC_INFO_ARGS) {
     char errstr[_DAI_ERRSTR_LEN];
     _Dai_strerror(errstr);
-    //const char succ[] = "Success";
-    //const char descerr[] = "Could not get error description.";
-    //const char* sanities[] = {"insane", "sane", "pedantic"};
+    // const char succ[] = "Success";
+    // const char descerr[] = "Could not get error description.";
+    // const char* sanities[] = {"insane", "sane", "pedantic"};
     const char fmt[] =
         "COULD NOT INITIALIZE THE DAISHO RUNTIME.\n"
         "PLEASE CREATE AN ISSUE ON GITHUB WITH THE DAIC COMMIT HASH,\n"
@@ -51,7 +53,6 @@ _Dai_initialization_failure(int check_sanity, char* msg, _DAI_SRC_INFO_ARGS) {
 
     fprintf(stderr, fmt, file, line, func, errno, errstr, _DAI_SANITY_CHECK, check_sanity, msg);
     exit(1);
-
 }
 
 _DAI_FN _DAI_NORETURN void
@@ -83,16 +84,16 @@ _Dai_error(int sanity, char* msg, _DAI_SRC_INFO_ARGS) {
 /* OOM Handling */
 /****************/
 #define _DAI_OOM() _Dai_OOM(_DAI_SRC_INFO)
-#define _DAI_OOMCHECK(buf)                    \
-    do {                                       \
+#define _DAI_OOMCHECK(buf)                   \
+    do {                                     \
         if (!(buf)) _Dai_OOM(_DAI_SRC_INFO); \
     } while (0)
-#define _DAI_SANE_OOMCHECK(buf)               \
-    do {                                       \
+#define _DAI_SANE_OOMCHECK(buf)              \
+    do {                                     \
         if (!(buf)) _Dai_OOM(_DAI_SRC_INFO); \
     } while (0)
-#define _DAI_PEDANTIC_OOMCHECK(buf)           \
-    do {                                       \
+#define _DAI_PEDANTIC_OOMCHECK(buf)          \
+    do {                                     \
         if (!(buf)) _Dai_OOM(_DAI_SRC_INFO); \
     } while (0)
 
@@ -106,20 +107,20 @@ _Dai_error(int sanity, char* msg, _DAI_SRC_INFO_ARGS) {
 /**********/
 
 /* Assert always. */
-#define _DAI_ASSERT(cond, msg)                                    \
-    do {                                                           \
+#define _DAI_ASSERT(cond, msg)                                   \
+    do {                                                         \
         if (!(cond)) _Dai_error(0, (char*)(msg), _DAI_SRC_INFO); \
     } while (0)
 
 /* Assert when not in "insane" mode. */
-#define _DAI_SANE_ASSERT(cond, msg)                                              \
-    do {                                                                          \
+#define _DAI_SANE_ASSERT(cond, msg)                                            \
+    do {                                                                       \
         if ((!(cond)) & _DAI_SANE) _Dai_error(1, (char*)(msg), _DAI_SRC_INFO); \
     } while (0)
 
 /* Assert only in "pedantic" mode. */
-#define _DAI_PEDANTIC_ASSERT(cond, msg)                                              \
-    do {                                                                              \
+#define _DAI_PEDANTIC_ASSERT(cond, msg)                                            \
+    do {                                                                           \
         if ((!(cond)) & _DAI_PEDANTIC) _Dai_error(2, (char*)(msg), _DAI_SRC_INFO); \
     } while (0)
 
@@ -128,21 +129,21 @@ _Dai_error(int sanity, char* msg, _DAI_SRC_INFO_ARGS) {
 /**************************/
 
 /* Assert always. */
-#define _DAI_INIT_ASSERT(cond, msg)                                                \
-    do {                                                                            \
+#define _DAI_INIT_ASSERT(cond, msg)                                               \
+    do {                                                                          \
         if (!(cond)) _Dai_initialization_failure(0, (char*)(msg), _DAI_SRC_INFO); \
     } while (0)
 
 /* Assert when not in "insane" mode. */
-#define _DAI_INIT_SANE_ASSERT(cond, msg)                                                          \
-    do {                                                                                           \
+#define _DAI_INIT_SANE_ASSERT(cond, msg)                                                        \
+    do {                                                                                        \
         if ((!(cond)) & _DAI_SANE) _Dai_initialization_failure(1, (char*)(msg), _DAI_SRC_INFO); \
     } while (0)
 
 /* Assert only in "pedantic" mode. */
-#define _DAI_INIT_PEDANTIC_ASSERT(cond, msg)                              \
-    do {                                                                   \
-        if ((!(cond)) & _DAI_PEDANTIC)                                    \
+#define _DAI_INIT_PEDANTIC_ASSERT(cond, msg)                             \
+    do {                                                                 \
+        if ((!(cond)) & _DAI_PEDANTIC)                                   \
             _Dai_initialization_failure(2, (char*)(msg), _DAI_SRC_INFO); \
     } while (0)
 

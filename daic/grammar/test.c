@@ -183,8 +183,7 @@ parse_Nativebody(daisho_tokenizer* ctx) {
     return capture;
 }
 
-int
-main(void) {
+int main(void) {
     // Read file
     char* input_file = "sample.txt";
     char *input_str, *ferr;
@@ -241,10 +240,22 @@ main(void) {
 
     // Check for errors
     if (parser.num_errors) {
-        for (size_t i = 0; i < parser.num_errors; i++) {
-            fprintf(stderr, "Error on line %zu: %s\n", parser.errlist[i].line,
-                    parser.errlist[i].msg);
+        int ex = 0;
+        char* sevstr[] = {"INFO", "WARNING", "ERROR", "PANIC"};
+        for (int sev = 4; sev-- > 0;) {
+            for (size_t i = 0; i < parser.num_errors; i++) {
+                if (parser.errlist[i].severity == sev) {
+                    if ((sev == 2) | (sev == 3)) ex = 1;
+                    fprintf(stderr, "%s on line %zu: %s\n", sevstr[sev], parser.errlist[i].line,
+                            parser.errlist[i].msg);
+                }
+            }
         }
+        if (ex) exit(1);
+    }
+
+    if (parser.pos != parser.len) {
+        fprintf(stderr, "Didn't consume the entire input.\n");
         exit(1);
     }
 

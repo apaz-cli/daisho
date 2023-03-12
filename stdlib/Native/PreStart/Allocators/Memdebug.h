@@ -1,4 +1,0 @@
-#ifndef _DAI_STDLIB_MEMDEBUG
-#define _DAI_STDLIB_MEMDEBUG
-
-#endif /* _DAI_STDLIB_MEMDEBUG */
