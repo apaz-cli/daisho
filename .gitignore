@@ -7,5 +7,7 @@ compile_commands.json
 **/a.out
 **/*.swp
 
+daic/daic
+
 # Tokenizer reference materials
 **/Maximal-munch tokenization in linear time.pdf

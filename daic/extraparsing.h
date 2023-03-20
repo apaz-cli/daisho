@@ -1,14 +1,15 @@
-#include <daisho/Daisho.h>
+#ifndef DAIC_NATIVEPARSE_INCLUDE
+#define DAIC_NATIVEPARSE_INCLUDE
+#include "daisho_peg.h"
 
-#include "../typecheck.h"
-#include "../types.h"
-#include "daisho_tokenizer_parser.h"
-
-_DAI_LIST_DECLARE(daisho_token)
-_DAI_LIST_DEFINE(daisho_token)
+// typedef char* cstr;
+// _DAI_LIST_DECLARE(cstr)
+// _DAI_LIST_DEFINE(cstr)
+_DAI_LIST_DECLARE(codepoint_t)
+_DAI_LIST_DEFINE(codepoint_t)
 
 static inline void
-pgen_readfile(char* filePath, char** str, size_t* len, char** error) {
+daic_readfile(char* filePath, char** str, size_t* len, char** error) {
     long inputFileLen, numRead;
     FILE* inputFile;
     char* filestr;
@@ -23,30 +24,37 @@ pgen_readfile(char* filePath, char** str, size_t* len, char** error) {
         *str = NULL;
         *len = 0;
         *error = "Could not seek to end of file.";
+        fclose(inputFile);
         return;
     }
     if ((inputFileLen = ftell(inputFile)) == -1) {
         *str = NULL;
         *len = 0;
         *error = "Could not check file length.";
+        fclose(inputFile);
         return;
     }
     if (fseek(inputFile, 0, SEEK_SET) == -1) {
         *str = NULL;
         *len = 0;
         *error = "Could not rewind the file.";
+        fclose(inputFile);
         return;
     }
     if (!(filestr = (char*)malloc(inputFileLen + 1))) {
         *str = NULL;
         *len = 0;
         *error = "Could not allocate memory.";
+        fclose(inputFile);
         return;
     }
     if ((numRead = fread(filestr, 1, inputFileLen, inputFile)), numRead != inputFileLen) {
         *str = NULL;
         *len = 0;
-        *error = "Could not read from the file.";
+        *error = numRead == -1 ? "Could not read from the file."
+                               : "Couldn't read enough bytes from the file.";
+        fclose(inputFile);
+        free(filestr);
         return;
     }
     filestr[inputFileLen] = '\0';
@@ -55,6 +63,20 @@ pgen_readfile(char* filePath, char** str, size_t* len, char** error) {
     *str = filestr;
     *len = inputFileLen;
     *error = NULL;
+}
+
+static inline void
+daic_read_utf8decode_file(char* path, codepoint_t** cps, size_t* cpslen, char** err_msg) {
+    char* input_str;
+    size_t input_len;
+    daic_readfile(path, &input_str, &input_len, err_msg);
+    if (err_msg) return;
+
+    if (!UTF8_decode(input_str, input_len, cps, cpslen)) {
+        *err_msg = "Could not decode to UTF32.";
+    }
+
+    free(input_str);
 }
 
 static inline void
@@ -90,7 +112,6 @@ parse_current(daisho_tokenizer* ctx, char* s) {
 
 static inline void
 parse_ws(daisho_tokenizer* ctx) {
-    int skipped = 0;
     while (true) {
         int cs = 0;
         codepoint_t c = ctx->start[ctx->pos];
@@ -129,10 +150,7 @@ parse_ws(daisho_tokenizer* ctx) {
             ctx->pos += n;
         }
 
-        if (!cs)
-            break;
-        else
-            skipped = 1;
+        if (!cs) break;
     }
 }
 
@@ -175,7 +193,7 @@ parse_Nativebody(daisho_tokenizer* ctx) {
     if (depth) return failure;
 
     daisho_token capture;
-    capture.kind = DAISHO_TOK_NATIVE;
+    capture.kind = DAISHO_TOK_NATIVEBODY;
     capture.len = (ctx->pos - original_pos);      // Strip last }
     capture.content = ctx->start + original_pos;  // Strip first {
     capture.line = line;
@@ -183,91 +201,53 @@ parse_Nativebody(daisho_tokenizer* ctx) {
     return capture;
 }
 
-int main(void) {
-    // Read file
-    char* input_file = "sample.txt";
-    char *input_str, *ferr;
-    size_t input_len;
-    pgen_readfile(input_file, &input_str, &input_len, &ferr);
-    if (ferr) fprintf(stderr, "Error reading %s: %s\n", input_file, ferr), exit(1);
-    if (!input_len) fprintf(stderr, "The input file is empty."), exit(1);
+// To be called after an INCLUDE is tokenized.
+// The returned string must be freed with UTF8_FREE.
+// Returns null on error.
+static inline char*
+parse_includePath(daisho_tokenizer* ctx) {
+    parse_ws(ctx);
 
-    // Decode to UTF32
-    codepoint_t* cps = NULL;
-    size_t cpslen = 0;
-    if (!UTF8_decode(input_str, input_len, &cps, &cpslen))
-        fprintf(stderr, "Could not decode to UTF32.\n"), exit(1);
-    free(input_str);
+    _Dai_List_codepoint_t pathcps = _Dai_List_codepoint_t_new();
 
-    // Tokenize
-    _Dai_List_daisho_token tokens = _Dai_List_daisho_token_new();
-    daisho_tokenizer tokenizer;
-    daisho_tokenizer_init(&tokenizer, cps, input_len);
+    daisho_token tok = daisho_nextToken(ctx);
+    int isstr = tok.kind == DAISHO_TOK_STRLIT;
+    int ispath = tok.kind == DAISHO_TOK_INCLUDEPATH;
+    if (isstr | ispath) return NULL;
 
-    daisho_token tok;
-    do {
-        tok = daisho_nextToken(&tokenizer);
-
-        // Discard whitespace and end of stream, add other tokens to the list.
-        if ((tok.kind == DAISHO_TOK_SLCOM) | (tok.kind == DAISHO_TOK_MLCOM) |
-            (tok.kind == DAISHO_TOK_WS) | (tok.kind == DAISHO_TOK_STREAMEND))
-            continue;
-
-        if (tok.kind == DAISHO_TOK_NATIVE) {
-            _Dai_List_daisho_token_add(&tokens, tok);
-            tok = parse_Nativebody(&tokenizer);
-            if (tok.kind == DAISHO_TOK_STREAMEND) {
-                fprintf(stderr, "Error on line %zu: Could not parse native body.\n",
-                        tokenizer.pos_line);
-                exit(1);
-            }
+    // We know that the token parsed, so we can
+    // make structural assumptions.
+    if (tok.len <= 2) return NULL;
+    for (size_t i = 1; i < tok.len - 1; i++) {
+        codepoint_t c = tok.content[i];
+        if (c == '\\') {
+            i++;
+#define ADDESCAPE(un, esc) \
+    if (c == un) _Dai_List_codepoint_t_add(&pathcps, esc);
+            ADDESCAPE('n', '\n');
+            ADDESCAPE('f', '\f');
+            ADDESCAPE('b', '\b');
+            ADDESCAPE('r', '\r');
+            ADDESCAPE('t', '\t');
+            ADDESCAPE('e', 27);
+            ADDESCAPE('\\', '\\');
+            ADDESCAPE('\'', '\'');
+            ADDESCAPE('\"', '\"');
+            ADDESCAPE('{', '{');
+            ADDESCAPE('}', '}');
+#undef ADDESCAPE
+            i++;
+        } else {
+            _Dai_List_codepoint_t_add(&pathcps, c);
         }
-
-        _Dai_List_daisho_token_add(&tokens, tok);
-    } while (tok.kind != DAISHO_TOK_STREAMEND);
-
-    // Print tokens
-    for (size_t i = 0; i < tokens.len; i++) {
-        printtok(tokens.buf[i]);
     }
 
-    // Parse AST
-    pgen_allocator allocator = pgen_allocator_new();
-    daisho_parser_ctx parser;
-    daisho_parser_ctx_init(&parser, &allocator, tokens.buf, tokens.len);
+    char* retstr;
+    size_t retlen;
+    UTF8_encode(pathcps.buf, pathcps.len, &retstr, &retlen);
+    _Dai_List_codepoint_t_clear(&pathcps);
 
-    daisho_astnode_t* ast = daisho_parse_program(&parser);
-
-    // Check for errors
-    if (parser.num_errors) {
-        int ex = 0;
-        char* sevstr[] = {"INFO", "WARNING", "ERROR", "PANIC"};
-        for (int sev = 4; sev-- > 0;) {
-            for (size_t i = 0; i < parser.num_errors; i++) {
-                if (parser.errlist[i].severity == sev) {
-                    if ((sev == 2) | (sev == 3)) ex = 1;
-                    fprintf(stderr, "%s on line %zu: %s\n", sevstr[sev], parser.errlist[i].line,
-                            parser.errlist[i].msg);
-                }
-            }
-        }
-        if (ex) exit(1);
-    }
-
-    if (parser.pos != parser.len) {
-        fprintf(stderr, "Didn't consume the entire input.\n");
-        exit(1);
-    }
-
-    // Print AST
-    if (ast)
-        daisho_astnode_print_json(tokens.buf, ast);
-    else
-        puts("null");
-
-    if (ast) exprTypeVisit(ast, NULL);
-
-    free(cps);
-    _Dai_List_daisho_token_clear(&tokens);
-    pgen_allocator_destroy(&allocator);
+    return retstr;
 }
+
+#endif /* DAIC_NATIVEPARSE_INCLUDE */

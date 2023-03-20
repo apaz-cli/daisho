@@ -15,7 +15,7 @@
 typedef struct {
     size_t min_size;
     size_t alignment;
-} _Dai_Alloc_Request;
+} _Dai_Alloc_Layout;
 
 // Output
 typedef struct {
@@ -30,7 +30,7 @@ typedef struct {
 #define _DAI_ALLOC_OOM() _Dai_OOM(_DAI_SRC_INFO_PASS)
 #define _DAI_ALLOC_INFO_ARGS_INNER() _DAI_SRC_INFO_IGNORE()
 #define _DAI_ALLOC_ARGS(type) \
-    (_Dai_Alloc_Request){sizeof(type), _DAI_ALIGNOF(type)}, (_Dai_Src_Info) { _DAI_SRC_INFO }
+    (_Dai_Alloc_Layout){sizeof(type), _DAI_ALIGNOF(type)}, (_Dai_Src_Info) { _DAI_SRC_INFO }
 #else
 #define _DAI_ALLOC_INFO_AT
 #define _DAI_ALLOC_INFO_PASS_AT
@@ -38,10 +38,16 @@ typedef struct {
 #define _DAI_ALLOC_OOM() _Dai_OOM(_DAI_SRC_INFO)
 #define _DAI_ALLOC_INFO_ARGS_INNER()
 #define _DAI_ALLOC_ARGS(type) \
-    (_Dai_Alloc_Request) { sizeof(type), _DAI_ALIGNOF(type) }
+    (_Dai_Alloc_Layout) { sizeof(type), _DAI_ALIGNOF(type) }
 #endif
 
-#define _DAI_ALLOC_FNDECLARGS(type)
+#define _DAI_ALLOC_ALLOCATE_DEFINITION(fnname) \
+    _DAI_FN _Dai_Slice fnname (void* allocator, _Dai_Alloc_Layout layout _DAI_ALLOC_INFO_ARGS)
+#define _DAI_ALLOC_REALLOCATE_DEFINITION(void, fnname)                             \
+    _DAI_FN _Dai_Slice fnname (void* allocator, void* ptr, _Dai_Alloc_Layout old_layout, \
+                              _Dai_Alloc_Layout new_layout _DAI_ALLOC_INFO_ARGS)
+#define _DAI_ALLOC_FREE_DEFINITION(void, fnname) \
+    _DAI_FN _Dai_Slice fnname (void* allocator, void* ptr, _Dai_Alloc_Layout layout _DAI_ALLOC_INFO_ARGS)
 
 /*************/
 /* Alignment */

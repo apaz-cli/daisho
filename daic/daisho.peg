@@ -1,5 +1,5 @@
 %precode     #ifndef DAIC_TYPES_INCLUDE
-%precode     #include "../types.h"
+%precode     #include "types.h"
 %precode     #endif
 %include     <daisho/Daisho.h>
 
@@ -110,6 +110,7 @@ tmplexpand <- LT rule:typelist {rule->kind = kind(TMPLEXPAND)} GT
             / {rule=leaf(NOEXPAND)}
 
 returntype <- (type / {ret=leaf(VOIDTYPE)})
+
 
 /*********/
 /* TYPES */
@@ -306,6 +307,7 @@ atomexpr   <-
               / strlit
               / sizeofexpr
 
+
 blockexpr<int skip=0>
            <- LCBRACK {rule=list(BLOCK)}
               ({if (skip) ret=NULL} !RCBRACK
@@ -366,7 +368,9 @@ fstrfrag   <- STRLIT
 
 sizeofexpr <- SIZEOF OPEN te:(type / expr) CLOSE {rule=node(SIZEOF, te)}
 
-nativeexpr <- NATIVE rule:NATIVE
+%token NATIVEBODY
+nativeexpr <- NATIVE rule:NATIVEBODY
+
 
 /***********/
 /* Helpers */
@@ -595,6 +599,21 @@ NATIVE: (6, 11) { // native|ccode
   (10,'e') -> 11;
 };
 
+INCLUDE: (7, 12) { // include|import
+  (0, 'i') -> 1;
+  (1, 'n') -> 2;
+  (2, 'c') -> 3;
+  (3, 'l') -> 4;
+  (4, 'u') -> 5;
+  (5, 'd') -> 6;
+  (6, 'e') -> 7;
+  (1, 'm') -> 8;
+  (8, 'p') -> 9;
+  (9, 'o') -> 10;
+  (10, 'r') -> 11;
+  (11, 't') -> 12;
+};
+
 
 /////////////////
 // Misc Syntax //
@@ -683,6 +702,8 @@ NUMLIT: (2, 3) {
 /////////////
 // Strings //
 /////////////
+
+// Keep escape sequences up to date with extraparsing.h parse_includePath.
 
 // ["]([^"\n\\]|\\[nfbrte\\'"{}])*["]
 STRLIT: 2 {
@@ -783,6 +804,28 @@ CHARLIT: 3 {
   (4, [\\]) -> 2;
   (4, ['])  -> 2;
   (2, [']) -> 3;
+};
+
+// ["]([^"\n\\]|\\[nfbrte\\'"{}])*["]
+INCLUDEPATH: 2 {
+  (0, [<])  -> 1;
+  (1, [>])  -> 2;
+  (1, '{')  -> -1; // fstring
+
+  (1, [\n]) -> -1; // no newlines in inlcude path.
+  (1, [\\]) -> 3;  // start parsing escape sequence
+  (1, [^])  -> 1;  // string content
+  (3, [n])  -> 1;  // newline
+  (3, [f])  -> 1;  // form feed
+  (3, [b])  -> 1;  // backspace
+  (3, [r])  -> 1;  // carriage return
+  (3, [t])  -> 1;  // tab
+  (3, [e])  -> 1;  // escape character
+  (3, [\\]) -> 1;  // backslash
+  (3, ['])  -> 1;  // single quote
+  (3, ["])  -> 1;  // double quote
+  (3, '{')  -> 1;  // open curly
+  (3, '}')  -> 1;  // close curly
 };
 
 

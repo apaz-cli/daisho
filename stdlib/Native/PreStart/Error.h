@@ -80,23 +80,6 @@ _Dai_error(int sanity, char* msg, _DAI_SRC_INFO_ARGS) {
     exit(1);
 }
 
-/****************/
-/* OOM Handling */
-/****************/
-#define _DAI_OOM() _Dai_OOM(_DAI_SRC_INFO)
-#define _DAI_OOMCHECK(buf)                   \
-    do {                                     \
-        if (!(buf)) _Dai_OOM(_DAI_SRC_INFO); \
-    } while (0)
-#define _DAI_SANE_OOMCHECK(buf)              \
-    do {                                     \
-        if (!(buf)) _Dai_OOM(_DAI_SRC_INFO); \
-    } while (0)
-#define _DAI_PEDANTIC_OOMCHECK(buf)          \
-    do {                                     \
-        if (!(buf)) _Dai_OOM(_DAI_SRC_INFO); \
-    } while (0)
-
 /*******************/
 /* Terminal Errors */
 /*******************/

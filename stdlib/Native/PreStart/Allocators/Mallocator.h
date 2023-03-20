@@ -10,27 +10,31 @@
 /******************/
 
 #define _DAI_MALLOC(size) _DAI_MALLOC_SLICE(size).buf
-#define _DAI_MALLOC_SLICE(size) _Dai_malloc((_Dai_Alloc_Request){size, 1} _DAI_ALLOC_INFO_AT)
+#define _DAI_MALLOC_SLICE(size) _Dai_malloc((_Dai_Alloc_Layout){size, 1} _DAI_ALLOC_INFO_AT)
 #define _DAI_MALLOC_TYPE(type) _DAI_MALLOC_TYPE_SLICE(type).buf
 #define _DAI_MALLOC_TYPE_SLICE(type) _Dai_malloc(_DAI_ALLOC_ARGS(type) _DAI_ALLOC_INFO_AT)
+
 _DAI_FN _Dai_Slice
-_Dai_malloc(_Dai_Alloc_Request req _DAI_ALLOC_INFO_ARGS) {
+_Dai_malloc(_Dai_Alloc_Layout req _DAI_ALLOC_INFO_ARGS) {
     size_t size = _Dai_align_max(req.min_size);
-    if (_DAI_SANE) {
-        char* ret = (char*)malloc(size);
-        if (!ret) _DAI_ALLOC_OOM();
-        return (_Dai_Slice){ret, size};
+    char* ret = (char*)malloc(size);
+    if (_DAI_SANE && !ret) {
+        _DAI_ALLOC_OOM();
     } else {
-        _DAI_ALLOC_INFO_ARGS_INNER()
-        return (_Dai_Slice){(char*)malloc(size), size};
+        _DAI_ALLOC_INFO_ARGS_INNER();
     }
+    return (_Dai_Slice){ret, size};
 }
 
 #define _DAI_REALLOC(ptr, size) _Dai_realloc(ptr, size _DAI_ALLOC_INFO_AT)
 _DAI_FN void*
 _Dai_realloc(void* ptr, size_t size _DAI_ALLOC_INFO_ARGS) {
     void* ret = realloc(ptr, size);
-    _DAI_SANE_OOMCHECK(ret);
+    if (_DAI_SANE && !ret) {
+        _DAI_ALLOC_OOM();
+    } else {
+        _DAI_ALLOC_INFO_ARGS_INNER();
+    }
     _DAI_ALLOC_INFO_ARGS_INNER();
     return ret;
 }

@@ -1,7 +1,7 @@
 #ifndef DAIC_TYPES_INCLUDE
 #define DAIC_TYPES_INCLUDE
 #ifndef PGEN_UTF8_INCLUDED
-#include "grammar/daisho_tokenizer_parser.h"
+#include "daisho_peg.h"
 #endif
 
 #include <daisho/Daisho.h>
@@ -94,7 +94,11 @@ struct PreMonoSymtab {
 typedef struct {
     Identifier id;
     PreMonoSymtab symtab;
+    daisho_astnode_t* nsnode;
 } NamespaceDecl;
+
+_DAI_LIST_DECLARE(NamespaceDecl)
+_DAI_LIST_DEFINE(NamespaceDecl)
 
 //////////////////////
 // TYPES IN THE AST //

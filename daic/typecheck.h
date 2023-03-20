@@ -1,7 +1,7 @@
 #ifndef DAIC_TYPECHECK_INCLUDE
 #define DAIC_TYPECHECK_INCLUDE
 #ifndef PGEN_UTF8_INCLUDED
-#include "grammar/daisho_tokenizer_parser.h"
+#include "daisho_peg.h"
 #endif
 
 static inline Identifier
@@ -10,13 +10,25 @@ nodeIdentifier(daisho_astnode_t* node) {
 }
 
 static inline void
-mainReturnsInt(daisho_astnode_t* ast) {
-    
-}
+mainReturnsInt(daisho_astnode_t* ast) {}
 
-static inline void
-extractTLDs(daisho_astnode_t* ast) {
+static inline _Dai_List_NamespaceDecl
+extractTLDs(daisho_astnode_t* root) {
+    _Dai_List_NamespaceDecl nsdlist = _Dai_List_NamespaceDecl_new();
 
+    daisho_astnode_t* nslist = root->children[0];
+    for (size_t nsnum = 0; nsnum < nslist->num_children; nsnum++) {
+        NamespaceDecl nsd;
+        nsd.symtab.decls = _Dai_List_Declaration_new();
+        nsd.symtab.parent = NULL;
+        nsd.nsnode = nslist->children[nsnum];
+        nsd.id = nodeIdentifier(nsd.nsnode->children[0]);
+        _Dai_List_NamespaceDecl_add(&nsdlist, nsd);
+
+        daisho_astnode_t** items = nsd.nsnode->children + 1;
+    }
+
+    return nsdlist;
 }
 
 static inline void
