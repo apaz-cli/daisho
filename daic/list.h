@@ -1,20 +1,21 @@
 #ifndef _DAI_STDLIB_LIST
 #define _DAI_STDLIB_LIST
-#include "../PreStart/PreStart.h"
+
+#include "allocator.h"
 
 /********/
 /* List */
 /********/
 
-#define _Daic_List_DECLARE(type) \
+#define _DAIC_LIST_DECLARE(type) \
     typedef struct {            \
         type* buf;              \
         size_t len;             \
         size_t cap;             \
     } _Daic_List_##type;
 
-#define _Daic_List_DEFINE(type)                                                         \
-    static inline _Daic_List_##type _Daic_List_##type##_new() {                          \
+#define _DAIC_LIST_DEFINE(type)                                                         \
+    static inline _Daic_List_##type _Daic_List_##type##_new(void) {                          \
         _Daic_List_##type nl;                                                           \
         nl.buf = NULL;                                                                 \
         nl.len = 0;                                                                    \
@@ -26,7 +27,7 @@
         /* Grow the buffer if there's not enough space. */                             \
         if (self->cap <= next_len) {                                                   \
             size_t next_cap = next_len * 2 + 8;                                        \
-            type* reall = (type*)realloc(self->buf, sizeof(type) * next_cap);          \
+            type* reall = (type*)_DAIC_REALLOC(self->buf, sizeof(type) * next_cap);          \
             if (!reall) return 1;                                                      \
             self->cap = next_cap;                                                      \
             self->buf = reall;                                                         \
@@ -54,7 +55,7 @@
         return self->len == 0;                                                         \
     }                                                                                  \
     static inline void _Daic_List_##type##_clear(_Daic_List_##type* self) {              \
-        if (self->buf) free(self->buf);                                                \
+        if (self->buf) _DAIC_FREE(self->buf);                                                \
         self->buf = NULL;                                                              \
         self->len = 0;                                                                 \
         self->cap = 0;                                                                 \

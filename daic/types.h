@@ -4,7 +4,7 @@
 #include "daisho_peg.h"
 #endif
 
-#include <daisho/Daisho.h>
+#include "list.h"
 
 // This file should contain only type definitions.
 
@@ -34,6 +34,9 @@ typedef struct {
     size_t size;
 } Field;
 
+struct NamespaceDecl;
+typedef struct NamespaceDecl NamespaceDecl;
+
 typedef struct {
 } StructDecl;
 typedef struct {
@@ -49,6 +52,7 @@ typedef struct {
     Identifier to;
 } CTypeDecl;
 typedef struct {
+    NamespaceDecl* ns;
     Identifier from;
     Declaration* to;
 } AliasDecl;
@@ -81,24 +85,24 @@ struct Declaration {
     uint8_t kind;
 };
 
-_DAI_LIST_DECLARE(Declaration)
-_DAI_LIST_DEFINE(Declaration)
+_DAIC_LIST_DECLARE(Declaration)
+_DAIC_LIST_DEFINE(Declaration)
 
 struct PreMonoSymtab;
 typedef struct PreMonoSymtab PreMonoSymtab;
 struct PreMonoSymtab {
     PreMonoSymtab* parent;
-    _Dai_List_Declaration decls;
+    _Daic_List_Declaration decls;
 };
 
-typedef struct {
+struct NamespaceDecl {
     Identifier id;
     PreMonoSymtab symtab;
     daisho_astnode_t* nsnode;
-} NamespaceDecl;
+};
 
-_DAI_LIST_DECLARE(NamespaceDecl)
-_DAI_LIST_DEFINE(NamespaceDecl)
+_DAIC_LIST_DECLARE(NamespaceDecl)
+_DAIC_LIST_DEFINE(NamespaceDecl)
 
 //////////////////////
 // TYPES IN THE AST //
@@ -107,7 +111,7 @@ _DAI_LIST_DEFINE(NamespaceDecl)
 // The type of an expression in the AST.
 struct PreMonoType;
 typedef struct PreMonoType PreMonoType;
-_DAI_LIST_DECLARE(PreMonoType)
+_DAIC_LIST_DECLARE(PreMonoType)
 struct PreMonoExpand;
 typedef struct PreMonoExpand PreMonoExpand;
 struct PreMonoType {
@@ -125,7 +129,7 @@ struct PreMonoType {
         } st;
         struct {
             PreMonoType* rett;
-            _Dai_List_PreMonoType argt;
+            _Daic_List_PreMonoType argt;
         } fn;
         // No repr for Void. Use the global declaration.
         // No repr for Void*. Use the global declaration.
@@ -150,10 +154,13 @@ static PreMonoType* voidpretype = &_voidpretype;
 static PreMonoType _voidptrpretype = {.kind = VOIDPTR_PREMONOTYPE};
 static PreMonoType* voidptrpretype = &_voidptrpretype;
 
-_DAI_LIST_DEFINE(PreMonoType)
+_DAIC_LIST_DEFINE(PreMonoType)
 
 struct PostMonoType;
 typedef struct PostMonoType PostMonoType;
 struct PostMonoType {};
+
+_DAIC_LIST_DECLARE(PostMonoType)
+_DAIC_LIST_DEFINE(PostMonoType)
 
 #endif /* DAIC_TYPES_INCLUDE */

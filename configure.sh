@@ -95,6 +95,12 @@ config_variables() {
 	msg "THREADS" "$THREADS"
 	append "#define _DAI_IDEAL_NUM_THREADS $THREADS"
 
+        ###############
+        # STDLIB PATH #
+        ###############
+        LIBPATH=$(realpath stdlib/)
+        msg "LIBPATH" "$LIBPATH"
+        append "#define _DAIC_LIB_INCLUDE_PATH \"$LIBPATH\""
 }
 
 gitrev() {

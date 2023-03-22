@@ -1,82 +1,39 @@
 #ifndef DAIC_NATIVEPARSE_INCLUDE
 #define DAIC_NATIVEPARSE_INCLUDE
+#include <daisho/Daisho.h>
+#include <libgen.h>
+#include <sys/stat.h>
+
+#include "allocator.h"
 #include "daisho_peg.h"
+#include "list.h"
 
 // typedef char* cstr;
-// _DAI_LIST_DECLARE(cstr)
-// _DAI_LIST_DEFINE(cstr)
-_DAI_LIST_DECLARE(codepoint_t)
-_DAI_LIST_DEFINE(codepoint_t)
+// _DAIC_LIST_DECLARE(cstr)
+// _DAIC_LIST_DEFINE(cstr)
+_DAIC_LIST_DECLARE(codepoint_t)
+_DAIC_LIST_DEFINE(codepoint_t)
+
+_DAIC_LIST_DECLARE(daisho_token)
+_DAIC_LIST_DEFINE(daisho_token)
+
+typedef struct {
+    char* fname;
+    ino_t inode;
+    char* content;
+    size_t contentlen;
+    codepoint_t* cps;
+    size_t cpslen;
+} InputFile;
+
+_DAIC_LIST_DECLARE(InputFile)
+_DAIC_LIST_DEFINE(InputFile)
 
 static inline void
-daic_readfile(char* filePath, char** str, size_t* len, char** error) {
-    long inputFileLen, numRead;
-    FILE* inputFile;
-    char* filestr;
-
-    if (!(inputFile = fopen(filePath, "r"))) {
-        *str = NULL;
-        *len = 0;
-        *error = "Could not open the file.";
-        return;
-    }
-    if (fseek(inputFile, 0, SEEK_END) == -1) {
-        *str = NULL;
-        *len = 0;
-        *error = "Could not seek to end of file.";
-        fclose(inputFile);
-        return;
-    }
-    if ((inputFileLen = ftell(inputFile)) == -1) {
-        *str = NULL;
-        *len = 0;
-        *error = "Could not check file length.";
-        fclose(inputFile);
-        return;
-    }
-    if (fseek(inputFile, 0, SEEK_SET) == -1) {
-        *str = NULL;
-        *len = 0;
-        *error = "Could not rewind the file.";
-        fclose(inputFile);
-        return;
-    }
-    if (!(filestr = (char*)malloc(inputFileLen + 1))) {
-        *str = NULL;
-        *len = 0;
-        *error = "Could not allocate memory.";
-        fclose(inputFile);
-        return;
-    }
-    if ((numRead = fread(filestr, 1, inputFileLen, inputFile)), numRead != inputFileLen) {
-        *str = NULL;
-        *len = 0;
-        *error = numRead == -1 ? "Could not read from the file."
-                               : "Couldn't read enough bytes from the file.";
-        fclose(inputFile);
-        free(filestr);
-        return;
-    }
-    filestr[inputFileLen] = '\0';
-    fclose(inputFile);
-
-    *str = filestr;
-    *len = inputFileLen;
-    *error = NULL;
-}
-
-static inline void
-daic_read_utf8decode_file(char* path, codepoint_t** cps, size_t* cpslen, char** err_msg) {
-    char* input_str;
-    size_t input_len;
-    daic_readfile(path, &input_str, &input_len, err_msg);
-    if (err_msg) return;
-
-    if (!UTF8_decode(input_str, input_len, cps, cpslen)) {
-        *err_msg = "Could not decode to UTF32.";
-    }
-
-    free(input_str);
+InputFile_free(InputFile of) {
+    if (of.fname) free(of.fname);
+    if (of.content) free(of.content);
+    if (of.cps) free(of.cps);
 }
 
 static inline void
@@ -96,6 +53,7 @@ printtok(daisho_token tok) {
 
     printf(") {.kind=%s, .len=%zu, .line=%zu, .col=%zu}\n", daisho_tokenkind_name[tok.kind],
            tok.len, tok.line, tok.col);
+    fflush(stdout);
 }
 
 static inline size_t
@@ -201,29 +159,129 @@ parse_Nativebody(daisho_tokenizer* ctx) {
     return capture;
 }
 
+// Result must be freed.
+static inline char*
+joinpaths(char* folder, char* sep, char* file) {
+    char* filename = (char*)malloc(strlen(folder) + strlen(sep) + strlen(file) + 1);
+    strcpy(filename, folder);
+    strcat(filename, sep);
+    strcat(filename, file);
+    return filename;
+}
+
+static char* incl_dne_err = "The file does not exist.";
+static char* incl_fnf_err = "Could not not find any files matching the include path.";
+static char* incl_realpath_err = "Failed to convert with realpath().";
+static char* incl_home_err =
+    "Cannot expand \"~\" in include path when no $HOME environment variable is set.";
+
+static inline char*
+searchAbsoluteIncludePath(char* search, char** err_msg) {
+    if (search[0] == '/') {
+        return strdup(search);
+    } else if (search[0] == '~') {
+        static char* HOME = NULL;
+        if (!HOME) {
+            HOME = getenv("HOME");
+            if (!HOME) {
+                *err_msg = incl_home_err;
+                return NULL;
+            }
+        }
+        return joinpaths(HOME, "/", search);
+    }
+    return NULL;
+}
+
+// Check if search exists in the folder that current_file is in.
+static inline char*
+searchLocalIncludePath(char* current_file, char* search) {
+    char* dirn = dirname(current_file);
+    if (!strcmp(dirn, ".")) return NULL;
+    char* joined = joinpaths(dirn, "/", search);
+    if (access(joined, F_OK) == -1) return free(joined), NULL;
+    return joined;
+}
+
+// Check if search exists in the system include folder.
+static inline char*
+searchSystemIncludePath(char* search) {
+    char* joined = joinpaths(_DAIC_LIB_INCLUDE_PATH, "/Daisho/", search);
+    if (access(joined, F_OK) == -1) return free(joined), NULL;
+    return joined;
+}
+
+// If the folder is an absolute path (starts with /), do no lookup.
+// If the folder starts with ~, expand it and do no lookup (It's also absolute).
+// If it was an #include <>, then search the system include path first, then
+// files relative to the file being included from.
+// If it was an #include "", search relative to the file being included from first,
+// then the system include path.
+// Finally, return the result of realpath().
+// Sets err_msg on error.
+static inline char*
+searchIncludePath(char* current_file, char* search, int local, char** err_msg) {
+    char* ret = searchAbsoluteIncludePath(search, err_msg);
+    if (err_msg) return ret;
+
+    if (!ret) {
+        if (local) {
+            ret = searchLocalIncludePath(current_file, search);
+            if (!ret) ret = searchSystemIncludePath(search);
+        } else {
+            ret = searchSystemIncludePath(search);
+            if (!ret) ret = searchLocalIncludePath(current_file, search);
+        }
+    }
+
+    if (!ret) {
+        *err_msg = incl_fnf_err;
+        return NULL;
+    }
+
+    char* real = realpath(ret, NULL);
+    if (!real) {
+        if (errno == ENOENT) *err_msg = incl_dne_err;
+        *err_msg = incl_realpath_err;
+        return ret;
+    } else {
+        free(ret);
+    }
+
+    return *err_msg = NULL, real;
+}
+
 // To be called after an INCLUDE is tokenized.
 // The returned string must be freed with UTF8_FREE.
 // Returns null on error.
 static inline char*
-parse_includePath(daisho_tokenizer* ctx) {
+parse_includePath(daisho_tokenizer* ctx, char* current_file, char** err_msg) {
     parse_ws(ctx);
 
-    _Dai_List_codepoint_t pathcps = _Dai_List_codepoint_t_new();
+    _Daic_List_codepoint_t pathcps = _Daic_List_codepoint_t_new();
 
     daisho_token tok = daisho_nextToken(ctx);
     int isstr = tok.kind == DAISHO_TOK_STRLIT;
     int ispath = tok.kind == DAISHO_TOK_INCLUDEPATH;
-    if (isstr | ispath) return NULL;
+    if (isstr | ispath) {
+        *err_msg =
+            "What followed #include/#import was not a valid "
+            "string literal or include path token.";
+        return NULL;
+    }
 
     // We know that the token parsed, so we can
     // make structural assumptions.
-    if (tok.len <= 2) return NULL;
+    if (tok.len <= 2) {
+        *err_msg = "Cannot include an empty string.";
+        return NULL;
+    }
     for (size_t i = 1; i < tok.len - 1; i++) {
         codepoint_t c = tok.content[i];
         if (c == '\\') {
             i++;
 #define ADDESCAPE(un, esc) \
-    if (c == un) _Dai_List_codepoint_t_add(&pathcps, esc);
+    if (c == un) _Daic_List_codepoint_t_add(&pathcps, esc);
             ADDESCAPE('n', '\n');
             ADDESCAPE('f', '\f');
             ADDESCAPE('b', '\b');
@@ -238,16 +296,124 @@ parse_includePath(daisho_tokenizer* ctx) {
 #undef ADDESCAPE
             i++;
         } else {
-            _Dai_List_codepoint_t_add(&pathcps, c);
+            _Daic_List_codepoint_t_add(&pathcps, c);
         }
     }
 
     char* retstr;
     size_t retlen;
+    // Encode won't fail, it's valid because it was decoded earlier.
     UTF8_encode(pathcps.buf, pathcps.len, &retstr, &retlen);
-    _Dai_List_codepoint_t_clear(&pathcps);
+    _Daic_List_codepoint_t_clear(&pathcps);
 
-    return retstr;
+    char* foundstr = searchIncludePath(current_file, retstr, isstr, err_msg);
+    UTF8_FREE(retstr);
+    return foundstr;
+}
+
+static inline InputFile
+daic_read_utf8decode_file(char* path, char** err_msg) {
+    InputFile of;
+    of.fname = strdup(path);
+    of.inode = 0;
+    of.content = NULL;
+    of.contentlen = 0;
+    of.cps = NULL;
+    of.cpslen = 0;
+    *err_msg = NULL;
+
+    int fd = open(path, O_RDONLY);
+    if (fd == -1) {
+        int e = errno;
+        if (e == ENOENT) *err_msg = incl_dne_err;
+        return of;
+    }
+
+    struct stat st;
+    if (fstat(fd, &st)) {
+        *err_msg = "Could not stat file.";
+        return of;
+    }
+    of.contentlen = (size_t)st.st_size;
+    of.inode = st.st_ino;
+
+    of.content = _DAIC_MALLOC(of.contentlen + 1);
+    if (!of.content) {
+        *err_msg = "Could not allocate memory for the file's contents.";
+        return of;
+    }
+
+    int err = 0;
+    size_t bytes_read = _Dai_read_wrapper(fd, of.content, of.contentlen, &err);
+    if (err) {
+        *err_msg = "Could not read() from the file.";
+        return of;
+    }
+
+    if (!UTF8_decode(of.content, of.contentlen, &of.cps, &of.cpslen)) {
+        *err_msg = "Could not decode to UTF32.";
+        return of;
+    }
+
+    return of;
+}
+
+static inline void
+daic_read_utf8decode_tokenize_file(char* path, _Daic_List_InputFile* input_files,
+                                   _Daic_List_daisho_token* append_tokens, int first_file) {
+    char* err_msg = NULL;
+    InputFile of = daic_read_utf8decode_file(path, &err_msg);
+    if (err_msg || !of.cps) {
+        fprintf(stderr, "%s", err_msg);
+        exit(1);
+    }
+    _Daic_List_InputFile_add(input_files, of);
+
+    daisho_tokenizer tokenizer;
+    daisho_tokenizer_init(&tokenizer, of.cps, of.cpslen);
+
+    int firsttoken = 1;
+    daisho_token tok;
+    do {
+        tok = daisho_nextToken(&tokenizer);
+        printtok(tok);
+        fflush(stdout);
+
+        // Skip the shebang for included files.
+        if (tok.kind == DAISHO_TOK_SHEBANG && !first_file && firsttoken) continue;
+        firsttoken = 0;
+
+        // Discard whitespace and end of stream, add other tokens to the list.
+        if ((tok.kind == DAISHO_TOK_SLCOM) | (tok.kind == DAISHO_TOK_MLCOM) |
+            (tok.kind == DAISHO_TOK_WS) | (tok.kind == DAISHO_TOK_STREAMEND))
+            continue;
+
+        if (tok.kind == DAISHO_TOK_NATIVE) {
+            _Daic_List_daisho_token_add(append_tokens, tok);
+            tok = parse_Nativebody(&tokenizer);
+            if (tok.kind == DAISHO_TOK_STREAMEND) {
+                fprintf(stderr, "Error on line %zu of %s: Could not parse native body.\n",
+                        tokenizer.pos_line, path);
+                exit(1);
+            }
+        }
+
+        if (tok.kind == DAISHO_TOK_INCLUDE) {
+            char* incl_errstr = NULL;
+            char* inclpath = parse_includePath(&tokenizer, path, &incl_errstr);
+            if (incl_errstr || !inclpath) {
+                fprintf(stderr,
+                        "Error on line %zu of %s: Could not resolve include path.\n"
+                        "Reason: %s\n",
+                        tokenizer.pos_line, path, incl_errstr);
+                exit(1);
+            }
+
+            daic_read_utf8decode_tokenize_file(inclpath, input_files, append_tokens, 0);
+        }
+
+        _Daic_List_daisho_token_add(append_tokens, tok);
+    } while (tok.kind != DAISHO_TOK_STREAMEND);
 }
 
 #endif /* DAIC_NATIVEPARSE_INCLUDE */

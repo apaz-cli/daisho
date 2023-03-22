@@ -62,7 +62,8 @@ _Dai_read_wrapper(int fd, void* buf, size_t bytes, int* err) {
 _DAI_FN int
 _Dai_OStream_flush(_Dai_OStream* os, int unlocked) {
     if (!unlocked) _Dai_mutex_lock(&os->mtx);
-    ssize_t written = _Dai_write_wrapper(os->fd, os->buf, os->len);
+    int err;  // TODO use
+    ssize_t written = _Dai_write_wrapper(os->fd, os->buf, os->len, &err);
     _DAI_ASSERT(written == os->len, "The entire message was not written.");
     if (!unlocked) _Dai_mutex_unlock(&os->mtx);
     return 0;
@@ -72,8 +73,9 @@ _DAI_FN ssize_t
 _Dai_OStream_write(_Dai_OStream* os, const void* mem, size_t bytes, int unlocked) {
     if (!unlocked) _Dai_mutex_lock(&os->mtx);
     if (bytes > os->cap) {
+        int err;  // TODO use
         _Dai_OStream_flush(os, 1);
-        _Dai_write_wrapper(os->fd, mem, bytes);
+        _Dai_write_wrapper(os->fd, mem, bytes, &err);
     } else {
         size_t bufspace = os->cap - os->len;
         size_t cpy = bytes <= bufspace ? bytes : bufspace;
