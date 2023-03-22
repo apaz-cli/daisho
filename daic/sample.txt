@@ -1,3 +1,4 @@
+#include "sample.txt"
 ctype Char char
 cfn Void puts(Char*)
 main() = puts("Hello World!")

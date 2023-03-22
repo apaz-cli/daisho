@@ -26,6 +26,27 @@ ident_eq(Identifier i1, Identifier i2) {
     return 1;
 }
 
+struct InputFile {
+    char* fname;
+    ino_t inode;
+    char* content;
+    size_t contentlen;
+    codepoint_t* cps;
+    size_t cpslen;
+    size_t* poses;
+};
+typedef struct InputFile InputFile;
+
+static inline void
+InputFile_free(InputFile of) {
+    if (of.fname) free(of.fname);
+    if (of.content) free(of.content);
+    if (of.cps) free(of.cps);
+    if (of.poses) free(of.poses);
+}
+
+typedef int UNIMPL;
+
 struct Declaration;
 typedef struct Declaration Declaration;
 typedef struct {
@@ -38,10 +59,13 @@ struct NamespaceDecl;
 typedef struct NamespaceDecl NamespaceDecl;
 
 typedef struct {
+    UNIMPL ui;
 } StructDecl;
 typedef struct {
+    UNIMPL ui;
 } UnionDecl;
 typedef struct {
+    UNIMPL ui;
 } TraitDecl;
 typedef struct {
     Identifier trait;
@@ -158,7 +182,9 @@ _DAIC_LIST_DEFINE(PreMonoType)
 
 struct PostMonoType;
 typedef struct PostMonoType PostMonoType;
-struct PostMonoType {};
+struct PostMonoType {
+    UNIMPL ui;
+};
 
 _DAIC_LIST_DECLARE(PostMonoType)
 _DAIC_LIST_DEFINE(PostMonoType)

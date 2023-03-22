@@ -13,6 +13,11 @@
 %extra       PreExprType* pretype; // The concrete type of this expression
 %extrainit   node->pretype = NULL;
 
+%precode     struct InputFile;
+%precode     typedef struct InputFile InputFile;
+%tokenextra  InputFile* from_file;
+%tokenextra  size_t from_pos;
+
 
 program    <- sh:SHEBANG? nses:{ret=list(NSLIST)} nsn:{} cn:{}
              ({ret=(ctx->pos >= ctx->len) ? NULL : SUCC} ns:namespace current:{
@@ -600,6 +605,7 @@ NATIVE: (6, 11) { // native|ccode
 };
 
 INCLUDE: (7, 12) { // include|import
+  (0, '#') -> 0;
   (0, 'i') -> 1;
   (1, 'n') -> 2;
   (2, 'c') -> 3;

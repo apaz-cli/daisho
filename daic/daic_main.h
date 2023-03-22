@@ -18,11 +18,15 @@ daic_main(int argc, char** argv) {
     // Tokenize
     _Daic_List_daisho_token tokens = _Daic_List_daisho_token_new();
     _Daic_List_InputFile input_files = _Daic_List_InputFile_new();
-    daic_read_utf8decode_tokenize_file(args.target, &input_files, &tokens, 1);
+    char* err_str = NULL;
+    daic_read_utf8decode_tokenize_file(args.target, &input_files, &tokens, 1, &err_str);
+    if (err_str) {
+        printf("Failed to tokenize file.\nReason: %s\n", err_str);
+    }
 
     // Parse AST
-    pgen_allocator allocator = pgen_allocator_new();
     daisho_parser_ctx parser;
+    pgen_allocator allocator = pgen_allocator_new();
     daisho_parser_ctx_init(&parser, &allocator, tokens.buf, tokens.len);
 
     daisho_astnode_t* ast = daisho_parse_program(&parser);
@@ -43,16 +47,16 @@ daic_main(int argc, char** argv) {
         if (ex) exit(1);
     }
 
-    if (parser.pos != parser.len) {
-        fprintf(stderr, "Didn't consume the entire input.\n");
-        exit(1);
-    }
-
     // Print AST
     if (ast)
         daisho_astnode_print_json(tokens.buf, ast);
     else
         puts("null");
+
+    if (parser.pos != parser.len) {
+        fprintf(stderr, "Didn't consume the entire input.\n");
+        exit(1);
+    }
 
     if (ast) exprTypeVisit(ast, NULL);
 
