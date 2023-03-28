@@ -1,10 +1,11 @@
 #ifndef DAIC_ARGPARSE_INCLUDE
 #define DAIC_ARGPARSE_INCLUDE
-#include <daisho/Daisho.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "../stdlib/Daisho.h"
 
 #define EXIT_WITH_ERR(...)            \
     do {                              \
@@ -12,12 +13,14 @@
         fprintf(stderr, "Error: ");   \
         fprintf(stderr, __VA_ARGS__); \
         fprintf(stderr, "\n");        \
-        exit(1);                      \
+        args.parse_failed = true;     \
+        return args;                  \
     } while (0)
 
 typedef struct {
     char* target;
     char* outputfile;
+    bool parse_failed : 1;
     bool h : 1;  // Help
     bool t : 1;  // Tokens
     bool a : 1;  // AST
@@ -37,6 +40,7 @@ daic_argparse(int argc, char** argv) {
     Daic_Args args;
     args.target = NULL;
     args.outputfile = NULL;
+    args.parse_failed = 0;
     args.h = 0;
     args.t = 0;
     args.a = 0;
@@ -77,9 +81,9 @@ daic_argparse(int argc, char** argv) {
         }
     }
 
-    if (args.h || argc == 1) {
+    if (args.h) {
         puts(helpmsg);
-        exit(0);
+        return args;
     }
 
     if (!args.target) {

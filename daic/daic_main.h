@@ -1,10 +1,9 @@
 #ifndef DAIC_MAIN_INCLUDE
 #define DAIC_MAIN_INCLUDE
 
-#include <daisho/Daisho.h>
-
 #include "allocator.h"
 #include "argparse.h"
+#include "cleanup.h"
 #include "daisho_peg.h"
 #include "extraparsing.h"
 #include "list.h"
@@ -12,26 +11,37 @@
 #include "types.h"
 
 int
-daic_main(int argc, char** argv) {
-    Daic_Args args = daic_argparse(argc, argv);
+daic_main_args(Daic_Args args) {
+    if (args.h)
+        return 0;
+    else if (args.parse_failed)
+        return 1;
+
+    DaicCleanupContext cctx = daic_cleanup_init();
 
     // Tokenize
+    char* err_str = NULL;
     _Daic_List_daisho_token tokens = _Daic_List_daisho_token_new();
     _Daic_List_InputFile input_files = _Daic_List_InputFile_new();
-    char* err_str = NULL;
+    daic_cleanup_add(&cctx, daic_tokenlist_cleanup, &tokens);
+    daic_cleanup_add(&cctx, InputFile_cleanup, &input_files);
+
     daic_read_utf8decode_tokenize_file(args.target, &input_files, &tokens, 1, &err_str);
     if (err_str) {
-        printf("Failed to tokenize file.\nReason: %s\n", err_str);
+        printf("Failed to tokenize %s\nReason: %s\n", args.target, err_str);
+        daic_cleanup(&cctx);
+        return 1;
     }
+
+    pgen_allocator allocator = pgen_allocator_new();
+    daic_cleanup_add(&cctx, daic_allocator_cleanup, &allocator);
 
     // Parse AST
     daisho_parser_ctx parser;
-    pgen_allocator allocator = pgen_allocator_new();
     daisho_parser_ctx_init(&parser, &allocator, tokens.buf, tokens.len);
-
     daisho_astnode_t* ast = daisho_parse_program(&parser);
 
-    // Check for errors
+    // Check for parse errors
     if (parser.num_errors) {
         int ex = 0;
         char* sevstr[] = {"INFO", "WARNING", "ERROR", "PANIC"};
@@ -55,10 +65,13 @@ daic_main(int argc, char** argv) {
 
     if (parser.pos != parser.len) {
         fprintf(stderr, "Didn't consume the entire input.\n");
-        exit(1);
+        return 1;
     }
 
-    if (ast) exprTypeVisit(ast, NULL);
+    if (ast) {
+        _Daic_List_NamespaceDecl nsdecls = extractNamespacesAndTLDs(ast);
+        exprTypeVisit(ast, NULL);
+    }
 
     pgen_allocator_destroy(&allocator);
     for (size_t i = 0; i < input_files.len; i++) {
@@ -68,6 +81,11 @@ daic_main(int argc, char** argv) {
     _Daic_List_daisho_token_clear(&tokens);
 
     return 0;
+}
+
+int
+daic_main(int argc, char** argv) {
+    return daic_main_args(daic_argparse(argc, argv));
 }
 
 #endif /* DAIC_MAIN_INCLUDE */

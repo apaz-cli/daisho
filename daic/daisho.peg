@@ -1,7 +1,7 @@
 %precode     #ifndef DAIC_TYPES_INCLUDE
 %precode     #include "types.h"
 %precode     #endif
-%include     <daisho/Daisho.h>
+%include     "../stdlib/Daisho.h"
 
 %precode     struct PreMonoSymtab;
 %precode     typedef struct PreMonoSymtab PreMonoSymtab;

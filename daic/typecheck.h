@@ -15,7 +15,7 @@ static inline void
 mainReturnsInt(daisho_astnode_t* ast) {}
 
 static inline _Daic_List_NamespaceDecl
-extractTLDs(daisho_astnode_t* root) {
+extractNamespacesAndTLDs(daisho_astnode_t* root) {
     _Daic_List_NamespaceDecl nsdlist = _Daic_List_NamespaceDecl_new();
 
     daisho_astnode_t* nslist = root->children[0];
@@ -27,7 +27,43 @@ extractTLDs(daisho_astnode_t* root) {
         nsd.id = nodeIdentifier(nsd.nsnode->children[0]);
         _Daic_List_NamespaceDecl_add(&nsdlist, nsd);
 
-        daisho_astnode_t** items = nsd.nsnode->children + 1;
+        _Daic_List_Declaration* decls = &nsd.symtab.decls;
+        daisho_astnode_t** nsdecl_items = nsd.nsnode->children[1]->children;
+        size_t num_nsdecl_items = nsd.nsnode->children[1]->num_children;
+        for (size_t i = 0; i < num_nsdecl_items; i++) {
+            daisho_astnode_t* tld = nsdecl_items[i];
+            if (tld->kind == DAISHO_NODE_FNDECL) {
+                Identifier id = nodeIdentifier(tld->children[1]);
+                FunctionDecl fd = {0};
+                Declaration d;
+                d.fndecl = fd;
+                d.source = tld;
+                d.id = id;
+                d.kind = FN_DECLKIND;
+                _Daic_List_Declaration_add(decls, d);
+            } else if (tld->kind == DAISHO_NODE_CTYPE) {
+                Identifier id = nodeIdentifier(tld->children[1]);
+                CTypeDecl ct = {0};
+                Declaration d;
+                d.ctypedecl = ct;
+                d.source = tld;
+                d.id = id;
+                d.kind = CTYPE_DECLKIND;
+                _Daic_List_Declaration_add(decls, d);
+            } else if (tld->kind == DAISHO_NODE_CFN) {
+                Identifier id = nodeIdentifier(tld->children[1]);
+                FunctionDecl fd = {0};
+                Declaration d;
+                d.fndecl = fd;
+                d.source = tld;
+                d.id = id;
+                d.kind = FN_DECLKIND;
+                _Daic_List_Declaration_add(decls, d);
+            } else {
+                printf("Cannot extract TLD of kind: %s\n", daisho_nodekind_name[tld->kind]);
+                exit(1);
+            }
+        }
     }
 
     return nsdlist;

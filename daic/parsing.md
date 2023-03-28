@@ -1,78 +1,8 @@
-# Tokenization
+# Tokenize, Parse.
 
-A tokenizer is created for and consumes each source file, each returning a list of tokens.
-
-For definitions of tokens, see `daisho.tok`.
-
-
-# Parsing
-
-For the implementation grammar, see `daisho.peg`.
-
-
-## Precedence (Lowest to Highest)
-* Declarations
-  * Struct Declaration
-  * Trait Declaration
-  * Impl Declaration
-  * Function Declaration
-  * CType Declaration
-    * Binds a C type to a Daisho type. Only supports normal type names and pointers, not full C typing.
-    * Can be used as that type.
-  * CFunc Declaration
-    * Arguments and return are daisho types, but should be verifiable against their C types manually. This might be a further extension. Perhaps clangd can help?
-* Control Flow
-  * for (expr; expr; expr) expr
-  * for ((ident,)? ident in iterable (where expr)?) expr
-  * while (cond) expr
-  * return expr
-* ;
-* then
-* also
-* = += *= %= <<= // etc
-* cond `?` expr (: expr)? // Ternary
-* Binary Operators
-  * ?: // Null coalesce (boolable)
-  * ||
-  * &&
-  * |
-  * ^
-  * &
-  * == !=
-  * << >> // Tokenized as `<` `<` / `>` `>`
-  * < > <= >=
-  * ** // exponent
-  * * / %
-  * + -
-* Unary Suffix
-  * expr(Type)
-  * expr(args...)
-  * expr[expr]
-  * expr.member
-  * ++ --
-  * + -
-  * @ $
-  * ~ !
-  * #
-  * ~
-  * ` // return
-  * '
-  * " // .tostring().print()
-* Atoms
-  * (arg_list) -> expr // parens can be omitted for 1 arg
-  * (expr) // Paren expr
-  * [expr for ident in iterable] // list comprehension
-  * [expr, expr, expr...] // list literal
-  * {expr; expr; expr...} // Scope
-  * self
-  * Type expr // Bind varident type (Like a variable declaration)
-  * literal
-    * strlit
-      * fstrlit (format strings)
-      * bstrlit (cstrings)
-    * num
-    * varname
-    * initializer list
+A tokenizer is created for and consumes each source file, each returning a
+list of tokens. For the implementation of the tokenizer/grammar, see
+`daisho.peg`. This file generates `daisho_peg.h`.
 
 
 # Monomorphization, Unification, and Symtab Generation

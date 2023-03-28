@@ -87,7 +87,6 @@ If you're planning on contributing, here's the general lay of the land.
 * A POSIX-compliant operating system (Like Linux, MacOS, BSD)
 * A working C toolchain that supports C11.
   * The C compiler should have an optimizer.
-* Python 3.7+ (optional, to support inline python library interop)
 * Reasonable hardware.
   * Daisho doesn't support all the platforms that C does. It assumes `CHAR_BIT` is 8, an `int` is 32 bits, `long` is 64, etc.
   * If your computer isn't 15-20 years old, you're probably fine. If you're not fine, the configure script will fail and you'll get an error message as to why. If that happens, reach out to me on discord with details of your system. If it's a bug, we'll get it worked out.
@@ -103,7 +102,7 @@ If you're not on a POSIX operating system (if you're still on Windows), I recomm
 |   C    |    Simplicity, flat memory model |
 |  C++   | Templates, zero cost abstraction |
 |  Java  |         Collections/Streams APIs |
-| Python |             List comprehensions, |
+| Python |              List comprehensions |
 |  Rust  |                static/dyn Traits |
 |  Vala  |                Compilation model |
 | Cello  |      Metaprogramming on top of C |

@@ -1,9 +1,9 @@
 #ifndef DAIC_NATIVEPARSE_INCLUDE
 #define DAIC_NATIVEPARSE_INCLUDE
-#include <daisho/Daisho.h>
 #include <libgen.h>
 #include <sys/stat.h>
 
+#include "../stdlib/Daisho.h"
 #include "allocator.h"
 #include "daisho_peg.h"
 #include "list.h"
@@ -17,24 +17,16 @@ _DAIC_LIST_DEFINE(codepoint_t)
 _DAIC_LIST_DECLARE(daisho_token)
 _DAIC_LIST_DEFINE(daisho_token)
 
-struct ErrorTraceSegment;
-typedef struct ErrorTraceSegment ErrorTraceSegment;
-struct ErrorTraceSegment {
-    char* real_fname;  // Unowned, from InputFile.
-    char* str;         // Alocated by _DAI_MALLOC()
-    ErrorTraceSegment* next;
-};
-
 static inline void
-ErrorTraceDestroy(ErrorTraceSegment* seg) {
-    ErrorTraceSegment* next = seg->next;
-    _DAIC_FREE(seg->str);
-    _DAIC_FREE(seg);
-    if (next) ErrorTraceDestroy(next);
+daic_tokenlist_cleanup(void* tl) {
+    _Daic_List_daisho_token_clear((_Daic_List_daisho_token*)tl);
 }
 
-_DAIC_LIST_DECLARE(InputFile)
-_DAIC_LIST_DEFINE(InputFile)
+
+static inline void
+daic_allocator_cleanup(void* a) {
+    pgen_allocator_destroy((pgen_allocator*)a);
+}
 
 static inline void
 printtok(daisho_token tok) {
@@ -393,7 +385,7 @@ daic_read_utf8decode_file(char* path, char** err_msg) {
     of.contentlen = 0;
     of.cps = NULL;
     of.cpslen = 0;
-    of.poses = NULL;
+    of.cps_map = NULL;
     *err_msg = NULL;
 
     of.fname = realpath(path, NULL);
@@ -435,7 +427,7 @@ daic_read_utf8decode_file(char* path, char** err_msg) {
         return of;
     }
 
-    if (!UTF8_decode_positions(of.content, of.contentlen, &of.cps, &of.cpslen, &of.poses)) {
+    if (!UTF8_decode_map(of.content, of.contentlen, &of.cps, &of.cpslen, &of.cps_map)) {
         *err_msg = "Could not decode to UTF32.";
         return of;
     }
@@ -449,9 +441,8 @@ daic_read_utf8decode_tokenize_file(char* path, _Daic_List_InputFile* input_files
                                    _Daic_List_daisho_token* append_tokens, int first_file,
                                    char** err_msg) {
     InputFile of = daic_read_utf8decode_file(path, err_msg);
-    if (*err_msg) {
-        return;
-    }
+    if (*err_msg) return;
+
     _Daic_List_InputFile_add(input_files, of);
 
     daisho_tokenizer tokenizer;
@@ -470,9 +461,6 @@ daic_read_utf8decode_tokenize_file(char* path, _Daic_List_InputFile* input_files
         if ((tok.kind == DAISHO_TOK_SLCOM) | (tok.kind == DAISHO_TOK_MLCOM) |
             (tok.kind == DAISHO_TOK_WS) | (tok.kind == DAISHO_TOK_STREAMEND))
             continue;
-
-        printtok(tok);
-        fflush(stdout);
 
         if (tok.kind == DAISHO_TOK_NATIVE) {
             _Daic_List_daisho_token_add(append_tokens, tok);
@@ -507,6 +495,12 @@ daic_read_utf8decode_tokenize_file(char* path, _Daic_List_InputFile* input_files
 
         _Daic_List_daisho_token_add(append_tokens, tok);
     } while (tok.kind != DAISHO_TOK_STREAMEND);
+
+    if (tokenizer.pos != tokenizer.len) {
+        return;
+    }
+    printf("%zu\n", tokenizer.pos);
+    printf("%zu\n", tokenizer.len);
 }
 
 #endif /* DAIC_NATIVEPARSE_INCLUDE */

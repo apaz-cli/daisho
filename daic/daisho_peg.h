@@ -149,9 +149,18 @@ static inline int UTF8_encode(codepoint_t *codepoints, size_t len,
   return 1;
 }
 
-static inline int UTF8_decode_positions(char *str, size_t len,
-                                        codepoint_t **retcps, size_t *retlen,
-                                        size_t **map) {
+/*
+ * Convert a UTF8 string to UTF32 codepoints.
+ * This will UTF8_MALLOC() a buffer large enough, and store it to retstr and its
+ * length to retcps. The result is not null terminated.
+ * Returns 1 on success, 0 on failure. Cleans up the buffer and does not store
+ * to retcps or retlen on failure.
+ * Also, if map is not null, UTF8_MALLOC()s and a pointer to a list of the
+ * position of the beginning of each utf8 codepoint in str to map. There are
+ * retlen many of them. Cleans up and does not store the list to map on failure.
+ */
+static inline int UTF8_decode_map(char *str, size_t len, codepoint_t **retcps,
+                                  size_t *retlen, size_t **map) {
 
   UTF8Decoder state;
   codepoint_t *cpbuf, cp;
@@ -177,7 +186,7 @@ static inline int UTF8_decode_positions(char *str, size_t len,
     cp = UTF8_decodeNext(&state);
     if ((cp == UTF8_ERR) | (cp == UTF8_END))
       break;
-    if (map)
+    if (mapbuf)
       mapbuf[cps_read] = prepos;
     cpbuf[cps_read] = cp;
     cps_read++;
@@ -185,10 +194,12 @@ static inline int UTF8_decode_positions(char *str, size_t len,
 
   if (cp == UTF8_ERR) {
     UTF8_FREE(cpbuf);
+    if (mapbuf)
+      UTF8_FREE(mapbuf);
     return 0;
   }
 
-  if (map)
+  if (mapbuf)
     *map = mapbuf;
   *retcps = cpbuf;
   *retlen = cps_read;
@@ -204,7 +215,7 @@ static inline int UTF8_decode_positions(char *str, size_t len,
  */
 static inline int UTF8_decode(char *str, size_t len, codepoint_t **retcps,
                               size_t *retlen) {
-  return UTF8_decode_positions(str, len, retcps, retlen, NULL);
+  return UTF8_decode_map(str, len, retcps, retlen, NULL);
 }
 
 #endif /* UTF8_INCLUDED */
@@ -3448,7 +3459,7 @@ static inline void daisho_astnode_print_json(daisho_token* tokens, daisho_astnod
 /******************/
 /* Mid Directives */
 /******************/
-#include <daisho/Daisho.h>
+#include "../stdlib/Daisho.h"
 static inline int cpstr_equals(codepoint_t* s1, size_t l1, codepoint_t* s2, size_t l2) {
 if (l1 != l2) return 0;
 if (s1 == s2) return 1;
@@ -3571,7 +3582,7 @@ static inline daisho_astnode_t* daisho_parse_program(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 22 "daisho.peg"
     ret=list(NSLIST);
-    #line 3575 "daisho_peg.h"
+    #line 3586 "daisho_peg.h"
 
     #undef ret
     expr_ret_2 = expr_ret_4;
@@ -3586,7 +3597,7 @@ static inline daisho_astnode_t* daisho_parse_program(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 22 "daisho.peg"
     ;
-    #line 3590 "daisho_peg.h"
+    #line 3601 "daisho_peg.h"
 
     #undef ret
     expr_ret_2 = expr_ret_5;
@@ -3601,7 +3612,7 @@ static inline daisho_astnode_t* daisho_parse_program(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 22 "daisho.peg"
     ;
-    #line 3605 "daisho_peg.h"
+    #line 3616 "daisho_peg.h"
 
     #undef ret
     expr_ret_2 = expr_ret_6;
@@ -3623,7 +3634,7 @@ static inline daisho_astnode_t* daisho_parse_program(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 23 "daisho.peg"
       ret=(ctx->pos >= ctx->len) ? NULL : SUCC;
-      #line 3627 "daisho_peg.h"
+      #line 3638 "daisho_peg.h"
 
       #undef ret
       // ModExprList 1
@@ -3660,7 +3671,7 @@ static inline daisho_astnode_t* daisho_parse_program(daisho_parser_ctx* ctx) {
                 if (!found)
                   add(nses, ns);
               ;
-        #line 3664 "daisho_peg.h"
+        #line 3675 "daisho_peg.h"
 
         #undef ret
         expr_ret_9 = expr_ret_11;
@@ -3684,7 +3695,7 @@ static inline daisho_astnode_t* daisho_parse_program(daisho_parser_ctx* ctx) {
     #line 41 "daisho.peg"
     rule=(!has(sh)) ? node(PROGRAM, nses)
                               : node(PROGRAM, nses, sh);
-    #line 3688 "daisho_peg.h"
+    #line 3699 "daisho_peg.h"
 
     #undef ret
   }
@@ -3769,7 +3780,7 @@ static inline daisho_astnode_t* daisho_parse_namespace(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 45 "daisho.peg"
     ret=srepr(leaf(TYPEIDENT), "GLOBAL");
-    #line 3773 "daisho_peg.h"
+    #line 3784 "daisho_peg.h"
 
     #undef ret
     expr_ret_19 = expr_ret_20;
@@ -3799,7 +3810,7 @@ static inline daisho_astnode_t* daisho_parse_namespace(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 46 "daisho.peg"
     ret = list(NSDECLS);
-    #line 3803 "daisho_peg.h"
+    #line 3814 "daisho_peg.h"
 
     #undef ret
     expr_ret_14 = expr_ret_22;
@@ -3813,7 +3824,7 @@ static inline daisho_astnode_t* daisho_parse_namespace(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 46 "daisho.peg"
     add(l, t);
-    #line 3817 "daisho_peg.h"
+    #line 3828 "daisho_peg.h"
 
     #undef ret
   }
@@ -3833,7 +3844,7 @@ static inline daisho_astnode_t* daisho_parse_namespace(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 47 "daisho.peg"
       ret=(ctx->pos >= ctx->len) ? NULL : SUCC;
-      #line 3837 "daisho_peg.h"
+      #line 3848 "daisho_peg.h"
 
       #undef ret
       // ModExprList 1
@@ -3868,7 +3879,7 @@ static inline daisho_astnode_t* daisho_parse_namespace(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 48 "daisho.peg"
           t=NULL;
-          #line 3872 "daisho_peg.h"
+          #line 3883 "daisho_peg.h"
 
           #undef ret
           // ModExprList 1
@@ -3887,7 +3898,7 @@ static inline daisho_astnode_t* daisho_parse_namespace(daisho_parser_ctx* ctx) {
             ret = SUCC;
             #line 48 "daisho.peg"
             add(l, t);
-            #line 3891 "daisho_peg.h"
+            #line 3902 "daisho_peg.h"
 
             #undef ret
           }
@@ -3918,7 +3929,7 @@ static inline daisho_astnode_t* daisho_parse_namespace(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 49 "daisho.peg"
     rule = node(NAMESPACE, name, l);
-    #line 3922 "daisho_peg.h"
+    #line 3933 "daisho_peg.h"
 
     #undef ret
   }
@@ -4132,7 +4143,7 @@ static inline daisho_astnode_t* daisho_parse_structdecl(daisho_parser_ctx* ctx) 
     ret = SUCC;
     #line 107 "daisho.peg"
     ret=list(MEMBERLIST);
-    #line 4136 "daisho_peg.h"
+    #line 4147 "daisho_peg.h"
 
     #undef ret
     expr_ret_43 = expr_ret_47;
@@ -4161,7 +4172,7 @@ static inline daisho_astnode_t* daisho_parse_structdecl(daisho_parser_ctx* ctx) 
         ret = SUCC;
         #line 108 "daisho.peg"
         add(members, m);
-        #line 4165 "daisho_peg.h"
+        #line 4176 "daisho_peg.h"
 
         #undef ret
       }
@@ -4194,7 +4205,7 @@ static inline daisho_astnode_t* daisho_parse_structdecl(daisho_parser_ctx* ctx) 
     ret = SUCC;
     #line 110 "daisho.peg"
     rule = node(STRUCT, id, tmpl, il ? il : leaf(TYPELIST), members);
-    #line 4198 "daisho_peg.h"
+    #line 4209 "daisho_peg.h"
 
     #undef ret
   }
@@ -4274,7 +4285,7 @@ static inline daisho_astnode_t* daisho_parse_uniondecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 113 "daisho.peg"
     ret=list(MEMBERLIST);
-    #line 4278 "daisho_peg.h"
+    #line 4289 "daisho_peg.h"
 
     #undef ret
     expr_ret_54 = expr_ret_57;
@@ -4303,7 +4314,7 @@ static inline daisho_astnode_t* daisho_parse_uniondecl(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 114 "daisho.peg"
         add(members, m);
-        #line 4307 "daisho_peg.h"
+        #line 4318 "daisho_peg.h"
 
         #undef ret
       }
@@ -4336,7 +4347,7 @@ static inline daisho_astnode_t* daisho_parse_uniondecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 116 "daisho.peg"
     rule = node(UNION, id, tmpl, members);
-    #line 4340 "daisho_peg.h"
+    #line 4351 "daisho_peg.h"
 
     #undef ret
   }
@@ -4437,7 +4448,7 @@ static inline daisho_astnode_t* daisho_parse_traitdecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 119 "daisho.peg"
     ret=list(MEMBERLIST);
-    #line 4441 "daisho_peg.h"
+    #line 4452 "daisho_peg.h"
 
     #undef ret
     expr_ret_64 = expr_ret_70;
@@ -4480,7 +4491,7 @@ static inline daisho_astnode_t* daisho_parse_traitdecl(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 120 "daisho.peg"
           add(members, m);
-          #line 4484 "daisho_peg.h"
+          #line 4495 "daisho_peg.h"
 
           #undef ret
         }
@@ -4522,7 +4533,7 @@ static inline daisho_astnode_t* daisho_parse_traitdecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 121 "daisho.peg"
     rule = node(TRAIT, id, tmpl, il ? il : leaf(TYPELIST), members);
-    #line 4526 "daisho_peg.h"
+    #line 4537 "daisho_peg.h"
 
     #undef ret
   }
@@ -4624,7 +4635,7 @@ static inline daisho_astnode_t* daisho_parse_impldecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 124 "daisho.peg"
     ret=list(MEMBERLIST);
-    #line 4628 "daisho_peg.h"
+    #line 4639 "daisho_peg.h"
 
     #undef ret
     expr_ret_79 = expr_ret_83;
@@ -4653,7 +4664,7 @@ static inline daisho_astnode_t* daisho_parse_impldecl(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 125 "daisho.peg"
         add(members, m);
-        #line 4657 "daisho_peg.h"
+        #line 4668 "daisho_peg.h"
 
         #undef ret
       }
@@ -4686,7 +4697,7 @@ static inline daisho_astnode_t* daisho_parse_impldecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 127 "daisho.peg"
     rule = node(IMPL, id, tmpl, ft, members);
-    #line 4690 "daisho_peg.h"
+    #line 4701 "daisho_peg.h"
 
     #undef ret
   }
@@ -4751,7 +4762,7 @@ static inline daisho_astnode_t* daisho_parse_ctypedecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 130 "daisho.peg"
     rule = node(CTYPE, id, c);
-    #line 4755 "daisho_peg.h"
+    #line 4766 "daisho_peg.h"
 
     #undef ret
   }
@@ -4848,7 +4859,7 @@ static inline daisho_astnode_t* daisho_parse_cfndecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 136 "daisho.peg"
     rule = node(CFN, rett, ci, al);
-    #line 4852 "daisho_peg.h"
+    #line 4863 "daisho_peg.h"
 
     #undef ret
   }
@@ -5000,7 +5011,7 @@ static inline daisho_astnode_t* daisho_parse_fndecl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 142 "daisho.peg"
     rule=node(FNDECL, rett, name, tmpl, al, e);
-    #line 5004 "daisho_peg.h"
+    #line 5015 "daisho_peg.h"
 
     #undef ret
   }
@@ -5125,7 +5136,7 @@ static inline daisho_astnode_t* daisho_parse_fnproto(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 148 "daisho.peg"
     rule=node(FNPROTO, rett, name, tmpl, al);
-    #line 5129 "daisho_peg.h"
+    #line 5140 "daisho_peg.h"
 
     #undef ret
   }
@@ -5231,7 +5242,7 @@ static inline daisho_astnode_t* daisho_parse_typemember(daisho_parser_ctx* ctx) 
     ret = SUCC;
     #line 154 "daisho.peg"
     rule=node(TYPEMEMBER, t, v);
-    #line 5235 "daisho_peg.h"
+    #line 5246 "daisho_peg.h"
 
     #undef ret
   }
@@ -5282,7 +5293,7 @@ static inline daisho_astnode_t* daisho_parse_tmplexpand(daisho_parser_ctx* ctx) 
       ret = SUCC;
       #line 156 "daisho.peg"
       rule->kind = kind(TMPLEXPAND);
-      #line 5286 "daisho_peg.h"
+      #line 5297 "daisho_peg.h"
 
       #undef ret
     }
@@ -5316,7 +5327,7 @@ static inline daisho_astnode_t* daisho_parse_tmplexpand(daisho_parser_ctx* ctx) 
     ret = SUCC;
     #line 157 "daisho.peg"
     rule=leaf(NOEXPAND);
-    #line 5320 "daisho_peg.h"
+    #line 5331 "daisho_peg.h"
 
     #undef ret
     // ModExprList end
@@ -5365,7 +5376,7 @@ static inline daisho_astnode_t* daisho_parse_returntype(daisho_parser_ctx* ctx) 
     ret = SUCC;
     #line 159 "daisho.peg"
     ret=leaf(VOIDTYPE);
-    #line 5369 "daisho_peg.h"
+    #line 5380 "daisho_peg.h"
 
     #undef ret
     // ModExprList end
@@ -5529,7 +5540,7 @@ static inline daisho_astnode_t* daisho_parse_fntype(daisho_parser_ctx* ctx) {
   ret = SUCC;
   #line 189 "daisho.peg"
   ;
-  #line 5533 "daisho_peg.h"
+  #line 5544 "daisho_peg.h"
 
   #undef ret
   expr_ret_156 = expr_ret_157;
@@ -5577,7 +5588,7 @@ static inline daisho_astnode_t* daisho_parse_fntype(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 191 "daisho.peg"
         if (!has(from)) from = list(TYPELIST);
-        #line 5581 "daisho_peg.h"
+        #line 5592 "daisho_peg.h"
 
         #undef ret
       }
@@ -5589,7 +5600,7 @@ static inline daisho_astnode_t* daisho_parse_fntype(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 192 "daisho.peg"
         add(from, to); to = n;
-        #line 5593 "daisho_peg.h"
+        #line 5604 "daisho_peg.h"
 
         #undef ret
       }
@@ -5610,7 +5621,7 @@ static inline daisho_astnode_t* daisho_parse_fntype(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 193 "daisho.peg"
     rule=has(from) ? node(FNTYPE, from, to) : to;
-    #line 5614 "daisho_peg.h"
+    #line 5625 "daisho_peg.h"
 
     #undef ret
   }
@@ -5663,7 +5674,7 @@ static inline daisho_astnode_t* daisho_parse_ptrtype(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 195 "daisho.peg"
         rule=node(PTRTYPE, rule);
-        #line 5667 "daisho_peg.h"
+        #line 5678 "daisho_peg.h"
 
         #undef ret
       }
@@ -5816,7 +5827,7 @@ static inline daisho_astnode_t* daisho_parse_basetype(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 202 "daisho.peg"
       rule=v;
-      #line 5820 "daisho_peg.h"
+      #line 5831 "daisho_peg.h"
 
       #undef ret
     }
@@ -5883,7 +5894,7 @@ static inline daisho_astnode_t* daisho_parse_basetype(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 204 "daisho.peg"
       ret=nns;
-      #line 5887 "daisho_peg.h"
+      #line 5898 "daisho_peg.h"
 
       #undef ret
       expr_ret_184 = expr_ret_186;
@@ -5905,7 +5916,7 @@ static inline daisho_astnode_t* daisho_parse_basetype(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 205 "daisho.peg"
       if (!has(ns)) ns = leaf(CURRENT_NS);
-      #line 5909 "daisho_peg.h"
+      #line 5920 "daisho_peg.h"
 
       #undef ret
     }
@@ -5943,7 +5954,7 @@ static inline daisho_astnode_t* daisho_parse_basetype(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 207 "daisho.peg"
       rule=node(BASETYPE, ns, s, t);
-      #line 5947 "daisho_peg.h"
+      #line 5958 "daisho_peg.h"
 
       #undef ret
     }
@@ -6026,7 +6037,7 @@ static inline daisho_astnode_t* daisho_parse_tupletype(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 209 "daisho.peg"
       rule=node(TUPLETYPE, t);
-      #line 6030 "daisho_peg.h"
+      #line 6041 "daisho_peg.h"
 
       #undef ret
     }
@@ -6077,7 +6088,7 @@ static inline daisho_astnode_t* daisho_parse_tupletype(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 210 "daisho.peg"
       rule->kind = kind(TUPLETYPE);
-      #line 6081 "daisho_peg.h"
+      #line 6092 "daisho_peg.h"
 
       #undef ret
     }
@@ -6130,7 +6141,7 @@ static inline daisho_astnode_t* daisho_parse_voidptr(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 212 "daisho.peg"
       rule=v;
-      #line 6134 "daisho_peg.h"
+      #line 6145 "daisho_peg.h"
 
       #undef ret
     }
@@ -6182,7 +6193,7 @@ static inline daisho_astnode_t* daisho_parse_voidptr(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 213 "daisho.peg"
       rule=leaf(VOIDPTR);
-      #line 6186 "daisho_peg.h"
+      #line 6197 "daisho_peg.h"
 
       #undef ret
     }
@@ -6224,7 +6235,7 @@ static inline daisho_astnode_t* daisho_parse_typelist(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 283 "daisho.peg"
     rule=list(TYPELIST);
-    #line 6228 "daisho_peg.h"
+    #line 6239 "daisho_peg.h"
 
     #undef ret
   }
@@ -6248,7 +6259,7 @@ static inline daisho_astnode_t* daisho_parse_typelist(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 284 "daisho.peg"
     if has(t) add(rule, t);
-    #line 6252 "daisho_peg.h"
+    #line 6263 "daisho_peg.h"
 
     #undef ret
   }
@@ -6287,7 +6298,7 @@ static inline daisho_astnode_t* daisho_parse_typelist(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 285 "daisho.peg"
         add(rule, t);
-        #line 6291 "daisho_peg.h"
+        #line 6302 "daisho_peg.h"
 
         #undef ret
       }
@@ -6344,7 +6355,7 @@ static inline daisho_astnode_t* daisho_parse_exprlist(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 287 "daisho.peg"
     rule=list(EXPRLIST);
-    #line 6348 "daisho_peg.h"
+    #line 6359 "daisho_peg.h"
 
     #undef ret
   }
@@ -6368,7 +6379,7 @@ static inline daisho_astnode_t* daisho_parse_exprlist(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 288 "daisho.peg"
     if has(e) add(rule, e);
-    #line 6372 "daisho_peg.h"
+    #line 6383 "daisho_peg.h"
 
     #undef ret
   }
@@ -6407,7 +6418,7 @@ static inline daisho_astnode_t* daisho_parse_exprlist(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 289 "daisho.peg"
         add(rule, e);
-        #line 6411 "daisho_peg.h"
+        #line 6422 "daisho_peg.h"
 
         #undef ret
       }
@@ -6480,7 +6491,7 @@ static inline daisho_astnode_t* daisho_parse_fnarg(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 292 "daisho.peg"
     rule=node(FNARG, t, i);
-    #line 6484 "daisho_peg.h"
+    #line 6495 "daisho_peg.h"
 
     #undef ret
   }
@@ -6517,7 +6528,7 @@ static inline daisho_astnode_t* daisho_parse_arglist(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 293 "daisho.peg"
     rule=list(ARGLIST);
-    #line 6521 "daisho_peg.h"
+    #line 6532 "daisho_peg.h"
 
     #undef ret
   }
@@ -6541,7 +6552,7 @@ static inline daisho_astnode_t* daisho_parse_arglist(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 294 "daisho.peg"
     if has(a) add(rule, a);
-    #line 6545 "daisho_peg.h"
+    #line 6556 "daisho_peg.h"
 
     #undef ret
   }
@@ -6580,7 +6591,7 @@ static inline daisho_astnode_t* daisho_parse_arglist(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 295 "daisho.peg"
         add(rule, a);
-        #line 6584 "daisho_peg.h"
+        #line 6595 "daisho_peg.h"
 
         #undef ret
       }
@@ -6654,7 +6665,7 @@ static inline daisho_astnode_t* daisho_parse_protoarg(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 298 "daisho.peg"
     rule=node(PROTOARG, t);
-    #line 6658 "daisho_peg.h"
+    #line 6669 "daisho_peg.h"
 
     #undef ret
   }
@@ -6691,7 +6702,7 @@ static inline daisho_astnode_t* daisho_parse_protoarglist(daisho_parser_ctx* ctx
     ret = SUCC;
     #line 300 "daisho.peg"
     rule=list(PROTOLIST);
-    #line 6695 "daisho_peg.h"
+    #line 6706 "daisho_peg.h"
 
     #undef ret
   }
@@ -6715,7 +6726,7 @@ static inline daisho_astnode_t* daisho_parse_protoarglist(daisho_parser_ctx* ctx
     ret = SUCC;
     #line 301 "daisho.peg"
     if has(p) add(rule, p);
-    #line 6719 "daisho_peg.h"
+    #line 6730 "daisho_peg.h"
 
     #undef ret
   }
@@ -6754,7 +6765,7 @@ static inline daisho_astnode_t* daisho_parse_protoarglist(daisho_parser_ctx* ctx
         ret = SUCC;
         #line 302 "daisho.peg"
         add(rule, p);
-        #line 6758 "daisho_peg.h"
+        #line 6769 "daisho_peg.h"
 
         #undef ret
       }
@@ -6886,7 +6897,7 @@ static inline daisho_astnode_t* daisho_parse_preretexpr(daisho_parser_ctx* ctx) 
       ret = SUCC;
       #line 350 "daisho.peg"
       rule=node(RET, n);
-      #line 6890 "daisho_peg.h"
+      #line 6901 "daisho_peg.h"
 
       #undef ret
     }
@@ -6927,7 +6938,7 @@ static inline daisho_astnode_t* daisho_parse_preretexpr(daisho_parser_ctx* ctx) 
         ret = SUCC;
         #line 351 "daisho.peg"
         rule = node(RET, rule);
-        #line 6931 "daisho_peg.h"
+        #line 6942 "daisho_peg.h"
 
         #undef ret
       }
@@ -7135,7 +7146,7 @@ static inline daisho_astnode_t* daisho_parse_forexpr(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 355 "daisho.peg"
       if (has(o) != has(c)) WARNING("For expression parens mismatch.");
-      #line 7139 "daisho_peg.h"
+      #line 7150 "daisho_peg.h"
 
       #undef ret
     }
@@ -7157,7 +7168,7 @@ static inline daisho_astnode_t* daisho_parse_forexpr(daisho_parser_ctx* ctx) {
       #line 357 "daisho.peg"
       rule = has(s) ? node(FOR, f, s, t, e)
                     :          node(FOREACH, f, t, e);
-      #line 7161 "daisho_peg.h"
+      #line 7172 "daisho_peg.h"
 
       #undef ret
     }
@@ -7267,7 +7278,7 @@ static inline daisho_astnode_t* daisho_parse_whileexpr(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 362 "daisho.peg"
       if (has(o) != has(c)) FATAL("While expression parens mismatch.");
-      #line 7271 "daisho_peg.h"
+      #line 7282 "daisho_peg.h"
 
       #undef ret
     }
@@ -7288,7 +7299,7 @@ static inline daisho_astnode_t* daisho_parse_whileexpr(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 363 "daisho.peg"
       rule=node(WHILE, n, e);
-      #line 7292 "daisho_peg.h"
+      #line 7303 "daisho_peg.h"
 
       #undef ret
     }
@@ -7399,7 +7410,7 @@ static inline daisho_astnode_t* daisho_parse_preifexpr(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 367 "daisho.peg"
       if (has(o) != has(c)) FATAL("If expression parens mismatch.");
-      #line 7403 "daisho_peg.h"
+      #line 7414 "daisho_peg.h"
 
       #undef ret
     }
@@ -7453,7 +7464,7 @@ static inline daisho_astnode_t* daisho_parse_preifexpr(daisho_parser_ctx* ctx) {
       #line 370 "daisho.peg"
       rule = !has(ee) ? node(IF, n, e)
                     :            node(TERN, n, e, ee);
-      #line 7457 "daisho_peg.h"
+      #line 7468 "daisho_peg.h"
 
       #undef ret
     }
@@ -7576,7 +7587,7 @@ static inline daisho_astnode_t* daisho_parse_ternexpr(daisho_parser_ctx* ctx) {
     rule = !has(qe) ? n
                     : !has(ce) ? node(IF, n, qe)
                     :            node(TERN, n, qe, ce);
-    #line 7580 "daisho_peg.h"
+    #line 7591 "daisho_peg.h"
 
     #undef ret
   }
@@ -7639,7 +7650,7 @@ static inline daisho_astnode_t* daisho_parse_thenexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 379 "daisho.peg"
         rule=node(THEN, rule, nn);
-        #line 7643 "daisho_peg.h"
+        #line 7654 "daisho_peg.h"
 
         #undef ret
       }
@@ -7711,7 +7722,7 @@ static inline daisho_astnode_t* daisho_parse_alsoexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 381 "daisho.peg"
         rule=node(ALSO, rule, nn);
-        #line 7715 "daisho_peg.h"
+        #line 7726 "daisho_peg.h"
 
         #undef ret
       }
@@ -8037,7 +8048,7 @@ static inline daisho_astnode_t* daisho_parse_ceqexpr(daisho_parser_ctx* ctx) {
                 else if (op->kind == kind(BSLEQ)) rule=node(EQ, rule, node(BSL,   rule, t));
                 else _DAI_UNREACHABLE()
               ;
-        #line 8041 "daisho_peg.h"
+        #line 8052 "daisho_peg.h"
 
         #undef ret
       }
@@ -8109,7 +8120,7 @@ static inline daisho_astnode_t* daisho_parse_logorexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 402 "daisho.peg"
         rule=node(LOGOR,  rule, n);
-        #line 8113 "daisho_peg.h"
+        #line 8124 "daisho_peg.h"
 
         #undef ret
       }
@@ -8181,7 +8192,7 @@ static inline daisho_astnode_t* daisho_parse_logandexpr(daisho_parser_ctx* ctx) 
         ret = SUCC;
         #line 403 "daisho.peg"
         rule=node(LOGAND, rule, n);
-        #line 8185 "daisho_peg.h"
+        #line 8196 "daisho_peg.h"
 
         #undef ret
       }
@@ -8253,7 +8264,7 @@ static inline daisho_astnode_t* daisho_parse_binorexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 404 "daisho.peg"
         rule=node(OR,     rule, n);
-        #line 8257 "daisho_peg.h"
+        #line 8268 "daisho_peg.h"
 
         #undef ret
       }
@@ -8325,7 +8336,7 @@ static inline daisho_astnode_t* daisho_parse_binxorexpr(daisho_parser_ctx* ctx) 
         ret = SUCC;
         #line 405 "daisho.peg"
         rule=node(XOR,    rule, n);
-        #line 8329 "daisho_peg.h"
+        #line 8340 "daisho_peg.h"
 
         #undef ret
       }
@@ -8397,7 +8408,7 @@ static inline daisho_astnode_t* daisho_parse_binandexpr(daisho_parser_ctx* ctx) 
         ret = SUCC;
         #line 406 "daisho.peg"
         rule=node(AND,    rule, n);
-        #line 8401 "daisho_peg.h"
+        #line 8412 "daisho_peg.h"
 
         #undef ret
       }
@@ -8473,7 +8484,7 @@ static inline daisho_astnode_t* daisho_parse_deneqexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 409 "daisho.peg"
           rule=node(DEQ, rule, n);
-          #line 8477 "daisho_peg.h"
+          #line 8488 "daisho_peg.h"
 
           #undef ret
         }
@@ -8512,7 +8523,7 @@ static inline daisho_astnode_t* daisho_parse_deneqexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 410 "daisho.peg"
           rule=node(NEQ, rule, n);
-          #line 8516 "daisho_peg.h"
+          #line 8527 "daisho_peg.h"
 
           #undef ret
         }
@@ -8593,7 +8604,7 @@ static inline daisho_astnode_t* daisho_parse_cmpexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 413 "daisho.peg"
           rule=node(LT,  rule, n);
-          #line 8597 "daisho_peg.h"
+          #line 8608 "daisho_peg.h"
 
           #undef ret
         }
@@ -8632,7 +8643,7 @@ static inline daisho_astnode_t* daisho_parse_cmpexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 414 "daisho.peg"
           rule=node(GT,  rule, n);
-          #line 8636 "daisho_peg.h"
+          #line 8647 "daisho_peg.h"
 
           #undef ret
         }
@@ -8671,7 +8682,7 @@ static inline daisho_astnode_t* daisho_parse_cmpexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 415 "daisho.peg"
           rule=node(LEQ, rule, n);
-          #line 8675 "daisho_peg.h"
+          #line 8686 "daisho_peg.h"
 
           #undef ret
         }
@@ -8710,7 +8721,7 @@ static inline daisho_astnode_t* daisho_parse_cmpexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 416 "daisho.peg"
           rule=node(GEQ, rule, n);
-          #line 8714 "daisho_peg.h"
+          #line 8725 "daisho_peg.h"
 
           #undef ret
         }
@@ -8817,7 +8828,7 @@ static inline daisho_astnode_t* daisho_parse_shfexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 419 "daisho.peg"
           rule=node(BSL, l, lt, rule, n);
-          #line 8821 "daisho_peg.h"
+          #line 8832 "daisho_peg.h"
 
           #undef ret
         }
@@ -8878,7 +8889,7 @@ static inline daisho_astnode_t* daisho_parse_shfexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 420 "daisho.peg"
           rule=node(BSR, g, gt, rule, n);
-          #line 8882 "daisho_peg.h"
+          #line 8893 "daisho_peg.h"
 
           #undef ret
         }
@@ -8966,7 +8977,7 @@ static inline daisho_astnode_t* daisho_parse_sumexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 423 "daisho.peg"
           rule=node(PLUS, rule, n);
-          #line 8970 "daisho_peg.h"
+          #line 8981 "daisho_peg.h"
 
           #undef ret
         }
@@ -9010,7 +9021,7 @@ static inline daisho_astnode_t* daisho_parse_sumexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 424 "daisho.peg"
           rule=node(MINUS, rule, n);
-          #line 9014 "daisho_peg.h"
+          #line 9025 "daisho_peg.h"
 
           #undef ret
         }
@@ -9091,7 +9102,7 @@ static inline daisho_astnode_t* daisho_parse_multexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 427 "daisho.peg"
           rule=node(STAR, rule, n);
-          #line 9095 "daisho_peg.h"
+          #line 9106 "daisho_peg.h"
 
           #undef ret
         }
@@ -9130,7 +9141,7 @@ static inline daisho_astnode_t* daisho_parse_multexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 428 "daisho.peg"
           rule=node(DIV,  rule, n);
-          #line 9134 "daisho_peg.h"
+          #line 9145 "daisho_peg.h"
 
           #undef ret
         }
@@ -9169,7 +9180,7 @@ static inline daisho_astnode_t* daisho_parse_multexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 429 "daisho.peg"
           rule=node(MOD,  rule, n);
-          #line 9173 "daisho_peg.h"
+          #line 9184 "daisho_peg.h"
 
           #undef ret
         }
@@ -9208,7 +9219,7 @@ static inline daisho_astnode_t* daisho_parse_multexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 430 "daisho.peg"
           rule=node(POW,  rule, n);
-          #line 9212 "daisho_peg.h"
+          #line 9223 "daisho_peg.h"
 
           #undef ret
         }
@@ -9297,7 +9308,7 @@ static inline daisho_astnode_t* daisho_parse_accexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 432 "daisho.peg"
         rule=node(ACCESS, rule, e);
-        #line 9301 "daisho_peg.h"
+        #line 9312 "daisho_peg.h"
 
         #undef ret
       }
@@ -9377,7 +9388,7 @@ static inline daisho_astnode_t* daisho_parse_dotexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 434 "daisho.peg"
         rule=node(DOT, rule, i);
-        #line 9381 "daisho_peg.h"
+        #line 9392 "daisho_peg.h"
 
         #undef ret
       }
@@ -9445,7 +9456,7 @@ static inline daisho_astnode_t* daisho_parse_refexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 437 "daisho.peg"
           rd++;
-          #line 9449 "daisho_peg.h"
+          #line 9460 "daisho_peg.h"
 
           #undef ret
         }
@@ -9475,7 +9486,7 @@ static inline daisho_astnode_t* daisho_parse_refexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 437 "daisho.peg"
           rd--;
-          #line 9479 "daisho_peg.h"
+          #line 9490 "daisho_peg.h"
 
           #undef ret
         }
@@ -9503,7 +9514,7 @@ static inline daisho_astnode_t* daisho_parse_refexpr(daisho_parser_ctx* ctx) {
     for (int64_t i = 0; i < (rd > 0 ? rd : -rd); i++) {
                 rule = rd > 0 ? node(REF, rule) : node(DEREF, rule);
               };
-    #line 9507 "daisho_peg.h"
+    #line 9518 "daisho_peg.h"
 
     #undef ret
   }
@@ -9578,7 +9589,7 @@ static inline daisho_astnode_t* daisho_parse_castexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 442 "daisho.peg"
         rule=node(CAST, rule, t);
-        #line 9582 "daisho_peg.h"
+        #line 9593 "daisho_peg.h"
 
         #undef ret
       }
@@ -9628,7 +9639,7 @@ static inline daisho_astnode_t* daisho_parse_callexpr(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 445 "daisho.peg"
     ret=rule->kind == kind(VARIDENT) ? SUCC : NULL;
-    #line 9632 "daisho_peg.h"
+    #line 9643 "daisho_peg.h"
 
     #undef ret
     // ModExprList 1
@@ -9695,7 +9706,7 @@ static inline daisho_astnode_t* daisho_parse_callexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 447 "daisho.peg"
         rule = node(CALL, rule, te, el); te=NULL;
-        #line 9699 "daisho_peg.h"
+        #line 9710 "daisho_peg.h"
 
         #undef ret
       }
@@ -9760,7 +9771,7 @@ static inline daisho_astnode_t* daisho_parse_increxpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 449 "daisho.peg"
         rule=node(INCR, rule);
-        #line 9764 "daisho_peg.h"
+        #line 9775 "daisho_peg.h"
 
         #undef ret
       }
@@ -9796,7 +9807,7 @@ static inline daisho_astnode_t* daisho_parse_increxpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 450 "daisho.peg"
         rule=node(DECR, rule);
-        #line 9800 "daisho_peg.h"
+        #line 9811 "daisho_peg.h"
 
         #undef ret
       }
@@ -9866,7 +9877,7 @@ static inline daisho_astnode_t* daisho_parse_notexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 452 "daisho.peg"
         rule=node(EXCL, rule);
-        #line 9870 "daisho_peg.h"
+        #line 9881 "daisho_peg.h"
 
         #undef ret
       }
@@ -10131,7 +10142,7 @@ static inline daisho_astnode_t* daisho_parse_blockexpr(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 575 "daisho.peg"
     rule=list(BLOCK);
-    #line 10135 "daisho_peg.h"
+    #line 10146 "daisho_peg.h"
 
     #undef ret
   }
@@ -10151,7 +10162,7 @@ static inline daisho_astnode_t* daisho_parse_blockexpr(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 576 "daisho.peg"
       if (skip) ret=NULL;
-      #line 10155 "daisho_peg.h"
+      #line 10166 "daisho_peg.h"
 
       #undef ret
       // ModExprList 1
@@ -10192,7 +10203,7 @@ static inline daisho_astnode_t* daisho_parse_blockexpr(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 577 "daisho.peg"
         if(has(e)) add(rule, e);
-        #line 10196 "daisho_peg.h"
+        #line 10207 "daisho_peg.h"
 
         #undef ret
       }
@@ -10223,7 +10234,7 @@ static inline daisho_astnode_t* daisho_parse_blockexpr(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 578 "daisho.peg"
           skip=1;
-          #line 10227 "daisho_peg.h"
+          #line 10238 "daisho_peg.h"
 
           #undef ret
           // ModExprList end
@@ -10327,7 +10338,7 @@ static inline daisho_astnode_t* daisho_parse_nsexpr(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 582 "daisho.peg"
     rule=node(NSACCESS, ns, v);
-    #line 10331 "daisho_peg.h"
+    #line 10342 "daisho_peg.h"
 
     #undef ret
   }
@@ -10411,7 +10422,7 @@ static inline daisho_astnode_t* daisho_parse_lambdaexpr(daisho_parser_ctx* ctx) 
       ret = SUCC;
       #line 584 "daisho.peg"
       al=leaf(ARGLIST);
-      #line 10415 "daisho_peg.h"
+      #line 10426 "daisho_peg.h"
 
       #undef ret
       // ModExprList end
@@ -10471,7 +10482,7 @@ static inline daisho_astnode_t* daisho_parse_lambdaexpr(daisho_parser_ctx* ctx) 
     ret = SUCC;
     #line 586 "daisho.peg"
     rule=node(LAMBDA, al, e);
-    #line 10475 "daisho_peg.h"
+    #line 10486 "daisho_peg.h"
 
     #undef ret
   }
@@ -10659,7 +10670,7 @@ static inline daisho_astnode_t* daisho_parse_listcomp(daisho_parser_ctx* ctx) {
               if (en) add(rule, node(COMPENUMERATE, en));
               add(rule, e);add(rule, item);add(rule, in);
               if (cond) add(rule, node(COMPCOND, cond));;
-    #line 10663 "daisho_peg.h"
+    #line 10674 "daisho_peg.h"
 
     #undef ret
   }
@@ -10755,7 +10766,7 @@ static inline daisho_astnode_t* daisho_parse_listlit(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 603 "daisho.peg"
     rule->kind = kind(LISTLIT);
-    #line 10759 "daisho_peg.h"
+    #line 10770 "daisho_peg.h"
 
     #undef ret
   }
@@ -10816,7 +10827,7 @@ static inline daisho_astnode_t* daisho_parse_tuplelit(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 607 "daisho.peg"
     rule->kind = kind(TUPLELIT);
-    #line 10820 "daisho_peg.h"
+    #line 10831 "daisho_peg.h"
 
     #undef ret
   }
@@ -10883,7 +10894,7 @@ static inline daisho_astnode_t* daisho_parse_vardeclexpr(daisho_parser_ctx* ctx)
     ret = SUCC;
     #line 615 "daisho.peg"
     rule=node(VARDECL, t, i);
-    #line 10887 "daisho_peg.h"
+    #line 10898 "daisho_peg.h"
 
     #undef ret
   }
@@ -10966,7 +10977,7 @@ static inline daisho_astnode_t* daisho_parse_sstrlit(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 620 "daisho.peg"
     rule=list(SSTR); add(rule, s);
-    #line 10970 "daisho_peg.h"
+    #line 10981 "daisho_peg.h"
 
     #undef ret
   }
@@ -11001,7 +11012,7 @@ static inline daisho_astnode_t* daisho_parse_sstrlit(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 621 "daisho.peg"
         add(rule, s);
-        #line 11005 "daisho_peg.h"
+        #line 11016 "daisho_peg.h"
 
         #undef ret
       }
@@ -11045,7 +11056,7 @@ static inline daisho_astnode_t* daisho_parse_fstrlit(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 623 "daisho.peg"
     rule=list(FSTR); add(rule, f);
-    #line 11049 "daisho_peg.h"
+    #line 11060 "daisho_peg.h"
 
     #undef ret
   }
@@ -11072,7 +11083,7 @@ static inline daisho_astnode_t* daisho_parse_fstrlit(daisho_parser_ctx* ctx) {
         ret = SUCC;
         #line 624 "daisho.peg"
         add(rule, f);
-        #line 11076 "daisho_peg.h"
+        #line 11087 "daisho_peg.h"
 
         #undef ret
       }
@@ -11151,7 +11162,7 @@ static inline daisho_astnode_t* daisho_parse_fstrfrag(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 627 "daisho.peg"
       rule=list(FSTRFRAG); add(rule, s);
-      #line 11155 "daisho_peg.h"
+      #line 11166 "daisho_peg.h"
 
       #undef ret
     }
@@ -11172,7 +11183,7 @@ static inline daisho_astnode_t* daisho_parse_fstrfrag(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 628 "daisho.peg"
       add(rule, x);
-      #line 11176 "daisho_peg.h"
+      #line 11187 "daisho_peg.h"
 
       #undef ret
     }
@@ -11216,7 +11227,7 @@ static inline daisho_astnode_t* daisho_parse_fstrfrag(daisho_parser_ctx* ctx) {
           ret = SUCC;
           #line 629 "daisho.peg"
           add(rule, m); add(rule, x);
-          #line 11220 "daisho_peg.h"
+          #line 11231 "daisho_peg.h"
 
           #undef ret
         }
@@ -11254,7 +11265,7 @@ static inline daisho_astnode_t* daisho_parse_fstrfrag(daisho_parser_ctx* ctx) {
       ret = SUCC;
       #line 630 "daisho.peg"
       add(rule, e);
-      #line 11258 "daisho_peg.h"
+      #line 11269 "daisho_peg.h"
 
       #undef ret
     }
@@ -11357,7 +11368,7 @@ static inline daisho_astnode_t* daisho_parse_sizeofexpr(daisho_parser_ctx* ctx) 
     ret = SUCC;
     #line 632 "daisho.peg"
     rule=node(SIZEOF, te);
-    #line 11361 "daisho_peg.h"
+    #line 11372 "daisho_peg.h"
 
     #undef ret
   }
@@ -11455,7 +11466,7 @@ static inline daisho_astnode_t* daisho_parse_cident(daisho_parser_ctx* ctx) {
       ctx->pos++;
     }
   };
-    #line 11459 "daisho_peg.h"
+    #line 11470 "daisho_peg.h"
 
     #undef ret
   }
@@ -11509,7 +11520,7 @@ static inline daisho_astnode_t* daisho_parse_semiornl(daisho_parser_ctx* ctx) {
                       ctx->tokens[ctx->pos - 1].line < ctx->tokens[ctx->pos].line)
                       ? leaf(SEMI)
                       : NULL;
-    #line 11513 "daisho_peg.h"
+    #line 11524 "daisho_peg.h"
 
     #undef ret
     // ModExprList end
@@ -11823,7 +11834,7 @@ static inline daisho_astnode_t* daisho_parse_wexpr(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 754 "daisho.peg"
     WARNING("Missing expression."); ret=leaf(RECOVERY);
-    #line 11827 "daisho_peg.h"
+    #line 11838 "daisho_peg.h"
 
     #undef ret
     // ModExprList end
@@ -11867,7 +11878,7 @@ static inline daisho_astnode_t* daisho_parse_noexpr(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 755 "daisho.peg"
     WARNING("Extra expression."); ret=e;
-    #line 11871 "daisho_peg.h"
+    #line 11882 "daisho_peg.h"
 
     #undef ret
   }
@@ -11924,7 +11935,7 @@ static inline daisho_astnode_t* daisho_parse_wcomma(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 756 "daisho.peg"
     WARNING("Missing comma."); ret=leaf(COMMA);
-    #line 11928 "daisho_peg.h"
+    #line 11939 "daisho_peg.h"
 
     #undef ret
     // ModExprList end
@@ -11976,7 +11987,7 @@ static inline daisho_astnode_t* daisho_parse_nocomma(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 757 "daisho.peg"
     WARNING("Extra comma."); ret=c;
-    #line 11980 "daisho_peg.h"
+    #line 11991 "daisho_peg.h"
 
     #undef ret
   }
@@ -12033,7 +12044,7 @@ static inline daisho_astnode_t* daisho_parse_wsemi(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 758 "daisho.peg"
     WARNING("Missing semicolon."); ret=leaf(SEMI);
-    #line 12037 "daisho_peg.h"
+    #line 12048 "daisho_peg.h"
 
     #undef ret
     // ModExprList end
@@ -12085,7 +12096,7 @@ static inline daisho_astnode_t* daisho_parse_nosemi(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 759 "daisho.peg"
     WARNING("Extra semicolon."); ret=s;
-    #line 12089 "daisho_peg.h"
+    #line 12100 "daisho_peg.h"
 
     #undef ret
   }
@@ -12134,7 +12145,7 @@ static inline daisho_astnode_t* daisho_parse_wsemiornl(daisho_parser_ctx* ctx) {
     ret = SUCC;
     #line 760 "daisho.peg"
     WARNING("Missing semicolon or newline."); ret=leaf(SEMI);
-    #line 12138 "daisho_peg.h"
+    #line 12149 "daisho_peg.h"
 
     #undef ret
     // ModExprList end

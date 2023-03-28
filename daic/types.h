@@ -32,17 +32,27 @@ struct InputFile {
     char* content;
     size_t contentlen;
     codepoint_t* cps;
+    size_t* cps_map;
     size_t cpslen;
-    size_t* poses;
 };
 typedef struct InputFile InputFile;
+
+_DAIC_LIST_DECLARE(InputFile)
+_DAIC_LIST_DEFINE(InputFile)
 
 static inline void
 InputFile_free(InputFile of) {
     if (of.fname) free(of.fname);
     if (of.content) free(of.content);
     if (of.cps) free(of.cps);
-    if (of.poses) free(of.poses);
+    if (of.cps_map) free(of.cps_map);
+}
+
+static inline void
+InputFile_cleanup(void* ifs) {
+    _Daic_List_InputFile* ipfs = (_Daic_List_InputFile*)ifs;
+    for (size_t i = 0; i < ipfs->len; i++) InputFile_free(ipfs->buf[i]);
+    _Daic_List_InputFile_clear(ipfs);
 }
 
 typedef int UNIMPL;
@@ -51,7 +61,7 @@ struct Declaration;
 typedef struct Declaration Declaration;
 typedef struct {
     Declaration* type;
-    codepoint_t* name;
+    Identifier name;
     size_t size;
 } Field;
 
@@ -96,13 +106,13 @@ struct Declaration {
 #define FN_DECLKIND 7
 #define CFN_DECLKIND 8
     union {
-        StructDecl s;
-        UnionDecl u;
-        TraitDecl t;
-        ImplDecl i;
-        CTypeDecl c;
-        AliasDecl a;
-        FunctionDecl f;
+        StructDecl structdecl;
+        UnionDecl uniondecl;
+        TraitDecl traitdecl;
+        ImplDecl impldecl;
+        CTypeDecl ctypedecl;
+        AliasDecl aliasdecl;
+        FunctionDecl fndecl;
     };
     daisho_astnode_t* source;
     Identifier id;
