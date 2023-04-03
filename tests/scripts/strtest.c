@@ -1,8 +1,8 @@
 #include "../../stdlib/Daisho.h"
 
 int
-main(int argc, char** argv) {
-    _Dai_initialize(argc, argv);
+main(void) {
+    _Dai_initialize();
 
     _Dai_String s;
     _Dai_String_initEmpty(&s);

@@ -7,40 +7,47 @@
 #include "../stdlib/Daisho.h"
 #include "allocator.h"
 #include "cleanup.h"
+#include "list.h"
+#include "types.h"
 
-struct DaicTokenizerError;
-typedef struct DaicTokenizerError DaicTokenizerError;
-struct DaicTokenizerError {
-    DaicTokenizerError* next;
+struct DaicError;
+typedef struct DaicError DaicError;
+struct DaicError {
+    DaicError* next;
     char* msg;  // If it must be freed, add to the cleanup context.
     char* file;
     size_t line;
     size_t col;
+    DaicStage stage;
     bool show_file_line;
 };
 
-static inline DaicTokenizerError*
-daic_tokenize_error(DaicCleanupContext* cleanup, char* msg, char* file, size_t line, size_t col,
+_DAIC_LIST_DECLARE(DaicError)
+_DAIC_LIST_DEFINE(DaicError)
+
+static inline DaicError*
+daic_tokenize_error(DaicCleanupContext* cleanup, DaicStage stage, char* msg, char* file, size_t line, size_t col,
                     bool show_file_line) {
-    DaicTokenizerError* e = (DaicTokenizerError*)_DAIC_MALLOC(sizeof(DaicTokenizerError));
+    DaicError* e = (DaicError*)_DAIC_MALLOC(sizeof(DaicError));
     daic_cleanup_add(cleanup, _DAIC_FREE_FPTR, e);
     e->next = NULL;
     e->msg = msg;
     e->file = file;
     e->line = line;
     e->col = col;
-    e->show_file_line = show_file_line;
+    e->stage = stage;
+    e->stage = e->show_file_line = show_file_line;
     return e;
 }
 
 static inline void
-daic_tokenizer_error_destroy(DaicTokenizerError* e) {
+daic_tokenizer_error_destroy(DaicError* e) {
     if (!e) return;
     _DAIC_FREE(e);
 }
 
 static inline void
-daic_tokenizer_error_print(DaicTokenizerError* e) {
+daic_tokenizer_error_print(DaicError* e) {
     fprintf(stderr, "%s:%zu:%zu: " _DAI_COLOR_RED "error:" _DAI_COLOR_RESET, e->file, e->line,
             e->col);
     if (e->next) daic_tokenizer_error_print(e->next);

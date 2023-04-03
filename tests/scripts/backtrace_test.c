@@ -12,8 +12,8 @@ f2(void) {
 }
 
 int
-main(int argc, char** argv) {
-    _Dai_initialize(argc, argv);
+main(void) {
+    _Dai_initialize();
     f2();
     puts("SUCCESS");
 }

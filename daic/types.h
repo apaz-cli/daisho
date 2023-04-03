@@ -43,9 +43,9 @@ _DAIC_LIST_DEFINE(InputFile)
 static inline void
 InputFile_free(InputFile of) {
     if (of.fname) free(of.fname);
-    if (of.content) free(of.content);
-    if (of.cps) free(of.cps);
-    if (of.cps_map) free(of.cps_map);
+    if (of.content) _DAIC_FREE(of.content);
+    if (of.cps) UTF8_FREE(of.cps);
+    if (of.cps_map) UTF8_FREE(of.cps_map);
 }
 
 static inline void
@@ -56,6 +56,16 @@ InputFile_cleanup(void* ifs) {
 }
 
 typedef int UNIMPL;
+
+typedef enum {
+    DAIC_ERROR_STAGE_ARGS,
+    DAIC_ERROR_STAGE_FILE,
+    DAIC_ERROR_STAGE_TOKINIZER,
+    DAIC_ERROR_STAGE_PARSER,
+    DAIC_ERROR_STAGE_TYPING,
+    DAIC_ERROR_STAGE_CODEGEN,
+    DAIC_ERROR_STAGE_OTHER,
+} DaicStage;
 
 struct Declaration;
 typedef struct Declaration Declaration;

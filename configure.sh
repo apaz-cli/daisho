@@ -16,8 +16,11 @@ rm "$WRITE_TO" 2>/dev/null
 touch "$WRITE_TO"
 
 msg() { printf "${GREEN}%-20s:${NORMAL} ${YELLOW}%${COLS}s${NORMAL}\n" "$1" "$2"; }
-warn() { printf "${YELLOW}%-20s: %${COLS}s${NORMAL}\n" "$1" "$2"; exit 1; }
-append() { printf "%s\n" "$1" >> "$WRITE_TO"; }
+warn() {
+	printf "${YELLOW}%-20s: %${COLS}s${NORMAL}\n" "$1" "$2"
+	exit 1
+}
+append() { printf "%s\n" "$1" >>"$WRITE_TO"; }
 
 set_colors() {
 	ncolors=$(tput colors)
@@ -32,12 +35,12 @@ set_colors() {
 }
 
 test_compatibility() {
-	cat <<- _end_of_text
-	${MAGENTA}
-	#######################
-	# Compatibility Tests #
-	#######################
-	${NORMAL}
+	cat <<-_end_of_text
+		${MAGENTA}
+		#######################
+		# Compatibility Tests #
+		#######################
+		${NORMAL}
 	_end_of_text
 
 	# TODO delete temp files
@@ -45,17 +48,17 @@ test_compatibility() {
 	# assertions
 	# TODO use mktemp if it's POSIX
 	# or use path prefix properly
-	cc config/assertions.c -o assertions.cfg 1>/dev/null && msg "ASSERTIONS" "PASSED" || \
+	cc config/assertions.c -o assertions.cfg 1>/dev/null && msg "ASSERTIONS" "PASSED" ||
 		warn "Daisho is not supported on this system for the reason specified in the error message above"
 	rm assertions.cfg 2>/dev/null
 
 	# endianness
-	echo -n I | od -to2 | awk 'FNR==0{ print substr($2,6,1)}' && msg "ENDIANNESS" "PASSED" || \
+	echo -n I | od -to2 | awk 'FNR==0{ print substr($2,6,1)}' && msg "ENDIANNESS" "PASSED" ||
 		warn "Daisho is not supported on Big-Endian or Unknown-Endianness machines."
 
 	# locale
 	cc config/locale.c -o locale.cfg 1>/dev/null 2>&1
-	./locale.cfg && msg "UTF8 LOCALE" "PASSED" || \
+	./locale.cfg && msg "UTF8 LOCALE" "PASSED" ||
 		warn "Daisho is not supported on systems that do not support the \"C.UTF-8\" locale."
 	rm locale.cfg 2>/dev/null
 
@@ -67,26 +70,25 @@ test_compatibility() {
 #                               #
 #################################
 config_variables() {
-	cat <<- _end_of_text
-	${MAGENTA}
-	###########################
-	# Configuration Variables #
-	###########################
-	${NORMAL}
+	cat <<-_end_of_text
+		${MAGENTA}
+		###########################
+		# Configuration Variables #
+		###########################
+		${NORMAL}
 	_end_of_text
 
-	cat <<- _end_of_header >> "$WRITE_TO"
+	cat <<-_end_of_header >>"$WRITE_TO"
 
-	/***************************/
-	/* Configuration Variables */
-	/***************************/
+		/***************************/
+		/* Configuration Variables */
+		/***************************/
 	_end_of_header
 
 	# page size
 	PAGESIZE=$(getconf PAGE_SIZE)
 	msg "PAGE SIZE" "$PAGESIZE"
 	append "#define _DAI_PAGESIZE $PAGESIZE"
-
 
 	#################
 	# THREAD NUMBER #
@@ -95,12 +97,12 @@ config_variables() {
 	msg "THREADS" "$THREADS"
 	append "#define _DAI_IDEAL_NUM_THREADS $THREADS"
 
-        ###############
-        # STDLIB PATH #
-        ###############
-        LIBPATH=$(realpath stdlib/)
-        msg "LIBPATH" "$LIBPATH"
-        append "#define _DAIC_LIB_INCLUDE_PATH \"$LIBPATH\""
+	###############
+	# STDLIB PATH #
+	###############
+	LIBPATH=$(realpath stdlib/)
+	msg "LIBPATH" "$LIBPATH"
+	append "#define _DAIC_LIB_INCLUDE_PATH \"$LIBPATH\""
 }
 
 gitrev() {
@@ -110,30 +112,30 @@ gitrev() {
 	VERSION_MINOR="0"
 	VERSION_SUBMINOR="1"
 
-	cat <<- _end_of_text
-	${MAGENTA}
-	###########
-	# Version #
-	###########
-	${NORMAL}
+	cat <<-_end_of_text
+		${MAGENTA}
+		###########
+		# Version #
+		###########
+		${NORMAL}
 	_end_of_text
 
-	cat <<- _end_of_header >> "$WRITE_TO"
+	cat <<-_end_of_header >>"$WRITE_TO"
 
-	/***********/
-	/* Version */
-	/***********/
+		/***********/
+		/* Version */
+		/***********/
 	_end_of_header
 
-	msg    "Version" "0.0.1"
-	append "#define _DAI_VERSION $VERSION_MAJOR.$VERSION_MINOR.$VERSION_SUBMINOR"
+	msg "Version" "0.0.1"
+	append "#define _DAI_VERSION \"$VERSION_MAJOR.$VERSION_MINOR.$VERSION_SUBMINOR\""
 	append "#define _DAI_VERSION_MAJOR $VERSION_MINOR"
 	append "#define _DAI_VERSION_MINOR $VERSION_MAJOR"
 	append "#define _DAI_VERSION_SUBMINOR $VERSION_SUBMINOR"
 
-	msg    "Revision" "$LONGREV"
-	append "#define _DAI_SHORT_REV $SHORTREV"
-	append "#define _DAI_LONG_REV $LONGREV"
+	msg "Revision" "$LONGREV"
+	append "#define _DAI_SHORT_REV \"$SHORTREV\""
+	append "#define _DAI_LONG_REV \"$LONGREV\""
 }
 
 ############################
@@ -142,48 +144,26 @@ gitrev() {
 #                          #
 ############################
 supported_features() {
-	cat <<- _end_of_text
-	${MAGENTA}
-	######################
-	# Supported Features #
-	######################
-	${NORMAL}
+	cat <<-_end_of_text
+		${MAGENTA}
+		######################
+		# Supported Features #
+		######################
+		${NORMAL}
 	_end_of_text
 
-	cat <<- _end_of_header >> "$WRITE_TO"
+	cat <<-_end_of_header >>"$WRITE_TO"
 
-	/**********************/
-	/* Supported Features */
-	/**********************/
+		/**********************/
+		/* Supported Features */
+		/**********************/
 	_end_of_header
-
-	##########
-	# PYTHON #
-	##########
-	PYEXEC=$(command -pv python3 || command -pv python || command -pv python2)
-	PYEXEC=${PYEXEC:-NONE}
-	if [ -n "$PYEXEC" ]; then
-		msg "PYTHON EXECUTABLE" "$PYEXEC"
-		append "#define _DAI_HAS_PYTHON 1"
-		append "#define _DAI_PYTHON_EXECUTABLE \"$PYEXEC\""
-
-		PYV=$($PYEXEC --version | cut -d' ' -f2)
-		PYV=${PYV:-0.0.0}
-		msg "PYTHON VERSION" "$PYV"
-		append "#define _DAI_PYTHON_VERSION \"$PYV\""
-		append "#define _DAI_PYTHON_MAJOR_VERSION $(echo $PYV | cut -d. -f1)"
-		append "#define _DAI_PYTHON_MINOR_VERSION $(echo $PYV | cut -d. -f2)"
-		append "#define _DAI_PYTHON_SUBMINOR_VERSION $(echo $PYV | cut -d. -f3)"
-	fi
-
 
 	###############
 	# ANSI COLORS #
 	###############
 	msg "ANSI COLORS" "$HAS_COLORS"
-	append ""
 	append "#define _DAI_HAS_ANSI_COLORS $HAS_COLORS"
-
 
 	##############
 	# BACKTRACES #
@@ -192,10 +172,8 @@ supported_features() {
 	./backtraces.cfg 2>/dev/null
 	ret=$(expr $? = 0)
 	msg "BACKTRACES" "$ret"
-	append ""
 	append "#define _DAI_HAS_BACKTRACES $ret"
 	rm backtraces.cfg 2>/dev/null
-
 
 	####################
 	# LABELS AS VALUES #
@@ -203,19 +181,20 @@ supported_features() {
 	cc config/label_values.c -o label_values.cfg 2>/dev/null
 	ret=$(expr $? = 0)
 	msg "LABEL VALUES" "$ret"
-	append ""
 	append "#define _DAI_HAS_LABEL_VALUES $ret"
 	rm label_values.cfg 2>/dev/null
+
+	append ""
 }
 
 write_config() {
 
 	test_compatibility
 
-	cat <<- _end_of_guard > "$WRITE_TO"
-	#pragma once
-	#ifndef _DAI_STDLIB_GENERATEDCONFIG
-	#define _DAI_STDLIB_GENERATEDCONFIG
+	cat <<-_end_of_guard >"$WRITE_TO"
+		#pragma once
+		#ifndef _DAI_STDLIB_GENERATEDCONFIG
+		#define _DAI_STDLIB_GENERATEDCONFIG
 	_end_of_guard
 
 	gitrev
@@ -230,7 +209,7 @@ set_colors
 write_config
 
 cp "$WRITE_TO" "$COPY_TO"
-cat << _end_of_status
+cat <<_end_of_status
 ${MAGENTA}
 Wrote config file to:
 ${NORMAL}${COPY_TO}

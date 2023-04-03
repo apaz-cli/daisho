@@ -5,8 +5,6 @@
 
 _DAI_FN void
 _Dai_configure_buffering(void) {
-
-
 #if _DAI_OUTPUT_BUFFERING == 0 /* No buffering */
     char errmsg0[] = "Could not set unbuffered IO.";
     if (setvbuf(stdout, NULL, _IONBF, 0) && _DAI_SANE) {
@@ -19,8 +17,17 @@ _Dai_configure_buffering(void) {
     }
 #elif _DAI_OUTPUT_BUFFERING == 1 /* Line buffering */
     /* Line buffering is the default in the C standard. */
-    // char errmsg1[] = "Could not set line buffered IO.";
-    // setvbuf(stdout, NULL, _IOLBF, 0);
+    /* This isn't technically required unless code could be
+     * executed before the runtime is initialized. But oh well. */
+    char errmsg1[] = "Could not set line buffered IO.";
+    if (setvbuf(stdout, NULL, _IOLBF, 0) && _DAI_SANE) {
+        write(STDOUT_FILENO, errmsg1, strlen(errmsg1));
+        exit(1);
+    }
+    if (setvbuf(stderr, NULL, _IOLBF, 0) && _DAI_SANE) {
+        write(STDERR_FILENO, errmsg1, strlen(errmsg1));
+        exit(1);
+    }
 #elif _DAI_OUTPUT_BUFFERING == 2 /* Full buffering */
     char errmsg2[] = "Could not set fully buffered IO.";
     if (setvbuf(stdout, NULL, _IOFBF, 0) && _DAI_SANE) {

@@ -18,22 +18,22 @@
 #define _DAI_ASSERTING 1
 #include "../stdlib/Native/PreProcessor/PreProcessor.h"
 
-_DAI_STATIC_ASSERT(__STDC_VERSION__ >= 201112L, "Daisho requires a C11 compiler or above.");
+_Static_assert(__STDC_VERSION__ >= 201112L, "Daisho requires a C11 compiler or above.");
 
 /* Assert about types. */
 
-_DAI_STATIC_ASSERT(CHAR_BIT == 8, "Daisho's implementation of String assumes CHAR_BIT to be 8.");
-_DAI_STATIC_ASSERT((~(long)0U) == (long)(-1),
+_Static_assert(CHAR_BIT == 8, "Daisho's implementation of String assumes CHAR_BIT to be 8.");
+_Static_assert((~(long)0U) == (long)(-1),
                    "The Daisho standard library assumes "
                    "that the archetecture uses two's complement to represent "
                    "numbers.");
 
 #define ASSERT_COMPATIBLE(t1, t2)                                                         \
-    _DAI_STATIC_ASSERT(sizeof(t1) == sizeof(t2),                                          \
+    _Static_assert(sizeof(t1) == sizeof(t2),                                          \
                        "Daisho assumes that " #t1 " is the same size as " #t2 ".");       \
-    _DAI_STATIC_ASSERT(_DAI_MIN_OF_INTEGER_TYPE(t1) == _DAI_MIN_OF_INTEGER_TYPE(t2),      \
+    _Static_assert(_DAI_MIN_OF_INTEGER_TYPE(t1) == _DAI_MIN_OF_INTEGER_TYPE(t2),      \
                        "Daisho assumes that " #t1 " min casts freely with " #t2 " min."); \
-    _DAI_STATIC_ASSERT(_DAI_MAX_OF_INTEGER_TYPE(t1) == _DAI_MAX_OF_INTEGER_TYPE(t2),      \
+    _Static_assert(_DAI_MAX_OF_INTEGER_TYPE(t1) == _DAI_MAX_OF_INTEGER_TYPE(t2),      \
                        "Daisho assumes that " #t1 " max casts freely with " #t2 " min.");
 
 /* TODO figure this out. */
@@ -50,13 +50,13 @@ ASSERT_COMPATIBLE(size_t, uintptr_t)
 ASSERT_COMPATIBLE(ssize_t, intptr_t)
 ASSERT_COMPATIBLE(intptr_t, ptrdiff_t)
 
-_DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(void*),
+_Static_assert(sizeof(size_t) == sizeof(void*),
                    "Daisho assumes that size_t is the same size as a pointer.");
-_DAI_STATIC_ASSERT(sizeof(size_t) == sizeof(char*),
+_Static_assert(sizeof(size_t) == sizeof(char*),
                    "Daisho assumes that size_t is the same size as a pointer.");
-_DAI_STATIC_ASSERT(sizeof(uintptr_t) == sizeof(intptr_t),
+_Static_assert(sizeof(uintptr_t) == sizeof(intptr_t),
                    "Daisho assumes that intptr_t is the same size as uintptr_t.");
-_DAI_STATIC_ASSERT(_DAI_MAX_OF_INTEGER_TYPE(clock_t) > UINT32_MAX,
+_Static_assert(_DAI_MAX_OF_INTEGER_TYPE(clock_t) > UINT32_MAX,
                    "The Daisho standard library assumes that the max value "
                    "of clock_t is more than 32 bits.");
 
@@ -70,13 +70,13 @@ _Static_assert(_DAI_STDERR_BUFSIZ <= 4294967295, "_DAI_STDERR_BUFSIZ is greater 
  */
 
 #define TWOS_COMPLEMENT(type)                                                     \
-    _DAI_STATIC_ASSERT(!_DAI_IS_TYPE_SIGNED(type) ? 1 : (~(type)0) == (type)(-1), \
+    _Static_assert(!_DAI_IS_TYPE_SIGNED(type) ? 1 : (~(type)0) == (type)(-1), \
                        #type " is not represented as two's complement.");
 
 #define ASSERT_TYPE(type, min, max)                                \
     TWOS_COMPLEMENT(type)                                          \
-    _DAI_STATIC_ASSERT(_DAI_MIN_OF_INTEGER_TYPE(type) == min, ""); \
-    _DAI_STATIC_ASSERT(_DAI_MAX_OF_INTEGER_TYPE(type) == max, "");
+    _Static_assert(_DAI_MIN_OF_INTEGER_TYPE(type) == min, ""); \
+    _Static_assert(_DAI_MAX_OF_INTEGER_TYPE(type) == max, "");
 
 #define ASSERT_FLOAT_TYPE(type, min, max)                 \
     if (_DAI_MIN_OF_FLOATING_TYPE(type) != min) return 1; \

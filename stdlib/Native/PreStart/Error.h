@@ -19,10 +19,10 @@ typedef struct {
     (void)func;                \
     (void)file;
 
-
 #define _DAI_ERRSTR_LEN 32
 
 /* Accepts a buffer with _DAI_ERRSTR_LEN bytes of space. */
+/* Does not necessarily return that same buffer. */
 _DAI_FN char*
 _Dai_strerror(char* errstr) {
     if (errno) {
@@ -32,6 +32,21 @@ _Dai_strerror(char* errstr) {
         strcpy(errstr, success);
     }
     return errstr;
+}
+
+_DAI_FN char*
+_Dai_strerror_r(int errnum, char* buf, size_t buflen) {
+#if (_POSIX_C_SOURCE >= 200112L) && !_GNU_SOURCE
+    /* XSI-compliant */
+    /* int strerror_r(int errnum, char *buf, size_t buflen); */
+    int r = strerror_r(errnum, buf, buflen);
+    if (r != 0) return NULL;
+    return buf;
+#else
+    /* GNU-specific */
+    /* char *strerror_r(int errnum, char *buf, size_t buflen); */
+    return strerror_r(errnum, buf, buflen);
+#endif
 }
 
 _DAI_FN _DAI_NORETURN void

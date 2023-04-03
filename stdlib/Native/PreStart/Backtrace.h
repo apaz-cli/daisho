@@ -15,20 +15,21 @@ static FILE* _Dai_bt_stream;
 static int _Dai_bt_fd;
 
 _DAI_FN void
-_Dai_bt_header(void) {
-    const char sthead[] =
-        _DAI_COLOR_HEAD "***************\n* Stack Trace *\n***************\n" _DAI_COLOR_RESET;
+_Dai_unsafe_bt_header(void) {
+    const char sthead[] = _DAI_COLOR_HEAD
+        "***************\n"
+        "* Stack Trace *\n"
+        "***************\n" _DAI_COLOR_RESET;
     fprintf(stderr, sthead);
 }
 
 _DAI_FN void
-_Dai_bt_footer(char* sigstr) {
+_Dai_unsafe_bt_footer(char* sigstr) {
     const char na[] = "N/A";
     const char success[] = "0 (Success)";
-    const char fmt[] =
-        _DAI_COLOR_MAGENTA "Errno: " _DAI_COLOR_RESET " " _DAI_COLOR_BLUE "%s" _DAI_COLOR_RESET
-                            "\n" _DAI_COLOR_MAGENTA "Signal:" _DAI_COLOR_RESET
-                            " " _DAI_COLOR_BLUE "%s" _DAI_COLOR_RESET "\n\n";
+    const char fmt[] = _DAI_COLOR_MAGENTA
+        "Errno: " _DAI_COLOR_RESET " " _DAI_COLOR_BLUE "%s" _DAI_COLOR_RESET "\n" _DAI_COLOR_MAGENTA
+        "Signal:" _DAI_COLOR_RESET " " _DAI_COLOR_BLUE "%s" _DAI_COLOR_RESET "\n\n";
     char errstr[32];
     errstr[0] = '\0';
     if (errno) strerror_r(errno, errstr, 32);
@@ -85,6 +86,72 @@ _Dai_SymInfo_parse(char* str) {
     return info;
 }
 
+_DAI_FN char*
+_Dai_simplifyPath(char* path) {
+    char state = 1;
+    char c;
+    int ri = 1;
+    int wi = 1;
+    while ((c = path[ri]) != '\0') {
+        if (state == 0) {
+            if (c == '/') {
+                state = 1;
+            }
+            path[wi] = path[ri];
+            ri++;
+            wi++;
+            continue;
+        } else if (state == 1) {
+            if (c == '/') {
+                ri++;
+                continue;
+            }
+            if (c == '.') {
+                state = 2;
+                ri++;
+                continue;
+            }
+            state = 0;
+            path[wi] = path[ri];
+            ri++;
+            wi++;
+            continue;
+        }
+        if (c == '/') {
+            state = 1;
+            ri++;
+            continue;
+        }
+        if (c == '.') {
+            if (path[ri + 1] != '/' && path[ri + 1] != '\0') {
+                state = 0;
+                ri -= 1;
+                continue;
+            }
+            int slashes = 2;
+            while (slashes > 0 && wi != 0) {
+                wi--;
+                if (path[wi] == '/') {
+                    slashes--;
+                }
+            }
+            state = 1;
+            ri++;
+            wi++;
+            continue;
+        }
+        state = 0;
+        path[wi++] = '.';
+        path[wi] = path[ri];
+        ri++;
+        wi++;
+        continue;
+    }
+    wi -= wi > 1 && path[wi - 1] == '/';
+    path[wi] = '\0';
+    return path;
+}
+
 _DAI_FN void
 _Dai_SymInfo_print(_Dai_SymInfo info) {
     fprintf(stderr, _DAI_COLOR_FILE "%s:" _DAI_COLOR_RESET " ", info.file);
@@ -102,24 +169,20 @@ _Dai_unsafe_print_backtrace(void) {
     num_addrs = backtrace(symbol_arr, _DAI_BT_MAX_FRAMES);
     symbol_strings = backtrace_symbols(symbol_arr, num_addrs);
     if (symbol_strings) {
-        _Dai_bt_header();
+        _Dai_unsafe_bt_header();
         const char errmsg[] = "Obtained %d stack frames.\n";
         fprintf(stderr, errmsg, num_addrs);
         fflush(stderr);
         for (i = 0; i < num_addrs; i++) _Dai_SymInfo_print(_Dai_SymInfo_parse(symbol_strings[i]));
-        _Dai_bt_footer(NULL);
+        _Dai_unsafe_bt_footer(NULL);
         _Dai_newline_flush(stdout);
-        /* Original (glibc) free, not wrapped. */
-        free(symbol_strings);
+        free /*no expand*/ (symbol_strings);
     } else {
-        const char errmsg[] = "Backtrace failed.";
-        puts(errmsg);
+        const char errmsg[] = "Backtrace failed.\n";
+        fputs(errmsg, stderr);
         _Dai_newline_flush(stdout);
     }
 }
-
-static void
-_Dai_print_backtrace(void) {}
 
 static void _DAI_NEVER_INLINE
 _Dai_low_mem_backtrace(void) {
@@ -134,7 +197,8 @@ _Dai_low_mem_backtrace(void) {
 _DAI_FN void
 _Dai_bt_sighandler(int sig, siginfo_t* siginfo, void* ucontext) {
     ucontext_t ctx = *(ucontext_t*)ucontext;
-    (void)ctx; (void)siginfo;
+    (void)ctx;
+    (void)siginfo;
     fprintf(stderr, "Handled backtrace signal: %s\n", strsignal(sig));
     _Dai_low_mem_backtrace();
     _exit(0);
@@ -190,7 +254,7 @@ _Dai_raise_test_backtrace_signal(void) {
      * nothing, we'll have already errored. However, the +0 is needed so it will
      * still compile.
      */
-    int sigs[] = {_DAI_BACKTRACE_SIGNALS +0};
+    int sigs[] = {_DAI_BACKTRACE_SIGNALS + 0};
     size_t num_sigs = sizeof(sigs) / sizeof(int);
     const char nserr[] =
         "Daisho has been misconfigured.\n"

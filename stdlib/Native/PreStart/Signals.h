@@ -98,20 +98,6 @@ _DAI_FN const char*
 _Dai_signal_to_str(int signal) {
     for (size_t i = 0; i < _DAI_SIGLIST_LENGTH; i++)
         if (_Dai_siglist[i].code == signal) return _Dai_siglist[i].name;
-
-    if (_DAI_INSANE)
-        _DAI_UNREACHABLE();
-    else {
-        const char* errmsg =
-            "The signal you're looking for, number %i, could not be found in the signal list.\n"
-            "Does it exist on this machine?\n"
-            "A good place to start your search is '/usr/include/signal.h'.\n"
-            "glibc puts them in x86_64-linux-gnu/asm/signal.h (or your arch target triple's "
-            "equivalent).\n";
-        fprintf(stderr, errmsg, signal);
-        exit(1);
-    }
-
     return NULL;
 }
 
