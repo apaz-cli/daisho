@@ -5,23 +5,27 @@
 #########################
 # GLOBALS AND CONSTANTS #
 #########################
-# Generates a config file by appending to this variable.
+
+
+#######################
+# CONFIG FILE HELPERS #
+#######################
+
+# Generates a config file by appending to WRITE_TO, then copying to COPY_TO.
+# Prints pretty messages along the way.
 WRITE_TO="/tmp/GeneratedConfig.h"
 COPY_TO="stdlib/Native/Configs/GeneratedConfig.h"
-COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
-[ $COLS -gt 90 ] && COLS=57
-IN_CMT="// _DAI_STDLIB_GENERATEDCONFIG"
-
 rm "$WRITE_TO" 2>/dev/null
 touch "$WRITE_TO"
 
-msg() { printf "${GREEN}%-20s:${NORMAL} ${YELLOW}%${COLS}s${NORMAL}\n" "$1" "$2"; }
-warn() {
-	printf "${YELLOW}%-20s: %${COLS}s${NORMAL}\n" "$1" "$2"
-	exit 1
-}
-append() { printf "%s\n" "$1" >>"$WRITE_TO"; }
+COLS=$(expr $(stty size | cut -d' ' -f2) - 23)
+[ $COLS -gt 90 ] && COLS=57
+IN_CMT="/* _DAI_STDLIB_GENERATEDCONFIG */"
 
+
+msg() { printf "${GREEN}%-20s:${NORMAL} ${YELLOW}%${COLS}s${NORMAL}\n" "$1" "$2"; }
+warn() { printf "${YELLOW}%-20s: %${COLS}s${NORMAL}\n" "$1" "$2"; exit 1; }
+append() { printf "%s\n" "$1" >> "$WRITE_TO"; }
 set_colors() {
 	ncolors=$(tput colors)
 	# TODO: Use escape sequences as they're more portable than tput
@@ -33,7 +37,6 @@ set_colors() {
 		MAGENTA=$(tput setaf 5)
 	fi
 }
-
 test_compatibility() {
 	cat <<-_end_of_text
 		${MAGENTA}
@@ -48,7 +51,7 @@ test_compatibility() {
 	# assertions
 	# TODO use mktemp if it's POSIX
 	# or use path prefix properly
-	cc config/assertions.c -o assertions.cfg 1>/dev/null && msg "ASSERTIONS" "PASSED" ||
+	cc config/assertions.c -D_DAI_RUNNING_CONFIGURE_SCRIPT -o assertions.cfg 1>/dev/null && msg "ASSERTIONS" "PASSED" ||
 		warn "Daisho is not supported on this system for the reason specified in the error message above"
 	rm assertions.cfg 2>/dev/null
 
@@ -57,7 +60,7 @@ test_compatibility() {
 		warn "Daisho is not supported on Big-Endian or Unknown-Endianness machines."
 
 	# locale
-	cc config/locale.c -o locale.cfg 1>/dev/null 2>&1
+	cc config/locale.c -D_DAI_RUNNING_CONFIGURE_SCRIPT -o locale.cfg 1>/dev/null 2>&1
 	./locale.cfg && msg "UTF8 LOCALE" "PASSED" ||
 		warn "Daisho is not supported on systems that do not support the \"C.UTF-8\" locale."
 	rm locale.cfg 2>/dev/null
@@ -168,7 +171,7 @@ supported_features() {
 	##############
 	# BACKTRACES #
 	##############
-	cc config/backtraces.c -o backtraces.cfg 2>/dev/null
+	cc config/backtraces.c -D_DAI_RUNNING_CONFIGURE_SCRIPT -o backtraces.cfg 2>/dev/null
 	./backtraces.cfg 2>/dev/null
 	ret=$(expr $? = 0)
 	msg "BACKTRACES" "$ret"
@@ -178,7 +181,7 @@ supported_features() {
 	####################
 	# LABELS AS VALUES #
 	####################
-	cc config/label_values.c -o label_values.cfg 2>/dev/null
+	cc config/label_values.c -D_DAI_RUNNING_CONFIGURE_SCRIPT -o label_values.cfg 2>/dev/null
 	ret=$(expr $? = 0)
 	msg "LABEL VALUES" "$ret"
 	append "#define _DAI_HAS_LABEL_VALUES $ret"
