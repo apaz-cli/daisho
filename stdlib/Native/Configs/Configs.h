@@ -6,7 +6,6 @@
 /* Don't reorder. */
 #include "Config.h"
 /* Don't reorder. */
-
 #ifdef _DAI_RUNNING_CONFIGURE_SCRIPT
 #include "DefaultConfig.h"
 #else

@@ -86,11 +86,14 @@
 /************************/
 
 /* POSIX */
+// TODO deal with _GNU_SOURCE
+#define _GNU_SOURCE 1
 #include <fcntl.h>
 #include <pthread.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
 #include <unistd.h>
 
 /* Use GNU backtraces if possible. */

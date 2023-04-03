@@ -36,17 +36,12 @@ _Dai_strerror(char* errstr) {
 
 _DAI_FN char*
 _Dai_strerror_r(int errnum, char* buf, size_t buflen) {
-#if (_POSIX_C_SOURCE >= 200112L) && !_GNU_SOURCE
     /* XSI-compliant */
     /* int strerror_r(int errnum, char *buf, size_t buflen); */
-    int r = strerror_r(errnum, buf, buflen);
-    if (r != 0) return NULL;
+    /* For now, the GNU version is not supported. */
+    int r = !!strerror_r(errnum, buf, buflen);
+    if (r) return NULL;
     return buf;
-#else
-    /* GNU-specific */
-    /* char *strerror_r(int errnum, char *buf, size_t buflen); */
-    return strerror_r(errnum, buf, buflen);
-#endif
 }
 
 _DAI_FN _DAI_NORETURN void

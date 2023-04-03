@@ -65,6 +65,12 @@ test_compatibility() {
 		warn "Daisho is not supported on systems that do not support the \"C.UTF-8\" locale."
 	rm locale.cfg 2>/dev/null
 
+	# strerror_r
+	cc config/strerror_r.c -D_DAI_RUNNING_CONFIGURE_SCRIPT -o strerror_r.cfg 1>/dev/null 2>&1
+	./strerror_r.cfg && msg "STRERROR_R" "PASSED" ||
+	        warn "Daisho is not supported on systems without an XSI-compliant implementation of strerror_r."
+	rm strerror_r.cfg 2>/dev/null
+
 }
 
 #################################
