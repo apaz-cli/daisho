@@ -58,10 +58,7 @@ daic_main_args(Daic_Args args) {
     }
 
     // Print AST
-    if (ast)
-        daisho_astnode_print_json(tokens.buf, ast);
-    else
-        puts("null");
+    daisho_astnode_print_json(tokens.buf, ast);
 
     if (parser.pos != parser.len) {
         fprintf(stderr, "Didn't consume the entire input.\n");
