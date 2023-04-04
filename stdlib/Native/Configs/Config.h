@@ -148,15 +148,14 @@
 #endif
 
 /*
- * The list of signals that trigger a backtrace and termination of the program.
- * If backtraces are not enabled, no backtrace is printed to stderr, and the
- * signal handlers are not registered. All of the default signals below will
- * still by default terminate the program however.
+ * The list of signals that trigger a backtrace to be printed to stderr and
+ * termination of the program.
  *
- * At least one signal must be defined below. If you want to disable backtraces,
+ * If no signals are listed, or backtraces are not supported or enabled, no
+ * signal handlers will be installed. Separate the list of signals with commas,
+ * and do not put a comma at the end.
  *
- *
- * See man signal.h for details and a list of signals and default actions.
+ * See `man signal.h` for details and a list of signals and default actions.
  */
 #ifndef _DAI_BACKTRACE_SIGNALS
 #define _DAI_BACKTRACE_SIGNALS \

@@ -7,11 +7,87 @@
 #include "Signals.h"
 #include "Wrappers.h"
 
-#if _DAI_USING_BACKTRACES
-
 #define _DAI_BT_BUF_CAP ((size_t)(_DAI_PAGESIZE * 64))
 
+#define _DAI_BT_ERR_NOTENABLED -1
+#define _DAI_BT_ERR_BTFAIL -2
+#define _DAI_BT_ERR_BTTOOLONG -3
+#define _DAI_BT_ERR_LSEEKF -4
+#define _DAI_BT_ERR_LSEEKS -5
+#define _DAI_BT_ERR_READ -6
+#define _DAI_BT_ERR_WRITE -7
+#define _DAI_BT_ERR_PIPE -8
+#define _DAI_BT_ERR_FORK -9
+#define _DAI_BT_ERR_CLOSEPIPE -10
+#define _DAI_BT_ERR_DUP2 -11
+#define _DAI_BT_ERR_EXECV -12
+#define _DAI_BT_ERR_WAITPID -13
+#define _DAI_BT_ERR_SUBPFAIL -14
+#define _DAI_BT_ERR_SUBPREAD -15
+#define _DAI_BT_ERR_BUFTOOSMALL -16
+#define _DAI_BT_ERR_CLOSERPIPE -17
+#define _DAI_BT_ERR_NOCOLON -18
+#define _DAI_BT_ERR_NOSPACE -19
+
+_DAI_FN long _Dai_write_backtrace(int, char*, size_t, int, int, int);
+_DAI_FN void _Dai_init_backtrace(void);
+_DAI_FN void _Dai_raise_backtrace(void);
+_DAI_FN int _Dai_scratch_fd_create(void);
+
+#if _DAI_USING_BACKTRACES
 static int _Dai_backtrace_fd;
+static int _Dai_backtrace_sighandlers_installed = 0;
+#endif
+
+_DAI_FN void
+_Dai_raise_backtrace(void) {
+#define _DAI_BT_EXIT(msg)                                                     \
+    do {                                                                      \
+        int werr = 0;                                                         \
+        const char exit_msg[] = msg "\n";                                     \
+        _Dai_write_wrapper(STDERR_FILENO, exit_msg, sizeof(exit_msg), &werr); \
+        _exit(0);                                                             \
+    } while (0)
+#if !_DAI_HAS_BACKTRACES
+    _DAI_BT_EXIT("When Daisho was configured, glibc backtraces were not detected as supported.");
+#endif
+#if !_DAI_BACKTRACES_ENABLED
+    _DAI_BT_EXIT("When Daisho was configured, backtraces were not enabled.");
+#endif
+#if _DAI_USING_BACKTRACES
+    if (!_Dai_backtrace_sighandlers_installed) _Dai_init_backtrace();
+#endif
+
+    int sigs[] = {_DAI_BACKTRACE_SIGNALS + 0};
+    size_t num_sigs = sizeof(sigs) / sizeof(int);
+    if (!sigs[0])
+        _DAI_BT_EXIT(
+            "No signals have been set up to cause a backtrace. To change this, \n"
+            "#define _DAI_BACKTRACE_SIGNALS to a comma-separated list of signals.");
+
+#if _DAI_USING_BACKTRACES
+    if (raise(sigs[0])) _DAI_BT_EXIT("Could not raise() the test signal.");
+#else
+#endif
+}
+
+#if !_DAI_USING_BACKTRACES
+/* Backtraces unsupported */
+_DAI_FN long
+_Dai_write_backtrace(int scratch_fd, char* buf, size_t n, int err_no, int signal_no, int color) {
+    (void)scratch_fd;
+    (void)buf;
+    (void)n;
+    (void)err_no;
+    (void)signal_no;
+    (void)color;
+    return _DAI_BT_ERR_NOTENABLED;
+}
+
+_DAI_FN void
+_Dai_init_backtrace(void) {}
+
+#else /* _DAI_USING_BACKTRACES */
 
 typedef struct {
     char* file;
@@ -126,28 +202,28 @@ _Dai_simplifyPath(char* path) {
 
 // Call addr2line, write path to the source file to the buffer, write the number of characters
 // written (including null terminator) to num_written, and return the line number for the info.
-// Returns < 0 on a syscall or addr2line failure. Keeps errno set to indicate the error, and returns
-// an error code. Otherwise, returns the number of characters written to space, including the null
-// terminator, and writes the source file name to info->sourcefile.
+// Returns < 0 on a syscall or addr2line failure. Keeps errno set to indicate the error, and
+// returns an error code. Otherwise, returns the number of characters written to space,
+// including the null terminator, and writes the source file name to info->sourcefile.
 _DAI_FN long
 _Dai_SymInfo_addr2line(_Dai_SymInfo* info, char* space, size_t n) {
     // Create a file descriptor for addr2line to pipe to.
     errno = 0;
     int pipes[2];
-    if (pipe(pipes) == -1) return -1;
+    if (pipe(pipes) == -1) return _DAI_BT_ERR_PIPE;
 
     // Fork
     int status, ret;
     int pid = fork();
-    if (pid == -1) return -2;
+    if (pid == -1) return _DAI_BT_ERR_FORK;
     if (!pid) {
         // Child
 
         // Redirect stdout to pipe.
         ret = close(pipes[0]);
-        if (ret == -1) return -3;
+        if (ret == -1) return _DAI_BT_ERR_CLOSEPIPE;
         ret = dup2(pipes[1], STDOUT_FILENO);
-        if (ret == -1) return -4;
+        if (ret == -1) return _DAI_BT_ERR_DUP2;
 
         // Replace execution image with addr2line or fail.
         char addrpath[] = "/usr/bin/addr2line";
@@ -156,32 +232,32 @@ _Dai_SymInfo_addr2line(_Dai_SymInfo* info, char* space, size_t n) {
         char opt2[] = "-Cpi";
         char* addr2lineargs[] = {addrname, opt1, info->file, opt2, info->addr, NULL};
         execv(addrpath, addr2lineargs);
-        return -5;
+        return _DAI_BT_ERR_EXECV;
     }
 
     // Wait for addr2line to write to pipe.
     ret = close(pipes[1]);
-    if (ret == -1) return -6;
+    if (ret == -1) return _DAI_BT_ERR_CLOSEPIPE;
     ret = waitpid(pid, &status, 1);
-    if (ret == -1) return -7;
+    if (ret == -1) return _DAI_BT_ERR_WAITPID;
     if (WIFEXITED(status) && WEXITSTATUS(status)) {
-        if (WEXITSTATUS(status) == -5) return -8;
+        if (WEXITSTATUS(status) == _DAI_BT_ERR_EXECV) return _DAI_BT_ERR_EXECV;
         errno = ENOENT;
-        return -9;
+        return _DAI_BT_ERR_SUBPFAIL;
     }
 
     // Read from the pipe (addr2line child stdout), and null terminate.
     char tmp[_DAI_BT_BUF_CAP];
     int read_err = 0;
     ssize_t bytes_read = _Dai_read_wrapper(pipes[0], tmp, _DAI_BT_BUF_CAP, &read_err);
-    if (bytes_read <= 0 || read_err) return -10;
+    if (bytes_read <= 0 || read_err) return _DAI_BT_ERR_SUBPREAD;
     if (bytes_read >= (ssize_t)_DAI_BT_BUF_CAP) {
         /* Large return probably doesn't matter. It shouldn't come up.
            We can do multiple reads instead of erroring if it becomes a problem. */
-        return -11;
+        return _DAI_BT_ERR_BUFTOOSMALL;
     }
     ret = close(pipes[0]);
-    if (ret == -1) return -12;
+    if (ret == -1) return _DAI_BT_ERR_CLOSERPIPE;
     tmp[bytes_read] = '\0';
 
     // We need to return two different things. The line number and the source file.
@@ -205,7 +281,7 @@ _Dai_SymInfo_addr2line(_Dai_SymInfo* info, char* space, size_t n) {
     size_t pos = 0;
     bool hascolon = 0;
     while (tmp[pos] != '\0') (tmp[pos] == ':' ? (hascolon = 1) : 0), pos++;
-    if (!hascolon) return -13;
+    if (!hascolon) return _DAI_BT_ERR_NOCOLON;
     while (tmp[pos] != ':') pos--;
     size_t colonpos = pos;
     tmp[colonpos] = '\0';
@@ -224,7 +300,8 @@ _Dai_SymInfo_addr2line(_Dai_SymInfo* info, char* space, size_t n) {
     // Check if we got a ? or a zero for the line number.
     if ((tmp[pos] == '?') | (tmp[pos] == '0')) line_failed = 1;
 
-    // Copy the line number and source file from the return of addr2line into the space provided.
+    // Copy the line number and source file from the return of addr2line into the space
+    // provided.
     if (!source_failed) {
         // Copy, null terminate over the colon or end, and add to info.
         _Dai_simplifyPath(tmp);
@@ -232,7 +309,7 @@ _Dai_SymInfo_addr2line(_Dai_SymInfo* info, char* space, size_t n) {
         if (n <= written) {
             info->source = NULL;
             info->basename = NULL;
-            return -14;
+            return _DAI_BT_ERR_NOSPACE;
         }
         for (size_t i = 0; i < written; i++) space[i] = tmp[i];
 
@@ -271,7 +348,7 @@ _DAI_FN long
 _Dai_bt_append(char* s, size_t n, char* append) {
     if (append) {
         size_t sn = strlen(append);
-        if (sn > n) return -1;
+        if (sn > n) return _DAI_BT_ERR_NOSPACE;
         for (size_t i = 0; i < sn; i++) s[i] = append[i];
         return (long)sn;
     } else {
@@ -279,13 +356,13 @@ _Dai_bt_append(char* s, size_t n, char* append) {
     }
 }
 
-#define _DAI_BT_APPEND(append)                   \
-    do {                                         \
-        tmpret = _Dai_bt_append(s, n, (append)); \
-        if (tmpret < 0) return -1;               \
-        num_written += (long)tmpret;             \
-        s += (size_t)tmpret;                     \
-        n -= (size_t)tmpret;                     \
+#define _DAI_BT_APPEND(append)                      \
+    do {                                            \
+        tmpret = _Dai_bt_append(s, n, (append));    \
+        if (tmpret < 0) return _DAI_BT_ERR_NOSPACE; \
+        num_written += (long)tmpret;                \
+        s += (size_t)tmpret;                        \
+        n -= (size_t)tmpret;                        \
     } while (0)
 
 _DAI_FN long
@@ -378,13 +455,15 @@ _Dai_SymInfo_snwrite(char* s, size_t n, _Dai_SymInfo info, int color) {
 // Rewind the file, read it back into stack memory, reset the file for next time.
 // Parse the backtrace, decode with addr2line
 // write() a pretty-printed result to print_fd
+// Important note: For scratch_fd, pass _Dai_backtrace_fd iff being installed as a signal
+// handler below. Otherwise, make your own scratch file buffer.
 _DAI_FN long
-_Dai_print_backtrace(int scratch_fd, int print_fd, int err_no, int signal_no, int color) {
+_Dai_write_backtrace(int scratch_fd, char* buf, size_t n, int err_no, int signal_no, int color) {
     // Call backtrace.
     void* frames[_DAI_BT_MAX_FRAMES];
     int num_frames = backtrace(frames, _DAI_BT_MAX_FRAMES);
-    if (num_frames <= 0) return -1;                  // No backtrace
-    if (num_frames > _DAI_BT_MAX_FRAMES) return -2;  // Backtrace too long
+    if (num_frames <= 0) return _DAI_BT_ERR_BTFAIL;                     // No backtrace
+    if (num_frames > _DAI_BT_MAX_FRAMES) return _DAI_BT_ERR_BTTOOLONG;  // Backtrace too long
 
     // Write the backtrace to the temp file dedicated for it during initialization.
     // Unfortunately, redirecting a write() into memory is barely doable and not portable.
@@ -392,31 +471,23 @@ _Dai_print_backtrace(int scratch_fd, int print_fd, int err_no, int signal_no, in
 
     // Rewind the file
     int ret = lseek(scratch_fd, 0, SEEK_SET);
-    if (ret == (off_t)-1) {
-        backtrace_symbols_fd(frames, num_frames, print_fd);
-        return -3;
-    }
+    if (ret == (off_t)-1) return _DAI_BT_ERR_LSEEKF;
 
     // Read back the file into memory.
     char pages[_DAI_BT_BUF_CAP];
     int read_err = 0;
     ssize_t num_read = _Dai_read_wrapper(scratch_fd, pages, _DAI_BT_BUF_CAP - 1, &read_err);
-    if (read_err) {
-        backtrace_symbols_fd(frames, num_frames, print_fd);
-        return -4;
-    }
+    if (read_err) return _DAI_BT_ERR_READ;
 
     char* space = pages + num_read;
     size_t remaining = _DAI_BT_BUF_CAP - num_read;
 
     // Reset the file offset for the next time we backtrace.
     lseek(scratch_fd, 0, SEEK_SET);
-    if (ret == (off_t)-1) {
-        backtrace_symbols_fd(frames, num_frames, print_fd);
-        return -5;
-    }
+    if (ret == (off_t)-1) return _DAI_BT_ERR_LSEEKS;
 
     // Parse the exename, func, addr from the backtrace.
+    // The _Dai_SymInfo structs point into data in `pages` before `space`.
     char* str = pages;
     _Dai_SymInfo frameinfo[_DAI_BT_MAX_FRAMES];
     for (int n = 0; n < num_frames; n++) {
@@ -448,113 +519,73 @@ _Dai_print_backtrace(int scratch_fd, int print_fd, int err_no, int signal_no, in
         long written = _Dai_SymInfo_addr2line(frameinfo + n, space, remaining);
 
         // If a syscall failed, error out.
-        if (written <= -1) {
-            backtrace_symbols_fd(frames, num_frames, print_fd);
-            return -6;
-        }
+        if (written < 0) return written;
 
         // Advance through the space
         space += written;
         remaining -= written;
     }
 
-    char* display = space;
-    char* display_save = display;
-    size_t display_remaining = remaining;
+    // char* display = space;
+    // size_t display_remaining = remaining;
+    char* display_save = buf;
     size_t display_written = 0;
 
-    long written = _Dai_bt_header(display, display_remaining, color);
-    if (written < 0) {
-        backtrace_symbols_fd(frames, num_frames, print_fd);
-        return -7;
-    }
-    display += written;
-    display_remaining -= written;
+    long written = _Dai_bt_header(buf, n, color);
+    if (written < 0) return written;
+    buf += written;
+    n -= written;
     display_written += written;
 
     for (int i = 0; i < num_frames; i++) {
-        long written = _Dai_SymInfo_snwrite(display, display_remaining, frameinfo[i], color);
-        if (written < 0) {
-            backtrace_symbols_fd(frames, num_frames, print_fd);
-            return -8;
-        }
+        long written = _Dai_SymInfo_snwrite(buf, n, frameinfo[i], color);
+        if (written < 0) return written;
 
         // Advance
-        display += written;
-        display_remaining -= written;
+        buf += written;
+        n -= written;
         display_written += written;
     }
 
-    written = _Dai_bt_footer(display, display_remaining, err_no, signal_no, color);
-    if (written < 0) {
-        backtrace_symbols_fd(frames, num_frames, print_fd);
-        return -9;
-    }
-    display += written;
-    display_remaining -= written;
+    written = _Dai_bt_footer(buf, n, err_no, signal_no, color);
+    if (written < 0) return written;
+    buf += written;
+    n -= written;
     display_written += written;
 
-    display[display_written++] = '\0';
-    display_remaining--;
+    buf[display_written++] = '\0';
+    n--;
 
-    int err_ret = 0;
-    size_t have_written = _Dai_write_wrapper(print_fd, display_save, display_written, &err_ret);
-    if (err_ret) {
-        perror("write");
-        return -10;
-    }
+    // TODO actual bounds checking on appending to pages/space/display.
 
-    return have_written;
-}
-
-static void _DAI_NEVER_INLINE
-_Dai_low_mem_backtrace(void) {
-    const char nl = '\n';
-    int num_addrs;
-    void* symbol_arr[_DAI_BT_MAX_FRAMES];
-    num_addrs = backtrace(symbol_arr, _DAI_BT_MAX_FRAMES);
-    backtrace_symbols_fd(symbol_arr, num_addrs, STDERR_FILENO);
-    write(STDERR_FILENO, &nl, 1);
+    return display_written;
 }
 
 _DAI_FN void
 _Dai_bt_sighandler(int sig, siginfo_t* siginfo, void* ucontext) {
-    ucontext_t ctx = *(ucontext_t*)ucontext;
-    (void)ctx;
+    (void)ucontext;
     (void)siginfo;
-    fprintf(stderr, "Handled backtrace signal: %s\n", strsignal(sig));
-    
-    _Dai_low_mem_backtrace();
+
+    int saved_e = errno;
+
+    char pages[_DAI_BT_BUF_CAP];
+    long written = _Dai_write_backtrace(_Dai_backtrace_fd, pages, _DAI_BT_BUF_CAP, saved_e, sig,
+                                        _DAI_BT_COLORS);
+    if (written < 0) {
+        // For now do nothing on failure
+    } else {
+        int err_ret = 0;
+        size_t have_written = _Dai_write_wrapper(STDERR_FILENO, pages, (size_t)written, &err_ret);
+        if (err_ret) {
+            // Nothing on failure again
+        }
+    }
+
     _exit(0);
 }
 
-_DAI_FN int
-_Dai_scratch_fd_create(void) {
-    int ret = -1;
-#ifdef __USE_GNU
-    if (ret == -1) {
-        char memfd_name[] = "Daisho_Backtrace";
-        ret = memfd_create(memfd_name, 0);
-    }
-#endif
-    if (ret == -1) {
-        char tmp_template[] = "/tmp/Daisho_Backtrace_XXXXXX";
-        ret = mkstemp(tmp_template);
-    }
-    return ret;
-}
-
 _DAI_FN void
-_Dai_init_backtraces(void) {
-    int sigs[] = {_DAI_BACKTRACE_SIGNALS + 0};
-    size_t num_sigs = sizeof(sigs) / sizeof(int);
-    const char nserr[] =
-        "Daisho has been misconfigured.\n"
-        "In Daisho/stdlib/Native/config.h, the list\n"
-        "of signals that trigger a backtrace cannot be empty.\n"
-        "If you want to disable backtraces, #define _DAI_BACKTRACES_SUPPORTED to 0.";
-    _DAI_INIT_SANE_ASSERT(sigs[0] != 0, nserr);
-
+_Dai_init_backtrace(void) {
     /* Ensure backtraces' .so is loaded. */
     void* frame;
     int num_frames = backtrace(&frame, 1);
@@ -566,6 +597,11 @@ _Dai_init_backtraces(void) {
     const char tmperr[] = "Could not create scratch file descriptor.";
     _DAI_INIT_SANE_ASSERT(btfd != -1, tmperr);
     _Dai_backtrace_fd = btfd;
+
+    // Don't install signal handlers if there are none to install.
+    int sigs[] = {_DAI_BACKTRACE_SIGNALS + 0};
+    size_t num_sigs = sizeof(sigs) / sizeof(int);
+    if (!sigs[0]) return;
 
     /* Create sa_mask. This ensures our sighandler is atomic. */
     sigset_t set;
@@ -585,35 +621,27 @@ _Dai_init_backtraces(void) {
         action.sa_mask = set;
         _DAI_INIT_SANE_ASSERT(!sigaction(sigs[i], &action, NULL), sseterr);
     }
+
+    _Dai_backtrace_sighandlers_installed = 1;
 }
 
-_DAI_FN void
-_Dai_raise_test_backtrace_signal(void) {
-    int sigs[] = {_DAI_BACKTRACE_SIGNALS + 0};
-    size_t num_sigs = sizeof(sigs) / sizeof(int);
-    const char nserr[] =
-        "Daisho has been misconfigured.\n"
-        "In Daisho/stdlib/Native/Config/, the list\n"
-        "of signals that trigger a backtrace cannot be empty.\n"
-        "If you want to disable backtraces, #define _DAI_BACKTRACES_SUPPORTED to 0.\n"
-        "Also, call _Dai_init_backtraces() before this function.";
-    _DAI_ASSERT(num_sigs == 0 || sigs[0] != 0, nserr);
-
-    raise(sigs[0]);
-}
-
-#else  /* Backtraces unsupported */
-static void _DAI_NEVER_INLINE
-_Dai_print_backtrace(void) {
-    const char buf[] = "Backtraces are not supported on this system.\n";
-    fprintf(stderr, buf);
-}
-
-static void _DAI_NEVER_INLINE
-_Dai_low_mem_backtrace(void) {
-    const char buf[] = "Backtraces are not supported on this system.\n";
-    write(STDERR_FILENO, buf, strlen(buf));
-}
 #endif /* _DAI_USING_BACKTRACES */
+
+_DAI_FN int
+_Dai_scratch_fd_create(void) {
+    int ret = -1;
+#ifdef __USE_GNU
+    // Don't touch disk unless we have to.
+    if (ret == -1) {
+        char memfd_name[] = "Daisho_Backtrace";
+        ret = memfd_create(memfd_name, 0);
+    }
+#endif
+    if (ret == -1) {
+        char tmp_template[] = "/tmp/Daisho_Backtrace_XXXXXX";
+        ret = mkstemp(tmp_template);
+    }
+    return ret;
+}
 
 #endif /* _DAI_STDLIB_BACKTRACE */
