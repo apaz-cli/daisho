@@ -13,9 +13,11 @@
 int
 daic_main_args(Daic_Args args) {
     if (args.h)
-        return 0;
-    else if (args.parse_failed)
+        return puts(helpmsg), 0;
+    else if (args.errfail)
         return 1;
+    else if (args.errstr)
+        return fputs(args.errstr, stderr), 1;
 
     DaicCleanupContext cctx = daic_cleanup_init();
 
@@ -23,7 +25,7 @@ daic_main_args(Daic_Args args) {
     char* err_str = NULL;
     _Daic_List_daisho_token tokens = _Daic_List_daisho_token_new();
     _Daic_List_InputFile input_files = _Daic_List_InputFile_new();
-    daic_cleanup_add(&cctx, daic_tokenlist_cleanup, &tokens);
+    daic_cleanup_add(&cctx, _Daic_List_daisho_token_cleanup, &tokens);
     daic_cleanup_add(&cctx, InputFile_cleanup, &input_files);
 
     daic_read_utf8decode_tokenize_file(args.target, &input_files, &tokens, 1, &err_str);
@@ -54,7 +56,10 @@ daic_main_args(Daic_Args args) {
                 }
             }
         }
-        if (ex) exit(1);
+        if (ex) {
+            daic_cleanup(&cctx);
+            return 1;
+        }
     }
 
     // Print AST
@@ -67,6 +72,7 @@ daic_main_args(Daic_Args args) {
 
     if (ast) {
         _Daic_List_NamespaceDecl nsdecls = extractNamespacesAndTLDs(ast);
+        daic_cleanup_add(&cctx, _Daic_List_NamespaceDecl_cleanup, &nsdecls);
         exprTypeVisit(ast, NULL);
     }
 

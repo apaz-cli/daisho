@@ -18,12 +18,6 @@ _DAIC_LIST_DECLARE(daisho_token)
 _DAIC_LIST_DEFINE(daisho_token)
 
 static inline void
-daic_tokenlist_cleanup(void* tl) {
-    _Daic_List_daisho_token_clear((_Daic_List_daisho_token*)tl);
-}
-
-
-static inline void
 daic_allocator_cleanup(void* a) {
     pgen_allocator_destroy((pgen_allocator*)a);
 }

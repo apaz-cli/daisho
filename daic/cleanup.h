@@ -30,9 +30,31 @@ daic_cleanup_add(DaicCleanupContext* cleanup, void (*fn)(void*), void* arg) {
 }
 
 static inline void
-daic_cleanup(_Daic_List_DaicCleanupEntry* cleanup) {
+daic_cleanup(DaicCleanupContext* cleanup) {
 #if !_DAIC_LEAK_EVERYTHING
-    for (size_t i = cleanup->len; i-- > 0;) cleanup->buf[i].f(cleanup->buf[i].a);
+    // Reverse the list
+    size_t j = cleanup->len - 1;
+    for (size_t i = 0; i < (cleanup->len / 2); i++) {
+        DaicCleanupEntry tmp = cleanup->buf[i];
+        cleanup->buf[i] = cleanup->buf[j];
+        cleanup->buf[j] = tmp;
+        j--;
+    }
+
+    // Call functions in the reversed order, ignoring duplicates.
+    for (size_t i = 0; i < cleanup->len; i++) {
+        int dup = 0;
+        for (size_t z = 0; z < i; z++) {
+            if ((cleanup->buf[i].a == cleanup->buf[z].a) &&
+                (cleanup->buf[i].f == cleanup->buf[z].f)) {
+                dup = 1;
+                break;
+            }
+        }
+        if (!dup) cleanup->buf[i].f(cleanup->buf[i].a);
+    }
+
+    // Delete self
     _Daic_List_DaicCleanupEntry_clear(cleanup);
 #else
     (void)cleanup;

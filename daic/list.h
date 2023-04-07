@@ -62,6 +62,9 @@
         self->buf = NULL;                                                                \
         self->len = 0;                                                                   \
         self->cap = 0;                                                                   \
+    }                                                                                    \
+    static inline void _Daic_List_##type##_cleanup(void* self) {                         \
+        _Daic_List_##type##_clear((_Daic_List_##type*)self);                             \
     }
 
 #endif /* _DAI_STDLIB_LIST */
