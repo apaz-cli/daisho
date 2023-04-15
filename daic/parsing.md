@@ -2,7 +2,7 @@
 
 A tokenizer is created for and consumes each source file, each returning a
 list of tokens. For the implementation of the tokenizer/grammar, see
-`daisho.peg`. This file generates `daisho_peg.h`.
+`daisho.peg`. This file generates `daisho.peg.h`.
 
 
 # Monomorphization, Unification, and Symtab Generation

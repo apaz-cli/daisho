@@ -3,7 +3,7 @@
 
 #include "argparse.h"
 #include "cleanup.h"
-#include "daisho_peg.h"
+#include "daisho.peg.h"
 #include "errhandler.h"
 
 typedef struct {

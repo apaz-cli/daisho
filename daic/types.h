@@ -1,10 +1,21 @@
 #ifndef DAIC_TYPES_INCLUDE
 #define DAIC_TYPES_INCLUDE
 #ifndef PGEN_UTF8_INCLUDED
-#include "daisho_peg.h"
+#include "daisho.peg.h"
 #endif
 
 #include "list.h"
+
+////////////////////
+// SYNTAX HELPERS //
+////////////////////
+#define unop(op, on)                                                           \
+    daisho_astnode_fixed_3(ctx->alloc, DAISHO_NODE_CALL, (op), leaf(NOEXPAND), \
+                           daisho_astnode_fixed_1(ctx->alloc, DAISHO_NODE_EXPRLIST, (on)))
+#define binop(op, left, right)                              \
+    daisho_astnode_fixed_3(                                 \
+        ctx->alloc, DAISHO_NODE_CALL, (op), leaf(NOEXPAND), \
+        daisho_astnode_fixed_2(ctx->alloc, DAISHO_NODE_EXPRLIST, (left), (right)))
 
 // This file should contain only type definitions.
 
@@ -57,15 +68,54 @@ InputFile_cleanup(void* ifs) {
 
 typedef int UNIMPL;
 
-typedef enum {
-    DAIC_ERROR_STAGE_ARGS,
-    DAIC_ERROR_STAGE_FILE,
-    DAIC_ERROR_STAGE_TOKINIZER,
-    DAIC_ERROR_STAGE_PARSER,
-    DAIC_ERROR_STAGE_TYPING,
-    DAIC_ERROR_STAGE_CODEGEN,
-    DAIC_ERROR_STAGE_OTHER,
-} DaicStage;
+#define STAGES                                      \
+    X(ARGS, _DAI_COLOR_BLUE, "Argument Parsing")    \
+    X(TOKENIZER, _DAI_COLOR_YELLOW, "Tokenization") \
+    X(PARSER, _DAI_COLOR_MAGENTA, "Parsing")        \
+    X(TYPING, _DAI_COLOR_CYAN, "Type Checking")     \
+    X(CODEGEN, _DAI_COLOR_GREEN, "Code Generation") \
+    X(OTHER, _DAI_COLOR_RED, "Other")
+
+#define X(name, color, disp) _DAIC_ERROR_STAGE_##name,
+typedef enum { STAGES } DaicStage;
+#undef X
+
+#define X(name, color, disp) color,
+static char* daic_stagecolor[] = {STAGES};
+#undef X
+
+#define X(name, color, disp) disp,
+static char* daic_stagedisplay[] = {STAGES};
+#undef X
+
+#undef STAGES
+#define SEVS                                            \
+    X(INFO, _DAI_COLOR_BLUE, "INFO", "Info", "info")    \
+    X(WARN, _DAI_COLOR_MAGENTA, "WARN", "Warn", "warn") \
+    X(ERROR, _DAI_COLOR_RED, "ERROR", "Error", "error") \
+    X(PANIC, _DAI_COLOR_RED, "PANIC", "Panic", "panic")
+
+#define X(name, color, up, cap, low) _DAIC_ERROR_SEV_##name,
+typedef enum { SEVS } DaicSeverity;
+#undef X
+
+#define X(name, color, up, cap, low) up,
+static char* daic_sevstr_upper[] = {SEVS};
+#undef X
+
+#define X(name, color, up, cap, low) low,
+static char* daic_sevstr_lower[] = {SEVS};
+#undef X
+
+#define X(name, color, up, cap, low) cap,
+static char* daic_sevstr_capital[] = {SEVS};
+#undef X
+
+#define X(name, color, up, cap, low) color,
+static char* daic_sevstr_color[] = {SEVS};
+#undef X
+
+#undef SEVS
 
 struct Declaration;
 typedef struct Declaration Declaration;

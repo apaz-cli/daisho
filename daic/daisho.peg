@@ -339,7 +339,8 @@ listcomp   <- LSBRACK
               add(rule, e);add(rule, item);add(rule, in);
               if (cond) add(rule, node(COMPCOND, cond));}
 
-parenexpr  <- OPEN rule:expr CLOSE
+parenexpr  <- OPEN EXCL r:expr {rule=node(EXCL, r)} CLOSE /
+              OPEN r:expr CLOSE {rule=r}
 
 listlit    <- LSBRACK
               rule:exprlist {rule->kind = kind(LISTLIT)}

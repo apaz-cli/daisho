@@ -1,7 +1,7 @@
 #ifndef DAIC_TYPECHECK_INCLUDE
 #define DAIC_TYPECHECK_INCLUDE
 #ifndef PGEN_UTF8_INCLUDED
-#include "daisho_peg.h"
+#include "daisho.peg.h"
 #endif
 
 #include "types.h"

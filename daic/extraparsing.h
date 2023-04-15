@@ -5,7 +5,8 @@
 
 #include "../stdlib/Daisho.h"
 #include "allocator.h"
-#include "daisho_peg.h"
+#include "daisho.peg.h"
+#include "errhandler.h"
 #include "list.h"
 
 // typedef char* cstr;
@@ -20,6 +21,11 @@ _DAIC_LIST_DEFINE(daisho_token)
 static inline void
 daic_allocator_cleanup(void* a) {
     pgen_allocator_destroy((pgen_allocator*)a);
+}
+
+static inline void
+_Dai_String_cleanup(void* s) {
+    _Dai_String_destroy(((_Dai_String*)s));
 }
 
 static inline void
@@ -430,12 +436,20 @@ daic_read_utf8decode_file(char* path, char** err_msg) {
     return of;
 }
 
-static inline void
+static inline DaicError*
 daic_read_utf8decode_tokenize_file(char* path, _Daic_List_InputFile* input_files,
                                    _Daic_List_daisho_token* append_tokens, int first_file,
-                                   char** err_msg) {
-    InputFile of = daic_read_utf8decode_file(path, err_msg);
-    if (*err_msg) return;
+                                   DaicCleanupContext* cctx) {
+    char* err_msg = NULL;
+    InputFile of = daic_read_utf8decode_file(path, &err_msg);
+    if (err_msg) {
+        _Dai_String s = _Dai_String_init();
+        _Dai_String_append_cstr(&s, err_msg);
+
+        DaicError* errmsg =
+            daic_error_new(cctx, DAIC_ERROR_STAGE_TOKENIZER, err_msg, NULL, 0, 0, 0);
+        return errmsg;
+    }
 
     _Daic_List_InputFile_add(input_files, of);
 
@@ -491,7 +505,8 @@ daic_read_utf8decode_tokenize_file(char* path, _Daic_List_InputFile* input_files
     } while (tok.kind != DAISHO_TOK_STREAMEND);
 
     if (tokenizer.pos != tokenizer.len) {
-        return;
+        DaicError* errmsg = daic_error_new();
+        return errmsg;
     }
     printf("%zu\n", tokenizer.pos);
     printf("%zu\n", tokenizer.len);

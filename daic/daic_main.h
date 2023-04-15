@@ -4,30 +4,32 @@
 #include "allocator.h"
 #include "argparse.h"
 #include "cleanup.h"
-#include "daisho_peg.h"
+#include "daisho.peg.h"
 #include "extraparsing.h"
 #include "list.h"
 #include "typecheck.h"
 #include "types.h"
 
-int
+static inline int
 daic_main_args(Daic_Args args) {
     if (args.h)
         return puts(helpmsg), 0;
+    else if (args.v)
+        return puts(versionmsg), 0;
     else if (args.errfail)
         return 1;
     else if (args.errstr)
-        return fputs(args.errstr, stderr), 1;
+        return fputs(args.errstr, stderr), free(args.errstr), 1;
 
     DaicCleanupContext cctx = daic_cleanup_init();
 
-    // Tokenize
     char* err_str = NULL;
     _Daic_List_daisho_token tokens = _Daic_List_daisho_token_new();
     _Daic_List_InputFile input_files = _Daic_List_InputFile_new();
     daic_cleanup_add(&cctx, _Daic_List_daisho_token_cleanup, &tokens);
     daic_cleanup_add(&cctx, InputFile_cleanup, &input_files);
 
+    // Read file, Tokenize. Combined, because imports read other files.
     daic_read_utf8decode_tokenize_file(args.target, &input_files, &tokens, 1, &err_str);
     if (err_str) {
         printf("Failed to tokenize %s\nReason: %s\n", args.target, err_str);
@@ -46,13 +48,12 @@ daic_main_args(Daic_Args args) {
     // Check for parse errors
     if (parser.num_errors) {
         int ex = 0;
-        char* sevstr[] = {"INFO", "WARNING", "ERROR", "PANIC"};
         for (int sev = 4; sev-- > 0;) {
             for (size_t i = 0; i < parser.num_errors; i++) {
                 if (parser.errlist[i].severity == sev) {
                     if ((sev == 2) | (sev == 3)) ex = 1;
-                    fprintf(stderr, "%s on line %zu: %s\n", sevstr[sev], parser.errlist[i].line,
-                            parser.errlist[i].msg);
+                    fprintf(stderr, "%s on line %zu: %s\n", daic_sevstr_lower[sev],
+                            parser.errlist[i].line, parser.errlist[i].msg);
                 }
             }
         }
@@ -76,17 +77,11 @@ daic_main_args(Daic_Args args) {
         exprTypeVisit(ast, NULL);
     }
 
-    pgen_allocator_destroy(&allocator);
-    for (size_t i = 0; i < input_files.len; i++) {
-        InputFile_free(input_files.buf[i]);
-    }
-    _Daic_List_InputFile_clear(&input_files);
-    _Daic_List_daisho_token_clear(&tokens);
-
+    daic_cleanup(&cctx);
     return 0;
 }
 
-int
+static inline int
 daic_main(int argc, char** argv) {
     return daic_main_args(daic_argparse(argc, argv));
 }
