@@ -42,12 +42,13 @@ typedef struct {
 #endif
 
 #define _DAI_ALLOC_ALLOCATE_DEFINITION(fnname) \
-    _DAI_FN _Dai_Slice fnname (void* allocator, _Dai_Alloc_Layout layout _DAI_ALLOC_INFO_ARGS)
-#define _DAI_ALLOC_REALLOCATE_DEFINITION(void, fnname)                             \
-    _DAI_FN _Dai_Slice fnname (void* allocator, void* ptr, _Dai_Alloc_Layout old_layout, \
+    _DAI_FN _Dai_Slice fnname(void* allocator, _Dai_Alloc_Layout layout _DAI_ALLOC_INFO_ARGS)
+#define _DAI_ALLOC_REALLOCATE_DEFINITION(void, fnname)                                  \
+    _DAI_FN _Dai_Slice fnname(void* allocator, void* ptr, _Dai_Alloc_Layout old_layout, \
                               _Dai_Alloc_Layout new_layout _DAI_ALLOC_INFO_ARGS)
-#define _DAI_ALLOC_FREE_DEFINITION(void, fnname) \
-    _DAI_FN _Dai_Slice fnname (void* allocator, void* ptr, _Dai_Alloc_Layout layout _DAI_ALLOC_INFO_ARGS)
+#define _DAI_ALLOC_FREE_DEFINITION(void, fnname)          \
+    _DAI_FN _Dai_Slice fnname(void* allocator, void* ptr, \
+                              _Dai_Alloc_Layout layout _DAI_ALLOC_INFO_ARGS)
 
 /*************/
 /* Alignment */
@@ -57,10 +58,12 @@ typedef struct {
 
 _DAI_FN size_t
 _Dai_alignment_roundUp(size_t n, size_t alignment) {
+    _DAI_PEDANTIC_ASSERT((alignment % 2) == 0,
+                         "The alignment passed to _Dai_Alignment_roundUp() "
+                         "must be a multiple of two.");
+
     if (alignment == 1) return n;
-    _DAI_SANE_ASSERT((alignment % 2) == 0,
-                     "The alignment passed to _Dai_Alignment_roundUp() "
-                     "must be a multiple of two.");
+    if (n == 0) return alignment;
     return (n + alignment - 1) & -alignment;
 }
 
