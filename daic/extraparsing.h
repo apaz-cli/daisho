@@ -5,11 +5,11 @@
 
 #include "../stdlib/Daisho.h"
 #include "allocator.h"
+#include "daic_context.h"
 #include "daisho.peg.h"
 #include "errhandler.h"
 #include "list.h"
 #include "utils.h"
-#include "daic_context.h"
 
 // typedef char* cstr;
 // _DAIC_LIST_DECLARE(cstr)
@@ -441,9 +441,7 @@ daic_read_utf8decode_tokenize_file(DaicContext* ctx, char* inputFilePath,
 
     // Jijack the finalizer uwu
     _Daic_List_InputFile_add(opened_files, inf);
-    if (ctx->cleanup.len && ctx->cleanup.buf[ctx->cleanup.len-1].f == _Daic_List_InputFile_cleanup) {
-        ctx->cleanup.len--;
-    }
+    daic_cleanup_pop_matching(ctx, (void*)_Daic_List_InputFile_cleanup);
 
     daisho_tokenizer tokenizer;
     daisho_tokenizer_init(&tokenizer, inf.cps, inf.cpslen);
