@@ -2,26 +2,31 @@
 #define DAIC_CLEANUP_INCLUDE
 #include <stdlib.h>
 
+#include "daic_context.h"
 #include "list.h"
+#include "staticerr.h"
 
-typedef struct {
-    void (*f)(void*);
-    void* a;
-} DaicCleanupEntry;
-
-_DAIC_LIST_DECLARE(DaicCleanupEntry)
-_DAIC_LIST_DEFINE(DaicCleanupEntry)
-typedef _Daic_List_DaicCleanupEntry DaicCleanupContext;
-
-static inline DaicCleanupContext
-daic_cleanup_init(void) {
-    return _Daic_List_DaicCleanupEntry_new();
+// If we call _Daic_List_type_new(), there will be trouble. This sets the buffer
+// to NULL, which when we call add() will call cleanup_add() on itself, causing
+// infinite recursion and overflow the call stack. So we initialize it manually here.
+static inline _Daic_List_DaicCleanupEntry
+daic_cleanup_entries_new(char** panic_msg_loc) {
+    _Daic_List_DaicCleanupEntry self;
+    self.len = 0;
+    self.cap = 256;
+    self.buf = (DaicCleanupEntry*)malloc(sizeof(DaicCleanupEntry) * self.cap);
+    if (!_DAIC_LEAK_EVERYTHING && !self.buf) {
+        if (panic_msg_loc) *panic_msg_loc = daic_oom_err;
+    }
+    return self;
 }
 
+
 static inline void
-daic_cleanup_add(DaicCleanupContext* cleanup, void (*fn)(void*), void* arg) {
+daic_cleanup_add(DaicContext* ctx, void (*fn)(void*), void* arg) {
 #if !_DAIC_LEAK_EVERYTHING
-    _Daic_List_DaicCleanupEntry_add(cleanup, (DaicCleanupEntry){fn, arg});
+    if (!fn || !arg) return;
+    _Daic_List_DaicCleanupEntry_add(&ctx->cleanup, (DaicCleanupEntry){fn, arg});
 #else
     (void)cleanup;
     (void)fn;
@@ -29,9 +34,10 @@ daic_cleanup_add(DaicCleanupContext* cleanup, void (*fn)(void*), void* arg) {
 #endif
 }
 
+// Error Cleanly
 static inline void
-daic_cleanup(DaicCleanupContext* cleanup) {
-#if !_DAIC_LEAK_EVERYTHING
+daic_cleanup(DaicContext* ctx) {
+    _Daic_List_DaicCleanupEntry* cleanup = &ctx->cleanup;
     // Reverse the list
     size_t j = cleanup->len - 1;
     for (size_t i = 0; i < (cleanup->len / 2); i++) {
@@ -51,16 +57,13 @@ daic_cleanup(DaicCleanupContext* cleanup) {
                 break;
             }
         }
-        if (!dup) cleanup->buf[i].f(cleanup->buf[i].a);
+        if (!dup) {
+            cleanup->buf[i].f(cleanup->buf[i].a);
+        }
     }
 
     // Delete self
     _Daic_List_DaicCleanupEntry_clear(cleanup);
-#else
-    (void)cleanup;
-#endif
 }
-
-#else
 
 #endif /* DAIC_CLEANUP_INCLUDE */

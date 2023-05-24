@@ -4,9 +4,10 @@
 #include "Files.h"
 #include "Hash.h"
 #include "IntegralTypes.h"
+#include "OStream.h"
 #include "Random.h"
+#include "Start.h"
 #include "String.h"
 #include "UTF8.h"
-#include "OStream.h"
 
 #endif /* _DAI_STDLIB_BUILTINS */

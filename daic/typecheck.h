@@ -15,13 +15,13 @@ static inline void
 mainReturnsInt(daisho_astnode_t* ast) {}
 
 static inline _Daic_List_NamespaceDecl
-extractNamespacesAndTLDs(daisho_astnode_t* root) {
-    _Daic_List_NamespaceDecl nsdlist = _Daic_List_NamespaceDecl_new();
+extractNamespacesAndTLDs(DaicContext* ctx, daisho_astnode_t* root) {
+    _Daic_List_NamespaceDecl nsdlist = _Daic_List_NamespaceDecl_new(ctx);
 
     daisho_astnode_t* nslist = root->children[0];
     for (size_t nsnum = 0; nsnum < nslist->num_children; nsnum++) {
         NamespaceDecl nsd;
-        nsd.symtab.decls = _Daic_List_Declaration_new();
+        nsd.symtab.decls = _Daic_List_Declaration_new(ctx);
         nsd.symtab.parent = NULL;
         nsd.nsnode = nslist->children[nsnum];
         nsd.id = nodeIdentifier(nsd.nsnode->children[0]);
@@ -67,6 +67,17 @@ extractNamespacesAndTLDs(daisho_astnode_t* root) {
     }
 
     return nsdlist;
+}
+
+static inline void
+cleanup_namespaces_tlds(void* nstld) {
+    _Daic_List_NamespaceDecl* nsdlist = (_Daic_List_NamespaceDecl*)nstld;
+
+    for (size_t i = 0; i < nsdlist->len; i++) {
+        PreMonoSymtab pms = nsdlist->buf[0].symtab;
+        _Daic_List_Declaration* decls = &pms.decls;
+        _Daic_List_Declaration_cleanup(decls);
+    }
 }
 
 static inline void

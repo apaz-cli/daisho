@@ -56,8 +56,6 @@ _Dai_String_get_flag(_Dai_String* self) {
 
 _DAI_FN void
 _Dai_String_set_flag(_Dai_String* self, char flag) {
-    _DAI_SANE_ASSERT(flag == _DAI_STR_LARGE_FLAG,
-                     "_Dai_String_set_flag should only be called for large strings.");
     *((char*)self + _DAI_STR_SSOPT_BUF_CAP) = flag;
 }
 
@@ -485,10 +483,11 @@ _Dai_String_split_impl(char* self, char* delim) {
 
         // TODO: Figure out how better to output the list of strings. This may
         // have to wait until generics are implemented.
-        _Dai_String_println(&newstr);
+        puts(_Dai_String_cstr(&newstr));
 
         checkpoint = match + startsWithdelimlen;
     }
 }
+
 
 #endif /* _DAI_STDLIB_STRING */

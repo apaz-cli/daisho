@@ -387,7 +387,7 @@ _Dai_bt_footer(char* s, size_t n, int err_no, int signal, int color) {
     char err_string[256];
     char* errno_string = NULL;
     if (!err_no) errno_string = "0 (Success)";
-    if (err_no) _Dai_strerror_r(err_no, err_string, 256);
+    if (err_no) errno_string = _Dai_strerror_r(err_no, err_string, 256);
     if (!errno_string) errno_string = "FAILED TO GET ERRNO STRING";
 
     char* signal_string = NULL;

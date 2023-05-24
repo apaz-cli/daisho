@@ -36,6 +36,8 @@ typedef struct {
     bool c : 1;  // Color
 } Daic_Args;
 
+// We use this after allocation error, knowing that it allocates and will fail.
+// When it does, it will set errfail.
 #define ARG_ERROR(...)                      \
     do {                                    \
         daic_arg_error(&args, __VA_ARGS__); \
@@ -48,7 +50,7 @@ daic_arg_error(Daic_Args* args, const char* fmt, ...) {
     if (args->errfail) return -1;
     if (!args->errstr) {
         size_t initialcap = 4096;
-        args->errstr = malloc(initialcap);
+        args->errstr = (char*)malloc(initialcap);
         args->errstrlen = 0;
         args->errstrcap = initialcap;
         if (!args->errstr) {
@@ -134,7 +136,7 @@ daic_argparse(int argc, char** argv) {
             }
         }
         // Unrecognized
-        else if (strlen(a) && a[0] == '-') {
+        else if (a[0] == '-') {
             ARG_ERROR("Unrecognized option \"%s\"", a);
         }
         // Targets
@@ -144,8 +146,7 @@ daic_argparse(int argc, char** argv) {
             } else {
                 char* errfmt =
                     "Too many target Daisho files. "
-                    "Tried to parse the argument %s, "
-                    "but %s was already a target.";
+                    "Tried to parse the argument %s, but %s was already a target.";
                 ARG_ERROR(errfmt, a, args.target);
             }
         }

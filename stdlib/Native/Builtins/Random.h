@@ -2,8 +2,7 @@
 #define _DAI_STDLIB_RANDOM
 #include "../PreStart/PreStart.h"
 
-// Not threadsafe.
-// Not suitable for cryptography.
+// Not threadsafe, and not suitable for cryptography.
 
 typedef struct {
     uint64_t state;
@@ -11,7 +10,6 @@ typedef struct {
 
 _DAI_FN uint64_t
 _Dai_osrand(void) {
-    // TODO configure for machines without a /dev/random.
     const char errmsg1[] = "Could not open /dev/random.";
     const char errmsg2[] = "Could not read /dev/random.";
     const char devrand[] = "/dev/random";
@@ -20,25 +18,26 @@ _Dai_osrand(void) {
     int rand_fid = open(devrand, O_RDONLY);
     _DAI_SANE_ASSERT(rand_fid != -1, errmsg1);
 
-    int succ = read(rand_fid, &ret, sizeof(ret));
-    _DAI_SANE_ASSERT(succ != -1, errmsg2);
+    int read_err = 0;
+    int succ = _Dai_read_wrapper(rand_fid, &ret, sizeof(ret), &read_err);
+    _DAI_SANE_ASSERT(!read_err, errmsg2);
 
     return ret;
 }
 
-_DAI_FN void
-_Dai_Random_init(_Dai_Random* self, uint64_t seed) {
-    self->state = seed;
+_DAI_FN _Dai_Random
+_Dai_Random_new(uint64_t seed) {
+    return (_Dai_Random){seed};
 }
 
-_DAI_FN void
-_Dai_Random_init_default(_Dai_Random* self) {
-    self->state = 0xabcdef0123456789;
+_DAI_FN _Dai_Random
+_Dai_Random_new_default(void) {
+    return (_Dai_Random){0xabcdef0123456789};
 }
 
-_DAI_FN void
-_Dai_Random_init_rand(_Dai_Random* self) {
-    self->state = _Dai_osrand();
+_DAI_FN _Dai_Random
+_Dai_Random_new_osrand(void) {
+    return (_Dai_Random){_Dai_osrand()};
 }
 
 _DAI_FN uint32_t
@@ -59,6 +58,30 @@ _Dai_rand_64(_Dai_Random* self) {
     x ^= x << 17;
     self->state = x;
     return x;
+}
+
+// min and max are both inclusive.
+_DAI_FN int64_t
+_Dai_rand_range_i64(_Dai_Random* self, int64_t min, int64_t max) {
+    _DAI_PEDANTIC_ASSERT(sizeof(int64_t) == sizeof(uint64_t),
+                         "Size of i64 and u64 must be the same.");
+    int64_t umin = (min < max) ? min : max;
+    int64_t umax = (min > max) ? min : max;
+    uint64_t diff = (max = umax) - (min = umin);
+
+    int64_t maxuniform = INT64_MAX - (INT64_MAX % diff);
+    int64_t minuniform = INT64_MIN + (diff - (INT64_MIN % diff));
+
+    int64_t randi64;
+    uint64_t randu64;
+    while (1) {
+        randu64 = _Dai_rand_64(self);
+        memcpy(&randi64, &randu64, sizeof(int64_t));
+        if (_DAI_LIKELY((randi64 >= minuniform) & (randi64 <= maxuniform))) return randi64;
+    }
+    _DAI_UNREACHABLE();
+    _DAI_ERROR("How did you get here");
+    return 0;
 }
 
 _DAI_FN bool

@@ -3,7 +3,7 @@
 
 void
 f1(void) {
-    _Dai_unsafe_print_backtrace();
+    _Dai_raise_backtrace();
 }
 
 void

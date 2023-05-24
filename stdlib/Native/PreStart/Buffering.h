@@ -4,7 +4,7 @@
 #include "../PreProcessor/PreProcessor.h"
 
 _DAI_FN void
-_Dai_configure_buffering(void) {
+_Dai_init_buffering(void) {
 #if _DAI_OUTPUT_BUFFERING == 0 /* No buffering */
     char errmsg0[] = "Could not set unbuffered IO.\n";
     if (setvbuf(stdout, NULL, _IONBF, 0) && _DAI_SANE) {

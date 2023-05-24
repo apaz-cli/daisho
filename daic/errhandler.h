@@ -7,15 +7,16 @@
 #include "../stdlib/Daisho.h"
 #include "allocator.h"
 #include "cleanup.h"
+#include "daic_context.h"
+#include "enums.h"
 #include "list.h"
 #include "responses.h"
-#include "types.h"
 
 struct DaicError;
 typedef struct DaicError DaicError;
 struct DaicError {
     DaicError* next;
-    char* msg;  // If it must be freed, add to the cleanup context.
+    char* msg;  // If it must be freed, add to the cleanup context first.
     char* file;
     size_t line;
     size_t col;
@@ -29,10 +30,11 @@ _DAIC_LIST_DECLARE(DaicErrorPtr)
 _DAIC_LIST_DEFINE(DaicErrorPtr)
 
 static inline DaicError*
-daic_error_new(DaicCleanupContext* cleanup, DaicStage stage, char* msg, char* file, size_t line,
+daic_error_new(DaicContext* ctx, DaicStage stage, char* msg, char* file, size_t line,
                size_t col, DaicSeverity severity, bool trace_frame) {
-    DaicError* e = (DaicError*)_DAIC_MALLOC(sizeof(DaicError));
-    daic_cleanup_add(cleanup, _DAIC_FREE_FPTR, e);
+    DaicError* e = (DaicError*)malloc(sizeof(DaicError));
+    if (!e) daic_panic(ctx, daic_oom_err);
+    daic_cleanup_add(ctx, free, e);
     e->next = NULL;
     e->msg = msg;
     e->file = file;
@@ -47,54 +49,52 @@ daic_error_new(DaicCleanupContext* cleanup, DaicStage stage, char* msg, char* fi
 static inline void
 daic_error_destroy(DaicError* e) {
     if (!e) return;
-    _DAIC_FREE(e);
+    free(e);
 }
 
 static inline void
-daic_error_print_lineno(DaicError* e, int color) {
+daic_error_print_sourceinfo(FILE* f, DaicError* e, int color) {
     char* fcolor = color ? _DAI_COLOR_FILE : "";
     char* lcolor = color ? _DAI_COLOR_LINE : "";
     char* ccolor = color ? _DAI_COLOR_LINE : "";
     char* colorreset = color ? _DAI_COLOR_RESET : "";
     if (!e->file)
-        fprintf(stderr, "%sunknown file%s:", fcolor, colorreset);
+        fprintf(f, "%sunknown file%s:", fcolor, colorreset);
     else if (!e->line)
-        fprintf(stderr, "%s%s%s:", fcolor, e->file, colorreset);
+        fprintf(f, "%s%s%s:", fcolor, e->file, colorreset);
     else if (!e->col)
-        fprintf(stderr, "%s%s%s:%s%zu%s:", fcolor, e->file, colorreset, lcolor, e->line,
-                colorreset);
+        fprintf(f, "%s%s%s:%s%zu%s:", fcolor, e->file, colorreset, lcolor, e->line, colorreset);
     else
-        fprintf(stderr, "%s%s%s:%s%zu%s:%s%zu%s:", fcolor, e->file, colorreset, lcolor, e->line,
+        fprintf(f, "%s%s%s:%s%zu%s:%s%zu%s:", fcolor, e->file, colorreset, lcolor, e->line,
                 colorreset, ccolor, e->col, colorreset);
 }
 
 static inline void
-daic_error_print_info(DaicError* e, int color) {
+daic_error_print_info(FILE* f, DaicError* e, int color) {
     char* sevcolor = color ? daic_sevstr_color[e->severity] : "";
     char* severity = color ? daic_sevstr_capital[e->severity] : "";
     char* stage = color ? daic_stagedisplay[e->stage] : "";
     char* stagecolor = color ? daic_stagecolor[e->stage] : "";
     char* colorreset = color ? _DAI_COLOR_RESET : "";
-    fprintf(stderr, "%s%s%s in %s%s%s:", sevcolor, severity, colorreset, stagecolor, stage,
-            colorreset);
+    fprintf(f, "%s%s%s in %s%s%s:", sevcolor, severity, colorreset, stagecolor, stage, colorreset);
 }
 
 static inline void
-daic_error_print(DaicError* e, int color) {
+daic_error_print(FILE* f, DaicError* e, int color) {
     if (!e) return;
     if (e->trace_frame) {
-        daic_error_print_lineno(e, color);
-        fprintf(stderr, "\n");
+        daic_error_print_sourceinfo(f, e, color);
+        fprintf(f, "\n");
     } else {
-        daic_error_print_lineno(e, color);
-        fprintf(stderr, " ");
-        daic_error_print_info(e, color);
-        if (e->next) daic_error_print(e->next, color);
+        daic_error_print_sourceinfo(f, e, color);
+        fprintf(f, " ");
+        daic_error_print_info(f, e, color);
+        if (e->next) daic_error_print(f, e->next, color);
     }
 }
 
 static inline int
-_daic_error_cmpstage(const void* a, const void* b) {
+daic_error_cmpstage(const void* a, const void* b) {
     _DAI_PEDANTIC_ASSERT(a && b, "Cannot compare null errors.");
     DaicError* ae = (DaicError*)a;
     DaicError* be = (DaicError*)b;
@@ -109,7 +109,7 @@ daic_error_sort(_Daic_List_DaicErrorPtr* errlist) {
     size_t n = errlist->len;
     for (size_t i = 0; i < n - 1; i++) {
         for (size_t j = 0; j < n - i - 1; j++) {
-            if (_daic_error_cmpstage(errlist->buf[j], errlist->buf[j + 1]) > 0) {
+            if (daic_error_cmpstage(errlist->buf[j], errlist->buf[j + 1]) > 0) {
                 DaicError* tmp = errlist->buf[j];
                 errlist->buf[j] = errlist->buf[j + 1];
                 errlist->buf[j + 1] = tmp;
@@ -119,11 +119,32 @@ daic_error_sort(_Daic_List_DaicErrorPtr* errlist) {
 }
 
 static inline void
-daic_print_errlist(_Daic_List_DaicErrorPtr* errlist, int color) {
+daic_print_errlist(FILE* f, _Daic_List_DaicErrorPtr* errlist, int color) {
     // Stable sort such that the highest severity errors are printed first.
     daic_error_sort(errlist);
+    for (size_t i = 0; i < errlist->len; i++) {
+        daic_error_print(f, errlist->buf[i], color);
+    }
+}
 
-    for (size_t i = 0; i < errlist->len; i++) daic_error_print(errlist->buf[i], color);
+// Explode
+static inline void
+daic_panic(DaicContext* ctx, const char* panic_msg) {
+#if !_DAIC_LEAK_EVERYTHING
+    daic_cleanup(ctx);
+    longjmp(ctx->panic_handler, 1);
+    ctx->panic_err_message = (char*)panic_msg;
+#else
+    (void)ctx;
+    (void)panic_msg;
+#endif
+}
+
+static inline void
+daic_do_panic(DaicContext* ctx, char* panic_err_message) {
+    if (!panic_err_message) panic_err_message = "Unknown Error.";
+    fputs("Daic panic: ", ctx->daic_stderr);
+    fputs(panic_err_message, ctx->daic_stderr);
 }
 
 #endif /* DAIC_ERRHANDLER_INCLUDE */

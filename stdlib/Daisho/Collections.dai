@@ -1,52 +1,67 @@
 #include "Builtins"
 
-trait Mapper<T, K> { abstract K apply(T input); }
-trait Consumer<T> { abstract Void apply(T input); }
+trait Mapper<T, K> { K ()(T input); }
+trait Consumer<T> { Void ()(T input); }
 trait Stream<T> {
+    T?        next();
+    List<T>   toList();
+    Array<T>  toArray();
     Stream<K> map(Mapper<T, K> mapper);
     Stream<K> flatMap(Mapper<T, Stream<K>> mapper);
     Void      forEach(Consumer<T> action);
-    Array<T>  toArray();
-    List<T>   toList();
-
-    default List<T> collect() { return this.toList(); }
 }
 
 
 trait Collection<T> {
-    abstract Void contains(T elem);
-
-    abstract List<T> toList();
-    abstract Array<T> toArray();
-
-    default Stream<T> stream() { this.toList().stream(); }
-    default Stream<T> parallelStream( this.toList().parallelStream(); );
-
-    default Stream<K> map(Mapper<T, K> mapper) {
-        return this.stream().map(mapper);
-    }
-    default Stream<K> flatMap(Mapper<T, Stream<K>> mapper) {
-        return this.stream().flatMap(mapper);
-    }
-    default Void forEach(Consumer<T> consumer) {
-        return this.stream().forEach(consumer);
-    }
+    Void contains(T elem);
+    List<T> toList();
+    Array<T> toArray();
+    Stream<T> stream() self.toList().stream();
+    Stream<T> parallelStream() self.toList().parallelStream();
+    Stream<K> map(Mapper<T, K> mapper) self.stream().map(mapper);
+    Stream<K> flatMap(Mapper<T, Stream<K>> mapper) self.stream().flatMap(mapper);
+    Void forEach(Consumer<T> consumer) self.stream().forEach(consumer);
 }
 
-class Array<T> implements Collection<T> {
-    public T* items;
-    Int size;
+trait List<T> impl Collection<T> {
+    Void contains() {}
+    // TODO
+}
 
-    Array<T> operator new(Size_t size) {
-        this.size = size;
-        this.items = (T*)malloc(sizeof(T) * size);
-    }
-    Void operator del() {
-        free(this.items);
+class Array<T> impl List<T> {
+    T* buf;
+    Size_t size;
+    Size_t cap;
+
+    T =[](Size_t idx) buf[idx];
+    Void []=(Size_t idx, T other) { buf[idx] = other; }
+
+    Array<T> new() {
+        self.buf = NULL
+        self.size = self.cap = 0
     }
 
-    T operator[](Size_t idx) { return items[idx]; }
-    Void operator[]=(Size_t idx, T other) { items[idx] = other; }
+    Void add() {
+        next_len = self.len + 1;
+        self.cap <= next_len ? {
+            next_cap = next_len * 2 + 8
+            reall = realloc(self.buf, sizeof(type) * next_cap)(T*)
+            if (!reall) return
+            self.cap = next_cap
+            self.buf = reall
+        }
+        self.buf[self.len] = item
+        self.len = next_len
+    }
+
+    T remove(Size_t idx) {
+        r = self.buf[idx]
+        nl = self.len ? self.len - 1 : 0
+        for (i = idx; i < nl; i++)
+            self.buf[i] = self.buf[i+1]
+        self.len = nlen
+        return r
+    }
 }
 
 class List<T> {

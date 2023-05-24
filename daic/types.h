@@ -5,6 +5,7 @@
 #endif
 
 #include "list.h"
+#include "enums.h"
 
 ////////////////////
 // SYNTAX HELPERS //
@@ -54,68 +55,19 @@ _DAIC_LIST_DEFINE(InputFile)
 static inline void
 InputFile_free(InputFile of) {
     if (of.fname) free(of.fname);
-    if (of.content) _DAIC_FREE(of.content);
+    if (of.content) free(of.content);
     if (of.cps) UTF8_FREE(of.cps);
     if (of.cps_map) UTF8_FREE(of.cps_map);
 }
 
 static inline void
-InputFile_cleanup(void* ifs) {
+InputFileList_cleanup(void* ifs) {
     _Daic_List_InputFile* ipfs = (_Daic_List_InputFile*)ifs;
     for (size_t i = 0; i < ipfs->len; i++) InputFile_free(ipfs->buf[i]);
     _Daic_List_InputFile_clear(ipfs);
 }
 
 typedef int UNIMPL;
-
-#define STAGES                                      \
-    X(ARGS, _DAI_COLOR_BLUE, "Argument Parsing")    \
-    X(TOKENIZER, _DAI_COLOR_YELLOW, "Tokenization") \
-    X(PARSER, _DAI_COLOR_MAGENTA, "Parsing")        \
-    X(TYPING, _DAI_COLOR_CYAN, "Type Checking")     \
-    X(CODEGEN, _DAI_COLOR_GREEN, "Code Generation") \
-    X(OTHER, _DAI_COLOR_RED, "Other")
-
-#define X(name, color, disp) _DAIC_ERROR_STAGE_##name,
-typedef enum { STAGES } DaicStage;
-#undef X
-
-#define X(name, color, disp) color,
-static char* daic_stagecolor[] = {STAGES};
-#undef X
-
-#define X(name, color, disp) disp,
-static char* daic_stagedisplay[] = {STAGES};
-#undef X
-
-#undef STAGES
-#define SEVS                                            \
-    X(INFO, _DAI_COLOR_BLUE, "INFO", "Info", "info")    \
-    X(WARN, _DAI_COLOR_MAGENTA, "WARN", "Warn", "warn") \
-    X(ERROR, _DAI_COLOR_RED, "ERROR", "Error", "error") \
-    X(PANIC, _DAI_COLOR_RED, "PANIC", "Panic", "panic")
-
-#define X(name, color, up, cap, low) _DAIC_ERROR_SEV_##name,
-typedef enum { SEVS } DaicSeverity;
-#undef X
-
-#define X(name, color, up, cap, low) up,
-static char* daic_sevstr_upper[] = {SEVS};
-#undef X
-
-#define X(name, color, up, cap, low) low,
-static char* daic_sevstr_lower[] = {SEVS};
-#undef X
-
-#define X(name, color, up, cap, low) cap,
-static char* daic_sevstr_capital[] = {SEVS};
-#undef X
-
-#define X(name, color, up, cap, low) color,
-static char* daic_sevstr_color[] = {SEVS};
-#undef X
-
-#undef SEVS
 
 struct Declaration;
 typedef struct Declaration Declaration;

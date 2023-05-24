@@ -13,10 +13,12 @@
 %extra       PreExprType* pretype; // The concrete type of this expression
 %extrainit   node->pretype = NULL;
 
-%precode     struct InputFile;
-%precode     typedef struct InputFile InputFile;
-%tokenextra  InputFile* from_file;
-%tokenextra  size_t from_pos;
+%precode      struct InputFile;
+%precode      typedef struct InputFile InputFile;
+%tokenextra   InputFile* from_file;
+%tokenextra   size_t from_pos;
+%errextra     InputFile* from_file;
+%errextrainit err->from_file = tok.from_file;
 
 
 program    <- sh:SHEBANG? nses:{ret=list(NSLIST)} nsn:{} cn:{}

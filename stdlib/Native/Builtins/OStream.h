@@ -16,12 +16,18 @@ static char _Dai_stdout_buf[_DAI_STDOUT_BUFSIZ];
 static char _Dai_stderr_buf[_DAI_STDERR_BUFSIZ];
 
 static _Dai_OStream _Dai_stdout_ =
-    (_Dai_OStream){_Dai_stdout_buf, STDOUT_FILENO, 0, _DAI_STDOUT_BUFSIZ, _DAI_MUTEX_INITIALIZER};
+    {NULL, STDOUT_FILENO, 0, _DAI_STDOUT_BUFSIZ, _DAI_MUTEX_INITIALIZER};
 static _Dai_OStream _Dai_stderr_ =
-    (_Dai_OStream){_Dai_stderr_buf, STDERR_FILENO, 0, _DAI_STDERR_BUFSIZ, _DAI_MUTEX_INITIALIZER};
+    {NULL, STDERR_FILENO, 0, _DAI_STDERR_BUFSIZ, _DAI_MUTEX_INITIALIZER};
 
 static const _Dai_OStream* _Dai_stdout = &_Dai_stdout_;
 static const _Dai_OStream* _Dai_stderr = &_Dai_stderr_;
+
+_DAI_FN void
+_Dai_init_std_ostreams(void) {
+    _Dai_stdout_.buf = _Dai_stdout_buf;
+    _Dai_stderr_.buf = _Dai_stderr_buf;
+}
 
 _DAI_FN int
 _Dai_OStream_flush(_Dai_OStream* os, int unlocked) {
