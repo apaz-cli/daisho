@@ -35,8 +35,8 @@ daic_cleanup_add(DaicContext* ctx, void (*fn)(void*), void* arg) {
 }
 
 static inline void
-daic_cleanup_pop_matching(DaicContext* ctx, void* fptr) {
-    if (ctx->cleanup.len && (void*)ctx->cleanup.buf[ctx->cleanup.len - 1].f == fptr)
+daic_cleanup_pop_matching(DaicContext* ctx, void (*fptr)(void*)) {
+    if (ctx->cleanup.len && ctx->cleanup.buf[ctx->cleanup.len - 1].f == fptr)
         ctx->cleanup.len--;
 }
 

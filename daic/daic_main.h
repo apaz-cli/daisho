@@ -92,7 +92,7 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     }
 
     // Print AST
-    // daisho_astnode_print_json(tokens.buf, ast);
+    daisho_astnode_print_json(tokens.buf, ast);
 
     if (parser.pos != parser.len) {
         fprintf(daic_stderr, "Didn't consume the entire input.\n");

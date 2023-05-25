@@ -441,7 +441,7 @@ daic_read_utf8decode_tokenize_file(DaicContext* ctx, char* inputFilePath,
 
     // Jijack the finalizer uwu
     _Daic_List_InputFile_add(opened_files, inf);
-    daic_cleanup_pop_matching(ctx, (void*)_Daic_List_InputFile_cleanup);
+    daic_cleanup_pop_matching(ctx, _Daic_List_InputFile_cleanup);
 
     daisho_tokenizer tokenizer;
     daisho_tokenizer_init(&tokenizer, inf.cps, inf.cpslen);
