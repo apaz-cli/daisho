@@ -4,19 +4,9 @@
 #include "daisho.peg.h"
 #endif
 
-#include "list.h"
 #include "enums.h"
+#include "list.h"
 
-////////////////////
-// SYNTAX HELPERS //
-////////////////////
-#define unop(op, on)                                                           \
-    daisho_astnode_fixed_3(ctx->alloc, DAISHO_NODE_CALL, (op), leaf(NOEXPAND), \
-                           daisho_astnode_fixed_1(ctx->alloc, DAISHO_NODE_EXPRLIST, (on)))
-#define binop(op, left, right)                              \
-    daisho_astnode_fixed_3(                                 \
-        ctx->alloc, DAISHO_NODE_CALL, (op), leaf(NOEXPAND), \
-        daisho_astnode_fixed_2(ctx->alloc, DAISHO_NODE_EXPRLIST, (left), (right)))
 
 // This file should contain only type definitions.
 
@@ -71,23 +61,31 @@ typedef int UNIMPL;
 
 struct Declaration;
 typedef struct Declaration Declaration;
+struct NamespaceDecl;
+typedef struct NamespaceDecl NamespaceDecl;
+
 typedef struct {
     Declaration* type;
     Identifier name;
     size_t size;
 } Field;
 
-struct NamespaceDecl;
-typedef struct NamespaceDecl NamespaceDecl;
+typedef struct {
+    Identifier name;
+} TraitRequirement;
 
 typedef struct {
-    UNIMPL ui;
+    Identifier name;
+} TraitRequirementImpl;
+
+typedef struct {
+    Identifier id;
 } StructDecl;
 typedef struct {
-    UNIMPL ui;
+    Identifier id;
 } UnionDecl;
 typedef struct {
-    UNIMPL ui;
+    Identifier id;
 } TraitDecl;
 typedef struct {
     Identifier trait;
@@ -107,6 +105,11 @@ typedef struct {
     void* arg_types;
     daisho_astnode_t* body;
 } FunctionDecl;
+typedef struct {
+    void* ret_type;
+    void* arg_types;
+    daisho_astnode_t* body;
+} CFunctionDecl;
 
 struct Declaration {
 #define STRUCT_DECLKIND 1
@@ -125,6 +128,7 @@ struct Declaration {
         CTypeDecl ctypedecl;
         AliasDecl aliasdecl;
         FunctionDecl fndecl;
+        CFunctionDecl cfndecl;
     };
     daisho_astnode_t* source;
     Identifier id;

@@ -184,14 +184,14 @@ protoarglist
 
 expr       <- !SEMI !CLOSE rule:next
 
-preretexpr <- RET n:expr {rule=node(RET, n)}
-            / rule:next (GRAVE {rule = node(RET, rule)})?
+preretexpr <- r:RET n:expr {rule=node(RET, r, n)}
+            / rule:next (r:GRAVE {rule = node(RET, r, rule)})?
 
 forexpr    <- FOR o:OPEN?
               f:expr ((COLON / IN) / (wsemi s:expr wsemi)) t:expr
               c:CLOSE? {if (has(o) != has(c)) WARNING("For expression parens mismatch.")}
               e:expr
-              {rule = has(s) ? node(FOR, f, s, t, e)
+              {rule = has(s) ? node(FOR, f, boolconv(s), t, e)
                     :          node(FOREACH, f, t, e)}
             / rule:next
 
@@ -219,74 +219,80 @@ alsoexpr   <- rule:next (ALSO nn:next {rule=node(ALSO, rule, nn)})*
 
 ceqexpr    <- rule:next
              (op:(EQ / PLEQ / MINEQ / MULEQ / DIVEQ / MODEQ / ANDEQ / OREQ / XOREQ / BNEQ / BSREQ / BSLEQ)
-              t:next
-              // Requires information about what the next expression is
-              {
-                if      (op->kind == kind(EQ))    rule=node(EQ, rule,                   t );
-                else if (op->kind == kind(PLEQ))  rule=node(EQ, rule, node(PLUS,  rule, t));
-                else if (op->kind == kind(MINEQ)) rule=node(EQ, rule, node(MINUS, rule, t));
-                else if (op->kind == kind(MULEQ)) rule=node(EQ, rule, node(MUL,   rule, t));
-                else if (op->kind == kind(DIVEQ)) rule=node(EQ, rule, node(DIV,   rule, t));
-                else if (op->kind == kind(MODEQ)) rule=node(EQ, rule, node(MOD,   rule, t));
-                else if (op->kind == kind(ANDEQ)) rule=node(EQ, rule, node(AND,   rule, t));
-                else if (op->kind == kind(OREQ))  rule=node(EQ, rule, node(OR,    rule, t));
-                else if (op->kind == kind(XOREQ)) rule=node(EQ, rule, node(BNEQ,  rule, t));
-                else if (op->kind == kind(BSREQ)) rule=node(EQ, rule, node(BSR,   rule, t));
-                else if (op->kind == kind(BSLEQ)) rule=node(EQ, rule, node(BSL,   rule, t));
+              t:next {
+                if      (op->kind == kind(EQ))    rule=repr(node(EQ, rule, t), op);
+                else if (op->kind == kind(PLEQ))  rule=repr(node(EQ, rule, binop(repr(leaf(PLUS), op),  rule, t)), op);
+                else if (op->kind == kind(MINEQ)) rule=repr(node(EQ, rule, binop(repr(leaf(MINUS), op), rule, t)), op);
+                else if (op->kind == kind(MULEQ)) rule=repr(node(EQ, rule, binop(repr(leaf(MUL), op),   rule, t)), op);
+                else if (op->kind == kind(DIVEQ)) rule=repr(node(EQ, rule, binop(repr(leaf(DIV), op),   rule, t)), op);
+                else if (op->kind == kind(MODEQ)) rule=repr(node(EQ, rule, binop(repr(leaf(MOD), op),   rule, t)), op);
+                else if (op->kind == kind(ANDEQ)) rule=repr(node(EQ, rule, binop(repr(leaf(AND), op),   rule, t)), op);
+                else if (op->kind == kind(OREQ))  rule=repr(node(EQ, rule, binop(repr(leaf(OR), op),    rule, t)), op);
+                else if (op->kind == kind(XOREQ)) rule=repr(node(EQ, rule, binop(repr(leaf(BNEQ), op),  rule, t)), op);
+                else if (op->kind == kind(BSREQ)) rule=repr(node(EQ, rule, binop(repr(leaf(BSR), op),   rule, t)), op);
+                else if (op->kind == kind(BSLEQ)) rule=repr(node(EQ, rule, binop(repr(leaf(BSL), op),   rule, t)), op);
                 else _DAI_UNREACHABLE()
               })*
 
-logorexpr  <- rule:next (LOGOR  n:next {rule=node(LOGOR,  rule, n)})*
-logandexpr <- rule:next (LOGAND n:next {rule=node(LOGAND, rule, n)})*
-binorexpr  <- rule:next (OR     n:next {rule=node(OR,     rule, n)})*
-binxorexpr <- rule:next (XOR    n:next {rule=node(XOR,    rule, n)})*
-binandexpr <- rule:next (AND    n:next {rule=node(AND,    rule, n)})*
+logorexpr  <- rule:next (lo:LOGOR  n:next {rule=binop(lo, rule, n)})*
+logandexpr <- rule:next (la:LOGAND n:next {rule=binop(la, rule, n)})*
+binorexpr  <- rule:next (ro:OR     n:next {rule=binop(ro, rule, n)})*
+binxorexpr <- rule:next (xo:XOR    n:next {rule=binop(xo, rule, n)})*
+binandexpr <- rule:next (an:AND    n:next {rule=binop(an, rule, n)})*
 
 deneqexpr  <- rule:next
-             (DEQ n:next {rule=node(DEQ, rule, n)}
-             /NEQ n:next {rule=node(NEQ, rule, n)})*
+             (e:DEQ n:next {rule=binop(e, rule, n)}
+             /x:NEQ n:next {rule=binop(x, rule, n)})*
 
 cmpexpr    <- rule:next
-             (LT  n:next {rule=node(LT,  rule, n)}
-             /GT  n:next {rule=node(GT,  rule, n)}
-             /LEQ n:next {rule=node(LEQ, rule, n)}
-             /GEQ n:next {rule=node(GEQ, rule, n)})*
+             ( l:LT  n:next {rule=binop(l,  rule, n)}
+             / g:GT  n:next {rule=binop(g,  rule, n)}
+             /le:LEQ n:next {rule=binop(le, rule, n)}
+             /ge:GEQ n:next {rule=binop(ge, rule, n)})*
 
 shfexpr    <- rule:next // Tokenized as < < and > >.
-             (l:LT lt:LT n:next {rule=node(BSL, l, lt, rule, n)}
-             /g:GT gt:GT n:next {rule=node(BSR, g, gt, rule, n)})*
+             (l:LT lt:LT n:next ll:{ret=node(BSL, l, lt)}
+              {rule=binop(ll, rule, n)}
+             /g:GT gt:GT n:next gg:{ret=node(BSR, g, gt)}
+              {rule=binop(gg, rule, n)})*
 
 sumexpr    <- rule:next
-             (p:PLUS  n:next {rule=node(PLUS, rule, n)}
-             /m:MINUS n:next {rule=node(MINUS, rule, n)})*
+             (p:PLUS  n:next {rule=binop(p, rule, n)}
+             /m:MINUS n:next {rule=binop(m, rule, n)})*
 
 multexpr   <- rule:next
-             (STAR n:next {rule=node(STAR, rule, n)}
-             /DIV  n:next {rule=node(DIV,  rule, n)}
-             /MOD  n:next {rule=node(MOD,  rule, n)}
-             /POW  n:next {rule=node(POW,  rule, n)})*
+             (s:STAR n:next {rule=binop(s, rule, n)}
+             /d:DIV  n:next {rule=binop(d, rule, n)}
+             /m:MOD  n:next {rule=binop(m, rule, n)}
+             /p:POW  n:next {rule=binop(p, rule, n)})*
 
-accexpr    <- rule:next (LSBRACK e:expr RSBRACK {rule=node(ACCESS, rule, e)})*
+accexpr    <- rule:next (l:LSBRACK e:expr r:RSBRACK
+                         a:{ret=node(ARRAYACCESS, l, r)}
+                         {rule=binop(a, rule, e)})*
 
-dotexpr    <- rule:next (DOT i:VARIDENT {rule=node(DOT, rule, i)})*
+dotexpr    <- rule:next (d:DOT i:VARIDENT {rule=binop(d, rule, i)})*
 
+// TODO: Because of the way that REF/DEREF are counted
+// we need to build a list of some sort.
 refexpr<int32_t rd = 0>
-           <- rule:next (REF {rd++} / DEREF {rd--})*
+           <- rule:next op:{} (REF {rd++} / DEREF {rd--})*
              {for (int64_t i = 0; i < (rd > 0 ? rd : -rd); i++) {
-                rule = rd > 0 ? node(REF, rule) : node(DEREF, rule);
+                op = rd > 0 ? leaf(REF) : leaf(DEREF);
+                rule = unop(op, rule);
               }}
 
-castexpr   <- rule:next (OPEN t:type CLOSE {rule=node(CAST, rule, t)})*
+castexpr   <- rule:next (OPEN t:type CLOSE
+                         {rule=node(CAST, rule, t)})*
 
 callexpr   <- rule:next
               ({ret=rule->kind == kind(VARIDENT) ? SUCC : NULL} te:tmplexpand)?
               (OPEN el:exprlist CLOSE
               {rule = node(CALL, rule, te, el); te=NULL})*
 
-increxpr   <- rule:next ((INCR {rule=node(INCR, rule)})
-                        /(DECR {rule=node(DECR, rule)}))?
+increxpr   <- rule:next ((i:INCR {rule=unop(i, rule)})
+                        /(d:DECR {rule=unop(d, rule)}))?
 
-notexpr    <- rule:next (EXCL {rule=node(EXCL, rule)})*
+notexpr    <- rule:next (e:EXCL {rule=unop(e, rule)})*
 
 /*********************************/
 /* ATOMS AND SPECIAL EXPRESSIONS */
@@ -385,11 +391,27 @@ nativeexpr <- NATIVE rule:NATIVEBODY
 /***********/
 
 %code static inline int cpstr_equals(codepoint_t* s1, size_t l1, codepoint_t* s2, size_t l2) {
-%code if (l1 != l2) return 0;
-%code if (s1 == s2) return 1;
-%code for (size_t i = 0; i < l1; i++) if (s1[i] != s2[i]) return 0;
-%code return 1;
+%code   if (l1 != l2) return 0;
+%code   if (s1 == s2) return 1;
+%code   for (size_t i = 0; i < l1; i++)
+%code     if (s1[i] != s2[i]) return 0;
+%code   return 1;
 %code }
+
+%define boolconv(expr)                                                                           \
+    daisho_astnode_fixed_3(ctx->alloc, DAISHO_NODE_CALL, repr(leaf(BOOL), expr), leaf(NOEXPAND), \
+                           daisho_astnode_fixed_1(ctx->alloc, DAISHO_NODE_EXPRLIST, (expr)))
+%define iterconv(expr)                                                                           \
+    daisho_astnode_fixed_3(ctx->alloc, DAISHO_NODE_CALL, repr(leaf(ITER), expr), leaf(NOEXPAND), \
+                           daisho_astnode_fixed_1(ctx->alloc, DAISHO_NODE_EXPRLIST, (expr)))
+
+%define unop(op, on)                                                                             \
+    daisho_astnode_fixed_3(ctx->alloc, DAISHO_NODE_CALL, (op),                   leaf(NOEXPAND), \
+                           daisho_astnode_fixed_1(ctx->alloc, DAISHO_NODE_EXPRLIST, (on)))
+%define binop(op, left, right)                              \
+    daisho_astnode_fixed_3(                                 \
+        ctx->alloc, DAISHO_NODE_CALL, (op), leaf(NOEXPAND), \
+        daisho_astnode_fixed_2(ctx->alloc, DAISHO_NODE_EXPRLIST, (left), (right)))
 
 cident     <- rule:VARIDENT {
   for (size_t i = 0; i < rule->repr_len; i++) {
@@ -414,6 +436,7 @@ semiornl   <- SEMI
 overloadable <- VARIDENT
               / PLUS / MINUS / STAR / POW / DIV / MOD
               / AND / OR / XOR / EXCL / BITNOT /
+
 
 
 /******************/
@@ -457,6 +480,8 @@ wsemiornl  <- (semiornl / {WARNING("Missing semicolon or newline."); ret=leaf(SE
 %node MUL
 %node BSR
 %node BSL
+%node BOOL
+%node ITER
 
 %node BLOCK
 %node VARDECL
@@ -464,7 +489,7 @@ wsemiornl  <- (semiornl / {WARNING("Missing semicolon or newline."); ret=leaf(SE
 %node CALL
 %node LAMBDA
 %node FOREACH
-%node ACCESS
+%node ARRAYACCESS
 %node LISTLIT
 %node TUPLELIT
 

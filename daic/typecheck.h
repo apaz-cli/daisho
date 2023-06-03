@@ -32,7 +32,58 @@ extractNamespacesAndTLDs(DaicContext* ctx, daisho_astnode_t* root) {
         size_t num_nsdecl_items = nsd.nsnode->children[1]->num_children;
         for (size_t i = 0; i < num_nsdecl_items; i++) {
             daisho_astnode_t* tld = nsdecl_items[i];
-            if (tld->kind == DAISHO_NODE_FNDECL) {
+
+            if (tld->kind == DAISHO_NODE_STRUCT) {
+                Identifier id = nodeIdentifier(tld->children[0]);
+                StructDecl sd = {0};
+                sd.id = id;
+                Declaration d;
+                d.structdecl = sd;
+                d.source = tld;
+                d.id = id;
+                d.kind = STRUCT_DECLKIND;
+                _Daic_List_Declaration_add(decls, d);
+            } else if (tld->kind == DAISHO_NODE_UNION) {
+                Identifier id = nodeIdentifier(tld->children[0]);
+                UnionDecl ud = {0};
+                ud.id = id;
+                Declaration d;
+                d.uniondecl = ud;
+                d.source = tld;
+                d.id = id;
+                d.kind = UNION_DECLKIND;
+                _Daic_List_Declaration_add(decls, d);
+            } else if (tld->kind == DAISHO_NODE_TRAIT) {
+                Identifier id = nodeIdentifier(tld->children[0]);
+                TraitDecl td = {0};
+                td.id = id;
+                Declaration d;
+                d.traitdecl = td;
+                d.source = tld;
+                d.id = id;
+                d.kind = TRAIT_DECLKIND;
+                _Daic_List_Declaration_add(decls, d);
+            } else if (tld->kind == DAISHO_NODE_IMPL) {
+                Identifier id = nodeIdentifier(tld->children[0]);
+                ImplDecl idl = {0};
+                idl.trait = nodeIdentifier(tld->children[1]);
+                idl.for_type = nodeIdentifier(tld->children[2]);
+                Declaration d;
+                d.impldecl = idl;
+                d.source = tld;
+                d.id = id;
+                d.kind = IMPL_DECLKIND;
+                _Daic_List_Declaration_add(decls, d);
+            } else if (tld->kind == DAISHO_NODE_CFN) {
+                Identifier id = nodeIdentifier(tld->children[1]);
+                FunctionDecl fd = {0};
+                Declaration d;
+                d.fndecl = fd;
+                d.source = tld;
+                d.id = id;
+                d.kind = CFN_DECLKIND;
+                _Daic_List_Declaration_add(decls, d);
+            } else if (tld->kind == DAISHO_NODE_FNDECL) {
                 Identifier id = nodeIdentifier(tld->children[1]);
                 FunctionDecl fd = {0};
                 Declaration d;
@@ -42,22 +93,15 @@ extractNamespacesAndTLDs(DaicContext* ctx, daisho_astnode_t* root) {
                 d.kind = FN_DECLKIND;
                 _Daic_List_Declaration_add(decls, d);
             } else if (tld->kind == DAISHO_NODE_CTYPE) {
-                Identifier id = nodeIdentifier(tld->children[1]);
+                Identifier id = nodeIdentifier(tld->children[0]);
                 CTypeDecl ct = {0};
+                ct.from = nodeIdentifier(tld->children[1]);
+                ct.to = nodeIdentifier(tld->children[2]);
                 Declaration d;
                 d.ctypedecl = ct;
                 d.source = tld;
                 d.id = id;
                 d.kind = CTYPE_DECLKIND;
-                _Daic_List_Declaration_add(decls, d);
-            } else if (tld->kind == DAISHO_NODE_CFN) {
-                Identifier id = nodeIdentifier(tld->children[1]);
-                FunctionDecl fd = {0};
-                Declaration d;
-                d.fndecl = fd;
-                d.source = tld;
-                d.id = id;
-                d.kind = FN_DECLKIND;
                 _Daic_List_Declaration_add(decls, d);
             } else {
                 printf("Cannot extract TLD of kind: %s\n", daisho_nodekind_name[tld->kind]);

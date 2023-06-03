@@ -19,17 +19,17 @@ trait Iterable<T> impl Boolable {
 };
 
 trait Integer impl Boolable {
-    Self  +(Self other);
-    Self  -(Self other);
-    Self  *(Self other);
-    Self  /(Self other);
-    Self  %(Self other);
-    Self  <(Self other);
-    Self  >(Self other);
-    Self  ~(Self other);
-    Self  and(Self other);
-    Self  or(Self other);
-    Self  xor(Self other);
+    Self +(Self other);
+    Self -(Self other);
+    Self *(Self other);
+    Self /(Self other);
+    Self %(Self other);
+    Self <(Self other);
+    Self >(Self other);
+    Self ~(Self other);
+    Self and(Self other);
+    Self or(Self other);
+    Self xor(Self other);
     Self ++() self` also self$ = self$ + 1;
     Self --() self` also self$ = self$ - 1;
 };

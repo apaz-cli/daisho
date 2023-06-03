@@ -43,10 +43,10 @@ into the generated code as appropriate. Note that it may be copy/pasted
 several times, in the case of specializing a generic function.
 
 To access fields inside of a C struct, you must write a native function to
-extract it. There is a macro called `CFIELD` that wraps the field access in
-a native lambda and evaluates it. This way, Daisho never has to parse C code
-or rely on platform dependent behavior regarding things like padding,
-endianness, etc.
+extract it. There should be a macro in the future to help with this, which
+will wrap the access in a lambda and evaluate it. This way, Daisho never has
+to parse C code or rely on platform dependent behavior regarding things like
+padding, endianness, etc.
 
 `ctype` and `native` bindings are central to how the entire standard library
 is designed and implemented. `Int` from the standard library (which is always

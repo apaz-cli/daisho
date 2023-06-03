@@ -100,9 +100,8 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     }
 
     if (ast) {
-        // _Daic_List_NamespaceDecl nsdecls = extractNamespacesAndTLDs(&ctx, ast);
-        // _Daic_List_NamespaceDecl_cleanup(&nsdecls);
-        // exprTypeVisit(ast, NULL);
+        _Daic_List_NamespaceDecl nsdecls = extractNamespacesAndTLDs(&ctx, ast);
+        exprTypeVisit(ast, NULL);
     }
 
     daic_cleanup(&ctx);
