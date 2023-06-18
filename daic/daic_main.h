@@ -4,7 +4,6 @@
 #include "allocator.h"
 #include "argparse.h"
 #include "cleanup.h"
-#include "daic_context.h"
 #include "daisho.peg.h"
 #include "extraparsing.h"
 #include "list.h"
@@ -32,21 +31,34 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     ctx.args = args;
 
     if (setjmp(ctx.panic_handler)) {
-        daic_do_panic(&ctx, ctx.panic_err_message);
+        daic_print_panic(&ctx, ctx.panic_err_message);
         return 1;
     }
 
-    ctx.cleanup = daic_cleanup_entries_new(&ctx.panic_err_message);
-    ctx.cleanup.ctx = &ctx;  // TODO check if this makes sense, think about relocating lists.
+    // Equivalent to "ctx.cleanup = _Daic_List_DaicCleanupEntry_new()".
+    // We do this because making lists takes the ctx, containing
+    // and depending on this list. Therefore, we have to create
+    // this list special.
+    // Sets ctx.panic_err_message on failure.
+    daic_cleanup_init(&ctx);
     if (ctx.panic_err_message) {
-        daic_do_panic(&ctx, ctx.panic_err_message);
+        daic_print_panic(&ctx, ctx.panic_err_message);
         return 1;
     }
+
+    // Error handling will be handling like so.
+    // Errors are put into three categories.
+    // 1. Compiler errors (DaicError and daic_error_print())
+    // 2. Internal errors ()
+    // 3. Panics errors
+
+    // From now on, we have a working way to do cleanup.
+    // That means we can rely on the panic handler, and
+    // ditch direct calls to daic_print_panic().
 
     char* err_str = NULL;
     _Daic_List_daisho_token tokens = _Daic_List_daisho_token_new(&ctx);
     _Daic_List_InputFile input_files = _Daic_List_InputFile_new(&ctx);
-    daic_cleanup_add(&ctx, InputFileList_cleanup, (void*)&input_files);
 
     // Read file, Tokenize. Combined, because imports read other files.
     DaicError* err =
@@ -60,7 +72,7 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     _Daic_List_DaicErrorPtr errors = _Daic_List_DaicErrorPtr_new(&ctx);
 
     pgen_allocator allocator = pgen_allocator_new();
-    daic_cleanup_add(&ctx, daic_allocator_cleanup, &allocator);
+    daic_cleanup_add(&ctx, daic_allocator_cleanup, (void*)&allocator);
 
     // Parse AST
     daisho_parser_ctx parser;

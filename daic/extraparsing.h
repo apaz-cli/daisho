@@ -5,20 +5,9 @@
 
 #include "../stdlib/Daisho.h"
 #include "allocator.h"
-#include "daic_context.h"
-#include "daisho.peg.h"
 #include "errhandler.h"
 #include "list.h"
 #include "utils.h"
-
-// typedef char* cstr;
-// _DAIC_LIST_DECLARE(cstr)
-// _DAIC_LIST_DEFINE(cstr)
-_DAIC_LIST_DECLARE(codepoint_t)
-_DAIC_LIST_DEFINE(codepoint_t)
-
-_DAIC_LIST_DECLARE(daisho_token)
-_DAIC_LIST_DEFINE(daisho_token)
 
 static inline void
 daic_allocator_cleanup(void* a) {
@@ -28,6 +17,26 @@ daic_allocator_cleanup(void* a) {
 static inline void
 _Dai_String_cleanup(void* s) {
     _Dai_String_destroy(((_Dai_String*)s));
+}
+
+static inline void
+InputFile_free(InputFile of) {
+#if !_DAIC_LEAK_EVERYTHING
+    if (of.fname) free(of.fname);
+    if (of.content) free(of.content);
+    if (of.cps) UTF8_FREE(of.cps);
+    if (of.cps_map) UTF8_FREE(of.cps_map);
+#endif
+}
+
+static inline void
+InputFile_register_cleanup(DaicContext* ctx, InputFile of) {
+#if !_DAIC_LEAK_EVERYTHING
+    daic_cleanup_claim(ctx, of.fname);
+    daic_cleanup_claim(ctx, of.content);
+    if (of.cps) daic_cleanup_add(ctx, UTF8_FREE, of.cps);
+    if (of.cps_map) daic_cleanup_add(ctx, UTF8_FREE, of.cps_map);
+#endif
 }
 
 static inline void
@@ -361,8 +370,12 @@ parse_includePath(daisho_tokenizer* tctx, DaicContext* ctx, char* current_file,
     return foundstr;
 }
 
+// Does not #include. Just creates an entry for the input file list.
+// This entry may or may not be complete. The function's approach to
+// error handling is to exit early if an error occurs, and return what's
+// been processed. In the case of an error err_msg will be set.
 static inline InputFile
-daic_read_utf8decode_file(char* path, char** err_msg) {
+daic_read_utf8decode_file(DaicContext* ctx, char* path, char** err_msg) {
     InputFile of;
     of.fname = NULL;
     of.inode = 0;
@@ -382,18 +395,22 @@ daic_read_utf8decode_file(char* path, char** err_msg) {
             *err_msg = daic_eperm_err;
         else
             *err_msg = daic_realpath_err;
+        InputFile_free(of);
         return of;
     }
 
     int fd = open(path, O_RDONLY);
     if (fd == -1) {
         *err_msg = daic_open_err;
+        InputFile_free(of);
         return of;
     }
 
     struct stat st;
     if (fstat(fd, &st)) {
         *err_msg = "Could not stat file.";
+        close(fd);
+        InputFile_free(of);
         return of;
     }
     of.contentlen = (size_t)st.st_size;
@@ -402,6 +419,8 @@ daic_read_utf8decode_file(char* path, char** err_msg) {
     of.content = (char*)malloc(of.contentlen + 1);
     if (!of.content) {
         *err_msg = "Could not allocate memory for the file's contents.";
+        close(fd);
+        InputFile_free(of);
         return of;
     }
 
@@ -409,15 +428,21 @@ daic_read_utf8decode_file(char* path, char** err_msg) {
     size_t bytes_read = _Dai_read_wrapper(fd, of.content, of.contentlen, &err);
     if (err) {
         *err_msg = "Could not read from the file.";
+        close(fd);
+        InputFile_free(of);
         return of;
     }
 
     if (!UTF8_decode_map(of.content, of.contentlen, &of.cps, &of.cpslen, &of.cps_map)) {
         *err_msg = "Could not decode to UTF32.";
+        close(fd);
+        InputFile_free(of);
         return of;
     }
 
     *err_msg = NULL;
+    close(fd);
+    InputFile_register_cleanup(ctx, of);
     return of;
 }
 
@@ -426,7 +451,7 @@ daic_read_utf8decode_tokenize_file(DaicContext* ctx, char* inputFilePath,
                                    _Daic_List_daisho_token* append_tokens,
                                    _Daic_List_InputFile* opened_files, bool first_file) {
     char* read_err_msg = NULL;
-    InputFile inf = daic_read_utf8decode_file(inputFilePath, &read_err_msg);
+    InputFile inf = daic_read_utf8decode_file(ctx, inputFilePath, &read_err_msg);
     if (read_err_msg) {
         char* emsg = NULL;
         size_t len = 0;
@@ -439,9 +464,7 @@ daic_read_utf8decode_tokenize_file(DaicContext* ctx, char* inputFilePath,
                               0 /*line*/, 0 /*col*/, _DAIC_ERROR_SEV_ERROR, 0 /*trace_frame*/);
     }
 
-    // Jijack the finalizer uwu
     _Daic_List_InputFile_add(opened_files, inf);
-    daic_cleanup_pop_matching(ctx, _Daic_List_InputFile_cleanup);
 
     daisho_tokenizer tokenizer;
     daisho_tokenizer_init(&tokenizer, inf.cps, inf.cpslen);

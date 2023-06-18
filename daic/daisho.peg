@@ -1,6 +1,4 @@
-%precode     #ifndef DAIC_TYPES_INCLUDE
-%precode     #include "types.h"
-%precode     #endif
+
 %include     "../stdlib/Daisho.h"
 
 %precode     struct PreMonoSymtab;
@@ -21,9 +19,10 @@
 %errextrainit err->from_file = tok.from_file;
 
 
-program    <- sh:SHEBANG? nses:{ret=list(NSLIST)} nsn:{} cn:{}
+program    <- sh:SHEBANG? nses:{ret=list(NSLIST)}
              ({ret=(ctx->pos >= ctx->len) ? NULL : SUCC} ns:namespace current:{
-                // The top level declarations of all namespaces are combined.
+                // You can switch namespaces by declaring them. So, we want to combine
+                // namespaces with the same name, because they are the same namespace.
                 int found = 0;
                 for (size_t i = 0; i < nses->num_children; i++) {
                   current = nses->children[i];
@@ -50,9 +49,9 @@ namespace  <- ((NAMESPACE name:TYPEIDENT wsemi)
               (SEMI / {t=NULL} t:topdecl {add(l, t)}))*
               {rule = node(NAMESPACE, name, l)}
 
-/****************/
-/* DECLARATIONS */
-/****************/
+//////////////////
+// DECLARATIONS //
+//////////////////
 
 topdecl    <- structdecl
             / uniondecl
@@ -107,6 +106,10 @@ fnproto    <- FN? rett:returntype
               semiornl?
               {rule=node(FNPROTO, rett, name, tmpl, al)}
 
+// TODO allow declaring struct S { Int i, j, k; };
+
+stunmember <- fndecl / typemember
+
 fnmember   <- rule:fndecl
             / rule:fnproto
 
@@ -119,9 +122,9 @@ tmplexpand <- LT rule:typelist {rule->kind = kind(TMPLEXPAND)} GT
 returntype <- (type / {ret=leaf(VOIDTYPE)})
 
 
-/*********/
-/* TYPES */
-/*********/
+///////////
+// TYPES //
+///////////
 
 type       <- &(OPEN / SELFTYPE / VOIDTYPE / VOIDPTR / TYPEIDENT) rule:fntype
 
@@ -152,9 +155,9 @@ voidptr    <- v:VOIDPTR         {rule=v}
             / v:VOIDTYPE s:STAR {rule=leaf(VOIDPTR)}
 
 
-/***********************/
-/* FUNCTIONS AND TYPES */
-/***********************/
+/////////////////////////
+// FUNCTIONS AND TYPES //
+/////////////////////////
 
 typelist   <- nocomma? {rule=list(TYPELIST)}
               t:type? {if has(t) add(rule, t)}
@@ -170,17 +173,18 @@ arglist    <- nocomma? {rule=list(ARGLIST)}
               a:fnarg? {if has(a) add(rule, a)}
              (COMMA a:fnarg {add(rule, a)})* nocomma?
 
-protoarg   <- t:type i:VARIDENT?
-              {rule=node(PROTOARG, t)}
+%node NOARG
+protoarg   <- t:type i:(VARIDENT / {ret=leaf(NOARG)})
+              {rule=node(PROTOARG, t, i)}
 protoarglist
            <- nocomma? {rule=list(PROTOLIST)}
               p:protoarg? {if has(p) add(rule, p)}
              (COMMA p:protoarg {add(rule, p)})* nocomma?
 
 
-/***************/
-/* EXPRESSIONS */
-/***************/
+/////////////////
+// EXPRESSIONS //
+/////////////////
 
 expr       <- !SEMI !CLOSE rule:next
 
@@ -251,10 +255,8 @@ cmpexpr    <- rule:next
              /ge:GEQ n:next {rule=binop(ge, rule, n)})*
 
 shfexpr    <- rule:next // Tokenized as < < and > >.
-             (l:LT lt:LT n:next ll:{ret=node(BSL, l, lt)}
-              {rule=binop(ll, rule, n)}
-             /g:GT gt:GT n:next gg:{ret=node(BSR, g, gt)}
-              {rule=binop(gg, rule, n)})*
+             (l:bsl n:next {rule=binop(l, rule, n)}
+             /r:bsr n:next {rule=binop(r, rule, n)})*
 
 sumexpr    <- rule:next
              (p:PLUS  n:next {rule=binop(p, rule, n)}
@@ -294,9 +296,9 @@ increxpr   <- rule:next ((i:INCR {rule=unop(i, rule)})
 
 notexpr    <- rule:next (e:EXCL {rule=unop(e, rule)})*
 
-/*********************************/
-/* ATOMS AND SPECIAL EXPRESSIONS */
-/*********************************/
+///////////////////////////////////
+// ATOMS AND SPECIAL EXPRESSIONS //
+///////////////////////////////////
 
 atomexpr   <-
             // {}
@@ -313,7 +315,7 @@ atomexpr   <-
               / listcomp
               / listlit
             // Unambiguous
-              / NUMLIT
+              / number
               / SELFVAR
               / CHARLIT
               / nativeexpr
@@ -382,13 +384,15 @@ fstrfrag   <- STRLIT
 
 sizeofexpr <- SIZEOF OPEN te:(type / expr) CLOSE {rule=node(SIZEOF, te)}
 
+number <- INTLIT / TINTLIT / FLOATLIT / TFLOATLIT
+
 %token NATIVEBODY
 nativeexpr <- NATIVE rule:NATIVEBODY
 
 
-/***********/
-/* Helpers */
-/***********/
+/////////////
+// Helpers //
+/////////////
 
 %code static inline int cpstr_equals(codepoint_t* s1, size_t l1, codepoint_t* s2, size_t l2) {
 %code   if (l1 != l2) return 0;
@@ -427,24 +431,31 @@ cident     <- rule:VARIDENT {
     }
   }}
 
+bsl        <- l:LT lt:LT rule:{ret=node(BSL, l, lt)}
+
+bsr        <- g:GT gt:GT rule:{ret=node(BSR, g, gt)}
+
 semiornl   <- SEMI
             / {ret = (ctx->pos >= ctx->len ||
                       ctx->tokens[ctx->pos - 1].line < ctx->tokens[ctx->pos].line)
                       ? leaf(SEMI)
                       : NULL}
 
-overloadable <- VARIDENT
+overloadable <- TYPEIDENT /* Bool */
               / PLUS / MINUS / STAR / POW / DIV / MOD
-              / AND / OR / XOR / EXCL / BITNOT /
+              / AND / OR / XOR
+              / EXCL / BITNOT
+              / bsl / bsr
+              / LT / GT
+              / EQ LSBRACK RSBRACK
+              / LSBRACK RSBRACK EQ
 
 
 
-/******************/
-/* ERROR HANDLING */
-/******************/
+////////////////////
+// ERROR HANDLING //
+////////////////////
 
-%node RECOVERY
-wexpr      <- (expr     / {WARNING("Missing expression."); ret=leaf(RECOVERY)})
 noexpr     <- (e:expr     {WARNING("Extra expression."); ret=e})
 wcomma     <- (COMMA    / {WARNING("Missing comma."); ret=leaf(COMMA)})
 nocomma    <- (c:COMMA    {WARNING("Extra comma."); ret=c})
@@ -453,9 +464,9 @@ nosemi     <- (s:SEMI     {WARNING("Extra semicolon."); ret=s})
 wsemiornl  <- (semiornl / {WARNING("Missing semicolon or newline."); ret=leaf(SEMI)})
 
 
-/**************/
-/* NODE KINDS */
-/**************/
+////////////////
+// NODE KINDS //
+////////////////
 
 %node PROGRAM
 %node NSLIST
@@ -618,34 +629,17 @@ VOIDPTR:  "VoidPtr";
 SIZEOF: "sizeof";
 NAMESPACE: "namespace";
 
-NATIVE: (6, 11) { // native|ccode
-  (0, 'n') -> 1;
-  (1, 'a') -> 2;
-  (2, 't') -> 3;
-  (3, 'i') -> 4;
-  (4, 'v') -> 5;
-  (5, 'e') -> 6;
-  (0, 'c') -> 7;
-  (7, 'c') -> 8;
-  (8, 'o') -> 9;
-  (9, 'd') -> 10;
-  (10,'e') -> 11;
+// native|ccode
+NATIVE: (6, 11) {
+  (0, 'n') -> 1; (1, 'a') -> 2; (2, 't') -> 3; (3, 'i') -> 4; (4, 'v') -> 5; (5, 'e') -> 6;
+  (0, 'c') -> 7; (7, 'c') -> 8; (8, 'o') -> 9; (9, 'd') -> 10; (10,'e') -> 11;
 };
 
-INCLUDE: (7, 12) { // include|import
-  (0, '#') -> 0;
-  (0, 'i') -> 1;
-  (1, 'n') -> 2;
-  (2, 'c') -> 3;
-  (3, 'l') -> 4;
-  (4, 'u') -> 5;
-  (5, 'd') -> 6;
-  (6, 'e') -> 7;
-  (1, 'm') -> 8;
-  (8, 'p') -> 9;
-  (9, 'o') -> 10;
-  (10, 'r') -> 11;
-  (11, 't') -> 12;
+// [#%]?(incl(ude)?|import)
+INCLUDE: (5, 8, 14) {
+  (0, '#') -> 1;
+  (0, '%') -> 1; (1, 'i') -> 2; (2, 'n') -> 3; (3,  'c') -> 4;  (4,  'l') -> 5;  (5, 'u') -> 6;  (6, 'd') -> 7; (7, 'e') -> 8;
+                                (2, 'm') -> 9; (10, 'p') -> 11; (11, 'o') -> 12; (12,'r') -> 13; (13,'t') -> 14;
 };
 
 
@@ -714,6 +708,7 @@ REDEF: (5, 8) {
 /////////////////////////////
 
 // Starts with capital
+// [A-Z][_a-zA-Zα-ωΑ-Ω0-9]*
 TYPEIDENT: (1, 2) {
   (0, [A-Z]) -> 1;
   ((1, 2), [_a-zA-Zα-ωΑ-Ω0-9]) -> 2;
@@ -725,13 +720,64 @@ VARIDENT: (1, 2) {
   ((1, 2), [_a-zA-Zα-ωΑ-Ω0-9]) -> 2;
 };
 
+// 0([bB][01]+|[xX][0-9a-fA-F]+)|[-+]?[0-9]+
+INTLIT: (2, 100, 200, 300) {
+  (0, '0') -> 100;
+  (0, [-+]) -> 1;
+  ((0, 1, 2), [0-9]) -> 2;
+  (100, [bB]) -> 199;
+  ((199, 200), [01]) -> 200;
+  (100, [xX]) -> 299;
+  ((299, 300), [0-9a-fA-F]) -> 300;
+};
+
+// This should accept nonsense like "-5u" because
+// errors are easier to give after tokenizing.
+// (0([bB][01]+|[xX][0-9a-fA-F]+)|[-+]?[0-9]+)((i|u)(8|16|32|64)?|l|ll|s|ss)
+TINTLIT: (8, 16, 32, 64, 101, 102, 103, 104, 105, 106) {
+  // Parse INTLIT
+  // End states are (2, 100, 200, 300), like above.
+  // These are not accepting states, the letter postfix is required.
+  (0, [-+]) -> 1;
+  (0, '0') -> 100;
+  ((0, 1, 2), [0-9]) -> 2;
+  (100, [bB]) -> 199; ((199, 200), [01]) -> 200;
+  (100, [xX]) -> 299; ((299, 300), [0-9a-fA-F]) -> 300;
+
+  // postfix letters (i, u, l, ll, s, ss)
+  // Note that none of these postfix letters are valid as hex.
+  ((2, 100, 200, 300), 'i') -> 101;                    // Int
+  ((2, 100, 200, 300), 'u') -> 102;                    // Unsigned
+  ((2, 100, 200, 300), 'l') -> 103; (103, 'l') -> 104; // Long, LongLong
+  ((2, 100, 200, 300), 's') -> 105; (105, 's') -> 106; // Size_t, SSize_t
+
+  // u32, i64, etc.
+  ((101, 102), '8') -> 8;
+  ((101, 102), '1') -> 15; (15, '6') -> 16;
+  ((101, 102), '3') -> 31; (31, '2') -> 32;
+  ((101, 102), '6') -> 63; (63, '4') -> 64;
+};
+
 // [-+]?[0-9]+(\.[0-9]+)?
-NUMLIT: (2, 3) {
+FLOATLIT: (3) {
   (0, [-+]) -> 1;
   ((0, 1, 2), [0-9]) -> 2;
   (2, '.') -> 3;
   (3, [0-9]) -> 3;
 };
+
+// [-+]?[0-9]+(\.[0-9]+)?(d|f(32|64)?)
+TFLOATLIT: (4, 5, 32, 64) {
+  (0, [-+]) -> 1;
+  ((0, 1, 2), [0-9]) -> 2;
+  (2, '.') -> 3;
+  (3, [0-9]) -> 3;
+  (3, 'd') -> 4;
+  (3, 'f') -> 5;
+  (5, '3') -> 31; (31, '2') -> 32;
+  (5, '6') -> 63; (63, '4') -> 64;
+};
+
 
 /////////////
 // Strings //
@@ -739,6 +785,7 @@ NUMLIT: (2, 3) {
 
 // Keep escape sequences up to date with extraparsing.h parse_includePath.
 
+// Strings of the form "" without any {}.
 // ["]([^"\n\\]|\\[nfbrte\\'"{}])*["]
 STRLIT: 2 {
   (0, ["])  -> 1;
@@ -760,6 +807,18 @@ STRLIT: 2 {
   (3, '{')  -> 1;  // open curly
   (3, '}')  -> 1;  // close curly
 };
+
+// For format strings, we split them up into multiple tokens.
+// This allows us to put expressions inbetween.
+
+// Example:
+// Input:  "Start of the string { expr    } middle of the string { expr    } end of the string."
+// Tokens: FSTRLITSTART           expr... FSTRLITMID               expr... FSTRLITEND
+
+// FSTRLITSTART: Starts with "\"", ends with "{".
+// FSTRLITMID:   Starts with "}",  ends with "{".
+// FSTRLITEND:   Starts with "}",  ends with "\"".
+
 
 FSTRLITSTART: 2 {
   (0, ["])  -> 1;

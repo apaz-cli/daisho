@@ -5,9 +5,7 @@
 #include <stdlib.h>
 
 #include "../stdlib/Daisho.h"
-#include "allocator.h"
 #include "cleanup.h"
-#include "daic_context.h"
 #include "enums.h"
 #include "list.h"
 #include "responses.h"
@@ -132,8 +130,8 @@ static inline void
 daic_panic(DaicContext* ctx, const char* panic_msg) {
 #if !_DAIC_LEAK_EVERYTHING
     daic_cleanup(ctx);
-    longjmp(ctx->panic_handler, 1);
     ctx->panic_err_message = (char*)panic_msg;
+    longjmp(ctx->panic_handler, 1);
 #else
     (void)ctx;
     (void)panic_msg;
@@ -141,7 +139,7 @@ daic_panic(DaicContext* ctx, const char* panic_msg) {
 }
 
 static inline void
-daic_do_panic(DaicContext* ctx, char* panic_err_message) {
+daic_print_panic(DaicContext* ctx, char* panic_err_message) {
     if (!panic_err_message) panic_err_message = "Unknown Error.";
     fputs("Daic panic: ", ctx->daic_stderr);
     fputs(panic_err_message, ctx->daic_stderr);

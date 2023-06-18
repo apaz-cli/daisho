@@ -4,8 +4,17 @@
 #include "list.h"
 
 
-// Takes a pointer to a malloced or null pointer.
-// Returns the number written or -1 on error.
+// sprintf(), but better in every conceivable way.
+// The first three arguments are both for input and output.
+// Inputs:
+// - buf: A malloced pointer, or null. If null, a buffer will be allocated.
+// - len: A pointer to the number of bytes in the buffer.
+// - cap: A pointer to the capacity of the buffer. If zero, *buf will be reallocated.
+// Outputs:
+// - buf: The buffer we're operating on, possibly reallocated.
+// - len: The new number of bytes in the buffer (input len + bytes written).
+// - cap: The new capacity of the buffer.
+// - return: The number of bytes written to the buffer, or -1 on error.
 static inline int
 daic_cstring_appendf(char** buf, size_t* len, size_t* cap, const char* fmt, ...) {
     if (!buf | !len | !cap) return -1;

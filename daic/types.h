@@ -4,9 +4,9 @@
 #include "daisho.peg.h"
 #endif
 
+#include "argparse.h"
 #include "enums.h"
 #include "list.h"
-
 
 // This file should contain only type definitions.
 
@@ -38,24 +38,7 @@ struct InputFile {
     size_t cpslen;
 };
 typedef struct InputFile InputFile;
-
 _DAIC_LIST_DECLARE(InputFile)
-_DAIC_LIST_DEFINE(InputFile)
-
-static inline void
-InputFile_free(InputFile of) {
-    if (of.fname) free(of.fname);
-    if (of.content) free(of.content);
-    if (of.cps) UTF8_FREE(of.cps);
-    if (of.cps_map) UTF8_FREE(of.cps_map);
-}
-
-static inline void
-InputFileList_cleanup(void* ifs) {
-    _Daic_List_InputFile* ipfs = (_Daic_List_InputFile*)ifs;
-    for (size_t i = 0; i < ipfs->len; i++) InputFile_free(ipfs->buf[i]);
-    _Daic_List_InputFile_clear(ipfs);
-}
 
 typedef int UNIMPL;
 
@@ -134,9 +117,7 @@ struct Declaration {
     Identifier id;
     uint8_t kind;
 };
-
 _DAIC_LIST_DECLARE(Declaration)
-_DAIC_LIST_DEFINE(Declaration)
 
 struct PreMonoSymtab;
 typedef struct PreMonoSymtab PreMonoSymtab;
@@ -144,15 +125,14 @@ struct PreMonoSymtab {
     PreMonoSymtab* parent;
     _Daic_List_Declaration decls;
 };
+_DAIC_LIST_DECLARE(PreMonoSymtab)
 
 struct NamespaceDecl {
     Identifier id;
     PreMonoSymtab symtab;
     daisho_astnode_t* nsnode;
 };
-
 _DAIC_LIST_DECLARE(NamespaceDecl)
-_DAIC_LIST_DEFINE(NamespaceDecl)
 
 //////////////////////
 // TYPES IN THE AST //
@@ -204,15 +184,48 @@ static PreMonoType* voidpretype = &_voidpretype;
 static PreMonoType _voidptrpretype = {.kind = VOIDPTR_PREMONOTYPE};
 static PreMonoType* voidptrpretype = &_voidptrpretype;
 
-_DAIC_LIST_DEFINE(PreMonoType)
-
 struct PostMonoType;
 typedef struct PostMonoType PostMonoType;
 struct PostMonoType {
     UNIMPL ui;
 };
-
 _DAIC_LIST_DECLARE(PostMonoType)
+
+typedef struct {
+    void (*f)(void*);
+    void* a;
+} DaicCleanupEntry;
+_DAIC_LIST_DECLARE(DaicCleanupEntry)
+typedef _Daic_List_DaicCleanupEntry DaicCleanupContext;
+
+struct DaicContext {
+    Daic_Args args;
+    FILE* daic_stdout;
+    FILE* daic_stderr;
+    char* panic_err_message;
+    jmp_buf panic_handler;
+    pgen_allocator allocator;
+    DaicCleanupContext cleanup;
+    daisho_tokenizer tokenizer;
+    daisho_parser_ctx parser;
+    daisho_astnode_t* ast;
+    _Daic_List_NamespaceDecl namespaces;
+};
+
+_DAIC_LIST_DECLARE(codepoint_t)
+_DAIC_LIST_DECLARE(daisho_token)
+
+_DAIC_LIST_DEFINE(codepoint_t)
+_DAIC_LIST_DEFINE(daisho_token)
+_DAIC_LIST_DEFINE(Declaration)
+_DAIC_LIST_DEFINE(NamespaceDecl)
+_DAIC_LIST_DEFINE(PreMonoType)
 _DAIC_LIST_DEFINE(PostMonoType)
+_DAIC_LIST_DEFINE(DaicCleanupEntry)
+_DAIC_LIST_DEFINE(InputFile)
+// typedef char* cstr;
+// _DAIC_LIST_DECLARE(cstr)
+// _DAIC_LIST_DEFINE(cstr)
+
 
 #endif /* DAIC_TYPES_INCLUDE */

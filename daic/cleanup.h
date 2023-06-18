@@ -2,48 +2,95 @@
 #define DAIC_CLEANUP_INCLUDE
 #include <stdlib.h>
 
-#include "daic_context.h"
-#include "list.h"
 #include "staticerr.h"
+#include "types.h"
+
+static inline void daic_panic(DaicContext* ctx, const char* panic_msg);
 
 // If we call _Daic_List_type_new(), there will be trouble. This sets the buffer
 // to NULL, which when we call add() will call cleanup_add() on itself, causing
 // infinite recursion and overflow the call stack. So we initialize it manually here.
-static inline _Daic_List_DaicCleanupEntry
-daic_cleanup_entries_new(char** panic_msg_loc) {
+static inline void
+daic_cleanup_init(DaicContext* ctx) {
     _Daic_List_DaicCleanupEntry self;
-    self.len = 0;
+    self.len = 1;
     self.cap = 256;
     self.buf = (DaicCleanupEntry*)malloc(sizeof(DaicCleanupEntry) * self.cap);
-    if (!_DAIC_LEAK_EVERYTHING && !self.buf) {
-        if (panic_msg_loc) *panic_msg_loc = daic_oom_err;
-    }
-    return self;
+    self.ctx = ctx;
+    ctx->cleanup = self;
+    if (!self.buf)
+        ctx->panic_err_message = daic_oom_err;
+    else
+        // Have the cleanup object clean itself up too. Since cleanup
+        // happens in reverse order, we know this is called last.
+        self.buf[0] = (DaicCleanupEntry){free, self.buf};
 }
 
+static inline void
+daic_cleanup_add_always(DaicContext* ctx, void (*fn)(void*), void* arg) {
+    _Daic_List_DaicCleanupEntry_add(&ctx->cleanup, (DaicCleanupEntry){fn, arg});
+}
 
 static inline void
 daic_cleanup_add(DaicContext* ctx, void (*fn)(void*), void* arg) {
 #if !_DAIC_LEAK_EVERYTHING
-    if (!fn || !arg) return;
-    _Daic_List_DaicCleanupEntry_add(&ctx->cleanup, (DaicCleanupEntry){fn, arg});
+    daic_cleanup_add_always(ctx, fn, arg);
 #else
-    (void)cleanup;
+    (void)ctx;
     (void)fn;
     (void)arg;
 #endif
 }
 
 static inline void
-daic_cleanup_pop_matching(DaicContext* ctx, void (*fptr)(void*)) {
-    if (ctx->cleanup.len && ctx->cleanup.buf[ctx->cleanup.len - 1].f == fptr)
-        ctx->cleanup.len--;
+daic_cleanup_claim(DaicContext* ctx, void* ptr) {
+#if !_DAIC_LEAK_EVERYTHING
+    if (!ptr) return;
+    daic_cleanup_add(ctx, free, ptr);
+#else
+    (void)ctx;
+    (void)ptr;
+#endif
 }
 
-// Error Cleanly
+static inline void*
+daic_cleanup_malloc(DaicContext* ctx, size_t size) {
+    if (_DAI_SANE && !size) daic_panic(ctx, "Tried to malloc() size zero.");
+    void* ptr = malloc(size);
+    if (_DAI_SANE && !ptr) daic_panic(ctx, "malloc() returned NULL.");
+
+#if !_DAIC_LEAK_EVERYTHING
+    _Daic_List_DaicCleanupEntry_add(&ctx->cleanup, (DaicCleanupEntry){free, ptr});
+#endif
+    return ptr;
+}
+
+static inline void*
+daic_cleanup_realloc(DaicContext* ctx, void* ptr, size_t size) {
+    // null ptr is valid for realloc
+    if (_DAI_SANE && !size) daic_panic(ctx, "Tried to realloc() size zero.");
+    void* rptr = realloc(ptr, size);
+    if (_DAI_SANE && !rptr) daic_panic(ctx, daic_oom_err);
+
+#if !_DAIC_LEAK_EVERYTHING
+    int inserted = 0;
+    if (ptr)
+        for (size_t i = 0; i < ctx->cleanup.len; i++)
+            if (ctx->cleanup.buf[i].a == ptr && ctx->cleanup.buf[i].f == free)
+                ctx->cleanup.buf[i].a = rptr, inserted = 1;
+    if (!inserted) _Daic_List_DaicCleanupEntry_add(&ctx->cleanup, (DaicCleanupEntry){free, rptr});
+#endif
+    return rptr;
+}
+
+// Destroy all memory, open files, and resources used by DaicContext.
 static inline void
 daic_cleanup(DaicContext* ctx) {
+    // Cleanup is still called even with _DAIC_LEAK_EVERYTHING.
+    // We do this to do things like close files. The list of
+    // things to do will just be a lot smaller.
     _Daic_List_DaicCleanupEntry* cleanup = &ctx->cleanup;
+
     // Reverse the list
     size_t j = cleanup->len - 1;
     for (size_t i = 0; i < (cleanup->len / 2); i++) {

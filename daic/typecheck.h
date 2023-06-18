@@ -14,6 +14,19 @@ nodeIdentifier(daisho_astnode_t* node) {
 static inline void
 mainReturnsInt(daisho_astnode_t* ast) {}
 
+static inline void
+prependSelfToMethod(DaicContext* ctx, daisho_astnode_t* methodArglist, int methodIsStub) {
+    daisho_astnode_t* self = daisho_astnode_leaf(&ctx->allocator, DAISHO_NODE_SELFTYPE);
+    
+}
+
+static inline void
+hoistMethodDeclarations(DaicContext* ctx, daisho_astnode_t* sudecl) {
+    
+}
+
+// Constructs a namespace (symbol table) out of each
+// namespace declaration in the AST.
 static inline _Daic_List_NamespaceDecl
 extractNamespacesAndTLDs(DaicContext* ctx, daisho_astnode_t* root) {
     _Daic_List_NamespaceDecl nsdlist = _Daic_List_NamespaceDecl_new(ctx);
@@ -114,17 +127,6 @@ extractNamespacesAndTLDs(DaicContext* ctx, daisho_astnode_t* root) {
 }
 
 static inline void
-cleanup_namespaces_tlds(void* nstld) {
-    _Daic_List_NamespaceDecl* nsdlist = (_Daic_List_NamespaceDecl*)nstld;
-
-    for (size_t i = 0; i < nsdlist->len; i++) {
-        PreMonoSymtab pms = nsdlist->buf[0].symtab;
-        _Daic_List_Declaration* decls = &pms.decls;
-        _Daic_List_Declaration_cleanup(decls);
-    }
-}
-
-static inline void
 exprTypeVisit(daisho_astnode_t* n, daisho_astnode_t* ns) {
     printf("Visiting kind: %s\n", daisho_nodekind_name[n->kind]);
     daisho_astnode_kind kind = n->kind;
@@ -134,6 +136,19 @@ exprTypeVisit(daisho_astnode_t* n, daisho_astnode_t* ns) {
     } else if (kind == DAISHO_NODE_NAMESPACE) {
         for (size_t i = 0; i < n->children[1]->num_children; i++)
             exprTypeVisit(n->children[1]->children[i], n->children[0]);
+    } else if (kind == DAISHO_NODE_FNDECL) {
+        daisho_astnode_t* rettype = n->children[0];
+        daisho_astnode_t* name = n->children[1];
+        daisho_astnode_t* expand = n->children[2];
+        daisho_astnode_t* arglist = n->children[3];
+        daisho_astnode_t* expression = n->children[4];
+        exprTypeVisit(expression, ns);
+    } else if (kind == DAISHO_NODE_CALL) {
+        daisho_astnode_t* function = n->children[0];
+        daisho_astnode_t* expand = n->children[1];
+        daisho_astnode_t* exprlist = n->children[2];
+        for (size_t i = 0; i < exprlist->num_children; i++)
+            exprTypeVisit(exprlist->children[i], ns);
     } else {
         printf("Error in type checking: Unknown astnode kind: %s\n", daisho_nodekind_name[n->kind]);
     }
