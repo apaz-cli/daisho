@@ -46,6 +46,9 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
         return 1;
     }
 
+    // Also initialize pretty errors.
+    _Daic_List_DaicErrorPtr errors = _Daic_List_DaicErrorPtr_new(&ctx);
+
     // Error handling will be handling like so.
     // Errors are put into three categories.
     // 1. Compiler errors (DaicError and daic_error_print())
@@ -68,8 +71,6 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
         daic_cleanup(&ctx);
         return 1;
     }
-
-    _Daic_List_DaicErrorPtr errors = _Daic_List_DaicErrorPtr_new(&ctx);
 
     pgen_allocator allocator = pgen_allocator_new();
     daic_cleanup_add(&ctx, daic_allocator_cleanup, (void*)&allocator);
@@ -112,8 +113,8 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     }
 
     if (ast) {
-        _Daic_List_NamespaceDecl nsdecls = extractNamespacesAndTLDs(&ctx, ast);
-        exprTypeVisit(ast, NULL);
+        extractNamespacesAndTLDs(&ctx, ast);
+        exprTypeVisit(&ctx, ast, NULL);
     }
 
     daic_cleanup(&ctx);

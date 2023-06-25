@@ -10,29 +10,10 @@
 #include "list.h"
 #include "responses.h"
 
-struct DaicError;
-typedef struct DaicError DaicError;
-struct DaicError {
-    DaicError* next;
-    char* msg;  // If it must be freed, add to the cleanup context first.
-    char* file;
-    size_t line;
-    size_t col;
-    DaicSeverity severity;
-    DaicStage stage;
-    bool trace_frame;
-};
-typedef DaicError* DaicErrorPtr;
-
-_DAIC_LIST_DECLARE(DaicErrorPtr)
-_DAIC_LIST_DEFINE(DaicErrorPtr)
-
 static inline DaicError*
-daic_error_new(DaicContext* ctx, DaicStage stage, char* msg, char* file, size_t line,
-               size_t col, DaicSeverity severity, bool trace_frame) {
-    DaicError* e = (DaicError*)malloc(sizeof(DaicError));
-    if (!e) daic_panic(ctx, daic_oom_err);
-    daic_cleanup_add(ctx, free, e);
+daic_error_new(DaicContext* ctx, DaicStage stage, char* msg, char* file, size_t line, size_t col,
+               DaicSeverity severity, bool trace_frame) {
+    DaicError* e = (DaicError*)daic_cleanup_malloc(ctx, sizeof(DaicError));
     e->next = NULL;
     e->msg = msg;
     e->file = file;
@@ -45,9 +26,15 @@ daic_error_new(DaicContext* ctx, DaicStage stage, char* msg, char* file, size_t 
 }
 
 static inline void
-daic_error_destroy(DaicError* e) {
-    if (!e) return;
-    free(e);
+daic_error_add(DaicContext* ctx, DaicError* e) {
+    _Daic_List_DaicErrorPtr_add(&ctx->errors, e);
+}
+
+static inline void
+daic_type_error_global(DaicContext* ctx, char* msg) {
+    DaicError* e =
+        daic_error_new(ctx, DAIC_ERROR_STAGE_TYPING, msg, NULL, 0, 0, _DAIC_ERROR_SEV_ERROR, 0);
+    daic_error_add(ctx, e);
 }
 
 static inline void
@@ -55,16 +42,16 @@ daic_error_print_sourceinfo(FILE* f, DaicError* e, int color) {
     char* fcolor = color ? _DAI_COLOR_FILE : "";
     char* lcolor = color ? _DAI_COLOR_LINE : "";
     char* ccolor = color ? _DAI_COLOR_LINE : "";
-    char* colorreset = color ? _DAI_COLOR_RESET : "";
+    char* reset = color ? _DAI_COLOR_RESET : "";
     if (!e->file)
-        fprintf(f, "%sunknown file%s:", fcolor, colorreset);
+        return;
     else if (!e->line)
-        fprintf(f, "%s%s%s:", fcolor, e->file, colorreset);
+        fprintf(f, "%s%s%s:", fcolor, e->file, reset);
     else if (!e->col)
-        fprintf(f, "%s%s%s:%s%zu%s:", fcolor, e->file, colorreset, lcolor, e->line, colorreset);
+        fprintf(f, "%s%s%s:%s%zu%s:", fcolor, e->file, reset, lcolor, e->line, reset);
     else
-        fprintf(f, "%s%s%s:%s%zu%s:%s%zu%s:", fcolor, e->file, colorreset, lcolor, e->line,
-                colorreset, ccolor, e->col, colorreset);
+        fprintf(f, "%s%s%s:%s%zu%s:%s%zu%s:", fcolor, e->file, reset, lcolor, e->line, reset,
+                ccolor, e->col, reset);
 }
 
 static inline void

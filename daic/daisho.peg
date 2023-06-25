@@ -1,15 +1,15 @@
 
 %include     "../stdlib/Daisho.h"
 
-%precode     struct PreMonoSymtab;
-%precode     typedef struct PreMonoSymtab PreMonoSymtab;
-%extra       PreMonoSymtab* presymtab; // Anything in the scope created by this expression
-%extrainit   node->presymtab = NULL;
+%precode      struct PreMonoSymtab;
+%precode      typedef struct PreMonoSymtab PreMonoSymtab;
+%extra        PreMonoSymtab* presymtab; // Anything in the scope created by this expression
+%extrainit    node->presymtab = NULL;
 
-%precode     struct PreExprType;
-%precode     typedef struct PreExprType PreExprType;
-%extra       PreExprType* pretype; // The concrete type of this expression
-%extrainit   node->pretype = NULL;
+%precode      struct PreExprType;
+%precode      typedef struct PreExprType PreExprType;
+%extra        PreExprType* pretype; // The concrete type of this expression
+%extrainit    node->pretype = NULL;
 
 %precode      struct InputFile;
 %precode      typedef struct InputFile InputFile;
@@ -18,6 +18,8 @@
 %errextra     InputFile* from_file;
 %errextrainit err->from_file = tok.from_file;
 
+%extra        daisho_astnode_t* namespace; // The namespace that this type or declaration is in.
+%extrainit    node->namespace = NULL;
 
 program    <- sh:SHEBANG? nses:{ret=list(NSLIST)}
              ({ret=(ctx->pos >= ctx->len) ? NULL : SUCC} ns:namespace current:{
@@ -119,7 +121,8 @@ typemember <- t:type v:VARIDENT wsemi
 tmplexpand <- LT rule:typelist {rule->kind = kind(TMPLEXPAND)} GT
             / {rule=leaf(NOEXPAND)}
 
-returntype <- (type / {ret=leaf(VOIDTYPE)})
+%node INFER_TYPE
+returntype <- (type / {ret=leaf(INFER_TYPE)})
 
 
 ///////////
@@ -136,6 +139,7 @@ fntype     <- from:{} to:ptrtype
 
 ptrtype    <- rule:basetype (STAR {rule=node(PTRTYPE, rule)})*
 
+// Basetype will stand in for TYPEIDENT.
 %node BASETYPE
 %node CURRENT_NS
 basetype   <- OPEN rule:type CLOSE
@@ -143,9 +147,8 @@ basetype   <- OPEN rule:type CLOSE
             / SELFTYPE
             / v:VOIDTYPE !STAR {rule=v}
             / voidptr
-            / (ns:(nns:TYPEIDENT DOT ns:{ret=nns})?
+            / ((ns:TYPEIDENT DOT)? s:TYPEIDENT t:tmplexpand
                {if (!has(ns)) ns = leaf(CURRENT_NS)}
-               s:TYPEIDENT t:tmplexpand
                {rule=node(BASETYPE, ns, s, t)})
 
 tupletype  <- OPEN t:type COMMA CLOSE {rule=node(TUPLETYPE, t)}
@@ -441,7 +444,7 @@ semiornl   <- SEMI
                       ? leaf(SEMI)
                       : NULL}
 
-overloadable <- TYPEIDENT /* Bool */
+overloadable <- VARIDENT
               / PLUS / MINUS / STAR / POW / DIV / MOD
               / AND / OR / XOR
               / EXCL / BITNOT
@@ -512,7 +515,6 @@ wsemiornl  <- (semiornl / {WARNING("Missing semicolon or newline."); ret=leaf(SE
 %node EXPRLIST
 %node PROTOLIST
 
-%node TYPE
 %node PTRTYPE
 %node TUPLETYPE
 %node TYPEMEMBER

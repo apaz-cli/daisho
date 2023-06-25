@@ -10,6 +10,9 @@
 
 // This file should contain only type definitions.
 
+_DAIC_LIST_DECLARE(codepoint_t)
+_DAIC_LIST_DECLARE(daisho_token)
+
 //////////////////////////////
 // SYMTABS AND DECLARATIONS //
 //////////////////////////////
@@ -18,6 +21,13 @@ typedef struct {
     codepoint_t* name;
     size_t len;
 } Identifier;
+
+struct NamespaceDecl;
+typedef struct NamespaceDecl NamespaceDecl;
+typedef struct {
+    Identifier id;
+    NamespaceDecl* ns;
+} ResolvedIdentifier;
 
 static inline int
 ident_eq(Identifier i1, Identifier i2) {
@@ -44,8 +54,6 @@ typedef int UNIMPL;
 
 struct Declaration;
 typedef struct Declaration Declaration;
-struct NamespaceDecl;
-typedef struct NamespaceDecl NamespaceDecl;
 
 typedef struct {
     Declaration* type;
@@ -198,22 +206,36 @@ typedef struct {
 _DAIC_LIST_DECLARE(DaicCleanupEntry)
 typedef _Daic_List_DaicCleanupEntry DaicCleanupContext;
 
+struct DaicError;
+typedef struct DaicError DaicError;
+struct DaicError {
+    DaicError* next;
+    char* msg;  // If it must be freed, add to the cleanup context first.
+    char* file;
+    size_t line;
+    size_t col;
+    DaicSeverity severity;
+    DaicStage stage;
+    bool trace_frame;
+};
+typedef DaicError* DaicErrorPtr;
+_DAIC_LIST_DECLARE(DaicErrorPtr)
+
 struct DaicContext {
     Daic_Args args;
     FILE* daic_stdout;
     FILE* daic_stderr;
     char* panic_err_message;
     jmp_buf panic_handler;
+    _Daic_List_DaicErrorPtr errors;
     pgen_allocator allocator;
     DaicCleanupContext cleanup;
     daisho_tokenizer tokenizer;
     daisho_parser_ctx parser;
     daisho_astnode_t* ast;
+    NamespaceDecl* global_namespace;
     _Daic_List_NamespaceDecl namespaces;
 };
-
-_DAIC_LIST_DECLARE(codepoint_t)
-_DAIC_LIST_DECLARE(daisho_token)
 
 _DAIC_LIST_DEFINE(codepoint_t)
 _DAIC_LIST_DEFINE(daisho_token)
@@ -223,9 +245,9 @@ _DAIC_LIST_DEFINE(PreMonoType)
 _DAIC_LIST_DEFINE(PostMonoType)
 _DAIC_LIST_DEFINE(DaicCleanupEntry)
 _DAIC_LIST_DEFINE(InputFile)
+_DAIC_LIST_DEFINE(DaicErrorPtr)
 // typedef char* cstr;
 // _DAIC_LIST_DECLARE(cstr)
 // _DAIC_LIST_DEFINE(cstr)
-
 
 #endif /* DAIC_TYPES_INCLUDE */
