@@ -210,7 +210,7 @@ struct DaicError;
 typedef struct DaicError DaicError;
 struct DaicError {
     DaicError* next;
-    char* msg;  // If it must be freed, add to the cleanup context first.
+    char* msg;  // Non-owning.
     char* file;
     size_t line;
     size_t col;

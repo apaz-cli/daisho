@@ -88,6 +88,7 @@ daic_error_cmpstage(const void* a, const void* b) {
     return ((DaicError*)ae)->stage - ((DaicError*)b)->stage;
 }
 
+// TODO: For large numbers of errors this is prohibitively slow.
 // Bubble sort b/c qsort is unstable
 static inline void
 daic_error_sort(_Daic_List_DaicErrorPtr* errlist) {
@@ -105,7 +106,7 @@ daic_error_sort(_Daic_List_DaicErrorPtr* errlist) {
 
 static inline void
 daic_print_errlist(FILE* f, _Daic_List_DaicErrorPtr* errlist, int color) {
-    // Stable sort such that the highest severity errors are printed first.
+    // Stable sort such that the earliest errors are printed first.
     daic_error_sort(errlist);
     for (size_t i = 0; i < errlist->len; i++) {
         daic_error_print(f, errlist->buf[i], color);
@@ -115,21 +116,19 @@ daic_print_errlist(FILE* f, _Daic_List_DaicErrorPtr* errlist, int color) {
 // Explode
 static inline void
 daic_panic(DaicContext* ctx, const char* panic_msg) {
-#if !_DAIC_LEAK_EVERYTHING
     daic_cleanup(ctx);
     ctx->panic_err_message = (char*)panic_msg;
     longjmp(ctx->panic_handler, 1);
-#else
-    (void)ctx;
-    (void)panic_msg;
-#endif
 }
 
 static inline void
-daic_print_panic(DaicContext* ctx, char* panic_err_message) {
+_daic_print_panic(DaicContext* ctx, char* panic_err_message) {
     if (!panic_err_message) panic_err_message = "Unknown Error.";
-    fputs("Daic panic: ", ctx->daic_stderr);
-    fputs(panic_err_message, ctx->daic_stderr);
+    char errbuf[4096];
+    const char* errfmt = _DAI_COLOR_RED "Daic panic:" _DAI_COLOR_RESET " %s\n";
+    snprintf(errbuf, 4095, errfmt, panic_err_message);
+    errbuf[4095] = '\0';
+    fputs(errbuf, ctx->daic_stderr);
 }
 
 #endif /* DAIC_ERRHANDLER_INCLUDE */

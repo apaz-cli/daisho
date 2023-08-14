@@ -24,4 +24,7 @@ static char* daic_incl_decode_err = "Failed to decode the include path to utf8."
 
 static char* daic_entire_file_err = "Could not parse the entire file.";
 
+static char* daic_number_range_err = "Number out of range.";
+static char* daic_number_parse_err = "Number could not be parsed.";
+
 #endif /* DAIC_STATICERR_INCLUDE */

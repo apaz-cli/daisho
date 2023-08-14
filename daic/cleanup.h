@@ -83,6 +83,13 @@ daic_cleanup_realloc(DaicContext* ctx, void* ptr, size_t size) {
     return rptr;
 }
 
+static inline void*
+daic_cleanup_strdup(DaicContext* ctx, char* s) {
+    if (_DAI_SANE && !s) daic_panic(ctx, "Tried to strdup() NULL.");
+    size_t slen = strlen(s);
+    return slen ? strcpy(daic_cleanup_malloc(ctx, slen + 1), s) : "";
+}
+
 // Destroy all memory, open files, and resources used by DaicContext.
 static inline void
 daic_cleanup(DaicContext* ctx) {
@@ -117,6 +124,7 @@ daic_cleanup(DaicContext* ctx) {
 
     // Delete self
     _Daic_List_DaicCleanupEntry_clear(cleanup);
+    daic_argdestroy(&ctx->args);
 }
 
 #endif /* DAIC_CLEANUP_INCLUDE */

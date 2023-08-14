@@ -7,6 +7,7 @@
 #include "allocator.h"
 #include "errhandler.h"
 #include "list.h"
+#include "typecheck.h"
 #include "utils.h"
 
 static inline void
