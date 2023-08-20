@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "types.h"
+
 #include "../stdlib/Daisho.h"
 
 static const char helpmsg[] =
@@ -21,20 +23,6 @@ static const char helpmsg[] =
     "    -o, --output             Specify the output file.                 \n";
 
 static const char versionmsg[] = "0.0.1";
-
-typedef struct {
-    char* target;
-    char* outputfile;
-    char* errstr;
-    size_t errstrlen;
-    size_t errstrcap;
-    bool errfail : 1;
-    bool h : 1;  // Help
-    bool v : 1;  // Version
-    bool t : 1;  // Tokens
-    bool a : 1;  // AST
-    bool c : 1;  // Color
-} Daic_Args;
 
 // We use this after allocation error, knowing that it allocates and will fail.
 // When it does, it will set errfail.

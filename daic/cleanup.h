@@ -2,10 +2,9 @@
 #define DAIC_CLEANUP_INCLUDE
 #include <stdlib.h>
 
-#include "staticerr.h"
 #include "types.h"
-
-static inline void daic_panic(DaicContext* ctx, const char* panic_msg);
+#include "staticerr.h"
+#include "argparse.h"
 
 // If we call _Daic_List_type_new(), there will be trouble. This sets the buffer
 // to NULL, which when we call add() will call cleanup_add() on itself, causing

@@ -7,7 +7,6 @@
 
 struct DaicContext;
 typedef struct DaicContext DaicContext;
-static inline void* daic_cleanup_realloc(DaicContext* ctx, void* ptr, size_t size);
 
 /********/
 /* List */

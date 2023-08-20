@@ -4,11 +4,24 @@
 #include "daisho.peg.h"
 #endif
 
-#include "argparse.h"
 #include "enums.h"
 #include "list.h"
 
 // This file should contain only type definitions.
+
+typedef struct {
+    char* target;
+    char* outputfile;
+    char* errstr;
+    size_t errstrlen;
+    size_t errstrcap;
+    bool errfail : 1;
+    bool h : 1;  // Help
+    bool v : 1;  // Version
+    bool t : 1;  // Tokens
+    bool a : 1;  // AST
+    bool c : 1;  // Color
+} Daic_Args;
 
 _DAIC_LIST_DECLARE(codepoint_t)
 _DAIC_LIST_DECLARE(daisho_token)
@@ -142,6 +155,15 @@ struct NamespaceDecl {
 };
 _DAIC_LIST_DECLARE(NamespaceDecl)
 
+typedef struct {
+    bool err;                     // 1 if error, 0 if the rest is valid.
+    bool sign;                    // 1 if negative, 0 if positive
+    bool floating;                // 1 if number is fp
+    char* postfix;                // Nullable, ((i|u)(8|16|32|64)?|f(32|64)?|d|l|ll|s|ss)
+    unsigned long long content;   // [0-9]+
+    unsigned long long decimals;  // \.[0-9]*
+} NumberLiteral;
+
 //////////////////////
 // TYPES IN THE AST //
 //////////////////////
@@ -237,6 +259,24 @@ struct DaicContext {
     _Daic_List_NamespaceDecl namespaces;
 };
 
+///////////////////////////////
+// IMPORTANT PREDECLARATIONS //
+///////////////////////////////
+#if __clang__
+_Pragma("clang diagnostic push")
+_Pragma("clang diagnostic ignored \"-Wundefined-internal\"")
+#endif
+
+static inline void daic_panic(DaicContext* ctx, const char* panic_msg);
+static inline void* daic_cleanup_realloc(DaicContext* ctx, void* ptr, size_t size);
+
+#if __clang__
+_Pragma("clang diagnostic pop")
+#endif
+
+
+// Expand lists
+
 _DAIC_LIST_DEFINE(codepoint_t)
 _DAIC_LIST_DEFINE(daisho_token)
 _DAIC_LIST_DEFINE(Declaration)
@@ -246,8 +286,5 @@ _DAIC_LIST_DEFINE(PostMonoType)
 _DAIC_LIST_DEFINE(DaicCleanupEntry)
 _DAIC_LIST_DEFINE(InputFile)
 _DAIC_LIST_DEFINE(DaicErrorPtr)
-// typedef char* cstr;
-// _DAIC_LIST_DECLARE(cstr)
-// _DAIC_LIST_DEFINE(cstr)
 
 #endif /* DAIC_TYPES_INCLUDE */

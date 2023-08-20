@@ -36,15 +36,6 @@ identifierString(DaicContext* ctx, Identifier* id) {
     return mname;
 }
 
-typedef struct {
-    bool err;                     // 1 if error, 0 if the rest is valid.
-    bool sign;                    // 1 if negative, 0 if positive
-    bool floating;                // 1 if number is fp
-    char* postfix;                // Nullable, ((i|u)(8|16|32|64)?|f(32|64)?|d|l|ll|s|ss)
-    unsigned long long content;   // [0-9]+
-    unsigned long long decimals;  // \.[0-9]*
-} NumberLiteral;
-
 static inline bool
 startsWith(char* str, const char* prefix) {
     return strncmp(prefix, str, strlen(prefix)) == 0;
@@ -230,10 +221,13 @@ findAndValidateMain(DaicContext* ctx, daisho_astnode_t* ast) {
 static inline void
 prependSelfToMethod(DaicContext* ctx, daisho_astnode_t* methodArglist, int methodIsStub) {
     daisho_astnode_t* self = daisho_astnode_leaf(&ctx->allocator, DAISHO_NODE_SELFTYPE);
+    (void)methodArglist, (void)methodIsStub;
 }
 
 static inline void
-hoistMethodDeclarations(DaicContext* ctx, daisho_astnode_t* sudecl) {}
+hoistMethodDeclarations(DaicContext* ctx, daisho_astnode_t* sudecl) {
+    (void)ctx, (void)sudecl;
+}
 
 // Constructs a namespace (symbol table) out of each
 // namespace declaration in the AST.
