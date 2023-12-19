@@ -12,5 +12,3 @@ int main(void) {
     _Dai_init_backtrace();
     func1();
 }
-
-

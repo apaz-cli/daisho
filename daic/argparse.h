@@ -23,6 +23,7 @@ static const char helpmsg[] =
     "    -o, --output             Specify the output file.                 \n";
 
 static const char versionmsg[] = "0.0.1";
+static const char argparse_oom[] = "daic_argparse() out of memory.\n";
 
 // We use this after allocation error, knowing that it allocates and will fail.
 // When it does, it will set errfail.
@@ -30,6 +31,8 @@ static const char versionmsg[] = "0.0.1";
     do {                                    \
         daic_arg_error(&args, __VA_ARGS__); \
         daic_arg_error(&args, "\n");        \
+        if (!args.errstr)                   \
+            args.errstr = argparse_oom;     \
         return args;                        \
     } while (0)
 
@@ -52,9 +55,9 @@ daic_arg_error(Daic_Args* args, const char* fmt, ...) {
     int written = vsprintf(args->errstr + args->errstrlen, fmt, va);
     va_end(va);
     if (written < 0) {
+        free(args->errstr);
         args->errfail = 1;
         args->errstr = NULL;
-        free(args->errstr);
         return written;
     }
 
@@ -72,9 +75,9 @@ daic_arg_error(Daic_Args* args, const char* fmt, ...) {
         written = vsprintf(args->errstr + args->errstrlen, fmt, va);
         va_end(va);
         if (written < 0) {
+            free(args->errstr);
             args->errfail = 1;
             args->errstr = NULL;
-            free(args->errstr);
             return written;
         }
     }
@@ -152,9 +155,15 @@ daic_argparse(int argc, char** argv) {
 
 static inline void
 daic_argdestroy(Daic_Args* args) {
-    free(args->errstr);
-    free(args->target);
-    free(args->outputfile);
+    if (args->errstr && args->errstr != argparse_oom)
+        free(args->errstr);
+    if (args->target)
+        free(args->target);
+    if (args->outputfile)
+        free(args->outputfile);
+    args->errstr = NULL;
+    args->target = NULL;
+    args->outputfile = NULL;
 }
 
 #endif /* DAIC_ARGPARSE_INCLUDE */

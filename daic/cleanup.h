@@ -123,7 +123,7 @@ daic_cleanup(DaicContext* ctx) {
 
     // Delete self
     _Daic_List_DaicCleanupEntry_clear(cleanup);
-    daic_argdestroy(&ctx->args);
+    // daic_argdestroy(&ctx->args);
 }
 
 #endif /* DAIC_CLEANUP_INCLUDE */

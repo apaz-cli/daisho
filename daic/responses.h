@@ -25,10 +25,10 @@
 #define DAIC_RESPONSES_NEGATIVE                                        \
     "Your DAIC believes in you~", "Do you need DAIC's help~?",         \
         "Your DAIC still loves you no matter what~",                   \
-        "Oh no did DAIC's little USER make a big mess~?",              \
+        "Oh no, did DAIC's little USER make a big mess~?",             \
         "Your DAIC knows DAIC_POSESSIVE little USER can do better~",   \
         "Just a little further, USER~", "Aww, USER. Let's try again~", \
-        "Hehe, you're so cute when you're frustrated.~",                \
+        "Hehe, you're so cute when you're frustrated.~",               \
         "What a cutie. Your DAIC loves watching you squirm.~",         \
         "Sorry to hear about that USER. It's okay, DAIC can wait.~",   \
         "I guess your DAIC will have to punish you for that later.~",

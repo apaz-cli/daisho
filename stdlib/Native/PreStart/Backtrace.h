@@ -557,6 +557,7 @@ _Dai_write_backtrace(int scratch_fd, char* buf, size_t n, int err_no, int signal
     n--;
 
     // TODO actual bounds checking on appending to pages/space/display.
+    // TODO Save and restore errno
 
     return display_written;
 }
@@ -630,7 +631,7 @@ _Dai_init_backtrace(void) {
 _DAI_FN int
 _Dai_scratch_fd_create(void) {
     int ret = -1;
-#ifdef __USE_GNU
+#ifdef __USE_GNU // TODO: Use only if available.
     // Don't touch disk unless we have to.
     if (ret == -1) {
         char memfd_name[] = "Daisho_Backtrace";

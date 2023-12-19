@@ -167,6 +167,7 @@ parse_Nativebody(daisho_tokenizer* ctx) {
 static inline char*
 joinpaths(char* folder, char* sep, char* file) {
     char* filename = (char*)malloc(strlen(folder) + strlen(sep) + strlen(file) + 1);
+    if (!filename) daic_panic(NULL, daic_oom_err);
     strcpy(filename, folder);
     strcat(filename, sep);
     strcat(filename, file);

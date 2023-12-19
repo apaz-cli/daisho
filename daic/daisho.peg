@@ -63,20 +63,18 @@ topdecl    <- structdecl
             / nativeexpr
 
 structdecl <- STRUCT id:TYPEIDENT tmpl:tmplexpand IMPL il:typelist LCBRACK
-              members:{ret=list(MEMBERLIST)}
-             (m:typemember {add(members, m)})*
+              members:stunmembers
               RCBRACK
               {rule = node(STRUCT, id, tmpl, il ? il : leaf(TYPELIST), members)}
 
 uniondecl  <- UNION id:TYPEIDENT tmpl:tmplexpand LCBRACK
-              members:{ret=list(MEMBERLIST)}
-             (m:typemember {add(members, m)})*
+              members:stunmembers
               RCBRACK
               {rule = node(UNION, id, tmpl, members)}
 
-traitdecl  <- TRAIT id:TYPEIDENT tmpl:tmplexpand (IMPL il:typelist)?
-              members:{ret=list(MEMBERLIST)}
-             (LCBRACK (m:fnmember {add(members, m)})* RCBRACK)?
+traitdecl  <- TRAIT id:TYPEIDENT tmpl:tmplexpand (IMPL il:typelist)? lc:LCBRACK?
+              members:{ret=list(MEMBERLIST)} (m:fnmember {add(members, m)})*
+             rc:RCBRACK? {if (has(lc) != has(rc)) FATAL("Trait declaration parens mismatch.")}
               {rule = node(TRAIT, id, tmpl, il ? il : leaf(TYPELIST), members)}
 
 impldecl   <- IMPL id:TYPEIDENT tmpl:tmplexpand FOR ft:type LCBRACK
@@ -108,12 +106,21 @@ fnproto    <- FN? rett:returntype
 
 // TODO allow declaring struct S { Int i, j, k; };
 
-stunmember <- fndecl / typemember
-
 fnmember   <- rule:fndecl
             / rule:fnproto
 
-typemember <- t:type v:VARIDENT wsemi
+// stun - struct/union
+stunmembers <- members:{ret=list(MEMBERLIST)}
+               (fd:fndecl {add(members, fd)}
+               /vms:varmembers {for (size_t i = 0; i < vms->num_children; i++) add(members, vms->children[i])})*
+
+// trim - trait/impl
+trimmembers <- members:{ret=list(MEMBERLIST)}
+               (m:fnmember {add(members, m)})*
+
+varmembers <- t:type ret:{list(MEMBERLIST)}
+              (v:VARIDENT {add(ret, v)} (COMMA v:VARIDENT)* {add(ret, v)})*
+              wsemi
               {rule=node(TYPEMEMBER, t, v)}
 
 tmplexpand <- LT rule:typelist {rule->kind = kind(TMPLEXPAND)} GT
@@ -194,7 +201,7 @@ preretexpr <- r:RET n:expr {rule=node(RET, r, n)}
 
 forexpr    <- FOR o:OPEN?
               f:expr ((COLON / IN) / (wsemi s:expr wsemi)) t:expr
-              c:CLOSE? {if (has(o) != has(c)) WARNING("For expression parens mismatch.")}
+              c:CLOSE? {if (has(o) != has(c)) FATAL("For expression parens mismatch.")}
               e:expr
               {rule = has(s) ? node(FOR, f, boolconv(s), t, e)
                     :          node(FOREACH, f, t, e)}

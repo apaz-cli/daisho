@@ -15,19 +15,18 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     DaicContext ctx = {0};
 
     if (!daic_stdout || !daic_stderr)
-        return fputs("daic_stdout and daic_stderr should not be null.", stderr),
-               daic_argdestroy(&args), 1;
+        return fputs("daic_stdout and daic_stderr should not be null.", stderr), 1;
     ctx.daic_stdout = daic_stdout;
     ctx.daic_stderr = daic_stderr;
 
     if (args.h)
-        return fputs(helpmsg, daic_stderr), daic_argdestroy(&args), 0;
+        return fputs(helpmsg, daic_stderr), 0;
     else if (args.v)
-        return fputs(versionmsg, daic_stdout), daic_argdestroy(&args), 0;
+        return fputs(versionmsg, daic_stdout), 0;
     else if (args.errfail)
-        return daic_argdestroy(&args), 1;
+        return 1;
     else if (args.errstr)
-        return fputs(args.errstr, daic_stderr), daic_argdestroy(&args), 1;
+        return fputs(args.errstr, daic_stderr), 1;
     ctx.args = args;
 
     // Set up the panic handler.
@@ -45,7 +44,6 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     daic_cleanup_init(&ctx);
     if (ctx.panic_err_message) {
         _daic_print_panic(&ctx, ctx.panic_err_message);
-        daic_argdestroy(&args);
         return 1;
     }
 
@@ -61,8 +59,7 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     //                     out of memory, killed by signal, catastrophic drive failure)
 
     // From now on, we have a working way to do cleanup.
-    // That means we can rely on the panic handler, and
-    // ditch direct calls to daic_print_panic() and daic_argdestroy().
+    // That means we can rely on the panic handler, and ditch direct calls to daic_print_panic().
     // We try to shove all the memory that the program uses into the DaicContext,
     // and use daic_cleanup() to free it all up at the end, or when there's a compiler
     // or internal error.
@@ -137,7 +134,10 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
 
 static inline int
 daic_main(int argc, char** argv) {
-    return daic_main_args(daic_argparse(argc, argv), stdout, stderr);
+    Daic_Args args = daic_argparse(argc, argv);
+    int retval = daic_main_args(args, stdout, stderr);
+    daic_argdestroy(&args);
+    return retval;
 }
 
 #endif /* DAIC_MAIN_INCLUDE */

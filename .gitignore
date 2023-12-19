@@ -6,6 +6,7 @@ tests/bin/*
 compile_commands.json
 **/a.out
 **/*.swp
+**/infer-out/**
 
 daic/daic
 

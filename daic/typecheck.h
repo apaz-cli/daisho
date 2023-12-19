@@ -234,7 +234,6 @@ hoistMethodDeclarations(DaicContext* ctx, daisho_astnode_t* sudecl) {
 static inline void
 extractNamespacesAndTLDs(DaicContext* ctx, daisho_astnode_t* root) {
     ctx->namespaces = _Daic_List_NamespaceDecl_new(ctx);
-
     daisho_astnode_t* nslist = root->children[0];
     for (size_t nsnum = 0; nsnum < nslist->num_children; nsnum++) {
         NamespaceDecl nsd;
@@ -248,7 +247,6 @@ extractNamespacesAndTLDs(DaicContext* ctx, daisho_astnode_t* root) {
         size_t num_nsdecl_items = nsd.nsnode->children[1]->num_children;
         for (size_t i = 0; i < num_nsdecl_items; i++) {
             daisho_astnode_t* tld = nsdecl_items[i];
-
             if (tld->kind == DAISHO_NODE_STRUCT) {
                 Identifier id = nodeIdentifier(ctx, tld->children[0]);
                 StructDecl sd = {0};
@@ -324,7 +322,6 @@ extractNamespacesAndTLDs(DaicContext* ctx, daisho_astnode_t* root) {
                 exit(1);
             }
         }
-
         _Daic_List_NamespaceDecl_add(&ctx->namespaces, nsd);
     }
 }
