@@ -1,9 +1,9 @@
 #ifndef DAIC_MAIN_INCLUDE
 #define DAIC_MAIN_INCLUDE
 
-#include "allocator.h"
 #include "argparse.h"
 #include "cleanup.h"
+#include "codegen.h"
 #include "daisho.peg.h"
 #include "extraparsing.h"
 #include "list.h"
@@ -48,7 +48,7 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     }
 
     // Also initialize pretty errors.
-    _Daic_List_DaicErrorPtr errors = _Daic_List_DaicErrorPtr_new(&ctx);
+    ctx.errors = _Daic_List_DaicErrorPtr_new(&ctx);
 
     // Error handling will be handling like so.
     // Errors are put into three categories.
@@ -98,12 +98,12 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
                         daic_error_new(&ctx, DAIC_ERROR_STAGE_PARSER, (char*)parser.errlist[i].msg,
                                        parser.errlist[i].from_file->fname, parser.errlist[i].line,
                                        parser.errlist[i].col, parser.errlist[i].severity, 0);
-                    _Daic_List_DaicErrorPtr_add(&errors, err);
+                    _Daic_List_DaicErrorPtr_add(&ctx.errors, err);
                 }
             }
         }
         if (ex) {
-            daic_print_errlist(daic_stderr, &errors, 1);
+            daic_print_errlist(daic_stderr, &ctx.errors, 1);
             daic_cleanup(&ctx);
             return 1;
         }
@@ -125,8 +125,12 @@ daic_main_args(Daic_Args args, FILE* daic_stdout, FILE* daic_stderr) {
     }
 
     extractNamespacesAndTLDs(&ctx, ast);
-    exprTypeVisit(&ctx, ast, NULL);
+    exprTypeVisitPostMono(&ctx, ast, NULL);
+    findAndValidateMain(&ctx, ast);
+
     printNamespaceTLDs(&ctx);
+
+    codegen(&ctx, NULL);
 
     daic_cleanup(&ctx);
     return 0;

@@ -1,0 +1,19 @@
+ctype Char char
+ctype Void void
+
+extern {
+typedef struct {
+  uint x; uint y; uint z;
+} dim3;
+};
+
+ctype dim3 
+
+cudakernel kern() {
+ 
+}
+
+main() = 0 also {
+   dim3 n_blocks = kparams;
+   kern<<<{128}>>>
+}

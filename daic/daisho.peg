@@ -92,11 +92,11 @@ cfndecl    <- CFN rett:returntype
               semiornl
               {rule = node(CFN, rett, ci, al)}
 
-fndecl     <- FN? rett:returntype
+fndecl     <- (f:fnkw)? {f = has(f) ? f : leaf(FN)} rett:returntype
               name:VARIDENT tmpl:tmplexpand
               OPEN al:arglist CLOSE
               EQ? e:expr semiornl?
-              {rule=node(FNDECL, rett, name, tmpl, al, e)}
+              {rule=node(FNDECL, f, rett, name, tmpl, al, e)}
 
 fnproto    <- FN? rett:returntype
               name:VARIDENT tmpl:tmplexpand
@@ -105,6 +105,9 @@ fnproto    <- FN? rett:returntype
               {rule=node(FNPROTO, rett, name, tmpl, al)}
 
 // TODO allow declaring struct S { Int i, j, k; };
+
+
+fnkw <- FN / CUDAKERNEL
 
 fnmember   <- rule:fndecl
             / rule:fnproto
@@ -126,6 +129,22 @@ varmembers <- t:type ret:{list(MEMBERLIST)}
 tmplexpand <- LT rule:typelist {rule->kind = kind(TMPLEXPAND)} GT
             / {rule=leaf(NOEXPAND)}
 
+kdim <- LCBRACK 
+       (x:expr /
+        x:expr COMMA y:expr /
+        x:expr COMMA y:expr COMMA z:expr)
+        COMMA? RCBRACK
+      / e:expr
+
+kexpand <- LT LT LT
+          (dg:expr /
+           dg:expr COMMA db:expr /
+           dg:expr COMMA db:expr COMMA ns:expr /
+           dg:expr COMMA db:expr COMMA ns:expr COMMA s:expr)
+           GT GT GT
+          {rule=node(KCALLARGS, dg, db, ns, s)}
+
+%node KCALLARGS
 %node INFER_TYPE
 returntype <- (type / {ret=leaf(INFER_TYPE)})
 
@@ -295,9 +314,9 @@ castexpr   <- rule:next (OPEN t:type CLOSE
                          {rule=node(CAST, rule, t)})*
 
 callexpr   <- rule:next
-              ({ret=rule->kind == kind(VARIDENT) ? SUCC : NULL} te:tmplexpand)?
+              ({ret=rule->kind == kind(VARIDENT) ? SUCC : NULL} (ke:kexpand / te:tmplexpand))?
               (OPEN el:exprlist CLOSE
-              {rule = node(CALL, rule, te, el); te=NULL})*
+              {rule = node(CALL, rule, has(ke) ? ke : te, el); te=NULL})*
 
 increxpr   <- rule:next ((i:INCR {rule=unop(i, rule)})
                         /(d:DECR {rule=unop(d, rule)}))?
@@ -635,6 +654,7 @@ VOIDTYPE: "Void";
 VOIDPTR:  "VoidPtr";
 SIZEOF: "sizeof";
 NAMESPACE: "namespace";
+CUDAKERNEL: "cudakernel";
 
 // native|ccode
 NATIVE: (6, 11) {

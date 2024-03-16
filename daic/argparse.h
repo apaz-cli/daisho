@@ -7,8 +7,6 @@
 
 #include "types.h"
 
-#include "../stdlib/Daisho.h"
-
 static const char helpmsg[] =
     "daic - Compile Daisho to C.\n"
     "    daic [OPTION]... DAISHO_FILE [-o OUTPUT_PATH]                     \n"
@@ -27,13 +25,12 @@ static const char argparse_oom[] = "daic_argparse() out of memory.\n";
 
 // We use this after allocation error, knowing that it allocates and will fail.
 // When it does, it will set errfail.
-#define ARG_ERROR(...)                      \
-    do {                                    \
-        daic_arg_error(&args, __VA_ARGS__); \
-        daic_arg_error(&args, "\n");        \
-        if (!args.errstr)                   \
-            args.errstr = argparse_oom;     \
-        return args;                        \
+#define ARG_ERROR(...)                                       \
+    do {                                                     \
+        daic_arg_error(&args, __VA_ARGS__);                  \
+        daic_arg_error(&args, "\n");                         \
+        if (!args.errstr) args.errstr = (char*)argparse_oom; \
+        return args;                                         \
     } while (0)
 
 static inline int
@@ -155,12 +152,9 @@ daic_argparse(int argc, char** argv) {
 
 static inline void
 daic_argdestroy(Daic_Args* args) {
-    if (args->errstr && args->errstr != argparse_oom)
-        free(args->errstr);
-    if (args->target)
-        free(args->target);
-    if (args->outputfile)
-        free(args->outputfile);
+    if (args->errstr && args->errstr != argparse_oom) free(args->errstr);
+    if (args->target) free(args->target);
+    if (args->outputfile) free(args->outputfile);
     args->errstr = NULL;
     args->target = NULL;
     args->outputfile = NULL;

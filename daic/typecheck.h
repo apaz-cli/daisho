@@ -1,5 +1,6 @@
 #ifndef DAIC_TYPECHECK_INCLUDE
 #define DAIC_TYPECHECK_INCLUDE
+#include "list.h"
 #ifndef PGEN_UTF8_INCLUDED
 #include "daisho.peg.h"
 #endif
@@ -34,6 +35,10 @@ identifierString(DaicContext* ctx, Identifier* id) {
     char* mname = daic_cleanup_strdup(ctx, name);
     UTF8_FREE(name);
     return mname;
+}
+
+static inline PreMonoSymtab* findPreSymtab(daisho_astnode_t* n) {
+    return n->presymtab ? n->presymtab : findPreSymtab(n->parent);
 }
 
 static inline bool
@@ -298,7 +303,7 @@ extractNamespacesAndTLDs(DaicContext* ctx, daisho_astnode_t* root) {
                 d.kind = CFN_DECLKIND;
                 _Daic_List_Declaration_add(decls, d);
             } else if (tld->kind == DAISHO_NODE_FNDECL) {
-                Identifier id = nodeIdentifier(ctx, tld->children[1]);
+                Identifier id = nodeIdentifier(ctx, tld->children[2]);
                 FunctionDecl fd = {0};
                 Declaration d;
                 d.fndecl = fd;
@@ -340,30 +345,31 @@ printNamespaceTLDs(DaicContext* ctx) {
 }
 
 static inline void
-exprTypeVisit(DaicContext* ctx, daisho_astnode_t* n, daisho_astnode_t* ns) {
+exprTypeVisitPostMono(DaicContext* ctx, daisho_astnode_t* n, daisho_astnode_t* ns) {
     printf("Visiting kind: %s\n", daisho_nodekind_name[n->kind]);
     daisho_astnode_kind kind = n->kind;
     if (kind == DAISHO_NODE_PROGRAM) {
         // For each namespace in the nslist (skip the shebang)
         for (size_t i = 0; i < n->children[0]->num_children; i++)
-            exprTypeVisit(ctx, n->children[0]->children[i], NULL);
+            exprTypeVisitPostMono(ctx, n->children[0]->children[i], NULL);
     } else if (kind == DAISHO_NODE_NAMESPACE) {
         // For each nsdecl in the nsdecl list, pass the identifier as ns.
         for (size_t i = 0; i < n->children[1]->num_children; i++)
-            exprTypeVisit(ctx, n->children[1]->children[i], n->children[0]);
+            exprTypeVisitPostMono(ctx, n->children[1]->children[i], n->children[0]);
     } else if (kind == DAISHO_NODE_FNDECL) {
-        daisho_astnode_t* rettype = n->children[0];
-        daisho_astnode_t* name = n->children[1];
-        daisho_astnode_t* expand = n->children[2];
-        daisho_astnode_t* arglist = n->children[3];
-        daisho_astnode_t* expression = n->children[4];
-        exprTypeVisit(ctx, expression, ns);
+        daisho_astnode_t* fntype = n->children[0];
+        daisho_astnode_t* rettype = n->children[1];
+        daisho_astnode_t* name = n->children[2];
+        daisho_astnode_t* expand = n->children[3];
+        daisho_astnode_t* arglist = n->children[4];
+        daisho_astnode_t* expression = n->children[5];
+        exprTypeVisitPostMono(ctx, expression, ns);
     } else if (kind == DAISHO_NODE_CALL) {
         daisho_astnode_t* function = n->children[0];
         daisho_astnode_t* expand = n->children[1];
         daisho_astnode_t* exprlist = n->children[2];
         for (size_t i = 0; i < exprlist->num_children; i++)
-            exprTypeVisit(ctx, exprlist->children[i], ns);
+            exprTypeVisitPostMono(ctx, exprlist->children[i], ns);
     } else if (kind == DAISHO_NODE_CTYPE) {
         // Leaf
     } else if (kind == DAISHO_NODE_INTLIT || kind == DAISHO_NODE_TINTLIT ||
@@ -381,7 +387,20 @@ exprTypeVisit(DaicContext* ctx, daisho_astnode_t* n, daisho_astnode_t* ns) {
             _Daic_List_DaicErrorPtr_add(&ctx->errors, err);
         }
 
-    } else {
+    } else if (kind == DAISHO_NODE_THEN) {
+        daisho_astnode_t* first = n->children[0];
+        daisho_astnode_t* second = n->children[1];
+        
+    } else if (kind == DAISHO_NODE_ALSO) {
+        daisho_astnode_t* first = n->children[0];
+        daisho_astnode_t* second = n->children[1];
+    }
+    
+    // Node kinds that have nothing to do with expressions
+    else if (kind == DAISHO_NODE_CFN) {
+
+    }
+    else {
         printf("Error in type checking: Unknown astnode kind: %s\n", daisho_nodekind_name[n->kind]);
     }
 }
