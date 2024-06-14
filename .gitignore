@@ -10,5 +10,11 @@ compile_commands.json
 
 daic/daic
 
+python/bin
+python/include
+python/lib
+python/lib64
+python/pyvenv.cfg
+
 # Tokenizer reference materials
 **/Maximal-munch tokenization in linear time.pdf
