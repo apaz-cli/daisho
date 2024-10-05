@@ -60,7 +60,30 @@ class DaicArgs:
             color=color_output,
         )
 
-def parse_target(args: DaicArgs) -> dict | None:
+
+def print_ast(ast: dict):
+    import anytree
+    from anytree.node.anynode import AnyNode
+    import anytree.importer
+
+    class PrintNode(AnyNode):
+        def __repr__(self):
+            assert hasattr(self, "kind")
+            classname = self.kind # type: ignore
+
+            args = []
+            for key, value in filter(
+                lambda item: not item[0].startswith("_") and item[0] != "kind",
+                sorted(self.__dict__.items(), key=lambda item: item[0]),
+            ):
+                args.append(f"{key}={value}")
+            return f"{classname}({', '.join(args)})"
+
+    root = anytree.importer.DictImporter(nodecls=PrintNode).import_(ast)
+    print(anytree.RenderTree(root))
+
+
+def parse_target(args: DaicArgs) -> dict:
     with open(args.target, "r") as f:
         source = f.read()
     
@@ -75,18 +98,20 @@ def parse_target(args: DaicArgs) -> dict | None:
                 # TODO: Format
                 print(error, file=sys.stderr)
         else:
-            print("Error: No AST was generated.", file=sys.stderr)
+            print("Error: No AST was generated, and no specific error reported.", file=sys.stderr)
         sys.exit(1)
     
     if args.ast:
-        print(json.dumps(ast, indent=1))
+        print_ast(ast)
         sys.exit(0)
 
     return ast
 
+
 def main():
     args = DaicArgs.from_argv(sys.argv[1:])
-    parsed = parse_target(args)
+
+    ast: dict = parse_target(args)
     
     
 

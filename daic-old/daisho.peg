@@ -1,5 +1,5 @@
 
-// %include     "../stdlib/Daisho.h"
+%include     "../stdlib/Daisho.h"
 
 %precode      struct PreMonoSymtab;
 %precode      typedef struct PreMonoSymtab PreMonoSymtab;
@@ -262,7 +262,7 @@ ceqexpr    <- rule:next
                 else if (op->kind == kind(XOREQ)) rule=repr(node(EQ, rule, binop(repr(leaf(BNEQ), op),  rule, t)), op);
                 else if (op->kind == kind(BSREQ)) rule=repr(node(EQ, rule, binop(repr(leaf(BSR), op),   rule, t)), op);
                 else if (op->kind == kind(BSLEQ)) rule=repr(node(EQ, rule, binop(repr(leaf(BSL), op),   rule, t)), op);
-                else Py_UNREACHABLE()
+                else _DAI_UNREACHABLE()
               })*
 
 logorexpr  <- rule:next (lo:LOGOR  n:next {rule=binop(lo, rule, n)})*

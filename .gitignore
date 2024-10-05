@@ -8,16 +8,16 @@ compile_commands.json
 **/*.swp
 **/infer-out/**
 
+# Object files
 *.so
 *.o
 
-daic/daic
-
-python/bin
-python/include
-python/lib
-python/lib64
-python/pyvenv.cfg
+# Python venv
+bin
+include
+lib
+lib64
+pyvenv.cfg
 
 # Tokenizer reference materials
 **/Maximal-munch tokenization in linear time.pdf
