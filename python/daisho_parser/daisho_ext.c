@@ -67,6 +67,7 @@ static PyObject *ast_to_python_dict(daisho_astnode_t *node) {
 }
 
 static PyObject *daisho_ext_parse_program(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -183,6 +184,7 @@ static PyObject *daisho_ext_parse_program(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_namespace(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -299,6 +301,7 @@ static PyObject *daisho_ext_parse_namespace(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_topdecl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -415,6 +418,7 @@ static PyObject *daisho_ext_parse_topdecl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_structdecl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -531,6 +535,7 @@ static PyObject *daisho_ext_parse_structdecl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_uniondecl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -647,6 +652,7 @@ static PyObject *daisho_ext_parse_uniondecl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_traitdecl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -763,6 +769,7 @@ static PyObject *daisho_ext_parse_traitdecl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_impldecl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -879,6 +886,7 @@ static PyObject *daisho_ext_parse_impldecl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_ctypedecl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -995,6 +1003,7 @@ static PyObject *daisho_ext_parse_ctypedecl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_cfndecl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -1111,6 +1120,7 @@ static PyObject *daisho_ext_parse_cfndecl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_fndecl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -1227,6 +1237,7 @@ static PyObject *daisho_ext_parse_fndecl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_fnproto(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -1343,6 +1354,7 @@ static PyObject *daisho_ext_parse_fnproto(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_fnkw(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -1459,6 +1471,7 @@ static PyObject *daisho_ext_parse_fnkw(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_fnmember(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -1575,6 +1588,7 @@ static PyObject *daisho_ext_parse_fnmember(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_stunmembers(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -1691,6 +1705,7 @@ static PyObject *daisho_ext_parse_stunmembers(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_trimmembers(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -1807,6 +1822,7 @@ static PyObject *daisho_ext_parse_trimmembers(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_varmembers(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -1923,6 +1939,7 @@ static PyObject *daisho_ext_parse_varmembers(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_tmplexpand(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -2039,6 +2056,7 @@ static PyObject *daisho_ext_parse_tmplexpand(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_kdim(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -2155,6 +2173,7 @@ static PyObject *daisho_ext_parse_kdim(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_kexpand(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -2271,6 +2290,7 @@ static PyObject *daisho_ext_parse_kexpand(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_returntype(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -2387,6 +2407,7 @@ static PyObject *daisho_ext_parse_returntype(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_type(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -2503,6 +2524,7 @@ static PyObject *daisho_ext_parse_type(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_fntype(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -2619,6 +2641,7 @@ static PyObject *daisho_ext_parse_fntype(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_ptrtype(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -2735,6 +2758,7 @@ static PyObject *daisho_ext_parse_ptrtype(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_basetype(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -2851,6 +2875,7 @@ static PyObject *daisho_ext_parse_basetype(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_tupletype(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -2967,6 +2992,7 @@ static PyObject *daisho_ext_parse_tupletype(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_voidptr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -3083,6 +3109,7 @@ static PyObject *daisho_ext_parse_voidptr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_typelist(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -3199,6 +3226,7 @@ static PyObject *daisho_ext_parse_typelist(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_exprlist(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -3315,6 +3343,7 @@ static PyObject *daisho_ext_parse_exprlist(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_fnarg(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -3431,6 +3460,7 @@ static PyObject *daisho_ext_parse_fnarg(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_arglist(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -3547,6 +3577,7 @@ static PyObject *daisho_ext_parse_arglist(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_protoarg(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -3663,6 +3694,7 @@ static PyObject *daisho_ext_parse_protoarg(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_protoarglist(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -3779,6 +3811,7 @@ static PyObject *daisho_ext_parse_protoarglist(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_expr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -3895,6 +3928,7 @@ static PyObject *daisho_ext_parse_expr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_preretexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -4011,6 +4045,7 @@ static PyObject *daisho_ext_parse_preretexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_forexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -4127,6 +4162,7 @@ static PyObject *daisho_ext_parse_forexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_whileexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -4243,6 +4279,7 @@ static PyObject *daisho_ext_parse_whileexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_preifexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -4359,6 +4396,7 @@ static PyObject *daisho_ext_parse_preifexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_ternexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -4475,6 +4513,7 @@ static PyObject *daisho_ext_parse_ternexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_thenexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -4591,6 +4630,7 @@ static PyObject *daisho_ext_parse_thenexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_alsoexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -4707,6 +4747,7 @@ static PyObject *daisho_ext_parse_alsoexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_ceqexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -4823,6 +4864,7 @@ static PyObject *daisho_ext_parse_ceqexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_logorexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -4939,6 +4981,7 @@ static PyObject *daisho_ext_parse_logorexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_logandexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -5055,6 +5098,7 @@ static PyObject *daisho_ext_parse_logandexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_binorexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -5171,6 +5215,7 @@ static PyObject *daisho_ext_parse_binorexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_binxorexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -5287,6 +5332,7 @@ static PyObject *daisho_ext_parse_binxorexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_binandexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -5403,6 +5449,7 @@ static PyObject *daisho_ext_parse_binandexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_deneqexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -5519,6 +5566,7 @@ static PyObject *daisho_ext_parse_deneqexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_cmpexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -5635,6 +5683,7 @@ static PyObject *daisho_ext_parse_cmpexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_shfexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -5751,6 +5800,7 @@ static PyObject *daisho_ext_parse_shfexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_sumexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -5867,6 +5917,7 @@ static PyObject *daisho_ext_parse_sumexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_multexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -5983,6 +6034,7 @@ static PyObject *daisho_ext_parse_multexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_accexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -6099,6 +6151,7 @@ static PyObject *daisho_ext_parse_accexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_dotexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -6215,6 +6268,7 @@ static PyObject *daisho_ext_parse_dotexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_refexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -6331,6 +6385,7 @@ static PyObject *daisho_ext_parse_refexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_castexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -6447,6 +6502,7 @@ static PyObject *daisho_ext_parse_castexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_callexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -6563,6 +6619,7 @@ static PyObject *daisho_ext_parse_callexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_increxpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -6679,6 +6736,7 @@ static PyObject *daisho_ext_parse_increxpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_notexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -6795,6 +6853,7 @@ static PyObject *daisho_ext_parse_notexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_atomexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -6911,6 +6970,7 @@ static PyObject *daisho_ext_parse_atomexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_blockexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -7027,6 +7087,7 @@ static PyObject *daisho_ext_parse_blockexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_nsexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -7143,6 +7204,7 @@ static PyObject *daisho_ext_parse_nsexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_lambdaexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -7259,6 +7321,7 @@ static PyObject *daisho_ext_parse_lambdaexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_listcomp(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -7375,6 +7438,7 @@ static PyObject *daisho_ext_parse_listcomp(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_parenexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -7491,6 +7555,7 @@ static PyObject *daisho_ext_parse_parenexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_listlit(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -7607,6 +7672,7 @@ static PyObject *daisho_ext_parse_listlit(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_tuplelit(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -7723,6 +7789,7 @@ static PyObject *daisho_ext_parse_tuplelit(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_vardeclexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -7839,6 +7906,7 @@ static PyObject *daisho_ext_parse_vardeclexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_strlit(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -7955,6 +8023,7 @@ static PyObject *daisho_ext_parse_strlit(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_sstrlit(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -8071,6 +8140,7 @@ static PyObject *daisho_ext_parse_sstrlit(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_fstrlit(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -8187,6 +8257,7 @@ static PyObject *daisho_ext_parse_fstrlit(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_fstrfrag(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -8303,6 +8374,7 @@ static PyObject *daisho_ext_parse_fstrfrag(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_sizeofexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -8419,6 +8491,7 @@ static PyObject *daisho_ext_parse_sizeofexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_number(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -8535,6 +8608,7 @@ static PyObject *daisho_ext_parse_number(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_nativeexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -8651,6 +8725,7 @@ static PyObject *daisho_ext_parse_nativeexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_cident(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -8767,6 +8842,7 @@ static PyObject *daisho_ext_parse_cident(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_bsl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -8883,6 +8959,7 @@ static PyObject *daisho_ext_parse_bsl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_bsr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -8999,6 +9076,7 @@ static PyObject *daisho_ext_parse_bsr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_semiornl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -9115,6 +9193,7 @@ static PyObject *daisho_ext_parse_semiornl(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_overloadable(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -9231,6 +9310,7 @@ static PyObject *daisho_ext_parse_overloadable(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_noexpr(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -9347,6 +9427,7 @@ static PyObject *daisho_ext_parse_noexpr(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_wcomma(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -9463,6 +9544,7 @@ static PyObject *daisho_ext_parse_wcomma(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_nocomma(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -9579,6 +9661,7 @@ static PyObject *daisho_ext_parse_nocomma(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_wsemi(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -9695,6 +9778,7 @@ static PyObject *daisho_ext_parse_wsemi(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_nosemi(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;
@@ -9811,6 +9895,7 @@ static PyObject *daisho_ext_parse_nosemi(PyObject *self, PyObject *args) {
 }
 
 static PyObject *daisho_ext_parse_wsemiornl(PyObject *self, PyObject *args) {
+  (void)self;
 
   // Extract args
   const char *input_str;

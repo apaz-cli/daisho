@@ -8,6 +8,9 @@ compile_commands.json
 **/*.swp
 **/infer-out/**
 
+*.so
+*.o
+
 daic/daic
 
 python/bin
